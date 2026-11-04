@@ -1193,7 +1193,7 @@ export const Ev26Preview = () => (
 
 
 /* ================================================================
- * ⑨ Sports 列表 · 直播与直播预告（EV-36 … EV-45，CPO 2026-11-04）
+ * ⑨ Sports 列表 · 直播与直播预告（EV-36 … EV-46，CPO 2026-11-04）
  * 桌面帧 = 品类页 LiteSportsView，375 帧 = MobileSportsModule filters（品类页手机形态）。
  * 全部挂冻结时钟 FROZEN_NOW；视频用 SP-L 同一条测试流；Remind me 用 fixture（不碰库）。
  * ================================================================ */
@@ -1273,7 +1273,7 @@ const StreamsDemo = ({
   matches: SportsMatch[];
   reminded?: string[];
   guest?: boolean;
-  streamFixture?: "loading" | "blocked";
+  streamFixture?: "loading" | "blocked" | "error";
 }) => {
   const isMobile = useIsMobile();
   const fx = reminded ?? [];
@@ -1313,6 +1313,8 @@ export const Ev37bPreview = () => (
 );
 export const Ev38Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="loading" /></Stage>;
 export const Ev39Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="blocked" /></Stage>;
+/** The only stream fails → it leaves the stage; Spirit vs MOUZ drops into Playing now. */
+export const Ev46Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="error" /></Stage>;
 export const Ev40Preview = () => <Stage><StreamsDemo matches={PREVIEW_ONE} /></Stage>;
 export const Ev41Preview = () => <Stage><StreamsDemo matches={PREVIEW_TWO} /></Stage>;
 export const Ev42Preview = () => <Stage><StreamsDemo matches={PREVIEW_MANY} /></Stage>;

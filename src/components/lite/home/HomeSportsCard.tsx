@@ -140,7 +140,7 @@ const LiveCard = ({
       <MobileCornerStreamButton
         size={28}
         solid
-        label="Watch live"
+        label={t("events.screen.simple.sports_view.sports_streams.watch_live")}
         onClick={(e) => {
           e.stopPropagation();
           onOpen(m.id);
@@ -240,7 +240,7 @@ const MobileUpcomingCard = ({
         <MobileCornerStreamButton
           size={26}
           solid={false}
-          label="Stream at kickoff"
+          label={t("events.screen.simple.sports_view.sports_streams.stream_at_kickoff")}
           onClick={(e) => {
             e.stopPropagation();
             onOpen(m.id);

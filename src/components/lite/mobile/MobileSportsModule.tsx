@@ -9,7 +9,9 @@ import {
   SportsMatch,
   isUpcoming,
   kickoffLabel,
+  liveAt,
 } from "@/components/lite/sports/sportsData";
+import { useStreamLineup } from "@/components/lite/sports/streamLineup";
 import {
   ALL_OPTION,
   filterMatches,
@@ -33,6 +35,8 @@ import {
   useNowTick,
 } from "@/components/lite/sports/UpcomingStreams";
 import { useStreamReminders } from "@/hooks/useStreamReminders";
+
+const SK = "events.screen.simple.sports_view.sports_streams";
 
 const MICRO: React.CSSProperties = {
   fontSize: 9,
@@ -104,9 +108,12 @@ const liveClock = (m: SportsMatch) =>
 const MobileLiveStreamStage = ({
   streams,
   streamFixture,
+  onFail,
 }: {
   streams: SportsMatch[];
-  streamFixture?: "loading" | "blocked";
+  streamFixture?: "loading" | "blocked" | "error";
+  /** The player can't play this match's stream — take it off the stage. */
+  onFail: (id: string) => void;
 }) => {
   const navigate = useNavigate();
   const [activeId, setActiveId] = useState(streams[0].id);
@@ -126,7 +133,7 @@ const MobileLiveStreamStage = ({
         boxShadow: "0 14px 36px -22px rgba(255,138,61,.4)",
       }}
     >
-      <ListStreamVideo src={m.streamUrl as string} onOpen={open} compact fixture={streamFixture} />
+      <ListStreamVideo key={m.id} src={m.streamUrl as string} onOpen={open} onFail={() => onFail(m.id)} compact fixture={streamFixture} />
       {streams.length > 1 && (
         <div
           className="flex items-center"
@@ -278,7 +285,7 @@ const MobilePreviewCard = ({
             <StackedChip key={o.id} label={chipLabel(m, o.label, i)} price={o.price} tone={outcomeTone(o.label, i, m.options.length)} onClick={pick(o.id)} />
           ))}
         </div>
-        <RemindButton on={reminded} onToggle={onRemind} height={34} grow />
+        <RemindButton on={reminded} onToggle={onRemind} height={34} />
       </div>
     </div>
   );
@@ -448,7 +455,7 @@ const UpcomingMatchCard = ({ match }: { match: SportsMatch }) => {
             size={26}
             solid={false}
             placement="inline"
-            label="Stream at kickoff"
+            label={t(`${SK}.stream_at_kickoff`)}
             onClick={(e) => {
               e.stopPropagation();
               open();
@@ -494,8 +501,8 @@ export const MobileSportsModule = ({
   remindedFixture?: string[];
   /** Style-guide only — Remind me behaves as for a guest (opens sign-in). */
   remindGuestFixture?: boolean;
-  /** Style-guide only — freeze the stage player (loading / autoplay blocked). */
-  streamFixture?: "loading" | "blocked";
+  /** Style-guide only — freeze the stage player (loading / autoplay blocked / stream failed). */
+  streamFixture?: "loading" | "blocked" | "error";
 }) => {
   const [sport, setSport] = useState<string>(ALL_OPTION);
   const [league, setLeague] = useState<string>(ALL_OPTION);
@@ -513,15 +520,19 @@ export const MobileSportsModule = ({
   );
   const boostEmpty = !!filters && !!boostOnly && !boostEnabled;
 
-  const live = scoped.filter((m) => m.live);
-  const streamed = live.filter((m) => !!m.streamUrl).sort((a, b) => b.volume - a.volume);
   const nowTick = useNowTick(now);
+  // Category view: live matches split into the stage (playable stream) and
+  // Playing now (the rest). The home module has no stage — all live is one list.
+  const { live, streamed, others: playingNow, markFailed } = useStreamLineup(scoped, nowTick);
+  // Style-guide frames (frozen clock) keep their stage whatever the network
+  // does; only fixture "error" demonstrates a stream leaving the stage.
+  const onStreamFail = now == null || streamFixture === "error" ? markFailed : () => undefined;
   const reminders = useStreamReminders(remindedFixture, remindGuestFixture);
   const previews = filters ? upcomingStreams(scoped, nowTick) : [];
   // Previews always live in the rail (CPO 2026-11-04: no preview stage).
   const rail = previews;
   const upcoming = scoped
-    .filter((m) => !m.live && isUpcoming(m, nowTick))
+    .filter((m) => !liveAt(m, nowTick) && isUpcoming(m, nowTick))
     .sort(
       (a, b) => (a.kickoff?.getTime() ?? Infinity) - (b.kickoff?.getTime() ?? Infinity),
     );
@@ -555,17 +566,32 @@ export const MobileSportsModule = ({
         {!boostEmpty && (
         <span className="flex items-center" style={{ gap: 8, paddingTop: 2 }}>
           {live.length > 0 ? (
-            <span
-              className="flex items-center"
-              style={{ ...CHIP, gap: 6, color: "#fff", fontWeight: 700 }}
-            >
-              <LivePulse size={5} color="#FF3B4E" />
-              {live.length} playing now
-            </span>
+            // Category view: one chip per live section, same numbers as the
+            // section heads (on stream = stage, playing now = Playing now cards).
+            (filters
+              ? [
+                  streamed.length > 0 ? t(`${SK}.on_stream`, { count: streamed.length }) : null,
+                  playingNow.length > 0
+                    ? t("events.screen.simple.mobile_all_stage.mobile_sports_module.playing_now", { count: playingNow.length })
+                    : null,
+                ]
+              : [t("events.screen.simple.mobile_all_stage.mobile_sports_module.playing_now", { count: live.length })]
+            )
+              .filter((label): label is string => !!label)
+              .map((label) => (
+                <span
+                  key={label}
+                  className="flex items-center"
+                  style={{ ...CHIP, gap: 6, color: "#fff", fontWeight: 700 }}
+                >
+                  <LivePulse size={5} color="#FF3B4E" />
+                  {label}
+                </span>
+              ))
           ) : (
             <span style={CHIP}>{t("events.screen.simple.sports_view.sports_vertical_chrome.nothing_playing")}</span>
           )}
-          <span style={CHIP}>{weekCount} this week</span>
+          <span style={CHIP}>{t("events.screen.simple.mobile_all_stage.mobile_sports_module.this_week", { count: weekCount })}</span>
         </span>
         )}
       </div>
@@ -629,13 +655,13 @@ export const MobileSportsModule = ({
       {/* Priority: live on stream → coming up on stream → other live matches → ledger. */}
       {filters && streamed.length > 0 && (
         <>
-          <MobileSectionHead live label={`Live on stream · ${streamed.length}`} />
-          <MobileLiveStreamStage streams={streamed} streamFixture={streamFixture} />
+          <MobileSectionHead live label={t(`${SK}.live_on_stream`, { count: streamed.length })} />
+          <MobileLiveStreamStage streams={streamed} streamFixture={streamFixture} onFail={onStreamFail} />
         </>
       )}
       {filters && rail.length > 0 && (
         <>
-          <MobileSectionHead label={`Coming up on stream · ${rail.length}`} aside="Next 48 hours" />
+          <MobileSectionHead label={t(`${SK}.coming_up`, { count: rail.length })} aside={t(`${SK}.next_48_hours`)} />
           <div
             key={rail[0].id}
             className="flex"
@@ -658,10 +684,10 @@ export const MobileSportsModule = ({
           </div>
         </>
       )}
-      {filters && live.some((m) => !m.streamUrl) && (
-        <MobileSectionHead live label={`Playing now · ${live.filter((m) => !m.streamUrl).length}`} />
+      {filters && playingNow.length > 0 && (
+        <MobileSectionHead live label={t("events.screen.simple.sports_view.sports_vertical.playing_now", { count: playingNow.length })} />
       )}
-      {(filters ? live.filter((m) => !m.streamUrl) : live.slice(0, 1)).map((m) => (
+      {(filters ? playingNow : live.slice(0, 1)).map((m) => (
         <LiveMatchCard key={m.id} match={m} />
       ))}
 

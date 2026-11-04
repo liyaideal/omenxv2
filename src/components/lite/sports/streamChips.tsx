@@ -6,6 +6,9 @@
 // Rendered only when the match carries metadata.stream_url.
 // ============================================================
 import { MUTED, ORANGE } from "@/components/lite/home/homeShell";
+import { t } from "@/i18n";
+
+const SK = "events.screen.simple.sports_view.sports_streams";
 
 const INK = "#2A1200";
 
@@ -44,7 +47,7 @@ export const WatchLiveChip = ({ onClick }: { onClick: (e: React.MouseEvent) => v
     }}
   >
     <PlayTriangle />
-    Watch live
+    {t(`${SK}.watch_live`)}
   </button>
 );
 
@@ -67,7 +70,7 @@ export const StreamAtKickoffChip = () => (
     }}
   >
     <PlayTriangle />
-    Stream at kickoff
+    {t(`${SK}.stream_at_kickoff`)}
   </span>
 );
 

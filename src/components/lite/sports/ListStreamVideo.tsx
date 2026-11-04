@@ -4,9 +4,17 @@
 // One player per page: the stage swaps `src`, it never mounts a
 // second <video>. Score never renders here — the panel next to /
 // under the video owns it (one number, one renderer).
+// Off screen or in a background tab the player pauses (no data
+// burnt on a picture nobody sees); back in view it resumes at the
+// live edge. error / forbidden → onFail, and the stage drops that
+// stream (CPO 2026-11-04).
 // ============================================================
+import { useEffect, useRef } from "react";
 import { useHlsVideo } from "@/hooks/useHlsVideo";
+import { t } from "@/i18n";
 import { PlayTriangle } from "./streamChips";
+
+const K = "events.screen.simple.sports_view.sports_streams";
 
 const ORANGE = "#FF8A3D";
 const INK = "#2A1200";
@@ -63,21 +71,67 @@ const RoundBtn = ({
 export const ListStreamVideo = ({
   src,
   onOpen,
+  onFail,
   compact,
   fixture,
 }: {
   src: string;
   onOpen: () => void;
+  /** The stream can't play (error / forbidden) — the stage takes it off. */
+  onFail?: () => void;
   compact?: boolean;
   /** Style-guide only: freeze the player in one state, no HLS attached. Not passed in production. */
-  fixture?: "loading" | "blocked";
+  fixture?: "loading" | "blocked" | "error";
 }) => {
   const hls = useHlsVideo(src, !fixture);
-  const { ref, muted, setMuted, play } = hls;
+  const { ref, muted, setMuted, play, pause } = hls;
   const state = fixture ?? hls.state;
   const busy = state === "idle" || state === "loading" || state === "buffering";
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  // Report a dead stream once. The stage keys this player by match, so a new
+  // stream always starts from a fresh state.
+  const failedRef = useRef(false);
+  useEffect(() => {
+    if ((state === "error" || state === "forbidden") && !failedRef.current) {
+      failedRef.current = true;
+      onFail?.();
+    }
+  }, [state, onFail]);
+
+  // Pause while off screen / in a background tab; resume at the live edge.
+  useEffect(() => {
+    const box = boxRef.current;
+    if (fixture || !box) return;
+    let inView = true;
+    const video = () => box.querySelector("video");
+    const apply = () => {
+      if (inView && !document.hidden) play();
+      else pause();
+    };
+    // Autoplay can start after we already decided to hold it.
+    const holdIfHidden = () => {
+      if (!inView || document.hidden) video()?.pause();
+    };
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting === inView) return;
+      inView = e.isIntersecting;
+      apply();
+    });
+    io.observe(box);
+    document.addEventListener("visibilitychange", apply);
+    const v = video();
+    v?.addEventListener("playing", holdIfHidden);
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", apply);
+      v?.removeEventListener("playing", holdIfHidden);
+    };
+  }, [fixture, play, pause]);
+
   return (
     <div
+      ref={boxRef}
       role="button"
       tabIndex={0}
       onClick={onOpen}
@@ -101,11 +155,11 @@ export const ListStreamVideo = ({
         }}
       />
       <div className="absolute flex items-center" style={{ left: compact ? 10 : 14, top: compact ? 10 : 14, gap: 8 }}>
-        <LivePill label="LIVE" />
+        <LivePill label={t("common.live")} />
       </div>
       <div className="absolute flex items-center" style={{ right: compact ? 10 : 14, bottom: compact ? 10 : 14, gap: 8 }}>
         <RoundBtn
-          label={muted ? "Unmute" : "Mute"}
+          label={muted ? t(`${K}.unmute`) : t(`${K}.mute`)}
           onClick={(e) => {
             e.stopPropagation();
             setMuted(!muted);
@@ -136,7 +190,7 @@ export const ListStreamVideo = ({
       {(state === "blocked" || state === "paused") && (
         <button
           type="button"
-          aria-label="Play"
+          aria-label={t(`${K}.play`)}
           onClick={(e) => {
             e.stopPropagation();
             play();

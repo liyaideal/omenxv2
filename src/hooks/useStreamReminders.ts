@@ -5,6 +5,10 @@
 // one `system.stream_live` notification (Notifications → Updates).
 // Guests: the tap calls the global sign-in prompt (AuthPromptHost: the standard
 // AuthDialog on desktop, AuthSheet on mobile); nothing is stored locally.
+// Writes are idempotent: setting a reminder that already exists (a tap before
+// the first read lands, a second device) is a no-op, never an error.
+// The server only accepts a reminder for a match that has a stream, has not
+// kicked off and kicks off within 48h (RLS insert check).
 // `fixture` (style-guide only) seeds the set and keeps every toggle local —
 // no auth, no DB; `guestFixture` makes every tap open sign-in as for a guest.
 // Neither is passed in production.
@@ -14,6 +18,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
+import { t } from "@/i18n";
 
 const db = () => (supabase as any).from("stream_reminders");
 
@@ -67,11 +72,16 @@ export const useStreamReminders = (fixture?: string[], guestFixture?: boolean) =
       }
       flip(eventId, on); // optimistic
       const { error } = on
-        ? await db().insert({ user_id: user.id, event_id: eventId })
+        ? await db().upsert(
+            { user_id: user.id, event_id: eventId },
+            { onConflict: "user_id,event_id", ignoreDuplicates: true },
+          )
         : await db().delete().eq("user_id", user.id).eq("event_id", eventId);
       if (error) {
         flip(eventId, !on);
-        toast.error("Couldn't update the reminder", { description: "Please try again." });
+        toast.error(t("events.screen.simple.sports_view.sports_streams.remind_error_title"), {
+          description: t("events.screen.simple.sports_view.sports_streams.remind_error_body"),
+        });
       }
     },
     [ids, fixture, guestFixture, user, openAuthPrompt],

@@ -2,6 +2,7 @@
 // Sports module — data layer.
 // Reads SPORTS_MATCH contract events. Display-only; no writes.
 // ============================================================
+import { t } from "@/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SPORT_SEGMENTS, SPORT_FALLBACK, ordinal } from "@/lib/sportSegments";
@@ -372,8 +373,8 @@ export const useSportsMatches = () => {
   const [clock, setClock] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setClock((n) => n + 1), 30_000);
-    return () => clearInterval(t);
+    const id = setInterval(() => setClock((n) => n + 1), 30_000);
+    return () => clearInterval(id);
   }, []);
 
   useEffect(() => {
@@ -446,6 +447,19 @@ export const useSportsMatches = () => {
     };
   }, [clock]);
 
+  // A kickoff inside the next 30s refreshes right after it, so the match that
+  // just went live gets its clock / score without waiting for the next poll.
+  useEffect(() => {
+    const now = Date.now();
+    const next = rows
+      .map((r) => r.kickoff?.getTime() ?? Infinity)
+      .filter((k) => k > now)
+      .reduce((a, b) => Math.min(a, b), Infinity);
+    if (!Number.isFinite(next) || next - now > 30_000) return;
+    const id = window.setTimeout(() => setClock((n) => n + 1), next - now + 1500);
+    return () => window.clearTimeout(id);
+  }, [rows]);
+
   const live = useMemo(() => rows.filter((r) => r.live), [rows]);
   const upcoming = useMemo(
     () =>
@@ -468,6 +482,18 @@ export const useSportsMatches = () => {
  */
 export const isUpcoming = (m: SportsMatch, now: number = Date.now()) =>
   !!m.kickoff && m.kickoff.getTime() > now;
+
+/**
+ * In play at `now`, re-derived every tick instead of only at fetch time, so a
+ * match leaves the preview rail and joins the live sections in the same second
+ * (CPO 2026-11-04). Same rule as isFixtureLive (kickoff ≤ now < end). A row
+ * fetched as live stays live until the next fetch drops it (≤ 30s).
+ */
+export const liveAt = (m: SportsMatch, now: number = Date.now()) => {
+  if (m.live) return true;
+  if (!m.kickoff || !m.endDate) return false;
+  return m.kickoff.getTime() <= now && now < m.endDate.getTime();
+};
 
 const DAY_MS = 86_400_000;
 const startOfDay = (d: Date) =>
@@ -568,6 +594,8 @@ const dayTitle = (d: Date) =>
 export const buildDayGroups = (
   rows: SportsMatch[],
   now: number = Date.now(),
+  /** Sports category view: a live match counts as "on stream" when this says so. */
+  isOnStream?: (m: SportsMatch) => boolean,
 ): DayGroup[] => {
   const today = startOfDay(new Date(now));
   const byDay = new Map<number, SportsMatch[]>();
@@ -580,22 +608,35 @@ export const buildDayGroups = (
     .sort((a, b) => a[0] - b[0])
     .map(([k, all]) => {
       const list = all
-        .filter((m) => !m.live)
+        .filter((m) => !liveAt(m, now))
         .sort(
           (a, b) =>
             (a.kickoff?.getTime() ?? 0) - (b.kickoff?.getTime() ?? 0),
         );
-      const liveCount = rows.filter(
-        (m) => m.live && m.kickoff && startOfDay(m.kickoff) === k,
-      ).length;
+      const liveToday = rows.filter(
+        (m) => liveAt(m, now) && m.kickoff && startOfDay(m.kickoff) === k,
+      );
+      const onStream = isOnStream ? liveToday.filter(isOnStream).length : 0;
+      const playing = liveToday.length - onStream;
+      // Same words, same numbers as the section heads above the ledger:
+      // "on stream" = the stage, "playing now" = the Playing now cards.
+      const todayNote = [
+        onStream > 0 ? t("events.screen.simple.sports_view.sports_streams.on_stream", { count: onStream }) : null,
+        playing > 0 || onStream === 0
+          ? t("events.screen.simple.mobile_all_stage.mobile_sports_module.playing_now", { count: playing })
+          : null,
+        t("events.screen.simple.sports_view.sports_streams.to_come", { count: list.length }),
+      ]
+        .filter(Boolean)
+        .join(" · ");
       const d = new Date(k);
       const isToday = k === today;
       return {
         key: k,
         label: isToday ? `Today · ${dayTitle(d)}` : dayTitle(d),
         note: isToday
-          ? `${liveCount} playing now · ${list.length} to come`
-          : `${all.length} ${all.length === 1 ? "match" : "matches"}`,
+          ? todayNote
+          : t("events.screen.simple.sports_view.sports_vertical.match_count", { count: all.length }),
         matches: list,
       };
     })

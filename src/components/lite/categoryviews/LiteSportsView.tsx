@@ -7,6 +7,7 @@
 import { t } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import {
   DayBucket,
   SportsMatch,
@@ -15,8 +16,10 @@ import {
   compactVolume,
   isUpcoming,
   kickoffCell,
+  liveAt,
   matchesInBucket,
 } from "@/components/lite/sports/sportsData";
+import { useStreamLineup } from "@/components/lite/sports/streamLineup";
 import { MatchScoreText, isTennisTiebreakLive, phaseLabel } from "@/components/lite/sports/tennisScore";
 import {
   ALL_OPTION,
@@ -39,6 +42,8 @@ import {
   useNowTick,
 } from "@/components/lite/sports/UpcomingStreams";
 import { useStreamReminders } from "@/hooks/useStreamReminders";
+
+const SK = "events.screen.simple.sports_view.sports_streams";
 
 
 
@@ -230,11 +235,14 @@ const LiveStreamStage = ({
   streamFixture,
   onOpen,
   onPick,
+  onFail,
 }: {
   streams: SportsMatch[];
-  streamFixture?: "loading" | "blocked";
+  streamFixture?: "loading" | "blocked" | "error";
   onOpen: (id: string) => () => void;
   onPick: (id: string) => (optionId: string) => (e: React.MouseEvent) => void;
+  /** The player can't play this match's stream — take it off the stage. */
+  onFail: (id: string) => void;
 }) => {
   const [activeId, setActiveId] = useState(streams[0].id);
   const m = streams.find((x) => x.id === activeId) ?? streams[0];
@@ -250,7 +258,7 @@ const LiveStreamStage = ({
     >
       <div className="flex">
         <div style={{ flex: "0 0 58%" }}>
-          <ListStreamVideo src={m.streamUrl as string} onOpen={onOpen(m.id)} fixture={streamFixture} />
+          <ListStreamVideo key={m.id} src={m.streamUrl as string} onOpen={onOpen(m.id)} onFail={() => onFail(m.id)} fixture={streamFixture} />
         </div>
         <div className="flex min-w-0 flex-1 flex-col justify-between" style={{ padding: "22px 24px 20px" }}>
           <div className="flex items-center justify-between" style={{ gap: 10 }}>
@@ -308,13 +316,15 @@ const LiveStreamStage = ({
               ))}
             </div>
             <div className="flex items-center justify-between" style={{ fontSize: 11, color: "#6B7280" }}>
-              <span style={{ fontVariantNumeric: "tabular-nums" }}>{compactVolume(m.volume)} traded</span>
+              <span style={{ fontVariantNumeric: "tabular-nums" }}>{t(`${SK}.traded`, { volume: compactVolume(m.volume) })}</span>
               <button
                 type="button"
                 onClick={onOpen(m.id)}
-                style={{ color: "#fff", fontWeight: 600, fontSize: 12 }}
+                className="inline-flex items-center"
+                style={{ gap: 4, color: "#fff", fontWeight: 600, fontSize: 12 }}
               >
-                Open match →
+                {t(`${SK}.open_match`)}
+                <ArrowRight size={12} strokeWidth={2.2} />
               </button>
             </div>
           </div>
@@ -330,7 +340,7 @@ const LiveStreamStage = ({
             className="flex-none"
             style={{ fontSize: 9.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "#6B7280", fontWeight: 700, marginRight: 4 }}
           >
-            Live streams · {streams.length}
+            {t(`${SK}.live_streams`, { count: streams.length })}
           </span>
           {streams.map((x) => {
             const on = x.id === m.id;
@@ -443,7 +453,7 @@ const PreviewCardWide = ({
           />
         ))}
       </div>
-      <RemindButton on={reminded} onToggle={onRemind} height={34} grow />
+      <RemindButton on={reminded} onToggle={onRemind} height={34} />
     </div>
   </div>
 );
@@ -495,7 +505,7 @@ const PreviewCard = ({
           />
         ))}
       </div>
-      <RemindButton on={reminded} onToggle={onRemind} height={34} grow />
+      <RemindButton on={reminded} onToggle={onRemind} height={34} />
     </div>
   </div>
 );
@@ -538,7 +548,7 @@ const PreviewRail = ({
   const Arrow = ({ dir, on }: { dir: 1 | -1; on: boolean }) => (
     <button
       type="button"
-      aria-label={dir === 1 ? "Next" : "Previous"}
+      aria-label={dir === 1 ? t(`${SK}.rail_next`) : t(`${SK}.rail_prev`)}
       disabled={!on}
       onClick={() => go(dir)}
       className="flex items-center justify-center"
@@ -562,9 +572,9 @@ const PreviewRail = ({
         <div className="flex items-center" style={{ gap: 9 }}>
           <span style={{ color: "#FF8A3D", display: "flex" }}><PlayTriangle /></span>
           <span style={{ fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "#fff", fontWeight: 700 }}>
-            Coming up on stream · {count}
+            {t(`${SK}.coming_up`, { count })}
           </span>
-          <span style={{ fontSize: 11, color: "#6B7280" }}>Next 48 hours</span>
+          <span style={{ fontSize: 11, color: "#6B7280" }}>{t(`${SK}.next_48_hours`)}</span>
         </div>
         {(edge.prev || edge.next) && (
           <div className="flex items-center" style={{ gap: 6 }}>
@@ -710,8 +720,8 @@ export const LiteSportsView = ({
   remindedFixture?: string[];
   /** Style-guide only — Remind me behaves as for a guest (opens sign-in). */
   remindGuestFixture?: boolean;
-  /** Style-guide only — freeze the stage player (loading / autoplay blocked). */
-  streamFixture?: "loading" | "blocked";
+  /** Style-guide only — freeze the stage player (loading / autoplay blocked / stream failed). */
+  streamFixture?: "loading" | "blocked" | "error";
 }) => {
   const navigate = useNavigate();
   const [bucket, setBucket] = useState("all");
@@ -735,17 +745,16 @@ export const LiteSportsView = ({
   );
   const boostEmpty = !!boostOnly && !boostEnabled;
 
-  const live = useMemo(() => scoped.filter((m) => m.live), [scoped]);
   const tick = useNowTick(now);
   const reminders = useStreamReminders(remindedFixture, remindGuestFixture);
   const nowMs = now ?? tick;
   // Streams within 48h → the preview rail (always the rail, never the stage).
   const previews = useMemo(() => upcomingStreams(scoped, nowMs), [scoped, nowMs]);
-  // Live + stream → the stage (busiest first); the rest keep LiveCard.
-  const streamed = useMemo(
-    () => live.filter((m) => !!m.streamUrl).sort((a, b) => b.volume - a.volume),
-    [live],
-  );
+  // Live + playable stream → the stage (busiest first); the rest keep LiveCard.
+  const { streamed, others: playingNow, isOnStream, markFailed } = useStreamLineup(scoped, nowMs);
+  // Style-guide frames (frozen clock) keep their stage whatever the network
+  // does; only fixture "error" demonstrates a stream leaving the stage.
+  const onStreamFail = now == null || streamFixture === "error" ? markFailed : () => undefined;
   const days: DayBucket[] = useMemo(
     () => buildDayStrip(scoped, clock),
     [scoped, clock],
@@ -753,12 +762,12 @@ export const LiteSportsView = ({
   // Header count stays consistent with the strip + ledger: live now plus
   // everything still to kick off. Past/finished matches are never counted.
   const weekCount = useMemo(
-    () => scoped.filter((m) => m.live || isUpcoming(m, clock)).length,
-    [scoped, clock],
+    () => scoped.filter((m) => liveAt(m, nowMs) || isUpcoming(m, nowMs)).length,
+    [scoped, nowMs],
   );
   const groups = useMemo(
-    () => buildDayGroups(matchesInBucket(scoped, bucket), clock),
-    [scoped, bucket, clock],
+    () => buildDayGroups(matchesInBucket(scoped, bucket), nowMs, isOnStream),
+    [scoped, bucket, nowMs, isOnStream],
   );
   const others = useMemo(
     () => otherGroupsSummary(matches, sport, now),
@@ -897,7 +906,7 @@ export const LiteSportsView = ({
       {(() => {
         // Previews always live in the rail (CPO 2026-11-04: no preview stage).
         const rail = previews;
-        const others = live.filter((m) => !m.streamUrl);
+        const others = playingNow;
         const pulse = <LivePulse size={6} color="#FF3B4E" />;
         const play = (
           <span style={{ color: "#FF8A3D", display: "flex" }}>
@@ -908,8 +917,8 @@ export const LiteSportsView = ({
           <>
             {streamed.length > 0 && (
               <div className="flex flex-col" style={{ gap: 10 }}>
-                <SectionHead icon={pulse} label={`Live on stream · ${streamed.length}`} />
-                <LiveStreamStage streams={streamed} streamFixture={streamFixture} onOpen={open} onPick={pick} />
+                <SectionHead icon={pulse} label={t(`${SK}.live_on_stream`, { count: streamed.length })} />
+                <LiveStreamStage streams={streamed} streamFixture={streamFixture} onOpen={open} onPick={pick} onFail={onStreamFail} />
               </div>
             )}
             {rail.length > 0 && (
@@ -927,7 +936,7 @@ export const LiteSportsView = ({
             )}
             {others.length > 0 && (
               <div className="flex flex-col" style={{ gap: 10 }}>
-                <SectionHead icon={pulse} label={`Playing now · ${others.length}`} />
+                <SectionHead icon={pulse} label={t("events.screen.simple.sports_view.sports_vertical.playing_now", { count: others.length })} />
                 {others.map((m) => (
                   <LiveCard key={m.id} match={m} onOpen={open(m.id)} onPick={pick(m.id)} />
                 ))}

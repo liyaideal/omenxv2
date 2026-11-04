@@ -9,14 +9,19 @@
 // `Stream at kickoff`); a preview also stays in its ledger row.
 // ============================================================
 import { useEffect, useState } from "react";
+import { getI18nLanguage, t } from "@/i18n";
 import type { SportsMatch } from "./sportsData";
 import { Crest } from "@/components/lite/shared/primitives";
 import { PlayTriangle } from "./streamChips";
 
 export const PREVIEW_WINDOW_MS = 48 * 3_600_000;
 const ORANGE = "#FF8A3D";
+const K = "events.screen.simple.sports_view.sports_streams";
 
-/** Streamed, not started, kicks off within 48h — soonest first. No cap on count. */
+/** Weekday in the viewer's language (`Fri`, `周五`, `금`…). */
+const weekday = (d: Date) => d.toLocaleDateString(getI18nLanguage(), { weekday: "short" });
+
+/** Streamed, not started, kicks off within 48h — soonest first; same kickoff → busier first. No cap on count. */
 export const upcomingStreams = (rows: SportsMatch[], now: number = Date.now()) =>
   rows
     .filter(
@@ -27,7 +32,10 @@ export const upcomingStreams = (rows: SportsMatch[], now: number = Date.now()) =
         m.kickoff.getTime() > now &&
         m.kickoff.getTime() - now <= PREVIEW_WINDOW_MS,
     )
-    .sort((a, b) => (a.kickoff as Date).getTime() - (b.kickoff as Date).getTime());
+    .sort(
+      (a, b) =>
+        (a.kickoff as Date).getTime() - (b.kickoff as Date).getTime() || b.volume - a.volume,
+    );
 
 /** Re-render every second — countdowns under an hour tick in seconds. */
 export const useNowTick = (frozen?: number) => {
@@ -51,16 +59,13 @@ export const streamCountdown = (kickoff: Date, now: number) => {
   const s = Math.floor(ms / 1000);
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
-  if (h < 1) return { lead: "Starts in", value: `${pad(m)}:${pad(s % 60)}`, soon: true };
-  if (h < 24) return { lead: "Starts in", value: `${h}h ${pad(m)}m`, soon: false };
+  if (h < 1) return { lead: t(`${K}.starts_in`), value: `${pad(m)}:${pad(s % 60)}`, soon: true };
+  if (h < 24) return { lead: t(`${K}.starts_in`), value: `${h}h ${pad(m)}m`, soon: false };
   const today = new Date(now);
   const tmrw = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-  const day =
-    kickoff.toDateString() === tmrw.toDateString()
-      ? "Tomorrow"
-      : kickoff.toLocaleDateString("en-US", { weekday: "short" });
+  const day = kickoff.toDateString() === tmrw.toDateString() ? t(`${K}.tomorrow`) : weekday(kickoff);
   const time = kickoff.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-  return { lead: "Starts", value: `${day} ${time}`, soon: false };
+  return { lead: t(`${K}.starts`), value: `${day} ${time}`, soon: false };
 };
 
 /** Card meta row kickoff: `Today 12:55` · `Tmrw 10:15` · `Fri 19:15`. */
@@ -69,10 +74,9 @@ export const kickoffShort = (kickoff: Date, now: number = Date.now()) => {
   const day0 = new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();
   const k0 = new Date(kickoff.getFullYear(), kickoff.getMonth(), kickoff.getDate()).getTime();
   const diff = Math.round((k0 - day0) / 86_400_000);
-  const day =
-    diff === 0 ? "Today" : diff === 1 ? "Tmrw" : kickoff.toLocaleDateString("en-US", { weekday: "short" });
-  const t = kickoff.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-  return `${day} ${t}`;
+  const day = diff === 0 ? t(`${K}.today`) : diff === 1 ? t(`${K}.tmrw`) : weekday(kickoff);
+  const time = kickoff.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  return `${day} ${time}`;
 };
 
 /** Outline status pill on the poster — `▶ Stream`. */
@@ -93,7 +97,7 @@ const PosterTag = () => (
     }}
   >
     <PlayTriangle />
-    Stream
+    {t(`${K}.stream_tag`)}
   </span>
 );
 
@@ -152,7 +156,7 @@ export const StreamPoster = ({
         <span
           style={{ fontSize: 9, letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(255,255,255,.55)", fontWeight: 700 }}
         >
-          Stream {cd.lead.toLowerCase()}
+          {cd.lead}
         </span>
         <span
           className="font-display"
@@ -186,12 +190,11 @@ export const RemindButton = ({
   on,
   onToggle,
   height = 38,
-  grow,
 }: {
   on: boolean;
   onToggle: () => void;
+  /** The button is a full-width row in a column card: the card stretches it, never `flex: 1`. */
   height?: number;
-  grow?: boolean;
 }) => (
   <button
     type="button"
@@ -204,7 +207,7 @@ export const RemindButton = ({
     className="flex items-center justify-center"
     style={{
       height,
-      flex: grow ? 1 : undefined,
+      flex: "none",
       padding: "0 14px",
       gap: 7,
       borderRadius: 10,
@@ -217,6 +220,6 @@ export const RemindButton = ({
     }}
   >
     <Bell on={on} />
-    {on ? "Reminder set" : "Remind me"}
+    {on ? t(`${K}.reminder_set`) : t(`${K}.remind_me`)}
   </button>
 );
