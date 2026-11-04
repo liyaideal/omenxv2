@@ -325,9 +325,45 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | `streamCountdown(kickoff, now)` | 海报倒计时 `{ lead, value, soon }` |
 | `kickoffShort(kickoff, now)` | 卡片 meta 行短开赛时间 |
 | `useNowTick(frozen?)` | 每秒刷新的时钟；字典传冻结时钟 |
-| `liveAt(m, now)`（`sportsData.ts`） | 某一秒是否在打：抓取时已是 live 的直到下次抓取都算；否则 `kickoff ≤ now < end` |
+| `liveAt(m, now)`（`sportsData.ts`） | 某一秒是否在打：抓取时已是 live 的直到下次抓取都算；抓取时已打完（final）的不算；否则 `kickoff ≤ now ≤ end + 3h`（兜底） |
 | `useStreamLineup(scoped, now)`（`streamLineup.ts`） | 拆出 `streamed`（舞台）/ `others`（Playing now）/ `isOnStream` / `markFailed`；桌面手机共用，保证两端同一个数 |
 | `chipLabel(m, label, i)` | 预告卡按钮名：首 = 主队缩写、末 = 客队缩写、中间沿用选项原文（足球为 `Draw`）。注意它不在 `UpcomingStreams.tsx`：`LiteSportsView.tsx` 与 `MobileSportsModule.tsx` 各有一份同名同义实现 |
+
+## Sports 交易时间（所有体育比赛，2026-11-04）
+
+规则与视觉：DESIGN §Addendum 2026-11-04b；字典 Lite「交易页」⑧ TR-29…29d、Pro「两终端共用」ES-D5 / ES-M2；交付 `docs/delivery/sports-match-clock-v1.md`。7 语 key：`events` 命名空间 `screen.simple.sports_clock.*`。
+
+### 概念
+
+| 词 | 一句定义 | 判定表达式 | 出处 |
+|---|---|---|---|
+| **比赛状态（match_status）** | 体育数据源告诉我们的比赛进度，前端判断“打没打完”的唯一依据 | `metadata.match_status` ∈ scheduled / live / final / postponed / cancelled | 数据源；`sportsData.ts` RawMeta |
+| **预计结束（end_date）** | 运营估的结束时间，体育比赛只用于排序 / 分组和兜底 | `events.end_date` | — |
+| **matchPhase** | 某一刻比赛处在哪一段 | settled = `is_resolved`；final = `REVIEW` 或 status final / cancelled 或兜底；upcoming = status scheduled / postponed 或 kickoff 未到；其余 = live | `sportsData.ts` `matchPhase` |
+| **兜底（watchdog）** | 数据源掉线时的保护：过了预计结束 3 小时还没收到结束信号，按打完处理 | `now > end_date + SPORTS_WATCHDOG_MS（3h）` | `sportsData.ts` |
+
+### 文案
+
+| Canonical | 出现位置 / 规则 |
+|---|---|
+| **Starts in 2h 10m** | Lite 下单卡 / 手机抽屉，开赛前（`kickoffInShort`：`2d 19h` / `2h 10m` / `38:12`） |
+| **Starts in** `02:10:00` | Pro 页头，开赛前（`kickoffInClock`） |
+| **Starts 2d 19h** / **Starts 38m** | 赛事下拉 / 抽屉 `Ends in` 列，开赛前 |
+| **● LIVE · P2 12:04** | 比赛中（含已过预计结束），时钟 = `liveLabelFor`；无时钟只写 `● LIVE` |
+| **● Live** | 赛事下拉 / 抽屉，比赛中 |
+| **Final · In review** | 打完等结果；Lite 卡为 `Final ·` + 胶囊 `IN REVIEW`；下拉只写 `Final` |
+| **Settled** | 已结算（沿用现有结算卡） |
+
+### helper 家族（`src/components/lite/sports/sportsClock.tsx`，成对入典）
+
+| 函数 | 作用 |
+|---|---|
+| `sportsClockAt(event, now)` / `useSportsClock(event)` | 体育事件 → `{ phase, kickoffInMs, liveClock }`；非体育返回 null（调用方保留原倒计时） |
+| `kickoffInShort(ms)` / `kickoffInClock(ms)` | Lite 写法 / Pro 写法 |
+| `sportsClockText(clock, style)` | 一行纯文本（手机 Pro 页头） |
+| `SportsClockLabel` | 时间位组件，`variant` = card（Lite 卡）/ line（手机抽屉）/ header（Pro 页头） |
+| `SportsClockCell` | 赛事下拉 / 抽屉的 `Ends in` 格 |
+| `matchPhase` / `isSportsFixture` / `isFixtureLive`（`sportsData.ts`） | 判定；`isFixtureLive` = `matchPhase === "live"` |
 
 ## Sports live stage (`/trade` 直播舞台，2026-09-01)
 
@@ -354,7 +390,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Segment（分段）** | CS2 的 map / MMA 的 round | `metadata.family === "seg" && metadata.segment_index === n` | `sportsData.groupSegmentedMarkets` |
 | **Current segment（当前段）** | 正在打的那一段 | `useMatchboardModel(event).idx` | `matchboardModel.buildModel` |
 | **Decisive threshold（分段决胜分）** | 一段打到多少分算结束 | `SPORT_SEGMENTS[segments_key].decisiveThreshold`；CS2 = 13，MMA = `null`（回合不计分） | `src/lib/sportSegments.ts` |
-| **Live（进行中）** | 已开赛、未到结束、未结算 | `isFixtureLive()`，即 `kickoff <= now && now < end_date && !is_resolved`；**`metadata.live` 是引擎调试输出，UI 永不读取** | `sportsData.isFixtureLive` |
+| **Live（进行中）** | 已开赛、数据源未报结束、未结算 | `isFixtureLive()` = `matchPhase(e) === "live"`（不看 `end_date`，2026-11-04，见「Sports 交易时间」）；**`metadata.live` 是引擎调试输出，UI 永不读取** | `sportsData.isFixtureLive` |
 | **运动形态（SegmentSpec）** | 一个项目的记分牌长什么样：分几段、列头怎么写、大数字算什么 | `SPORT_SEGMENTS[segments_key] ?? SPORT_FALLBACK[sport]`；两个都查不到即退化 | `src/lib/sportSegments.ts` |
 | **大数字口径（totalsRule）** | 左边那个大数字是相加还是数段数 | `"sum"` = 各段值相加（足球进球）；`"won"` = 赢下的段数（CS2 地图） | `matchboardModel.buildModel` |
 | **格子口径（cell）** | 分段格里写数字还是写胜负 | `"score"` = 该段的数字；`"winloss"` = `W`/`L`（MOBA，一局没有可比分数）；UFC 走组件既有的 MMA 分支，优先级在本字段之上 | `src/lib/sportSegments.ts` |

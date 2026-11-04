@@ -304,3 +304,14 @@
 | `notify_stream_reminders()` cron 每分钟：kickoff（`metadata.kickoff_at`，否则 `start_date`）已过且在 30 分钟内、未结算、仍有 `stream_url` → `notify(…, 'system.stream_live', …, dedupe 'stream:<event_id>')` + 盖 `notified_at`；过了 30 分钟没发的直接盖章不补发 | 🟡 B | "开播时提醒、只提醒一次、不迟发"是需求；正式版由提醒服务按直播开始事件推（不必轮询） |
 | `metadata.stream_url`（HLS `.m3u8`） | 🔴 演示专用 | Lovable 用 mux 测试流种在演示赛事上；正式版由直播源服务提供，CPO 口径「LoL 与大的足球比赛都有直播」 |
 | 演示：alex 一条待开播提醒（`sp-ucl-mci-int`）+ 一条已发出的 `system.stream_live`（`demo-live-cs2`）——`supabase/migrations/20261104130500_stream_demo_seed.sql` | 🔴 演示专用 | 清理 SQL 写在文件尾 |
+
+## 2026-11-04 体育比赛 · 比赛状态（append-only 补录）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `metadata.match_status`（scheduled / live / final / postponed / cancelled） | 🟡 B | 需求：比赛打没打完只看它，由体育数据源写；`end_date` 只是预计结束。Lovable 演示引擎不写（前端按 kickoff 推）。见 `docs/delivery/sports-match-clock-v1.md` §4 |
+| 收到 `final` → 停止交易、lifecycle `REVIEW`、确认后结算 | 🟡 B | 需求 |
+| 兜底：`live` 且 `now > end_date + 3h` 未收到结束 → 停交易、`REVIEW`、告警 | 🟡 B | 需求；Lovable 只在前端按同规则显示与禁下单 |
+| `roll_sports_matches()` 跳过 `match_status = 'live'` 的比赛（`20261104160000_sports_match_status.sql`） | 🔴 演示专用 | 演示结算引擎跟上“结束只看状态”的规则 |
+| 演示赛 `demo-live-ot-nhl`（加时中、预计结束已过 20 分钟）+ `keep_demo_overtime_fixture()` | 🔴 演示专用 | 每 10 分钟的保持定时任务待 CPO 确认；未加时约 3 小时后进入兜底显示 |
+

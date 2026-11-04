@@ -69,9 +69,9 @@
 |---|---|---|
 | `settled` 已结算 | `events.is_resolved === true` | 整块 60% 透明，右上灰色 `SETTLED`，比分定格 |
 | `break` 段间 | 见下方细则 | 橙色 `BREAK` 药丸，上下文行写下一段要开始了，右上是 `—` |
-| `live` 进行中 | `kickoff <= now && now < end_date && !is_resolved` | 橙色 `LIVE` 药丸（圆点在闪），当前段那一列高亮 |
+| `live` 进行中 | `matchPhase(e) === "live"`：kickoff 已过、数据源未报结束、未结算（**不看 end_date**，2026-11-04 起，见 `sports-match-clock-v1.md`） | 橙色 `LIVE` 药丸（圆点在闪），当前段那一列高亮 |
 | `upcoming` 未开赛 | `kickoff > now` | 灰色 `UPCOMING`，右上 `Starts in 2h 14m` |
-| `finished` 已结束待核对 | 以上都不是（打完了但还没结算） | 灰色 `FINISHED`，右上橙边徽标 `In review · result pending` |
+| `finished` 已结束待核对 | `matchPhase(e) === "final"`：lifecycle REVIEW、`match_status` final / cancelled，或过了预计结束 3 小时的兜底 | 灰色 `FINISHED`，右上橙边徽标 `In review · result pending` |
 
 `break` 的细则按项目分叉：格斗看 `phase === 'BREAK'`；CS2 这类分地图的，看「已经进到第二段及以后，但当前段还没有比分」；足球和 MOBA **永远不进** `break`——足球的中场休息本版没做，MOBA 的当前局在打完前本来就没有比分，套通用规则会被误判成段间。
 
