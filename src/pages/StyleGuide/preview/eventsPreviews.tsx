@@ -3,7 +3,7 @@
 // 每个 case 都挂生产组件；fixture 只注数据与状态。
 // LiteEventCard 是 FROZEN 件：这里只摆放，零改样式。
 // ============================================================
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { EventRow } from "@/hooks/useMarketListData";
 import { FROZEN_NOW, frozenIso } from "../frozenClock";
@@ -1185,3 +1185,138 @@ export const Ev26Preview = () => (
   </Stage>
 );
 
+
+/* ================================================================
+ * ⑨ Sports 列表 · 直播与直播预告（EV-36 … EV-45，CPO 2026-11-04）
+ * 桌面帧 = 品类页 LiteSportsView，375 帧 = MobileSportsModule filters（品类页手机形态）。
+ * 全部挂冻结时钟 FROZEN_NOW；视频用 SP-L 同一条测试流；Remind me 用 fixture（不碰库）。
+ * ================================================================ */
+const MIN_MS = 60_000;
+const STREAM_SRC = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+
+const sm = (
+  o: Partial<SportsMatch> & Pick<SportsMatch, "id" | "league" | "home" | "away" | "homeAbbr" | "awayAbbr">,
+  kickoffMin: number,
+): SportsMatch => ({
+  name: `${o.home} vs ${o.away}`,
+  format: "1x2",
+  kickoff: new Date(FROZEN_NOW + kickoffMin * MIN_MS),
+  endDate: new Date(FROZEN_NOW + (kickoffMin + 120) * MIN_MS),
+  live: kickoffMin <= 0,
+  minute: null,
+  phase: null,
+  score: null,
+  streamUrl: null,
+  volume: 900_000,
+  options: [],
+  ...o,
+});
+
+/* live, on stream */
+const SL_ARS = sm({ id: "sg-sl-ars-rma", league: "UEFA Champions League", home: "Arsenal", away: "Real Madrid", homeAbbr: "ARS", awayAbbr: "RMA", sport: "soccer", minute: 63, phase: "2nd half", score: "1-0", streamUrl: STREAM_SRC, volume: 4_200_000,
+  options: [opt("sg-sl-ars-h", "Arsenal", 0.68), opt("sg-sl-ars-d", "Draw", 0.21), opt("sg-sl-ars-a", "Real Madrid", 0.11)] }, -63);
+const SL_T1 = sm({ id: "sg-sl-t1-gen", league: "LCK", home: "T1", away: "Gen.G", homeAbbr: "T1", awayAbbr: "GEN", sport: "lol", format: "h2h", liveLabel: "Game 2", score: "1-0", streamUrl: STREAM_SRC, volume: 2_600_000,
+  options: [opt("sg-sl-t1-h", "T1", 0.61), opt("sg-sl-t1-a", "Gen.G", 0.39)] }, -55);
+const SL_LIV = sm({ id: "sg-sl-liv-mci", league: "Premier League", home: "Liverpool", away: "Manchester City", homeAbbr: "LIV", awayAbbr: "MCI", awayShort: "Man City", sport: "soccer", minute: 24, phase: "1st half", score: "0-0", streamUrl: STREAM_SRC, volume: 3_100_000,
+  options: [opt("sg-sl-liv-h", "Liverpool", 0.39), opt("sg-sl-liv-d", "Draw", 0.3), opt("sg-sl-liv-a", "Man City", 0.31)] }, -24);
+const SL_SPI = sm({ id: "sg-sl-spi-mouz", league: "IEM Cologne · BO3", home: "Spirit", away: "MOUZ", homeAbbr: "SPIRIT", awayAbbr: "MOUZ", sport: "esports", format: "h2h", liveLabel: "Map 2", score: "1-0", streamUrl: STREAM_SRC, volume: 482_000,
+  options: [opt("sg-sl-spi-h", "SPIRIT", 0.7), opt("sg-sl-spi-a", "MOUZ", 0.3)] }, -40);
+/* live, no stream */
+const SL_NFL = sm({ id: "sg-sl-nfl", league: "NFL", home: "Kansas City Chiefs", away: "Buffalo Bills", homeAbbr: "KC", awayAbbr: "BUF", homeShort: "Chiefs", awayShort: "Bills", sport: "american_football", format: "h2h", liveLabel: "Q3 8:42", score: "17-14", volume: 1_100_000,
+  options: [opt("sg-sl-nfl-h", "Chiefs", 0.56), opt("sg-sl-nfl-a", "Bills", 0.44)] }, -95);
+/* upcoming, on stream (countdown variants: < 1h · < 24h · ≥ 24h · > 48h) */
+const UP_BAR = sm({ id: "sg-up-bar-psg", league: "UEFA Champions League", home: "Barcelona", away: "Paris Saint-Germain", homeAbbr: "BAR", awayAbbr: "PSG", awayShort: "PSG", sport: "soccer", streamUrl: STREAM_SRC, volume: 3_900_000,
+  options: [opt("sg-up-bar-h", "Barcelona", 0.46), opt("sg-up-bar-d", "Draw", 0.26), opt("sg-up-bar-a", "PSG", 0.28)] }, 38);
+const UP_BLG = sm({ id: "sg-up-blg-jdg", league: "LPL", home: "Bilibili Gaming", away: "JD Gaming", homeAbbr: "BLG", awayAbbr: "JDG", homeShort: "BLG", awayShort: "JDG", sport: "lol", format: "h2h", streamUrl: STREAM_SRC, volume: 1_400_000,
+  options: [opt("sg-up-blg-h", "BLG", 0.57), opt("sg-up-blg-a", "JDG", 0.43)] }, 320);
+const UP_MUN = sm({ id: "sg-up-mun-tot", league: "Premier League", home: "Manchester United", away: "Tottenham", homeAbbr: "MUN", awayAbbr: "TOT", homeShort: "Man United", sport: "soccer", streamUrl: STREAM_SRC, volume: 2_300_000,
+  options: [opt("sg-up-mun-h", "Man United", 0.41), opt("sg-up-mun-d", "Draw", 0.27), opt("sg-up-mun-a", "Tottenham", 0.32)] }, 22 * 60);
+const UP_HLE = sm({ id: "sg-up-hle-dk", league: "LCK", home: "Hanwha Life", away: "Dplus KIA", homeAbbr: "HLE", awayAbbr: "DK", homeShort: "HLE", awayShort: "DK", sport: "lol", format: "h2h", streamUrl: STREAM_SRC, volume: 900_000,
+  options: [opt("sg-up-hle-h", "HLE", 0.64), opt("sg-up-hle-a", "DK", 0.36)] }, 31 * 60);
+const UP_NAVI = sm({ id: "sg-up-navi-faze", league: "IEM Cologne · BO3", home: "NAVI", away: "FaZe", homeAbbr: "NAVI", awayAbbr: "FAZE", sport: "esports", format: "h2h", streamUrl: STREAM_SRC, volume: 610_000,
+  options: [opt("sg-up-navi-h", "NAVI", 0.45), opt("sg-up-navi-a", "FaZe", 0.55)] }, 60 * 60);
+/* upcoming, no stream */
+const UP_JUV = sm({ id: "sg-up-juv-nap", league: "Serie A", home: "Juventus", away: "Napoli", homeAbbr: "JUV", awayAbbr: "NAP", sport: "soccer", volume: 1_700_000,
+  options: [opt("sg-up-juv-h", "Juventus", 0.38), opt("sg-up-juv-d", "Draw", 0.3), opt("sg-up-juv-a", "Napoli", 0.32)] }, 26 * 60);
+
+const STREAMS_SINGLE = [SL_SPI, SL_NFL, UP_JUV];
+const STREAMS_MULTI = [SL_SPI, SL_ARS, SL_T1, SL_LIV, SL_NFL, UP_BAR, UP_BLG, UP_MUN, UP_HLE, UP_NAVI, UP_JUV];
+const PREVIEW_ONE = [SL_SPI, SL_NFL, UP_BAR, UP_JUV];
+const PREVIEW_TWO = [SL_SPI, SL_NFL, UP_BAR, UP_BLG, UP_JUV];
+const PREVIEW_MANY = [SL_SPI, SL_NFL, UP_BAR, UP_BLG, UP_MUN, UP_HLE, UP_NAVI, UP_JUV];
+const PREVIEW_NO_LIVE_STREAM = [SL_NFL, UP_BAR, UP_BLG, UP_MUN, UP_JUV];
+
+/** Click one production control after mount — opens the state the case documents. */
+const ClickAfterMount = ({ selector, children }: { selector: string; children: React.ReactNode }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      (ref.current?.querySelector(selector) as HTMLElement | null)?.click();
+    }, 400);
+    return () => window.clearTimeout(id);
+  }, [selector]);
+  return <div ref={ref}>{children}</div>;
+};
+
+const StreamsDemo = ({
+  matches,
+  reminded,
+  guest,
+  streamFixture,
+}: {
+  matches: SportsMatch[];
+  reminded?: string[];
+  guest?: boolean;
+  streamFixture?: "loading" | "blocked";
+}) => {
+  const isMobile = useIsMobile();
+  const fx = reminded ?? [];
+  if (isMobile) {
+    return (
+      <MobileSportsModule
+        matches={matches}
+        filters
+        onOpenAll={() => undefined}
+        now={FROZEN_NOW}
+        remindedFixture={fx}
+        remindGuestFixture={guest}
+        streamFixture={streamFixture}
+      />
+    );
+  }
+  return (
+    <LiteSportsView
+      matches={matches}
+      now={FROZEN_NOW}
+      remindedFixture={fx}
+      remindGuestFixture={guest}
+      streamFixture={streamFixture}
+    />
+  );
+};
+
+export const Ev36Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} /></Stage>;
+export const Ev37Preview = () => <Stage><StreamsDemo matches={STREAMS_MULTI} /></Stage>;
+/** EV-37b · click the third switcher tab (T1 vs Gen.G) — the stage swaps video + scoreboard. */
+export const Ev37bPreview = () => (
+  <Stage>
+    <ClickAfterMount selector='[data-stream-tab="sg-sl-t1-gen"]'>
+      <StreamsDemo matches={STREAMS_MULTI} />
+    </ClickAfterMount>
+  </Stage>
+);
+export const Ev38Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="loading" /></Stage>;
+export const Ev39Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="blocked" /></Stage>;
+export const Ev40Preview = () => <Stage><StreamsDemo matches={PREVIEW_ONE} /></Stage>;
+export const Ev41Preview = () => <Stage><StreamsDemo matches={PREVIEW_TWO} /></Stage>;
+export const Ev42Preview = () => <Stage><StreamsDemo matches={PREVIEW_MANY} /></Stage>;
+export const Ev43Preview = () => <Stage><StreamsDemo matches={PREVIEW_MANY} reminded={[UP_BAR.id, UP_MUN.id]} /></Stage>;
+export const Ev44Preview = () => <Stage><StreamsDemo matches={PREVIEW_NO_LIVE_STREAM} /></Stage>;
+/** EV-45 · guest taps Remind me → AuthDialog (desktop) / AuthSheet (mobile). */
+export const Ev45Preview = () => (
+  <Stage>
+    <ClickAfterMount selector="[data-remind]">
+      <StreamsDemo matches={PREVIEW_ONE} guest />
+    </ClickAfterMount>
+  </Stage>
+);

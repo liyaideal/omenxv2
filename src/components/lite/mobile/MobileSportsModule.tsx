@@ -23,6 +23,16 @@ import {
 import { EmptyState } from "@/components/states";
 import { CHALK_SOFT, Crest, DIR_DOWN, DIR_UP, LivePulse } from "@/components/lite/shared/primitives";
 import { MatchScoreText, isTennisTiebreakLive, phaseLabel } from "@/components/lite/sports/tennisScore";
+import { MobileStreamButton, PlayTriangle } from "@/components/lite/sports/streamChips";
+import { ListStreamVideo } from "@/components/lite/sports/ListStreamVideo";
+import {
+  RemindButton,
+  StreamPoster,
+  kickoffShort,
+  upcomingStreams,
+  useNowTick,
+} from "@/components/lite/sports/UpcomingStreams";
+import { useStreamReminders } from "@/hooks/useStreamReminders";
 
 const MICRO: React.CSSProperties = {
   fontSize: 9,
@@ -86,6 +96,192 @@ const StackedChip = ({
     </span>
   </button>
 );
+
+const liveClock = (m: SportsMatch) =>
+  m.liveLabel ?? (m.minute != null ? `${m.minute}'` : "LIVE");
+
+/** Mobile live-stream stage — video on top, switcher, scoreboard, chips. */
+const MobileLiveStreamStage = ({
+  streams,
+  streamFixture,
+}: {
+  streams: SportsMatch[];
+  streamFixture?: "loading" | "blocked";
+}) => {
+  const navigate = useNavigate();
+  const [activeId, setActiveId] = useState(streams[0].id);
+  const m = streams.find((x) => x.id === activeId) ?? streams[0];
+  const open = () => navigate(`/trade?event=${encodeURIComponent(m.id)}`);
+  const pick = (optionId: string) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/trade?event=${encodeURIComponent(m.id)}&option=${encodeURIComponent(optionId)}`);
+  };
+  return (
+    <div
+      className="flex flex-col overflow-hidden"
+      style={{
+        background: "#131519",
+        border: "1px solid rgba(255,138,61,.28)",
+        borderRadius: 16,
+        boxShadow: "0 14px 36px -22px rgba(255,138,61,.4)",
+      }}
+    >
+      <ListStreamVideo src={m.streamUrl as string} onOpen={open} compact fixture={streamFixture} />
+      {streams.length > 1 && (
+        <div
+          className="flex items-center"
+          style={{ gap: 6, padding: "9px 12px", borderBottom: "1px solid #23262D", overflowX: "auto", scrollbarWidth: "none" }}
+        >
+          {streams.map((x) => {
+            const on = x.id === m.id;
+            return (
+              <button
+                key={x.id}
+                type="button"
+                data-stream-tab={x.id}
+                onClick={() => setActiveId(x.id)}
+                className="flex flex-none items-center"
+                style={{
+                  gap: 6,
+                  padding: "6px 10px",
+                  borderRadius: 999,
+                  border: `1px solid ${on ? "rgba(255,138,61,.55)" : "#23262D"}`,
+                  background: on ? "rgba(255,138,61,.09)" : "transparent",
+                  color: on ? "#FF8A3D" : "#9AA1AC",
+                }}
+              >
+                <PlayTriangle />
+                <span style={{ fontSize: 11.5, fontWeight: 700, color: on ? "#fff" : "#C9CED6", whiteSpace: "nowrap" }}>
+                  {x.homeAbbr}{" "}
+                  <span className="font-display" style={{ fontVariantNumeric: "tabular-nums" }}>
+                    <MatchScoreText sport={x.sport} score={x.score} base={11.5} />
+                  </span>{" "}
+                  {x.awayAbbr}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <div className="flex flex-col" style={{ padding: "13px 14px 14px", gap: 12 }}>
+        <div className="flex items-center justify-between" style={{ gap: 8 }}>
+          <span className="truncate" style={MICRO}>
+            {m.league}
+            {phaseLabel(m.phase) ? ` · ${phaseLabel(m.phase)}` : ""}
+          </span>
+          <span className="flex flex-none items-center" style={{ gap: 5 }}>
+            <LivePulse size={5} color="#FF3B4E" />
+            <span style={{ fontSize: 12, color: "#fff", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
+              {liveClock(m)}
+            </span>
+          </span>
+        </div>
+        <div className="flex items-center" style={{ gap: 10 }}>
+          <span className="flex min-w-0 flex-1 items-center" style={{ gap: 8 }}>
+            <Crest abbr={m.homeAbbr} size={34} />
+            <span className="truncate" style={{ fontSize: 14, color: "#fff", fontWeight: 600 }}>
+              {m.homeShort || m.home}
+            </span>
+          </span>
+          <span
+            className="font-display shrink-0"
+            style={{ fontSize: m.sport === "tennis" ? 18 : 26, fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}
+          >
+            <MatchScoreText sport={m.sport} score={m.score} base={26} tennisBase={18} />
+          </span>
+          <span className="flex min-w-0 flex-1 items-center justify-end" style={{ gap: 8 }}>
+            <span className="truncate" style={{ fontSize: 14, color: "#fff", fontWeight: 600 }}>
+              {m.awayShort || m.away}
+            </span>
+            <Crest abbr={m.awayAbbr} size={34} />
+          </span>
+        </div>
+        <div className="flex" style={{ gap: 7 }}>
+          {m.options.map((o, i) => (
+            <StackedChip
+              key={o.id}
+              label={o.label}
+              price={o.price}
+              tone={outcomeTone(o.label, i, m.options.length)}
+              onClick={pick(o.id)}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Short option label for narrow preview chips, by position: first option =
+ * home crest abbr, last = away abbr, anything between (`Draw`) as is. Option
+ * labels don't always equal the team name (`Man City` vs `Manchester City`).
+ */
+const chipLabel = (m: SportsMatch, label: string, i: number) =>
+  i === 0 ? m.homeAbbr : i === m.options.length - 1 ? m.awayAbbr : label;
+
+const MobileSectionHead = ({ label, aside, live }: { label: string; aside?: string; live?: boolean }) => (
+  <div className="flex items-center" style={{ gap: 8 }}>
+    {live ? (
+      <LivePulse size={6} color="#FF3B4E" />
+    ) : (
+      <span style={{ color: "#FF8A3D", display: "flex" }}>
+        <PlayTriangle />
+      </span>
+    )}
+    <span style={{ fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "#fff", fontWeight: 700 }}>
+      {label}
+    </span>
+    {aside ? <span style={{ fontSize: 11, color: "#6B7280" }}>{aside}</span> : null}
+  </div>
+);
+
+/** Mobile rail card — swipe row, ~78% width so the next card peeks. */
+const MobilePreviewCard = ({
+  m,
+  now,
+  reminded,
+  onRemind,
+}: {
+  m: SportsMatch;
+  now: number;
+  reminded: boolean;
+  onRemind: () => void;
+}) => {
+  const navigate = useNavigate();
+  const open = () => navigate(`/trade?event=${encodeURIComponent(m.id)}`);
+  const pick = (optionId: string) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/trade?event=${encodeURIComponent(m.id)}&option=${encodeURIComponent(optionId)}`);
+  };
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={open}
+      className="flex cursor-pointer flex-col overflow-hidden"
+      style={{ background: "#131519", border: "1px solid #23262D", borderRadius: 14, width: "100%" }}
+    >
+      <StreamPoster match={m} now={now} />
+      <div className="flex flex-col" style={{ padding: "11px 12px 12px", gap: 10 }}>
+        <div className="flex min-w-0 flex-col" style={{ gap: 3 }}>
+          <span className="truncate" style={MICRO}>
+            {m.league} · {kickoffShort(m.kickoff as Date, now)}
+          </span>
+          <span className="truncate" style={{ fontSize: 14, color: "#fff", fontWeight: 600 }}>
+            {m.homeShort || m.home} vs {m.awayShort || m.away}
+          </span>
+        </div>
+        <div className="flex" style={{ gap: 6 }}>
+          {m.options.map((o, i) => (
+            <StackedChip key={o.id} label={chipLabel(m, o.label, i)} price={o.price} tone={outcomeTone(o.label, i, m.options.length)} onClick={pick(o.id)} />
+          ))}
+        </div>
+        <RemindButton on={reminded} onToggle={onRemind} height={34} grow />
+      </div>
+    </div>
+  );
+};
 
 const LiveMatchCard = ({ match }: { match: SportsMatch }) => {
   const navigate = useNavigate();
@@ -242,6 +438,18 @@ const UpcomingMatchCard = ({ match }: { match: SportsMatch }) => {
           </span>
           <span style={MICRO}>{match.league}</span>
         </span>
+        {match.streamUrl ? (
+          <MobileStreamButton
+            size={26}
+            solid={false}
+            placement="inline"
+            label="Stream at kickoff"
+            onClick={(e) => {
+              e.stopPropagation();
+              open();
+            }}
+          />
+        ) : null}
       </div>
       <div className="flex" style={{ gap: 7 }}>
         {match.options.map((o, i) => (
@@ -264,6 +472,10 @@ export const MobileSportsModule = ({
   filters,
   boostOnly,
   boostEnabled,
+  now,
+  remindedFixture,
+  remindGuestFixture,
+  streamFixture,
 }: {
   matches: SportsMatch[];
   onOpenAll: () => void;
@@ -271,6 +483,14 @@ export const MobileSportsModule = ({
   filters?: boolean;
   boostOnly?: boolean;
   boostEnabled?: boolean;
+  /** Style-guide only — frozen clock; production reads the real clock. */
+  now?: number;
+  /** Style-guide only — events already reminded; toggles stay local, no DB. */
+  remindedFixture?: string[];
+  /** Style-guide only — Remind me behaves as for a guest (opens sign-in). */
+  remindGuestFixture?: boolean;
+  /** Style-guide only — freeze the stage player (loading / autoplay blocked). */
+  streamFixture?: "loading" | "blocked";
 }) => {
   const [sport, setSport] = useState<string>(ALL_OPTION);
   const [league, setLeague] = useState<string>(ALL_OPTION);
@@ -289,8 +509,14 @@ export const MobileSportsModule = ({
   const boostEmpty = !!filters && !!boostOnly && !boostEnabled;
 
   const live = scoped.filter((m) => m.live);
+  const streamed = live.filter((m) => !!m.streamUrl).sort((a, b) => b.volume - a.volume);
+  const nowTick = useNowTick(now);
+  const reminders = useStreamReminders(remindedFixture, remindGuestFixture);
+  const previews = filters ? upcomingStreams(scoped, nowTick) : [];
+  // Previews always live in the rail (CPO 2026-11-04: no preview stage).
+  const rail = previews;
   const upcoming = scoped
-    .filter((m) => !m.live && isUpcoming(m))
+    .filter((m) => !m.live && isUpcoming(m, nowTick))
     .sort(
       (a, b) => (a.kickoff?.getTime() ?? Infinity) - (b.kickoff?.getTime() ?? Infinity),
     );
@@ -395,7 +621,42 @@ export const MobileSportsModule = ({
         />
       ) : (
         <>
-      {(filters ? live : live.slice(0, 1)).map((m) => (
+      {/* Priority: live on stream → coming up on stream → other live matches → ledger. */}
+      {filters && streamed.length > 0 && (
+        <>
+          <MobileSectionHead live label={`Live on stream · ${streamed.length}`} />
+          <MobileLiveStreamStage streams={streamed} streamFixture={streamFixture} />
+        </>
+      )}
+      {filters && rail.length > 0 && (
+        <>
+          <MobileSectionHead label={`Coming up on stream · ${rail.length}`} aside="Next 48 hours" />
+          <div
+            key={rail[0].id}
+            className="flex"
+            style={{
+              gap: 10,
+              overflowX: "auto",
+              scrollSnapType: "x mandatory",
+              scrollbarWidth: "none",
+              margin: "0 -16px",
+              padding: "0 16px",
+              scrollPaddingLeft: 16,
+            }}
+          >
+            {rail.map((m) => (
+              // A lone card takes the full row; 2+ peek the next one.
+              <div key={m.id} style={{ flex: rail.length === 1 ? "0 0 100%" : "0 0 78%", scrollSnapAlign: "start" }}>
+                <MobilePreviewCard m={m} now={nowTick} reminded={reminders.has(m.id)} onRemind={() => reminders.toggle(m.id)} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      {filters && live.some((m) => !m.streamUrl) && (
+        <MobileSectionHead live label={`Playing now · ${live.filter((m) => !m.streamUrl).length}`} />
+      )}
+      {(filters ? live.filter((m) => !m.streamUrl) : live.slice(0, 1)).map((m) => (
         <LiveMatchCard key={m.id} match={m} />
       ))}
 
@@ -415,6 +676,7 @@ export const MobileSportsModule = ({
       )}
         </>
       )}
+      {filters && reminders.authUi}
     </section>
   );
 };

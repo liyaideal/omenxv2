@@ -13,112 +13,13 @@ import {
 } from "@/components/lite/sports/sportsData";
 import { HomeCard, HomeEyebrow, HomeQuestion, MUTED, ORANGE } from "./homeShell";
 import { MatchScoreText } from "@/components/lite/sports/tennisScore";
+import {
+  MobileStreamButton as MobileCornerStreamButton,
+  StreamAtKickoffChip,
+  WatchLiveChip,
+} from "@/components/lite/sports/streamChips";
 
 const CYAN = "#33D6FF";
-const INK = "#2A1200";
-
-/** 9px play triangle used by the Watch live / Stream at kickoff chips. */
-const PlayTriangle = () => (
-  <svg
-    viewBox="0 0 24 24"
-    width={9}
-    height={9}
-    fill="currentColor"
-    style={{ display: "block", flex: "none" }}
-  >
-    <path d="M7 4v16l13-8z" />
-  </svg>
-);
-
-/** Solid = actionable. Desktop live-card chip (meta row, stream only). */
-const WatchLiveChip = ({ onClick }: { onClick: (e: React.MouseEvent) => void }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="font-display"
-    style={{
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 5,
-      fontSize: 10,
-      fontWeight: 700,
-      letterSpacing: ".04em",
-      borderRadius: 999,
-      padding: "2px 9px",
-      background: ORANGE,
-      color: INK,
-      border: "none",
-      flex: "none",
-    }}
-  >
-    <PlayTriangle />
-    Watch live
-  </button>
-);
-
-/** Outlined = status, not actionable. Pre-kickoff rows with a stream. */
-const StreamAtKickoffChip = () => (
-  <span
-    className="font-display"
-    style={{
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 5,
-      fontSize: 10,
-      fontWeight: 700,
-      letterSpacing: ".04em",
-      borderRadius: 999,
-      padding: "1px 8px",
-      border: "1px solid rgba(148,163,184,.26)",
-      color: MUTED,
-      flex: "none",
-    }}
-  >
-    <PlayTriangle />
-    Stream at kickoff
-  </span>
-);
-
-/**
- * Mobile corner stream button. Visual circle stays the spec size; a
- * transparent inset:-8 child expands the touch area to ~44x44 without
- * changing the measured or painted geometry.
- */
-const MobileCornerStreamButton = ({
-  size,
-  solid,
-  label,
-  onClick,
-}: {
-  size: number;
-  solid: boolean;
-  label: string;
-  onClick: (e: React.MouseEvent) => void;
-}) => (
-  <button
-    type="button"
-    aria-label={label}
-    onClick={onClick}
-    style={{
-      position: "absolute",
-      right: 10,
-      top: 10,
-      width: size,
-      height: size,
-      borderRadius: 999,
-      background: solid ? ORANGE : "transparent",
-      border: solid ? "none" : "1px solid rgba(148,163,184,.3)",
-      color: solid ? INK : MUTED,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: 0,
-    }}
-  >
-    <span style={{ position: "absolute", inset: -8 }} />
-    <PlayTriangle />
-  </button>
-);
 
 const LIVE_MAX = 3;
 

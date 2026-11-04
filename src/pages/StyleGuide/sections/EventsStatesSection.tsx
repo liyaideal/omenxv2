@@ -1163,6 +1163,120 @@ const Ledger = () => (
   </div>
 );
 
+
+/* ---------------- ⑥b Sports 品类页 · 直播与直播预告（EV-36 … EV-45 · CPO 2026-11-04）---------------- */
+
+const SRC_STREAMS = "DESIGN §Addendum 2026-11-04 · Sports 列表直播与预告";
+
+const STREAM_CASES: SectionCase[] = [
+  {
+    key: "events-ev36",
+    label: "EV-36 · 直播舞台 · 单路（LiveStreamStage / MobileLiveStreamStage）",
+    note:
+      "Sports 品类页顶部。页面优先级：Live on stream（本舞台）→ Coming up on stream（预告排）→ Playing now（正在打、没直播）→ 一般列表。只有一路直播时不出切换条。直播 = 正在打且 metadata.stream_url 非空；有没有直播源由数据决定，前端不判断联赛。",
+    spec: [
+      { state: "出现", when: "live.some(m => m.streamUrl)", visual: "区头 `● LIVE ON STREAM · n`（红点 LivePulse 6）+ 淡橙描边舞台；没有直播在播则整块不渲染", source: SRC_STREAMS },
+      { state: "桌面布局", when: "useIsMobile() === false", visual: "左 58% 视频 16:9（静音自动播放），右栏：联赛 · 段名 / 时钟、队徽 48 + 比分 46、下注按钮、`$x traded` + `Open match →`", source: "LiteSportsView · LiveStreamStage" },
+      { state: "手机布局", when: "useIsMobile() === true", visual: "视频满宽在上，下接联赛 / 时钟、队徽 34 + 比分 26、叠放下注按钮", source: "MobileSportsModule · MobileLiveStreamStage" },
+      { state: "视频角标", when: "始终", visual: "左上只写橙底 `● LIVE`，比赛时钟只在记分牌出现一次（一个数字一处渲染）；右下静音钮", source: "ListStreamVideo" },
+      { state: "静音", when: "localStorage omenx.lite.stage.muted", visual: "默认静音；与交易页直播画面共用同一记录", source: "useHlsVideo" },
+      { state: "点击", when: "点视频 / Open match / 下注按钮", visual: "视频与 Open match → /trade?event=；下注按钮 → /trade?event=&option=", source: "LiteSportsView open / pick" },
+      { state: "不再单列", when: "m.live && m.streamUrl", visual: "在舞台上的比赛不进下方 Playing now 卡片", source: "LiteSportsView others = live.filter(!streamUrl)" },
+    ],
+  },
+  {
+    key: "events-ev37",
+    label: "EV-37 · 直播舞台 · 多路 + 全页优先级（4 路直播 + 预告 + 其他正在打）",
+    note: "一屏只放一路视频，其余直播进舞台底部切换条（手机在视频下方，横滑）。同一帧同时展示整页四段的上下顺序。",
+    spec: [
+      { state: "默认放哪一路", when: "streamed 按 volume 降序", visual: "成交额最高的一场（本帧 Arsenal vs Real Madrid $4.2M）", source: "LiteSportsView streamed" },
+      { state: "切换条", when: "streamed.length > 1", visual: "`LIVE STREAMS · n` + 每路一枚标签 `▶ ARS 1 – 0 RMA 63'`；当前一路淡橙底描边、其余灰描边", source: SRC_STREAMS },
+      { state: "全页顺序", when: "同时存在", visual: "Live on stream → Coming up on stream → Playing now → day strip + 列表", source: SRC_STREAMS },
+    ],
+  },
+  {
+    key: "events-ev37b",
+    label: "EV-37b · 直播舞台 · 切到另一路（点击切换条第三枚 T1 vs Gen.G）",
+    note: "挂载后点击生产切换标签 `[data-stream-tab]`。视频与记分牌一起换；不同时开两路视频（同一个 <video> 换源）。",
+    spec: [
+      { state: "切换后", when: "activeId = 点中的标签", visual: "记分牌换成 `LCK` · `Game 2` · `1 – 0`，下注按钮两枚；被点标签变当前态", source: "LiveStreamStage setActiveId" },
+    ],
+  },
+  {
+    key: "events-ev38",
+    label: "EV-38 · 直播舞台 · 视频加载中（ListStreamVideo fixture=loading）",
+    spec: [
+      { state: "加载 / 缓冲", when: 'state ∈ {"idle","loading","buffering"}', visual: "黑底中央 26px 白色转圈；`● LIVE` 与静音钮照常", source: "ListStreamVideo · useHlsVideo" },
+    ],
+  },
+  {
+    key: "events-ev39",
+    label: "EV-39 · 直播舞台 · 自动播放被拦（ListStreamVideo fixture=blocked）",
+    spec: [
+      { state: "被拦 / 暂停", when: 'state ∈ {"blocked","paused"}', visual: "中央 52px 橙色播放钮，点一下播放（从直播最新处接上）", source: "ListStreamVideo · useHlsVideo play()" },
+    ],
+  },
+  {
+    key: "events-ev40",
+    label: "EV-40 · 预告排 · 1 场（横版宽卡铺满）",
+    note: "预告 = 有直播、未开赛、48 小时内开赛（upcomingStreams）。不管有没有直播在播，预告都只用这排卡片，没有预告大卡。",
+    spec: [
+      { state: "出现", when: "upcomingStreams(scoped, now).length > 0", visual: "区头 `▶ COMING UP ON STREAM · n` + `Next 48 hours`", source: "UpcomingStreams · PREVIEW_WINDOW_MS" },
+      { state: "1 场", when: "rail.length === 1", visual: "横版宽卡铺满整行：左 42%（≤360）海报，右侧联赛 · 开赛时间、比赛名、下注按钮、Remind me", source: "LiteSportsView PreviewCardWide" },
+      { state: "手机 1 场", when: "isMobile && rail.length === 1", visual: "竖版卡铺满整行（不露下一张）", source: "MobileSportsModule rail" },
+      { state: "海报", when: "始终", visual: "左上描边 `▶ STREAM`；两队队徽 40 对阵 `VS`；`STREAM STARTS IN` + 倒计时 22px", source: "StreamPoster" },
+    ],
+  },
+  {
+    key: "events-ev41",
+    label: "EV-41 · 预告排 · 2 场（横版宽卡各占一半）",
+    spec: [
+      { state: "2 场", when: "rail.length === 2", visual: "两张横版宽卡各占半行；卡内开赛时间写短格式 `Today 16:00`（不截断）", source: "PreviewRail gridAutoColumns · kickoffShort" },
+      { state: "手机 2 场", when: "isMobile && rail.length ≥ 2", visual: "竖版卡 78% 屏宽横滑，露出下一张的边", source: "MobileSportsModule rail" },
+    ],
+  },
+  {
+    key: "events-ev42",
+    label: "EV-42 · 预告排 · 3 场及以上（竖版卡 + 翻页箭头）+ 倒计时三种写法",
+    note: "本帧 5 场有直播的未开赛比赛：4 场在 48 小时内进预告排，NAVI vs FaZe 在 60 小时后，只在下面列表里带 `Stream at kickoff`。预告不设上限。",
+    spec: [
+      { state: "3+ 场", when: "rail.length ≥ 3", visual: "竖版卡一屏 3 张，超出横滑；右上 ‹ › 箭头只在可滚时出现，到头那枚变灰", source: "PreviewRail" },
+      { state: "排序", when: "始终", visual: "按开赛时间从近到远", source: "upcomingStreams sort" },
+      { state: "< 1 小时", when: "kickoff − now < 1h", visual: "`37:53` 按秒跳，橙色", source: "streamCountdown soon" },
+      { state: "1–24 小时", when: "1h ≤ kickoff − now < 24h", visual: "`5h 20m`，白色", source: "streamCountdown" },
+      { state: "≥ 24 小时", when: "kickoff − now ≥ 24h", visual: "lead 改 `STREAM STARTS`，值写开赛时间 `Tomorrow 13:20` / `Wed 22:20`", source: "streamCountdown" },
+      { state: "> 48 小时", when: "kickoff − now > 48h && streamUrl", visual: "不进预告排；列表行带描边 `▶ Stream at kickoff`", source: "upcomingStreams · StreamAtKickoffChip" },
+      { state: "卡片按钮名", when: "始终", visual: "按位置取：第一个 = 主队缩写，最后一个 = 客队缩写，中间 `Draw`", source: "chipLabel" },
+      { state: "列表不动", when: "始终", visual: "预告里的比赛照旧出现在下面列表（预告是挑出来重点展示，不是搬走）", source: SRC_STREAMS },
+    ],
+  },
+  {
+    key: "events-ev43",
+    label: "EV-43 · Remind me · 已设提醒（RemindButton on）",
+    note: "本帧 Barcelona vs PSG 与 Man United vs Tottenham 已设提醒（fixture，不碰库）。生产读 stream_reminders（本人行）；开赛时 notify_stream_reminders() 把提醒变成一条 `system.stream_live` 通知（消息中心 Updates，见 NT-22）。再点一次取消。",
+    spec: [
+      { state: "未设", when: "!reminders.has(id)", visual: "灰描边 `🔔 Remind me`，白字", source: "RemindButton" },
+      { state: "已设", when: "reminders.has(id)", visual: "淡橙底 + 橙描边 `✓ Reminder set`，橙字", source: "RemindButton · useStreamReminders" },
+      { state: "到点", when: "kickoff ≤ now（30 分钟内）", visual: "通知 `{event} stream is live`，Tv 图标 primary，点开进 /trade?event=", source: "notify_stream_reminders · NOTIFICATION_TYPES system.stream_live" },
+    ],
+  },
+  {
+    key: "events-ev44",
+    label: "EV-44 · 没有直播在播 · 只有预告（预告排在最上）",
+    spec: [
+      { state: "无直播在播", when: "streamed.length === 0 && rail.length > 0", visual: "页面顶部直接是预告排（与有直播时同一排卡片），下接 Playing now 与列表；不出现直播舞台", source: SRC_STREAMS },
+    ],
+  },
+  {
+    key: "events-ev45",
+    label: "EV-45 · Remind me · 未登录点击 → 登录（AuthDialog / AuthSheet）",
+    note: "挂载后点击第一枚 Remind me（`[data-remind]`，访客 fixture）。桌面打开 AuthDialog，手机打开底部抽屉 AuthSheet；不在本地存任何提醒。",
+    spec: [
+      { state: "访客点击", when: "!user", visual: "桌面 AuthDialog / 手机 AuthSheet；提醒不保存，登录后需再点一次", source: "useStreamReminders authUi" },
+    ],
+  },
+];
+
 /* ---------------- section ---------------- */
 
 const Pair = ({
@@ -1187,6 +1301,7 @@ const ALL_CASES: SectionCase[] = [
   ...HEADER_CASES,
   ...INTRADAY_CASES,
   ...SPORTS_CASES,
+  ...STREAM_CASES,
   ...CARD_CASES,
   ...CALENDAR_CASES,
   ...WATCHLIST_CASES,
@@ -1204,8 +1319,8 @@ const byKey = (...keys: string[]): SectionCase[] =>
 export const EventsStatesSection = () => (
   <SectionWrapper
     id="events-states"
-    title="Events 列表 · 状态字典（EV-1…EV-35（含 EV-9e）· 共 36 case）"
-    description="分区序 = 生产模块序：①行情 tape · ②Hero · ③筛选行 · ④Crypto · ⑤Stocks 三态 · ⑥Sports · ⑦Editor's Desk · ⑧目录（板头/身份卡/网格）· ⑨Calendar · ⑩Watchlist · ⑪骨架与空态。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
+    title="Events 列表 · 状态字典（EV-1…EV-45，含 EV-9e / 9t / 9t2 / 9b / 9u / 37b）"
+    description="分区序 = 生产模块序：①行情 tape · ②Hero · ③筛选行 · ④Crypto · ⑤Stocks 三态 · ⑥Sports · ⑥b Sports 品类页直播与预告 · ⑦Editor's Desk · ⑧目录（板头/身份卡/网格）· ⑨Calendar · ⑩Watchlist · ⑪骨架与空态。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
   >
     <div className="space-y-12">
       <StageGeometry />
@@ -1263,6 +1378,25 @@ export const EventsStatesSection = () => (
         />
         <div className="mt-6">
           <SportsGeometry />
+        </div>
+      </SubSection>
+
+      <SubSection title="⑥b Sports 品类页 · 直播与直播预告（EV-36 … EV-45）">
+        <Pair
+          cases={byKey("events-ev36", "events-ev37", "events-ev37b", "events-ev38", "events-ev39")}
+          desktopMin={1200}
+          mobileMin={1400}
+        />
+        <div className="mt-6">
+          <Pair
+            cases={byKey("events-ev40", "events-ev41", "events-ev42", "events-ev43", "events-ev44")}
+            desktopMin={1200}
+            mobileMin={1400}
+          />
+        </div>
+        {/* EV-45 opens a fixed sign-in layer — its own frame so it can't cover the cases above. */}
+        <div className="mt-6">
+          <Pair cases={byKey("events-ev45")} desktopMin={800} mobileMin={812} />
         </div>
       </SubSection>
 

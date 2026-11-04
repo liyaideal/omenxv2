@@ -5,7 +5,7 @@
 // Every row/chip routes into the existing /trade contract page.
 // ============================================================
 import { t } from "@/i18n";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   DayBucket,
@@ -29,6 +29,16 @@ import {
 import { DimensionPill, DimensionRow } from "./verticalChrome";
 import { EmptyState } from "@/components/states";
 import { CHALK, CHALK_SOFT, Crest, DIR_DOWN, DIR_UP, LivePulse } from "@/components/lite/shared/primitives";
+import { PlayTriangle, StreamAtKickoffChip } from "@/components/lite/sports/streamChips";
+import { ListStreamVideo } from "@/components/lite/sports/ListStreamVideo";
+import {
+  RemindButton,
+  StreamPoster,
+  kickoffShort,
+  upcomingStreams,
+  useNowTick,
+} from "@/components/lite/sports/UpcomingStreams";
+import { useStreamReminders } from "@/hooks/useStreamReminders";
 
 
 
@@ -206,6 +216,383 @@ const LiveCard = ({
   </div>
 );
 
+const liveClock = (m: SportsMatch) =>
+  m.liveLabel ?? (m.minute != null ? `${m.minute}'` : "LIVE");
+
+/**
+ * Live-stream stage — every live match that carries a stream lives here,
+ * one player at a time. Video left, scoreboard + outcome chips right; the
+ * switcher under it swaps which stream plays. Live matches without a
+ * stream keep the plain LiveCard below the stage.
+ */
+const LiveStreamStage = ({
+  streams,
+  streamFixture,
+  onOpen,
+  onPick,
+}: {
+  streams: SportsMatch[];
+  streamFixture?: "loading" | "blocked";
+  onOpen: (id: string) => () => void;
+  onPick: (id: string) => (optionId: string) => (e: React.MouseEvent) => void;
+}) => {
+  const [activeId, setActiveId] = useState(streams[0].id);
+  const m = streams.find((x) => x.id === activeId) ?? streams[0];
+  return (
+    <div
+      className="overflow-hidden"
+      style={{
+        background: "#131519",
+        border: "1px solid rgba(255,138,61,.28)",
+        borderRadius: 18,
+        boxShadow: "0 0 0 1px rgba(255,138,61,.06), 0 18px 48px -24px rgba(255,138,61,.35)",
+      }}
+    >
+      <div className="flex">
+        <div style={{ flex: "0 0 58%" }}>
+          <ListStreamVideo src={m.streamUrl as string} onOpen={onOpen(m.id)} fixture={streamFixture} />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col justify-between" style={{ padding: "22px 24px 20px" }}>
+          <div className="flex items-center justify-between" style={{ gap: 10 }}>
+            <span
+              className="truncate"
+              style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6B7280", fontWeight: 700 }}
+            >
+              {m.league}
+              {phaseLabel(m.phase) ? ` · ${phaseLabel(m.phase)}` : ""}
+            </span>
+            <span className="flex flex-none items-center" style={{ gap: 5 }}>
+              <LivePulse size={5} color="#FF3B4E" />
+              <span style={{ fontSize: 12, color: "#fff", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
+                {liveClock(m)}
+              </span>
+            </span>
+          </div>
+
+          <div className="grid items-center" style={{ gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
+            <span className="flex min-w-0 flex-col items-center" style={{ gap: 9 }}>
+              <Crest abbr={m.homeAbbr} size={48} />
+              <span className="max-w-full truncate" style={{ fontSize: 15, color: "#fff", fontWeight: 600 }} title={m.home}>
+                {m.homeShort || m.home}
+              </span>
+            </span>
+            <span
+              className="font-display"
+              style={{ fontWeight: 700, fontSize: m.sport === "tennis" ? 30 : 46, color: "#fff", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em", whiteSpace: "nowrap" }}
+            >
+              <MatchScoreText sport={m.sport} score={m.score} base={46} tennisBase={30} />
+            </span>
+            <span className="flex min-w-0 flex-col items-center" style={{ gap: 9 }}>
+              <Crest abbr={m.awayAbbr} size={48} />
+              <span className="max-w-full truncate" style={{ fontSize: 15, color: "#fff", fontWeight: 600 }} title={m.away}>
+                {m.awayShort || m.away}
+              </span>
+            </span>
+          </div>
+
+          <div className="flex flex-col" style={{ gap: 10 }}>
+            <div
+              className="grid"
+              style={{ gridTemplateColumns: `repeat(${m.options.length}, minmax(0, 1fr))`, gap: 8 }}
+            >
+              {m.options.map((o, i) => (
+                <OutcomeChip
+                  key={o.id}
+                  label={o.label}
+                  price={o.price}
+                  color={toneOf(o.label, i, m.options.length)}
+                  minHeight={54}
+                  priceSize={18}
+                  onClick={onPick(m.id)(o.id)}
+                />
+              ))}
+            </div>
+            <div className="flex items-center justify-between" style={{ fontSize: 11, color: "#6B7280" }}>
+              <span style={{ fontVariantNumeric: "tabular-nums" }}>{compactVolume(m.volume)} traded</span>
+              <button
+                type="button"
+                onClick={onOpen(m.id)}
+                style={{ color: "#fff", fontWeight: 600, fontSize: 12 }}
+              >
+                Open match →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {streams.length > 1 && (
+        <div
+          className="flex items-center"
+          style={{ borderTop: "1px solid #23262D", padding: "10px 14px", gap: 8, overflowX: "auto" }}
+        >
+          <span
+            className="flex-none"
+            style={{ fontSize: 9.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "#6B7280", fontWeight: 700, marginRight: 4 }}
+          >
+            Live streams · {streams.length}
+          </span>
+          {streams.map((x) => {
+            const on = x.id === m.id;
+            return (
+              <button
+                key={x.id}
+                type="button"
+                data-stream-tab={x.id}
+                onClick={() => setActiveId(x.id)}
+                className="flex flex-none items-center"
+                style={{
+                  gap: 8,
+                  padding: "7px 12px",
+                  borderRadius: 10,
+                  border: `1px solid ${on ? "rgba(255,138,61,.55)" : "#23262D"}`,
+                  background: on ? "rgba(255,138,61,.09)" : "transparent",
+                  color: on ? "#FF8A3D" : "#9AA1AC",
+                }}
+              >
+                <PlayTriangle />
+                <span style={{ fontSize: 12, fontWeight: 700, color: on ? "#fff" : "#C9CED6", whiteSpace: "nowrap" }}>
+                  {x.homeAbbr}{" "}
+                  <span className="font-display" style={{ fontVariantNumeric: "tabular-nums" }}>
+                    <MatchScoreText sport={x.sport} score={x.score} base={12} />
+                  </span>{" "}
+                  {x.awayAbbr}
+                </span>
+                <span style={{ fontSize: 11, color: "#6B7280", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+                  {liveClock(x)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/** Short option label for narrow chips: team abbr, `Draw` stays. */
+/**
+ * Short option label for narrow preview chips, by position: first option =
+ * home crest abbr, last = away abbr, anything between (`Draw`) as is. Option
+ * labels don't always equal the team name (`Man City` vs `Manchester City`).
+ */
+const chipLabel = (m: SportsMatch, label: string, i: number) =>
+  i === 0 ? m.homeAbbr : i === m.options.length - 1 ? m.awayAbbr : label;
+
+const SectionHead = ({ icon, label, aside }: { icon: React.ReactNode; label: string; aside?: string }) => (
+  <div className="flex items-center justify-between">
+    <div className="flex items-center" style={{ gap: 9 }}>
+      {icon}
+      <span style={{ fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "#fff", fontWeight: 700 }}>
+        {label}
+      </span>
+    </div>
+    {aside ? <span style={{ fontSize: 11, color: "#6B7280" }}>{aside}</span> : null}
+  </div>
+);
+
+/**
+ * Rail card, wide — used when the rail holds 1–2 streams, so the row is
+ * filled by halves / one full card instead of leaving 3-up gaps.
+ */
+const PreviewCardWide = ({
+  m,
+  now,
+  reminded,
+  onRemind,
+  onOpen,
+  onPick,
+}: {
+  m: SportsMatch;
+  now: number;
+  reminded: boolean;
+  onRemind: () => void;
+  onOpen: () => void;
+  onPick: (optionId: string) => (e: React.MouseEvent) => void;
+}) => (
+  <div
+    role="button"
+    tabIndex={0}
+    onClick={onOpen}
+    className="flex h-full cursor-pointer overflow-hidden transition-colors hover:border-[rgba(255,138,61,.35)]"
+    style={{ background: "#131519", border: "1px solid #23262D", borderRadius: 16 }}
+  >
+    <div style={{ flex: "0 0 42%", maxWidth: 360 }}>
+      <StreamPoster match={m} now={now} fill />
+    </div>
+    <div className="flex min-w-0 flex-1 flex-col justify-between" style={{ padding: "14px 16px", gap: 12 }}>
+      <div className="flex min-w-0 flex-col" style={{ gap: 4 }}>
+        <span className="truncate" style={{ fontSize: 9.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6B7280", fontWeight: 700 }}>
+          {m.league} · {kickoffShort(m.kickoff as Date, now)}
+        </span>
+        <span className="truncate" style={{ fontSize: 16, color: "#fff", fontWeight: 600 }}>
+          {m.homeShort || m.home} vs {m.awayShort || m.away}
+        </span>
+      </div>
+      <div className="flex" style={{ gap: 6 }}>
+        {m.options.map((o, i) => (
+          <OutcomeChip
+            key={o.id}
+            label={chipLabel(m, o.label, i)}
+            price={o.price}
+            color={toneOf(o.label, i, m.options.length)}
+            minHeight={42}
+            priceSize={15}
+            grow
+            onClick={onPick(o.id)}
+          />
+        ))}
+      </div>
+      <RemindButton on={reminded} onToggle={onRemind} height={34} grow />
+    </div>
+  </div>
+);
+
+/** Rail card — one upcoming stream inside the next 48h. */
+const PreviewCard = ({
+  m,
+  now,
+  reminded,
+  onRemind,
+  onOpen,
+  onPick,
+}: {
+  m: SportsMatch;
+  now: number;
+  reminded: boolean;
+  onRemind: () => void;
+  onOpen: () => void;
+  onPick: (optionId: string) => (e: React.MouseEvent) => void;
+}) => (
+  <div
+    role="button"
+    tabIndex={0}
+    onClick={onOpen}
+    className="flex cursor-pointer flex-col overflow-hidden transition-colors hover:border-[rgba(255,138,61,.35)]"
+    style={{ background: "#131519", border: "1px solid #23262D", borderRadius: 16 }}
+  >
+    <StreamPoster match={m} now={now} />
+    <div className="flex flex-col" style={{ padding: "12px 14px 14px", gap: 11 }}>
+      <div className="flex min-w-0 flex-col" style={{ gap: 3 }}>
+        <span className="truncate" style={{ fontSize: 9.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6B7280", fontWeight: 700 }}>
+          {m.league} · {kickoffShort(m.kickoff as Date, now)}
+        </span>
+        <span className="truncate" style={{ fontSize: 15, color: "#fff", fontWeight: 600 }}>
+          {m.homeShort || m.home} vs {m.awayShort || m.away}
+        </span>
+      </div>
+      <div className="flex" style={{ gap: 6 }}>
+        {m.options.map((o, i) => (
+          <OutcomeChip
+            key={o.id}
+            label={chipLabel(m, o.label, i)}
+            price={o.price}
+            color={toneOf(o.label, i, m.options.length)}
+            minHeight={42}
+            priceSize={14}
+            grow
+            onClick={onPick(o.id)}
+          />
+        ))}
+      </div>
+      <RemindButton on={reminded} onToggle={onRemind} height={34} grow />
+    </div>
+  </div>
+);
+
+/** Horizontal rail — 3 cards per view, arrows appear only when it overflows. */
+const PreviewRail = ({
+  children,
+  count,
+  firstId,
+}: {
+  children: React.ReactNode;
+  count: number;
+  /** Soonest card. When it changes (data arrives, a match kicks off), snap
+   *  would otherwise keep the previously snapped card in view — reset left. */
+  firstId?: string;
+}) => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [edge, setEdge] = useState({ prev: false, next: false });
+  const sync = () => {
+    const el = ref.current;
+    if (!el) return;
+    setEdge({ prev: el.scrollLeft > 4, next: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+  };
+  useEffect(() => {
+    sync();
+    const el = ref.current;
+    if (!el) return;
+    el.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync);
+    return () => {
+      el.removeEventListener("scroll", sync);
+      window.removeEventListener("resize", sync);
+    };
+  }, [count]);
+  useEffect(() => {
+    if (ref.current) ref.current.scrollLeft = 0;
+    sync();
+  }, [firstId]);
+  const go = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth, behavior: "smooth" });
+  const Arrow = ({ dir, on }: { dir: 1 | -1; on: boolean }) => (
+    <button
+      type="button"
+      aria-label={dir === 1 ? "Next" : "Previous"}
+      disabled={!on}
+      onClick={() => go(dir)}
+      className="flex items-center justify-center"
+      style={{
+        width: 28,
+        height: 28,
+        borderRadius: 999,
+        border: "1px solid #2A2E36",
+        color: on ? "#fff" : "#3A3F48",
+        cursor: on ? "pointer" : "default",
+      }}
+    >
+      <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+        {dir === 1 ? <path d="m9 6 6 6-6 6" /> : <path d="m15 6-6 6 6 6" />}
+      </svg>
+    </button>
+  );
+  return (
+    <div className="flex flex-col" style={{ gap: 10 }}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center" style={{ gap: 9 }}>
+          <span style={{ color: "#FF8A3D", display: "flex" }}><PlayTriangle /></span>
+          <span style={{ fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "#fff", fontWeight: 700 }}>
+            Coming up on stream · {count}
+          </span>
+          <span style={{ fontSize: 11, color: "#6B7280" }}>Next 48 hours</span>
+        </div>
+        {(edge.prev || edge.next) && (
+          <div className="flex items-center" style={{ gap: 6 }}>
+            <Arrow dir={-1} on={edge.prev} />
+            <Arrow dir={1} on={edge.next} />
+          </div>
+        )}
+      </div>
+      <div
+        ref={ref}
+        className="grid"
+        style={{
+          gridAutoFlow: "column",
+          // 1 → one full-width card · 2 → halves · 3+ → three per view, arrows.
+          gridAutoColumns:
+            count === 1 ? "100%" : count === 2 ? "calc((100% - 12px) / 2)" : "calc((100% - 24px) / 3)",
+          gap: 12,
+          overflowX: "auto",
+          scrollSnapType: "x mandatory",
+          scrollbarWidth: "none",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
 const LedgerRow = ({
   match,
   onOpen,
@@ -257,16 +644,20 @@ const LedgerRow = ({
         >
           {match.homeShort || match.home} vs {match.awayShort || match.away}
         </span>
-        <span
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "#6B7280",
-            fontWeight: 700,
-          }}
-        >
-          {match.league}
+        <span className="flex min-w-0 items-center" style={{ gap: 8 }}>
+          <span
+            className="truncate"
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "#6B7280",
+              fontWeight: 700,
+            }}
+          >
+            {match.league}
+          </span>
+          {match.streamUrl ? <StreamAtKickoffChip /> : null}
         </span>
       </span>
       <span
@@ -300,6 +691,9 @@ export const LiteSportsView = ({
   now,
   defaultSport,
   defaultLeague,
+  remindedFixture,
+  remindGuestFixture,
+  streamFixture,
 }: {
   matches: SportsMatch[];
   /** Boost filter composes IN PLACE — chrome stays, content narrows. */
@@ -312,6 +706,12 @@ export const LiteSportsView = ({
   defaultSport?: string;
   /** Style-guide only — preselect a league so a preset renders the filtered ledger. */
   defaultLeague?: string;
+  /** Style-guide only — events already reminded; toggles stay local, no DB. */
+  remindedFixture?: string[];
+  /** Style-guide only — Remind me behaves as for a guest (opens sign-in). */
+  remindGuestFixture?: boolean;
+  /** Style-guide only — freeze the stage player (loading / autoplay blocked). */
+  streamFixture?: "loading" | "blocked";
 }) => {
   const navigate = useNavigate();
   const [bucket, setBucket] = useState("all");
@@ -336,6 +736,16 @@ export const LiteSportsView = ({
   const boostEmpty = !!boostOnly && !boostEnabled;
 
   const live = useMemo(() => scoped.filter((m) => m.live), [scoped]);
+  const tick = useNowTick(now);
+  const reminders = useStreamReminders(remindedFixture, remindGuestFixture);
+  const nowMs = now ?? tick;
+  // Streams within 48h: soonest takes the stage when nothing streams live.
+  const previews = useMemo(() => upcomingStreams(scoped, nowMs), [scoped, nowMs]);
+  // Live + stream → the stage (busiest first); the rest keep LiveCard.
+  const streamed = useMemo(
+    () => live.filter((m) => !!m.streamUrl).sort((a, b) => b.volume - a.volume),
+    [live],
+  );
   const days: DayBucket[] = useMemo(
     () => buildDayStrip(scoped, clock),
     [scoped, clock],
@@ -483,28 +893,50 @@ export const LiteSportsView = ({
 
       {!boostEmpty && (
         <>
-      {/* Playing now */}
-      {live.length > 0 && (
-        <div className="flex flex-col" style={{ gap: 10 }}>
-          <div className="flex items-center" style={{ gap: 9 }}>
-            <LivePulse size={6} color="#FF3B4E" />
-            <span
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                color: "#fff",
-                fontWeight: 700,
-              }}
-            >
-              Playing now · {live.length}
-            </span>
-          </div>
-          {live.map((m) => (
-            <LiveCard key={m.id} match={m} onOpen={open(m.id)} onPick={pick(m.id)} />
-          ))}
-        </div>
-      )}
+      {/* Priority: live on stream → coming up on stream → other live matches → ledger. */}
+      {(() => {
+        // Previews always live in the rail (CPO 2026-11-04: no preview stage).
+        const rail = previews;
+        const others = live.filter((m) => !m.streamUrl);
+        const pulse = <LivePulse size={6} color="#FF3B4E" />;
+        const play = (
+          <span style={{ color: "#FF8A3D", display: "flex" }}>
+            <PlayTriangle />
+          </span>
+        );
+        return (
+          <>
+            {streamed.length > 0 && (
+              <div className="flex flex-col" style={{ gap: 10 }}>
+                <SectionHead icon={pulse} label={`Live on stream · ${streamed.length}`} />
+                <LiveStreamStage streams={streamed} streamFixture={streamFixture} onOpen={open} onPick={pick} />
+              </div>
+            )}
+            {rail.length > 0 && (
+              <PreviewRail count={rail.length} firstId={rail[0]?.id}>
+                {rail.map((m) => (
+                  <div key={m.id} style={{ scrollSnapAlign: "start" }}>
+                    {rail.length <= 2 ? (
+                      <PreviewCardWide m={m} now={nowMs} reminded={reminders.has(m.id)} onRemind={() => reminders.toggle(m.id)} onOpen={open(m.id)} onPick={pick(m.id)} />
+                    ) : (
+                      <PreviewCard m={m} now={nowMs} reminded={reminders.has(m.id)} onRemind={() => reminders.toggle(m.id)} onOpen={open(m.id)} onPick={pick(m.id)} />
+                    )}
+                  </div>
+                ))}
+              </PreviewRail>
+            )}
+            {others.length > 0 && (
+              <div className="flex flex-col" style={{ gap: 10 }}>
+                <SectionHead icon={pulse} label={`Playing now · ${others.length}`} />
+                {others.map((m) => (
+                  <LiveCard key={m.id} match={m} onOpen={open(m.id)} onPick={pick(m.id)} />
+                ))}
+              </div>
+            )}
+          </>
+        );
+      })()}
+      {reminders.authUi}
 
       {/* Day strip */}
       <div
