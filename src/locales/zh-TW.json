@@ -5954,6 +5954,8 @@
   "system.campaign_ending.body": "請在 {{deadline}} 前領取",
   "system.watchlist_live.title": "{{event}} 開盤了",
   "system.watchlist_live.body": "你關注的賽事剛剛開始 · 點擊交易",
+  "system.stream_live.title": "{{event}} 直播開始了",
+  "system.stream_live.body": "你設了提醒的直播剛剛開始 · 點擊觀看並交易",
   "loadMore": "載入更多",
   "endOfList.tradingNote": "買入 / 變現確認只保留 7 天",
   "session": "{{date}} 交易日",

@@ -53,10 +53,10 @@ const POPOVER_CASES: SectionCase[] = [
   {
     key: "notif-popover-updates",
     label: "NT-20 · Popover · Updates tab（v2）· 3 未读",
-    note: "第三枚 tab = `system` category：公告 / 维护 / 活动上线 / 活动将结束 / 关注赛事开盘（CPO 2026-10-13 V1–V5）。全部计角标（V2）。默认 tab = 第一个有未读的（Trading → Account → Updates）。公告 / 维护行标题正文 = 公告的 title / summary 原样，不走模板。",
+    note: "第三枚 tab = `system` category：公告 / 维护 / 活动上线 / 活动将结束 / 关注赛事开盘（CPO 2026-10-13 V1–V5）/ 直播开始（Sports 列表 Remind me 到点，CPO 2026-11-04）。全部计角标（V2）。默认 tab = 第一个有未读的（Trading → Account → Updates）。公告 / 维护行标题正文 = 公告的 title / summary 原样，不走模板。",
     spec: [
-      { state: "icon 色", when: "type", visual: "announcement Megaphone / campaign_live Gift / watchlist_live Star = primary；maintenance Wrench / campaign_ending Hourglass = trading-yellow；不碰 green / red", source: "NOTIFICATION_TYPES system.*" },
-      { state: "deep link", when: "row click", visual: "公告 → /announcements/:id（带 state.from=notifications → 详情页出 Back 钮）；活动 → /rewards/campaign/:id；关注 → /trade?event=", source: "notify() deep_link" },
+      { state: "icon 色", when: "type", visual: "announcement Megaphone / campaign_live Gift / watchlist_live Star / stream_live Tv = primary；maintenance Wrench / campaign_ending Hourglass = trading-yellow；不碰 green / red", source: "NOTIFICATION_TYPES system.*" },
+      { state: "deep link", when: "row click", visual: "公告 → /announcements/:id（带 state.from=notifications → 详情页出 Back 钮）；活动 → /rewards/campaign/:id；关注 / 直播提醒 → /trade?event=", source: "notify() deep_link" },
     ],
   },
   { key: "notif-popover-updates-empty", label: "NT-20b · Popover · Updates 空态", spec: [{ state: "empty updates", when: "tab=updates && visible.length === 0", visual: "彩绘猞猁 `empty-no-starred-event.png` · 'Nothing new' / 'Campaign news and announcements land here.'", source: "NOTIFICATION_EMPTY_ART.updates" }] },
@@ -132,7 +132,7 @@ const ROW_CASES: SectionCase[] = [
   { key: "notif-row-unknown", label: "NT-17 · 行 · 未知 type（default 分支）", spec: [{ state: "unknown", when: "type ∉ NOTIFICATION_TYPES", visual: "Bell muted + 原样 type 作标题、无正文；不进任何语义色、不计角标口径之外", source: "notificationMeta() DEFAULT_META" }] },
   { key: "notif-types-trading", label: "NT-18 · Trading 全 type（11，含正式版才有的 Pro 挂单 2 种）· 未读 · 最长变体", spec: [{ state: "all", when: "—", visual: "settled.win / loss / flat / round_batch · autoclose.tight / soon / done · trade.bought / cashed_out", source: "copy-dictionary「Notifications」" }] },
   { key: "notif-types-account", label: "NT-19 · Account 全 type（25）· 未读 · 最长变体（标题单行 ellipsis 为设计；sg-overflow-scan 已排除 text-overflow: ellipsis）", spec: [{ state: "all", when: "—", visual: "funds ×7 · reward ×11 · account ×8", source: "copy-dictionary「Notifications」" }] },
-  { key: "notif-types-updates", label: "NT-22 · Updates 全 type（5 · v2）· 未读", spec: [{ state: "all", when: "—", visual: "system.watchlist_live / maintenance / announcement / campaign_ending / campaign_live；campaign_live 无 ends_at 时正文不带 `· ends …` 尾巴", source: "copy-dictionary「Notifications」· notificationVars()" }] },
+  { key: "notif-types-updates", label: "NT-22 · Updates 全 type（6 · v2）· 未读", spec: [{ state: "all", when: "—", visual: "system.stream_live / system.watchlist_live / maintenance / announcement / campaign_ending / campaign_live；campaign_live 无 ends_at 时正文不带 `· ends …` 尾巴", source: "copy-dictionary「Notifications」· notificationVars()" }] },
   {
     key: "notif-icon-ledger",
     label: "NT-23 · 行 · 41 type → lucide icon → tone 台账（直接读 NOTIFICATION_TYPES 渲染，零手抄）",

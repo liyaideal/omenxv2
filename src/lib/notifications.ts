@@ -24,6 +24,7 @@ import {
   ShieldCheck,
   Star,
   TriangleAlert,
+  Tv,
   Wallet,
   Wrench,
   type LucideIcon,
@@ -114,7 +115,7 @@ const num = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0)) || 0;
 
 const pnlTone = (p: Record<string, unknown>): NotificationTone => (num(p.pnl) > 0 ? "volt" : "muted");
 
-/** The 34 v1 + 5 v2 + 2 Pro-order types (正式版 only; reward.treasure_opened retired 2026-10-20). Keep in sync with docs/copy-dictionary.md「Notifications」. The style-guide icon ledger (NT-23) renders straight from this table — it never drifts. */
+/** The 34 v1 + 6 v2 (system.stream_live added 2026-11-04) + 2 Pro-order types (正式版 only; reward.treasure_opened retired 2026-10-20). Keep in sync with docs/copy-dictionary.md「Notifications」. The style-guide icon ledger (NT-23) renders straight from this table — it never drifts. */
 export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   // Trading · Settled
   "settled.win": { icon: CircleCheck, tone: "volt" },
@@ -167,6 +168,8 @@ export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   "system.campaign_live": { icon: Gift, tone: "primary" },
   "system.campaign_ending": { icon: Hourglass, tone: "yellow" },
   "system.watchlist_live": { icon: Star, tone: "primary" },
+  // Sports list stream reminder fired at kickoff (CPO 2026-11-04).
+  "system.stream_live": { icon: Tv, tone: "primary" },
 };
 
 export const NOTIFICATION_TYPE_KEYS = Object.keys(NOTIFICATION_TYPES);
@@ -361,6 +364,7 @@ export const notificationVars = (n: Pick<NotificationRow, "type" | "params">): T
     case "system.campaign_ending":
       return { campaign: String(p.campaign ?? ""), deadline: notifDeadline(p.ends_at) };
     case "system.watchlist_live":
+    case "system.stream_live":
       return { event: String(p.event_name ?? "") };
     default:
       return base;

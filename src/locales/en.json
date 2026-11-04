@@ -6182,6 +6182,8 @@
     "system.campaign_ending.body": "claim before {{deadline}}",
     "system.watchlist_live.title": "{{event}} is live",
     "system.watchlist_live.body": "a starred event just opened · tap to trade",
+    "system.stream_live.title": "{{event}} stream is live",
+    "system.stream_live.body": "the stream you asked to be reminded about just started · tap to watch and trade",
     "loadMore": "Load more",
     "endOfList.tradingNote": "Buy / Cash out confirmations are kept for 7 days",
     "session": "{{date}} session",

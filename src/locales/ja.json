@@ -5965,6 +5965,8 @@
   "system.campaign_ending.body": "{{deadline}} までに受け取ってください",
   "system.watchlist_live.title": "{{event}} が開始",
   "system.watchlist_live.body": "お気に入りのイベントが始まりました · タップして取引",
+  "system.stream_live.title": "{{event}} の配信が始まりました",
+  "system.stream_live.body": "リマインドを設定した配信が始まりました · タップして視聴・取引",
   "loadMore": "もっと見る",
   "endOfList.tradingNote": "Buy / Cash out の確認は7日間のみ保存",
   "session": "{{date}} セッション",

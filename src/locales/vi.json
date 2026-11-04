@@ -5964,6 +5964,8 @@
   "system.campaign_ending.body": "nhận thưởng trước {{deadline}}",
   "system.watchlist_live.title": "{{event}} đã bắt đầu",
   "system.watchlist_live.body": "sự kiện bạn theo dõi vừa mở · chạm để giao dịch",
+  "system.stream_live.title": "{{event}} đang phát trực tiếp",
+  "system.stream_live.body": "buổi phát bạn đặt nhắc vừa bắt đầu · chạm để xem và giao dịch",
   "loadMore": "Tải thêm",
   "endOfList.tradingNote": "Xác nhận Buy / Cash out chỉ giữ 7 ngày",
   "session": "Phiên {{date}}",
