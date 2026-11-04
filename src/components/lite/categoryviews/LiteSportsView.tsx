@@ -739,7 +739,7 @@ export const LiteSportsView = ({
   const tick = useNowTick(now);
   const reminders = useStreamReminders(remindedFixture, remindGuestFixture);
   const nowMs = now ?? tick;
-  // Streams within 48h: soonest takes the stage when nothing streams live.
+  // Streams within 48h → the preview rail (always the rail, never the stage).
   const previews = useMemo(() => upcomingStreams(scoped, nowMs), [scoped, nowMs]);
   // Live + stream → the stage (busiest first); the rest keep LiveCard.
   const streamed = useMemo(

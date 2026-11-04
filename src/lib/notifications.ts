@@ -2,7 +2,7 @@
  * Notifications (消息中心) — type registry, tab mapping, badge rules, time label.
  *
  * CPO 2026-10-13 (方案 v0 D1–D12 + mock v1 M1–M8):
- *  - 35 v1 types in 6 categories; tabs = Trading (settled + autoclose + trades)
+ *  - 34 v1 types in 6 categories; tabs = Trading (settled + autoclose + trades)
  *    and Account (funds + rewards + account). v2 (CPO 2026-10-13 V1–V5) adds
  *    `Updates` = `system` category: announcements / maintenance / campaign
  *    live + ending / starred event live. The DB keeps `category` fine-grained,
@@ -115,7 +115,7 @@ const num = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0)) || 0;
 
 const pnlTone = (p: Record<string, unknown>): NotificationTone => (num(p.pnl) > 0 ? "volt" : "muted");
 
-/** The 34 v1 + 6 v2 (system.stream_live added 2026-11-04) + 2 Pro-order types (正式版 only; reward.treasure_opened retired 2026-10-20). Keep in sync with docs/copy-dictionary.md「Notifications」. The style-guide icon ledger (NT-23) renders straight from this table — it never drifts. */
+/** 40 types = 34 v1 (incl. the 2 Pro-order types trade.order_filled / order_cancelled, 正式版 only; reward.treasure_opened retired 2026-10-20) + 6 v2 Updates (system.stream_live added 2026-11-04). Keep in sync with docs/copy-dictionary.md「Notifications」. The style-guide icon ledger (NT-23) renders straight from this table — it never drifts. */
 export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   // Trading · Settled
   "settled.win": { icon: CircleCheck, tone: "volt" },

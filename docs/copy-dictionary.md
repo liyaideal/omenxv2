@@ -323,7 +323,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | `streamCountdown(kickoff, now)` | 海报倒计时 `{ lead, value, soon }` |
 | `kickoffShort(kickoff, now)` | 卡片 meta 行短开赛时间 |
 | `useNowTick(frozen?)` | 每秒刷新的时钟；字典传冻结时钟 |
-| `chipLabel(m, label, i)` | 预告卡按钮名：首 = 主队缩写、末 = 客队缩写、中间原样 |
+| `chipLabel(m, label, i)` | 预告卡按钮名：首 = 主队缩写、末 = 客队缩写、中间沿用选项原文（足球为 `Draw`）。注意它不在 `UpcomingStreams.tsx`：`LiteSportsView.tsx` 与 `MobileSportsModule.tsx` 各有一份同名同义实现 |
 
 ## Sports live stage (`/trade` 直播舞台，2026-09-01)
 
@@ -1164,7 +1164,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 
 | 概念 | 是什么 | 判定表达式 | 一句话类比 |
 |---|---|---|---|
-| **type** | 一条通知的机器键，决定模板 / icon / 色 / 深链 | `notifications.type`，35 个枚举（下表） | 邮件模板编号 |
+| **type** | 一条通知的机器键，决定模板 / icon / 色 / 深链 | `notifications.type`，40 个枚举（下表） | 邮件模板编号 |
 | **Trading / Account / Updates**（tab） | 三枚 tab；库里 7 个 category 映射上来 | `settled / autoclose / trades → Trading`；`funds / rewards / account → Account`；`system → Updates`（v2，2026-10-13） | 抽屉分格 |
 | **unread**（计角标） | 铃铛数字与 tab 圆点的口径 | `read_at IS NULL AND type NOT LIKE 'trade.%'`（Buy / Cash out 不计，行保留未读样式） | 自己发的不算新消息 |
 | **read** | 点行 / Mark all read 才已读；打开面板不算 | `read_at IS NOT NULL` | 打开列表 ≠ 打开邮件 |
@@ -1174,7 +1174,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **90 天 / 7 天** | 保留期，未读也删：`trade.*`（Buy / Cash out 确认）7 天，其余 90 天（CPO 2026-10-14 N1） | `purge_notifications()` 每日 | 回执一周、账单三个月 |
 | **Load more**（桌面） | 桌面全页每次 30 条、按 tab 分页；移动滑到底自动加载 | `useNotificationPages(tab)` → `category IN (…)` | 翻页钮 |
 
-### 40 个 type（35 v1 + 5 v2 Updates；标题 / 正文 = en 模板；`{{x}}` 由前端格式化后插值）
+### 40 个 type（34 v1，其中 2 个是只有正式版产生的 Pro 挂单 + 6 v2 Updates；标题 / 正文 = en 模板；`{{x}}` 由前端格式化后插值）
 
 icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染版在 /style-guide#lite-notifications NT-23；色义：volt 盈 / 入账 · muted 亏 / 出账 / 中性 · red 失败 / done / 安全 · yellow tight / 要注意时间 · primary Rewards / 信息类 Updates；表外 type → `Bell` muted。
 

@@ -10,8 +10,10 @@
 --     becomes one `system.stream_live` notification (Updates tab), dedupe
 --     `stream:<event_id>`, then the row is stamped `notified_at`.
 --     Re-running is a no-op: the stamp + the dedupe key both stop a second send.
---   * Reminders older than kickoff + 30 min that never fired (event postponed,
---     stream removed) are stamped too, so they never fire late.
+--   * Reminders whose (current) kickoff is more than 30 min ago and never fired
+--     (e.g. the stream was removed before kickoff) are stamped too, so they
+--     never fire late. Kickoff is re-read every run: if an event is postponed
+--     by moving metadata.kickoff_at later, the reminder fires at the new time.
 --
 -- 🔴 Demo engine. The real platform owns the reminder service and emits the
 -- same `system.stream_live` message type from it.
