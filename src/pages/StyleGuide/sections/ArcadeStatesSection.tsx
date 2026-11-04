@@ -1,5 +1,5 @@
 /**
- * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-24 · AB-1 / AB-2 · AS-1 … AS-4）。
+ * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-26 · AB-1 / AB-2 · AS-1 … AS-4）。
  *
  * 规则（Liya 2026-10-27 / 10-28 拍板，研发稿 v1.0 + 她的修订；2026-11-02 James 反馈轮修订）：先只上 BTC；没有「局」，
  * 每一枚筹码就是一张自己的 30 秒合约（t0 = 服务端接单时刻）；价格 = Binance / Hyperliquid / Coinbase 三所中间价
@@ -17,6 +17,7 @@ const VOUCHER_SPEC = [
   { state: "计数中", when: "登录 && vToday < cap", visual: "3 格亮 `streakW % 3` 格（输一把清零、void 不算、新一场清零——同服务端发券口径）；桌面 `3 more wins` / `2 more wins` / `1 more win → $2 voucher` ｜ `$4 / $10 today ›`；手机只有格子 + `$4 / $10 today ›`", source: "renderVouchers" },
   { state: "刚掉券", when: "掉券后 8 秒（vHold）", visual: "3 格全亮、框变亮发光；桌面 `+$2 voucher · it's in your Vouchers` ｜ `$6 / $10 today ›`；手机 `+$2 · $6 / $10 ›`；`+$2 VOUCHER` 飞牌落在框上", source: "comboUpdate / voucherFly" },
   { state: "今天满了", when: "vToday ≥ cap", visual: "框变暗、没有格子；桌面 `Today's $10 of vouchers claimed · more from 00:00 UTC`；手机 `$10 claimed today`", source: "renderVouchers" },
+  { state: "加载中", when: "登录 && 服务端还没回今天的券额（进页 / 刚登录后约 1 秒）", visual: "框不变，3 格变暗（不亮格），桌面 / 手机同一句 `$— / $10 today ›`；服务端一回就换成上面对应的态——不许先闪 `$0`（2026-11-04 CPO 批）", source: "renderVouchers · S.vKnown" },
   { state: "点击", when: "任一态", visual: "→ Rewards › Vouchers", source: "api.vouchers" },
 ];
 
@@ -184,7 +185,19 @@ const MORE_MOB: SectionCase[] = [
   {
     key: "arcade-ar24",
     label: "AR-24 · 移动版 · 今天 $10 券已满",
-    note: "James 第二轮（2026-11-04）：券计量条四态——未登录（AR-6 移动）/ 计数中（AR-5）/ 刚掉券（AR-17）/ 今天满了（本帧）。",
+    note: "James 第二轮（2026-11-04）：券计量条五态——未登录（AR-6 移动）/ 计数中（AR-5）/ 刚掉券（AR-17）/ 今天满了（本帧）/ 加载中（AR-25 桌面、AR-26 移动）。",
+    spec: VOUCHER_SPEC,
+  },
+  {
+    key: "arcade-ar25",
+    label: "AR-25 · 桌面 · 券计量条加载中",
+    note: "进页或刚登录后约 1 秒，服务端还没回今天的券额：框不变、格子变暗、`$— / $10 today ›`。这一帧的账号其实今天已满 $10——服务端一回就直接变成 AR-16 的样子，中间不出现 `$0`。",
+    spec: VOUCHER_SPEC,
+  },
+  {
+    key: "arcade-ar26",
+    label: "AR-26 · 移动版 · 券计量条加载中",
+    note: "同 AR-25，手机 YOUR STAKE 旁边那条：格子变暗 + `$— / $10 today ›`；服务端一回变成 AR-24。",
     spec: VOUCHER_SPEC,
   },
 ];
@@ -278,7 +291,7 @@ const FLAGS_MOB: SectionCase[] = [
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-24 · AB-1 / AB-2 · AS-1 … AS-4）"
+    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-26 · AB-1 / AB-2 · AS-1 … AS-4）"
     description="CPO 2026-10-27 / 10-28 拍板 + 2026-11-02 James 反馈轮（mock claude.ai/artifact/1hCirCctvs2VNkP2J5bUfC v17c）：先只上 BTC；每一枚筹码一张 30 秒合约；三所中位数指数；报价 0.40–0.60；3% 开仓费、2 秒可撤（0.15%，4 位小数）、不可平仓、盈利扣 5% 佣金、平局全退；$2–50 一注、单账户未到期 ≤ $500；连赢每 3 把一张 $2 有门槛仓位券、每天 ≤ $10。颜色只表示方向（青涨 / 柠檬绿跌），输赢看实心 / 空心与 ✓ / ✕。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">

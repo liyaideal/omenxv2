@@ -169,6 +169,8 @@ export interface ArcadeFixture {
   session?: { last: boolean[] };
   /** USD of combo vouchers already dropped today (the voucher chip on 03) */
   vouchersToday?: number;
+  /** the server hasn't said today's voucher total yet (first second after load / sign-in) → the meter's loading state */
+  vouchersLoading?: boolean;
   /** a key is hovered (desktop): the chart shades the winning side of the preview line */
   hover?: Side;
   /** replay the combo effects of the last settled win (the ×3 voucher drop) once the frame is up */
@@ -320,6 +322,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     /** combo vouchers today (USD), from arcade_table_now().combo_today; a fresh drop holds until perf ms vHold */
     vToday: 0,
     vHold: 0,
+    /** vToday came from the server for this account (false until the first arcade_table_now with combo_today) */
+    vKnown: false,
     /** the run of wins on right now: profit, stake, biggest win (the combo poster) */
     runPnl: 0,
     runStake: 0,
@@ -1100,7 +1104,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   }
   /** the voucher meter on 03 (desktop) / next to YOUR STAKE (phone), James 2026-11-04: a ticket + one pip per
       win in the current run towards the next voucher + today's total. States: signed out (the rule) · counting ·
-      just dropped (all pips lit, 8 s) · today's cap reached. */
+      just dropped (all pips lit, 8 s) · today's cap reached · loading (signed in, the server hasn't said today's
+      total yet: pips dimmed, `$— / $10 today`, CPO 2026-11-04 — never flash `$0` at someone who is already at the cap). */
   const TICKET = `<svg class="vtk" viewBox="0 0 16 11" aria-hidden="true"><path fill="currentColor" d="M0 0h16v3.5a2 2 0 0 0 0 4V11H0V7.5a2 2 0 0 0 0-4z"/><path fill="#07090f" d="M10 1h1v1h-1zM10 3h1v1h-1zM10 5h1v1h-1zM10 7h1v1h-1zM10 9h1v1h-1z"/></svg>`;
   function renderVouchers() {
     const e = $("#vouChip");
@@ -1117,7 +1122,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const pips = `<span class="vpips">${Array.from({ length: every }, (_, i) => `<i${i < lit ? ' class="on"' : ""}></i>`).join("")}</span>`;
     const today = `<span class="vday"><b>${whole(v)}</b> / ${whole(cap)} today ›</span>`;
     let st: string, h: string;
-    if (!api.userId) {
+    if (api.userId && !S.vKnown && !fresh) {
+      st = "loading";
+      const dim = `<span class="vpips">${Array.from({ length: every }, () => "<i></i>").join("")}</span>`;
+      h = `${TICKET}${dim}<span class="vtx"><b>$—</b> / ${whole(cap)} today ›</span>`;
+    } else if (!api.userId) {
       st = "guest";
       h = mobile ? `${TICKET}<span class="vtx"><b>${every} in a row</b> = ${face} voucher</span>` : `${TICKET}<span class="vtx">Win <b>${every} in a row</b> = ${face} voucher · up to ${whole(cap)} a day</span>`;
     } else if (fresh) {
@@ -2190,7 +2199,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         adoptTick(d.tick, d.now);
       } else if (d.now && !FX) off = ms(d.now) - Date.now();
       if (d.params && Object.keys(d.params).length) S.params = d.params;
-      if (api.userId && typeof d.combo_today === "number") S.vToday = perf() < S.vHold ? Math.max(S.vToday, d.combo_today) : d.combo_today;
+      if (api.userId && typeof d.combo_today === "number") {
+        S.vToday = perf() < S.vHold ? Math.max(S.vToday, d.combo_today) : d.combo_today;
+        S.vKnown = true;
+      }
       const wasPaused = S.paused;
       S.paused = d.state?.paused_reason || null;
       if (!S.paused && (!S.tick || !S.tick.valid || now() - ms(S.tick.ts) > maxAge())) S.paused = "index";
@@ -3053,6 +3065,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     if (FX.calls.length) S.played = true;
     S.vToday = FX.vouchersToday || 0;
+    S.vKnown = !FX.vouchersLoading;
     if (FX.session && S.streakW >= 2) comboUpdate(FX.comboEvent || "boot");
     if (FX.ack === false) openGate(true);
     renderRoads();
@@ -3083,6 +3096,9 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (api.userId && !FX) {
         S.ackKnown = false;
         S.noAck = 0;
+        // a new account: today's voucher total is unknown until its first poll (never show the last account's)
+        S.vKnown = false;
+        S.vToday = 0;
         void boot();
       }
     },

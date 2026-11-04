@@ -221,6 +221,9 @@ export const Ar17Preview = () => <Cabinet mobile fixture={base({ calls: WIN3, se
 const openTip = (root: HTMLElement) => (root.querySelector('.info[data-tip="inplay"]') as HTMLElement | null)?.click();
 /* ---------- AR-24 mobile · the voucher meter at today's cap ---------- */
 export const Ar24Preview = () => <Cabinet mobile fixture={base({ calls: WIN3, session: { last: [true, true, true, true, true] }, vouchersToday: 10 })} width={375} height={760} />;
+/* ---------- AR-25 desktop / AR-26 mobile · the voucher meter while today's total is loading (first second after load / sign-in) ---------- */
+export const Ar25Preview = () => <Cabinet fixture={base({ vouchersToday: 10, vouchersLoading: true })} width={1040} height={700} />;
+export const Ar26Preview = () => <Cabinet mobile fixture={base({ vouchersToday: 10, vouchersLoading: true })} width={375} height={760} />;
 export const Ar18Preview = () => <Cabinet mobile fixture={base()} width={375} height={760} after={openTip} />;
 
 /* ---------- AR-20 … AR-23 · flag lane, a burst of 6 calls in 5 s (CPO 2026-11-02 option A,

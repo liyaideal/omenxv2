@@ -692,6 +692,9 @@
 .arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou).max{border-color:rgba(207,255,74,.35);background:rgba(207,255,74,.05);color:var(--mute)}
 .arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou).max .vtk{color:rgba(207,255,74,.5)}
 .arcade-root :is(.cab.v2,.v2m) .vchip:hover{background:rgba(207,255,74,.18)}
+/* loading (CPO 2026-11-04): same frame, pips dimmed, `$— / $10 today` until the server says today's total */
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou).loading .vpips i{opacity:.35}
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou).loading b{color:var(--mute)}
 
 /* ⑦ 01 / REPLAY as one screen (CPO 2026-11-04, canvas option 2 + 3): the tag plate + ONE screen whose head says the
    window once ("LAST 30 MIN · 15:22 → now · 60 results — each dot or box = …"); inside, three panes read the same 60
