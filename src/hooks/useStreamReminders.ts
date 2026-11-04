@@ -3,26 +3,23 @@
 // One row per (user, event) in public.stream_reminders (RLS: own rows).
 // At kickoff the cron producer notify_stream_reminders() turns each row into
 // one `system.stream_live` notification (Notifications → Updates).
-// Guests: the tap opens sign-in (AuthSheet on mobile, AuthDialog on desktop —
-// render `authUi` once in the view); nothing is stored locally.
+// Guests: the tap calls the global sign-in prompt (AuthPromptHost: the standard
+// AuthDialog on desktop, AuthSheet on mobile); nothing is stored locally.
 // `fixture` (style-guide only) seeds the set and keeps every toggle local —
 // no auth, no DB; `guestFixture` makes every tap open sign-in as for a guest.
 // Neither is passed in production.
 // ============================================================
-import { createElement, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { AuthDialog } from "@/components/auth/AuthDialog";
-import { AuthSheet } from "@/components/auth/AuthSheet";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 
 const db = () => (supabase as any).from("stream_reminders");
 
 export const useStreamReminders = (fixture?: string[], guestFixture?: boolean) => {
   const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const [authOpen, setAuthOpen] = useState(false);
+  const openAuthPrompt = useAuthFlowStore((s) => s.openPrompt);
   const [ids, setIds] = useState<Set<string>>(() => new Set(fixture ?? []));
 
   useEffect(() => {
@@ -57,7 +54,7 @@ export const useStreamReminders = (fixture?: string[], guestFixture?: boolean) =
     async (eventId: string) => {
       const on = !ids.has(eventId);
       if (guestFixture) {
-        setAuthOpen(true);
+        openAuthPrompt();
         return;
       }
       if (fixture) {
@@ -65,7 +62,7 @@ export const useStreamReminders = (fixture?: string[], guestFixture?: boolean) =
         return;
       }
       if (!user) {
-        setAuthOpen(true);
+        openAuthPrompt();
         return;
       }
       flip(eventId, on); // optimistic
@@ -77,13 +74,8 @@ export const useStreamReminders = (fixture?: string[], guestFixture?: boolean) =
         toast.error("Couldn't update the reminder", { description: "Please try again." });
       }
     },
-    [ids, fixture, guestFixture, user],
+    [ids, fixture, guestFixture, user, openAuthPrompt],
   );
 
-  const authUi = createElement(isMobile ? AuthSheet : AuthDialog, {
-    open: authOpen,
-    onOpenChange: setAuthOpen,
-  });
-
-  return { has: (eventId: string) => ids.has(eventId), toggle, authUi };
+  return { has: (eventId: string) => ids.has(eventId), toggle };
 };

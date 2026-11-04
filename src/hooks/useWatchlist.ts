@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
@@ -65,9 +64,6 @@ export const useWatchlist = () => {
 
       // Require auth for watchlist
       if (!user) {
-        toast.info("Sign in to use Watchlist", {
-          description: "Save markets and access them across devices.",
-        });
         openAuthPrompt();
         return;
       }

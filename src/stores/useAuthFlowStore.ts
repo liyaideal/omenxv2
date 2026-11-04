@@ -3,8 +3,9 @@ import { create } from "zustand";
 interface AuthFlowState {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  // Global "please sign in" prompt — used by features that require auth
-  // (e.g. watchlist star button) to ask the host page to open its auth modal.
+  // Global "please sign in" prompt — features that need auth (watchlist star,
+  // stream Remind me…) call openPrompt(); <AuthPromptHost /> (mounted once in
+  // App) opens the standard sign-in: AuthDialog on desktop, AuthSheet on mobile.
   promptOpen: boolean;
   openPrompt: () => void;
   closePrompt: () => void;

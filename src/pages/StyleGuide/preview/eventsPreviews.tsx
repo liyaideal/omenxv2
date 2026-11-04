@@ -33,6 +33,7 @@ import { buildDayStrip, type SportsMatch,
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { WatchlistChip, CalendarChip } from "@/components/lite/LiteListControls";
 import { EmptyState } from "@/components/states";
+import { AuthPromptHost } from "@/components/auth/AuthPromptHost";
 
 /* ---------------- shared shells ---------------- */
 
@@ -1318,5 +1319,6 @@ export const Ev45Preview = () => (
     <ClickAfterMount selector="[data-remind]">
       <StreamsDemo matches={PREVIEW_ONE} guest />
     </ClickAfterMount>
+    <AuthPromptHost />
   </Stage>
 );

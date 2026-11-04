@@ -936,7 +936,6 @@ export const LiteSportsView = ({
           </>
         );
       })()}
-      {reminders.authUi}
 
       {/* Day strip */}
       <div
