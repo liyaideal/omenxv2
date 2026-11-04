@@ -297,6 +297,9 @@
 | 项 | 标记 | 说明 |
 |---|---|---|
 | `stream_reminders` 表（`user_id` × `event_id` 主键、`created_at`、`notified_at`），RLS 只读写本人行 | 🟡 B | "一人一场一条、可取消、游客不能设"是需求；存储自选 |
+| 写入校验（RLS insert，`20261104150000_stream_reminders_insert_check.sql`）：只收有 `stream_url`、未结算、kickoff 在 `now()` 之后且 48 小时内的比赛；不限每人条数；取消不设限。前端写入用 upsert（重复设置不报错） | 🟡 B | 规则是需求（CPO 2026-11-04 第二轮）；正式版在提醒服务入口做同样校验 |
+| 触发锚点与改期：以 kickoff 为准，30 分钟窗口从 kickoff 起算；每次都读最新 kickoff，比赛改期按新时间发；比赛取消（结算 / 作废）不发；正式版若开播事件早于 kickoff，以先到者为准 | 🟡 B | 需求（第二轮） |
+| 送达渠道：v1 只发站内消息中心（铃铛 / Updates），不发邮件 / 推送，不设偏好开关 | 🟡 B | 需求（第二轮）；人不在站上就收不到，CPO 已接受 |
 | `notify_stream_reminders()` cron 每分钟：kickoff（`metadata.kickoff_at`，否则 `start_date`）已过且在 30 分钟内、未结算、仍有 `stream_url` → `notify(…, 'system.stream_live', …, dedupe 'stream:<event_id>')` + 盖 `notified_at`；过了 30 分钟没发的直接盖章不补发 | 🟡 B | "开播时提醒、只提醒一次、不迟发"是需求；正式版由提醒服务按直播开始事件推（不必轮询） |
 | `metadata.stream_url`（HLS `.m3u8`） | 🔴 演示专用 | Lovable 用 mux 测试流种在演示赛事上；正式版由直播源服务提供，CPO 口径「LoL 与大的足球比赛都有直播」 |
 | 演示：alex 一条待开播提醒（`sp-ucl-mci-int`）+ 一条已发出的 `system.stream_live`（`demo-live-cs2`）——`supabase/migrations/20261104130500_stream_demo_seed.sql` | 🔴 演示专用 | 清理 SQL 写在文件尾 |

@@ -8,7 +8,7 @@
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/events?sector=sports`（桌面 + 手机）
-- 什么时候变成什么样 → `/style-guide` → Lite → **Events 列表** 节点 → 小节「⑥b Sports 品类页 · 直播与直播预告（EV-36 … EV-45）」
+- 什么时候变成什么样 → `/style-guide` → Lite → **Events 列表** 节点 → 小节「⑥b Sports 品类页 · 直播与直播预告（EV-36 … EV-46）」
 - 字段名、文案、倒计时写法、术语 → `docs/copy-dictionary.md` 节「Sports 列表 · 直播与预告」（顶部「Lite 术语对照表」）；通知行在节「Notifications」的 `system.stream_live`
 - 设计法则（尺寸、颜色、宽度规则）→ `DESIGN.md` §Addendum 2026-11-04 · Sports 列表直播与预告（14 条）
 - 后端什么是需求、什么只是演示 → `docs/backend-boundary.md`「2026-11-04 Sports 列表 · 直播提醒」+ 本文 §5
@@ -17,12 +17,12 @@
 ## 0.1 字典怎么看
 
 1. 打开 `/style-guide`（不用登录），左栏 Lite 组点 **Events 列表**，本页目录里找「⑥b Sports 品类页 · 直播与直播预告」。
-2. 小节里三组样张：EV-36…39（直播舞台）、EV-40…44（预告排）、EV-45（游客点 Remind me，单独一帧，因为登录层是 fixed 浮层）。每组上面桌面 1280 帧、下面手机 375 帧。
+2. 小节里三组样张：EV-36…39 + EV-46（直播舞台，含直播放不了撤出舞台）、EV-40…44（预告排）、EV-45（游客点 Remind me，单独一帧，因为登录层是 fixed 浮层）。每组上面桌面 1280 帧、下面手机 375 帧。
 3. 每张样张 = 编号 + 状态名 + iframe 里的生产组件；下面的表固定「状态 / 触发条件 / 视觉 / 数据来源」，触发条件就是判定表达式。
-4. 样张跑在冻结时钟（`FROZEN_NOW` 2026-08-03 15:20 UTC）上，倒计时不走；视频是交易页直播用的同一条 mux 测试流。
+4. 样张跑在冻结时钟（`FROZEN_NOW` 2026-08-03 15:20 UTC）上，倒计时不走；视频是交易页直播用的同一条 mux 测试流；这条流在字典里放不出来时舞台照常显示（字典不随网络变样），撤出舞台只在 EV-46 演示。
 5. 页头搜索框敲 `EV-42` 或文字，点结果落到样张；单张查看：`/style-guide/preview?c=events-ev42`（key = `events-ev` + 编号小写，见 §6）。
 
-只在字典里看得到的态：多路直播 + 切换（EV-37 / 37b，Lovable 演示库同时只有一场直播中的比赛有流）、视频加载中（EV-38）、自动播放被拦（EV-39）、Remind me 已设（EV-43；生产页要看真数据，用演示号 alex_carter 登录：站内登录框 → Google → Alex Carter）。
+只在字典里看得到的态：多路直播 + 切换（EV-37 / 37b，Lovable 演示库同时只有一场直播中的比赛有流）、视频加载中（EV-38）、自动播放被拦（EV-39）、直播放不了撤出舞台（EV-46）、Remind me 已设（EV-43；生产页要看真数据，用演示号 alex_carter 登录：站内登录框 → Google → Alex Carter）。
 
 ## 通俗导读
 
@@ -43,7 +43,7 @@
 |---|---|---|
 | Live on stream · n | 至少一场正在打且有 `stream_url` | 直播舞台：一屏一路视频 + 记分牌 + 下注；多路时底部切换条 |
 | Coming up on stream · n（Next 48 hours） | 至少一场未开赛、有 `stream_url`、48 小时内开赛 | 预告排（1 张宽卡铺满 / 2 张宽卡各半 / 3 张及以上竖卡横滑 + 箭头） |
-| Playing now · n | 至少一场正在打且**没有** `stream_url` | 原有 live 卡：桌面样式不变；手机按 DESIGN 第 13 条给队名腾宽度，卡高不变；不再带 Watch live 芯片 |
+| Playing now · n | 至少一场正在打、但不在舞台上（没有 `stream_url`，或直播放不了） | 原有 live 卡：桌面样式不变；手机按 DESIGN 第 13 条给队名腾宽度，卡高不变；不再带 Watch live 芯片 |
 | day strip + 列表 | 原规则 | 不变；有直播的未开赛比赛行带 `Stream at kickoff` |
 
 三段各自计数，空段整段不渲染。体育筛选（Sport / League）对三段同样生效（同一个 `scoped` 集合）。
@@ -52,10 +52,11 @@
 
 | 概念 | 判定 | 来源 |
 |---|---|---|
-| 直播 | `isFixtureLive(e) && metadata.stream_url` 非空 | `useSportsMatches` → `SportsMatch.streamUrl` |
+| 直播 | `liveAt(m, now)`（每秒重算）`&& metadata.stream_url` 非空，且本次访问播放器没报 `error` / `forbidden` | `useStreamLineup` |
 | 预告 | `!live && stream_url && 0 < kickoff − now ≤ 48h`，开赛时间升序，**不设上限** | `upcomingStreams()` |
 | kickoff | `metadata.kickoff_at`，没有时回落 `events.start_date` | `sportsData.ts` |
-| 舞台默认一路 | 直播按 `events.volume`（累计成交额）降序取第一；选中后不跟着成交额变化 | `LiteSportsView` / `MobileSportsModule` |
+| 舞台默认一路 | 直播按 `events.volume`（累计成交额）降序取第一，相同按开赛早者优先；选中后不跟着成交额变化 | `streamLineup.ts` `byStageOrder` |
+| 数字口径 | `on stream` = 舞台场数、`playing now` = Playing now 场数；手机芯片与桌面今天日期头同口径 | DESIGN 第 15 条 |
 | 已提醒 | `stream_reminders` 里有 `(auth.uid(), event_id)` | `useStreamReminders` |
 
 ## 3. 直播舞台
@@ -66,6 +67,8 @@
 - 多路：一屏只放一路，切换条标签 `ARS 1 – 0 RMA 63'`，点了视频和记分牌一起换（同一个 `<video>` 换源，不并存两路）。
 - 视频状态：加载 / 缓冲 = 中央转圈；自动播放被拦 / 暂停 = 中央橙色播放钮，点了从直播最新处接上（沿用 `useHlsVideo`）。
 - 舞台上的比赛不再在 `Playing now` 单列。
+- 直播放不了（`error` 断流 / `forbidden` 地区限制）：这一路本次访问撤出舞台，换剩下成交额最高的一路；只剩这一路时舞台整段不出，比赛进 `Playing now`，芯片和日期头数字跟着变。刷新页面重试（EV-46）。
+- 视频滚出屏幕或页面切到后台就暂停；回来从直播最新处接着播。
 
 ## 4. 直播预告排
 
@@ -73,15 +76,17 @@
 - 宽度按数量：1 张铺满、2 张各半（横版宽卡：海报左 42%，≤ 360px）；3 张及以上竖版卡一屏 3 张、横滑，右上箭头只在能滚时出现。手机：竖卡占内容区宽（屏宽 − 32）的 78%，横滑，只有 1 张时铺满。
 - 倒计时：< 1 小时 `37:53` 按秒跳、橙色；1–24 小时 `5h 20m`；≥ 24 小时写开赛时间 `Tomorrow 19:14` / `Fri 19:00`。卡片 meta 行写短格式 `Today 12:55` / `Tmrw 10:15` / `Fri 19:15`。
 - 下注按钮名按位置：第一个 = 主队缩写、最后一个 = 客队缩写、中间沿用选项原文（足球为 `Draw`）。位置 = 选项按 option id 字典序排（`sportsData.ts`，与列表行同序）。
+- 排序：开赛时间从近到远，同时开赛的成交额高者在前。
 - 点卡片 → 交易页（开赛前就能交易）；点下注按钮 → 交易页并选好结果。
-- 开赛后：预告排按秒判定，开赛即移除；舞台跟数据刷新（每 30 秒）收进，所以 Lovable 上最长约 30 秒两边都不显示。只有仍在打、仍有 `stream_url` 的比赛进得了舞台（舞台已有直播时进切换条）。
+- 开赛那一秒：直播 / 预告都按秒判定，比赛开赛即离开预告排、同一秒进舞台（舞台已有直播时进切换条）。时钟与比分在随后一次自动刷新补上，补上前时钟位写 `LIVE`。
 
 ## 5. Remind me（前端 + 后端）
 
-**前端**（`src/hooks/useStreamReminders.ts`）：登录用户读本人 `stream_reminders`；点击乐观切换 `Remind me ⇄ Reminder set`，写库失败回滚 + toast `Couldn't update the reminder`。游客点击 = 调全站公共登录开关 `useAuthFlowStore.openPrompt()`，由 `AuthPromptHost`（`App` 挂一次）打开站内标准登录框（桌面 `AuthDialog` / 手机 `AuthSheet`，原样不改文字）；不在本地存，登录后需再点一次。自选星标走同一条路（原来只弹 toast、不开登录的问题同轮修掉，toast 删除）。
+**前端**（`src/hooks/useStreamReminders.ts`）：登录用户读本人 `stream_reminders`；点击乐观切换 `Remind me ⇄ Reminder set`，写入用 upsert（重复设置不报错，读取没完成时连点也没事），写库失败回滚 + toast `Couldn't update the reminder`。游客点击 = 调全站公共登录开关 `useAuthFlowStore.openPrompt()`，由 `AuthPromptHost`（`App` 挂一次）打开站内标准登录框（桌面 `AuthDialog` / 手机 `AuthSheet`，原样不改文字）；不在本地存，登录后需再点一次。自选星标走同一条路（原来只弹 toast、不开登录的问题同轮修掉，toast 删除）。
 
 **后端**（`supabase/migrations/20261104130000_stream_reminders.sql`）：
 - 表 `stream_reminders(user_id, event_id, created_at, notified_at)`，主键 `(user_id, event_id)`，RLS 只读写本人行（select / insert / delete）。
+- 写入校验（`20261104150000_stream_reminders_insert_check.sql`）：只收有 `stream_url`、未结算、48 小时内开赛且还没开赛的比赛；不限每人条数；取消不设限。
 - `notify_stream_reminders()`，cron `notify-stream-reminders` 每分钟：kickoff 已过且在 30 分钟内、未结算、仍有 `stream_url` 的未发提醒 → `notify(user, 'system.stream_live', {event_name, event_id, home, away, league}, 'event', NULL, '/trade?event=<id>', 'stream:<id>')` → 盖 `notified_at`。kickoff 过 30 分钟仍没发的直接盖章，不迟发。
 - 幂等：已实测连跑三次只产生一条通知（`notified_at` + dedupe key 双保险）。
 
@@ -93,17 +98,39 @@
 
 | 项 | 现行做法 | 出处 |
 |---|---|---|
-| 数据刷新 | 列表数据每 30 秒重拉、重判直播 / 预告；倒计时每 1 秒按设备时钟重算 | `useSportsMatches`（`sportsData.ts`）、`useNowTick` |
+| 数据刷新 | 列表数据每 30 秒重拉；30 秒内有比赛开赛时，开赛后约 1.5 秒加拉一次补时钟 / 比分；直播 / 预告判定与倒计时每 1 秒按设备时钟重算 | `useSportsMatches`（`sportsData.ts`）、`useNowTick`、`liveAt` |
 | 时间写法 | 用户本地时区、24 小时制、不带时区后缀（同词典「Lite 术语对照表」）；`5h 20m` 的分钟两位补零（`5h 05m`） | `streamCountdown` / `kickoffShort` |
 | 断点 | `useIsMobile`：宽 < 768 = 手机布局，≥ 768 = 桌面布局，中间没有档位 | `src/hooks/use-mobile.tsx` |
-| 舞台换路 | 当前那一路打完、结算或被撤 `stream_url` 后，下次数据刷新移出舞台，自动回落到成交额最高的那一路；被撤流但仍在打的比赛进 `Playing now` | `LiteSportsView` / `MobileSportsModule` |
+| 舞台换路 | 当前那一路打完、结算或被撤 `stream_url` 后，下次数据刷新移出舞台；播放器报错则立即移出。都自动回落到成交额最高的那一路；仍在打的进 `Playing now` | `useStreamLineup` |
 | `$x traded` | `compactVolume`：≥ 1M 保留一位小数 `$4.2M`；≥ 1K 取整 `$482K`；其余取整 `$950` | `sportsData.ts` |
 | 记分牌时钟 | 与交易页同一套写法 `liveLabel` | `docs/delivery/sports-live-board-v1.md` §4.8 |
-| 视频状态（列表舞台） | `idle` / `loading` / `buffering` → 中央转圈；`blocked` / `paused` → 中央橙色播放钮；`playing` → 无遮罩；`error` / `forbidden` → 目前只剩黑底 + `● LIVE` 角标。与交易页中文态对应：`error` = 断流、`forbidden` = 地区限制（`sports-live-board-v1.md` §5.4） | `ListStreamVideo` + `useHlsVideo` |
+| 视频状态（列表舞台） | `idle` / `loading` / `buffering` → 中央转圈；`blocked` / `paused` → 中央橙色播放钮；`playing` → 无遮罩；`error` / `forbidden` → 这一路撤出舞台（见 §3、EV-46）。与交易页中文态对应：`error` = 断流（含持续卡住 10 秒）、`forbidden` = 地区限制（`sports-live-board-v1.md` §5.4）。离屏 / 后台 → 暂停 | `ListStreamVideo` + `useHlsVideo` |
 | Remind me 读失败 | 静默按「没设」显示，不弹错 | `useStreamReminders` |
 | 通知参数 | 模板 `{{event}}` = `params.event_name`；`home` / `away` / `league` 一并写入供以后模板用，现模板不用；`entity_type = 'event'`、`entity_id = NULL`（`events.id` 是 text，不是 uuid）；去重按 `(user_id, dedupe_key)`，`dedupe_key = 'stream:<event_id>'` | `notify_stream_reminders()` |
-| 改期 | 提醒按触发那一刻的最新 kickoff 判定：kickoff 被改晚，就在新时间发 | 同上 |
+| 改期 / 取消 | 提醒按触发那一刻的最新 kickoff 判定：改期就在新时间发（推到 48 小时以外也保留）；比赛取消（结算 / 作废）不发 | 同上 |
 | 演示账号 | `alex_carter`（`968a2b3a-3913-4acb-948b-c78cc828a125`）：站内登录框 → Google → Alex Carter | — |
+
+## 5.2 CPO 拍板的口径（2026-11-04 第二轮）
+
+研发冷读后提的问题，CPO 逐条定了；上文各节已按此改写，这里汇总一处好查。
+
+| # | 问题 | 定了什么 |
+|---|---|---|
+| 1 | 正式版 `stream_url` 什么时候有 | 开赛前 48 小时内写入；只在开播时才有播放地址的，另加「会直播」标记驱动预告（§7） |
+| 2 | 提醒以什么为准触发 | kickoff；30 分钟窗口从 kickoff 起算；正式版开播事件先到则以先到者为准（§7） |
+| 3 | 改期 / 取消 | 改期按新时间发；取消不发（§5.1） |
+| 4 | 送达渠道 | v1 只发站内，不发邮件 / 推送，不设偏好开关（§7） |
+| 5 | 列表舞台直播放不了 | 撤出舞台、换下一路；只剩这一路就整段不出，比赛进 Playing now（§3、EV-46） |
+| 6 | 开赛交接 | 同一秒切换（§4） |
+| 7 | 读取没完成时点 Remind me | 写入幂等，不报错（§5） |
+| 8 | 服务端校验 | 只收有直播、未开赛、48 小时内的比赛；不限条数（§5） |
+| 9 | 设过的提醒在哪管理 | 只在预告卡上取消，不另做管理入口；比赛出了 48 小时窗口后卡片消失，提醒照常保留 |
+| 10 | 桌面切换条路数很多 / 768–1100 窄桌面 | 本轮不做，记为已知（§8） |
+| 11 | 视频离屏 / 后台 | 暂停，回来从最新处接着播；流量与 Wi-Fi 同规则（§3） |
+| 12 | 多语 | 做 7 语（§8） |
+| 13 | 埋点 | 本轮不做 |
+| 14 | 芯片与区头数字不一致 | 同一个词同一个数：`on stream` = 舞台，`playing now` = Playing now 卡（§2、DESIGN 第 15 条） |
+| 15 | 成交额口径 / 并列 | 累计成交额；舞台相同按开赛早者优先；预告同时开赛按成交额高者优先；选中后不跟着变（§2、§4） |
 
 ## 6. 字典 case 索引
 
@@ -120,20 +147,23 @@
 | EV-43 | Remind me 已设 | `events-ev43` |
 | EV-44 | 没有直播在播 · 只有预告 | `events-ev44` |
 | EV-45 | 游客点 Remind me → 登录 | `events-ev45` |
+| EV-46 | 直播放不了 → 撤出舞台，比赛进 Playing now | `events-ev46` |
 
 ## 7. Lovable / 正式版边界
 
 | 项 | Lovable | 正式版 |
 |---|---|---|
-| 直播源 `stream_url` | 演示赛事种 mux 测试流（`demo-live-cs2` / `demo-prekick-cs2` / `sp-ucl-mci-int` / `sp-sea-juv-nap`） | 直播源服务提供；LoL 与大的足球比赛都有 |
-| 提醒存储 + 到点发送 | `stream_reminders` + 每分钟 cron 轮询 | 提醒服务按「直播开始」事件推，不必轮询；规则（一人一场一条、只发一次、不迟发）照抄 |
+| 直播源 `stream_url` | 演示赛事种 mux 测试流（`demo-live-cs2` / `demo-prekick-cs2` / `sp-ucl-mci-int` / `sp-sea-juv-nap`） | 直播源服务在开赛前 48 小时内写入（预告要用）；只在开播时才拿得到播放地址的，另加一个「这场会直播」标记驱动预告与 Remind me。LoL 与大的足球比赛都有 |
+| 提醒存储 + 到点发送 | `stream_reminders` + 每分钟 cron 轮询 | 提醒服务推送，不必轮询；以 kickoff 为准、30 分钟窗口从 kickoff 起算，开播事件早于 kickoff 时以先到者为准；规则（一人一场一条、只发一次、不迟发、改期按新时间、取消不发、写入校验）照抄 |
+| 送达渠道 | 站内消息中心 | v1 只发站内（铃铛 / Updates），不发邮件 / 推送，不设偏好开关 |
 | 通知 | `notify()` 写 `notifications` | 消息服务同一 type / 参数 / deep link |
 | 播放器 | hls.js + Safari 原生（`useHlsVideo`） | 可替换；状态集与列表舞台各态的样子见 §5.1「视频状态」 |
 | 演示 | alex 一条待开播提醒（欧冠 MCI vs INT）+ 一条已发通知（Spirit vs MOUZ）；种子 `supabase/migrations/20261104130500_stream_demo_seed.sql`，清理 SQL 在文件末尾注释 | — |
 
 ## 8. 已知事项
 
-- 本节新增界面文案（区头、`Remind me`、海报倒计时上方那行小字等）目前只有英文；区头 `Playing now · n` 在两个组件里也是硬编码英文，`src/locales` 里原有的 `sports_vertical.playing_now_other`（7 语）没有接上。通知文案已有 7 语。
+- 本节界面文案已做 7 语：新 key 在 `events` 命名空间 `screen.simple.sports_view.sports_streams.*`（Lovable 2026-11-04 新增，需回写平台 i18n 表）；`Playing now · n`、芯片 `n playing now`、`n this week`、日期头 `n matches` 接回了原有 key。星期按用户语言，时间一律 24 小时制。页头说明句 `Winning shares pay $1…` 是本轮以前就有的硬编码英文，不在本轮范围。
+- 已知、本轮不做（CPO 2026-11-04）：桌面切换条路数很多时没有专门的溢出设计（现在是横滑、无箭头）；768–1100 的窄桌面没有中间档，舞台下注按钮的长队名会出省略号。
 - 首页 Sports 模块的 `Watch live` / `Stream at kickoff` 芯片不变（`HomeSportsCard`）；三种直播入口已抽成公共组件 `src/components/lite/sports/streamChips.tsx`。
 - Lovable 演示库同时只有一场「直播中且有流」的比赛，生产页看不到多路切换；切换条的样子以字典 EV-37 / 37b 为准。
 - 同日追加：手机列表未开赛卡的长比赛名折成两行、不再用省略号；手机 Playing now 卡队徽 30→26、间距收紧，网球长比分串旁的球员名不再被截（卡高不变，多词长名才折两行）（DESIGN §Addendum 2026-11-04 第 13 条，字典 EV-9t / EV-42 手机帧）；功能入口要登录统一走公共登录开关（第 14 条）。

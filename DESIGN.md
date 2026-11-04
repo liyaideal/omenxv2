@@ -2425,7 +2425,7 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 
 ## §Addendum 2026-11-04 · Sports 列表直播与预告（LOCKED）
 
-CPO 2026-11-04 逐条批（直播样式 → 预告样式 → 去掉预告大卡）。作用域 = Sports 品类页（桌面 `LiteSportsView`、手机 `MobileSportsModule` 的品类页模式，即传了 `filters` 的那一种；首页 Sports 卡不在本节）顶部「正在打 / 即将开打」区；**下面的 day strip 与比赛列表一像素不动**。首页 Sports 模块（`HomeSportsCard`，`Watch live` / `Stream at kickoff` 芯片）不受本节影响。字典 Events 列表 ⑥b EV-36…EV-45；词典「Sports 列表 · 直播与预告」；交付 `docs/delivery/sports-list-streams-v1.md`。
+CPO 2026-11-04 逐条批（直播样式 → 预告样式 → 去掉预告大卡）。作用域 = Sports 品类页（桌面 `LiteSportsView`、手机 `MobileSportsModule` 的品类页模式，即传了 `filters` 的那一种；首页 Sports 卡不在本节）顶部「正在打 / 即将开打」区；**下面的 day strip 与比赛列表一像素不动**（唯一例外：今天日期头的计数措辞，见第 15 条）。首页 Sports 模块（`HomeSportsCard`，`Watch live` / `Stream at kickoff` 芯片）不受本节影响。字典 Events 列表 ⑥b EV-36…EV-46；词典「Sports 列表 · 直播与预告」；交付 `docs/delivery/sports-list-streams-v1.md`。
 
 1. **页面优先级（自上而下）**：`Live on stream`（直播舞台）→ `Coming up on stream`（预告排）→ `Playing now`（正在打、没有直播）→ day strip + 列表。三段各自有区头、各数各的；某段为空整段不渲染。没有直播在播时预告排就是第一段——**没有「预告大卡 / 预告舞台」**。
 2. **直播 / 预告的判定只看数据**：直播 = 正在打（`isFixtureLive`）且 `metadata.stream_url` 非空；预告 = 未开赛、有 `stream_url`、开赛 ≤ 48 小时。前端不按联赛 / 运动判断谁有直播。
@@ -2441,3 +2441,8 @@ CPO 2026-11-04 逐条批（直播样式 → 预告样式 → 去掉预告大卡�
 12. **列表不动**：预告里的比赛照旧出现在下方列表行（行内带 `▶ Stream at kickoff` 描边芯片）；超过 48 小时的有直播比赛只在列表里带这枚芯片。
 13. **手机列表卡比赛名折行**（CPO 2026-11-04 同日追加）：`MobileSportsModule` 未开赛卡标题一行放不下时折成两行（`line-clamp-2`，13 / 600 / 行高 1.25），不用省略号；放得下的卡零变化。**Playing now 卡**（手机）结构不变，只腾宽度：队徽 30→26、队徽与队名间距 8→6、整行间距 10→8、记分行 `minHeight 30`（卡高保持 148）；队名 `line-clamp-2`（13 / 600 / 行高 1.2），多词长名放不下才折两行。未开赛卡队徽叠放不在本条范围（主站用真实队徽）。
 14. **功能入口要登录 = 全站公共登录开关**（CPO 2026-11-04 同日追加）：任何功能遇到游客（自选星标、Remind me，以及以后的新功能）一律调 `useAuthFlowStore.openPrompt()`；`AuthPromptHost`（`App` 里挂一次）打开站内标准登录框——桌面 `AuthDialog` / 手机 `AuthSheet`，**§Addendum 2026-09-07 原样，不按入口换标题 / 副标题，也不另弹 toast**。不再在功能组件里自己挂一份登录框（存量 31 处各自持有的不强转，随各页改版收编）。登录后不自动补点原来那一下。
+15. **同一个词同一个数**（CPO 2026-11-04 第二轮）：`on stream` = 直播舞台上的场数，`playing now` = `Playing now` 卡片的场数，两处措辞在整页任何位置都按这个口径数。手机顶部芯片一段一枚（`● 1 on stream` `● 3 playing now`，同为白字 + 红点；某段为 0 不出那枚，都为 0 写 `Nothing playing now`）；桌面列表今天的日期头 `1 on stream · 1 playing now · 1 to come`（没有直播时照旧 `n playing now · n to come`）。首页 Sports 模块没有舞台，芯片照旧写全部正在打的场数。
+16. **直播出不来就撤出舞台**（第二轮）：播放器报 `error`（断流）或 `forbidden`（地区限制），这一路本次访问内撤出舞台、换成剩下成交额最高的一路；只剩这一路时舞台整段不渲染，比赛按没直播处理进 `Playing now`，第 15 条的数字跟着变。刷新页面重试。
+17. **开赛那一秒同时切换**（第二轮）：直播 / 预告按秒判定（`liveAt`），比赛开赛即离开预告排、同一秒进舞台；时钟与比分在随后的自动刷新补上，补上前时钟位写 `LIVE`。
+18. **不看就不播**（第二轮）：舞台视频滚出屏幕或页面切到后台时暂停；回到屏幕内 / 前台从直播最新处接着播（`play()` 跳到 live edge）。手机流量与 Wi-Fi 同规则。
+19. **并列规则**（第二轮）：舞台默认一路按累计成交额（`events.volume`）降序，相同按开赛早者优先；选中后不跟着成交额变化。预告排按开赛时间升序，同时开赛按成交额降序。

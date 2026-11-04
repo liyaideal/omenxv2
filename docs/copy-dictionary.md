@@ -283,14 +283,15 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 
 ## Sports 列表 · 直播与预告（Sports 品类页，2026-11-04）
 
-规则与视觉：DESIGN §Addendum 2026-11-04；字典 Events 列表 ⑥b EV-36…EV-45；交付 `docs/delivery/sports-list-streams-v1.md`。
+规则与视觉：DESIGN §Addendum 2026-11-04；字典 Events 列表 ⑥b EV-36…EV-46；交付 `docs/delivery/sports-list-streams-v1.md`。界面文案 7 语在 `src/locales/*.json` 的 `events` 命名空间 `screen.simple.sports_view.sports_streams.*`（Lovable 2026-11-04 新增，回写平台 i18n 表）。
 
 ### 概念
 
 | 词 | 一句定义 | 判定表达式 | 出处 |
 |---|---|---|---|
-| **直播（on stream）** | 正在打、并且我们有直播画面的比赛 | `isFixtureLive(e) && metadata.stream_url` 非空 | `LiteSportsView` / `MobileSportsModule` `streamed` |
-| **直播预告（stream preview）** | 还没开赛、会直播、48 小时内开赛的比赛 | `!live && stream_url && 0 < kickoff − now ≤ 48h`（`PREVIEW_WINDOW_MS`），按开赛时间升序，不设上限 | `upcomingStreams()` |
+| **直播（on stream）** | 正在打、并且我们有直播画面的比赛 | `liveAt(m, now) && metadata.stream_url` 非空，且本次访问播放器没有报 `error` / `forbidden` | `useStreamLineup()` `streamed` |
+| **Playing now** | 正在打、但不在舞台上的比赛（没直播，或直播放不了） | `liveAt(m, now) && !isOnStream(m)` | `useStreamLineup()` `others` |
+| **直播预告（stream preview）** | 还没开赛、会直播、48 小时内开赛的比赛 | `!live && stream_url && 0 < kickoff − now ≤ 48h`（`PREVIEW_WINDOW_MS`），按开赛时间升序（同时开赛按成交额降序），不设上限 | `upcomingStreams()` |
 | **kickoff** | 开赛时间 | `metadata.kickoff_at`，没有时回落 `events.start_date` | `sportsData` / `notify_stream_reminders()` |
 | **提醒（stream reminder）** | 用户在某场预告上点了 Remind me；开赛时变成一条通知 | `stream_reminders(user_id, event_id)` 一行；到点 = kickoff 已过且在 30 分钟内、未结算、仍有 `stream_url` | `useStreamReminders` / `notify_stream_reminders()` |
 
@@ -298,21 +299,22 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 
 | Canonical | 出现位置 / 规则 |
 |---|---|
-| **Live on stream · n** | 直播舞台区头（红点 LivePulse），n = 有直播的正在打比赛数 |
+| **Live on stream · n** | 直播舞台区头（红点 LivePulse），n = 舞台上的场数 |
+| **n on stream** / **n playing now** | 手机顶部芯片一段一枚，数字分别与 `Live on stream · n`、`Playing now · n` 相同；桌面今天日期头 `n on stream · n playing now · n to come`（DESIGN 第 15 条） |
 | **LIVE** | 舞台视频左上橙底角标；只写 LIVE，不写时钟 |
 | **Live streams · n** | 舞台切换条区头（多于一路时出现） |
 | `ARS 1 – 0 RMA` + `63'` | 切换标签：主队缩写 比分 客队缩写 + 比赛时钟（`liveLabel` 优先，否则 `minute'`） |
 | **`$4.2M traded`** | 舞台右栏底行成交额（`compactVolume`） |
-| **Open match →** | 舞台右栏底行，进交易页 |
+| **Open match** + lucide `ArrowRight` 12 | 舞台右栏底行，进交易页（箭头是图标，不是文字符号） |
 | **Coming up on stream · n** + **Next 48 hours** | 预告排区头 |
 | **Stream** | 海报左上描边胶囊 |
 | **Stream starts in** / **Stream starts** | 海报倒计时 lead：< 24h 用 in，≥ 24h 用 starts |
 | `37:53` / `5h 20m` / `Tomorrow 19:14` | 倒计时值：< 1h 秒级跳、橙色；1–24h；≥ 24h 写开赛时间（`streamCountdown`） |
-| `Today 12:55` / `Tmrw 10:15` / `Fri 19:15` | 预告卡 meta 行开赛时间（`kickoffShort`） |
+| `Today 12:55` / `Tmrw 10:15` / `Fri 19:15` | 预告卡 meta 行开赛时间（`kickoffShort`）；星期按用户语言（`周五` / `金` …），时间一律 24 小时制 |
 | **Remind me** / **Reminder set** | 预告卡按钮未设 / 已设；再点取消 |
 | **Couldn't update the reminder** · `Please try again.` | 写库失败 toast（乐观更新已回滚） |
 | （游客点击无文案） | 直接打开站内标准登录框，不弹 toast、不改登录框文字；自选星标同规则（原 `Sign in to use Watchlist` toast 已删除，2026-11-04） |
-| **Playing now · n** | 正在打、没有直播的比赛区头 |
+| **Playing now · n** | 正在打、不在舞台上的比赛区头（i18n key `sports_vertical.playing_now`） |
 | **Stream at kickoff** | 列表行描边芯片：有直播的未开赛比赛（含 48h 内与之外） |
 
 ### helper 家族（`src/components/lite/sports/UpcomingStreams.tsx`，成对入典）
@@ -323,6 +325,8 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | `streamCountdown(kickoff, now)` | 海报倒计时 `{ lead, value, soon }` |
 | `kickoffShort(kickoff, now)` | 卡片 meta 行短开赛时间 |
 | `useNowTick(frozen?)` | 每秒刷新的时钟；字典传冻结时钟 |
+| `liveAt(m, now)`（`sportsData.ts`） | 某一秒是否在打：抓取时已是 live 的直到下次抓取都算；否则 `kickoff ≤ now < end` |
+| `useStreamLineup(scoped, now)`（`streamLineup.ts`） | 拆出 `streamed`（舞台）/ `others`（Playing now）/ `isOnStream` / `markFailed`；桌面手机共用，保证两端同一个数 |
 | `chipLabel(m, label, i)` | 预告卡按钮名：首 = 主队缩写、末 = 客队缩写、中间沿用选项原文（足球为 `Draw`）。注意它不在 `UpcomingStreams.tsx`：`LiteSportsView.tsx` 与 `MobileSportsModule.tsx` 各有一份同名同义实现 |
 
 ## Sports live stage (`/trade` 直播舞台，2026-09-01)
