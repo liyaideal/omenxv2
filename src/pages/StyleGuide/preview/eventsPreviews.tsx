@@ -37,8 +37,13 @@ import { AuthPromptHost } from "@/components/auth/AuthPromptHost";
 
 /* ---------------- shared shells ---------------- */
 
+/**
+ * Page-colour backdrop only. Horizontal padding tops up the preview shell's own
+ * p-4 to the production page gutter — mobile px-4 (16) → 0 here, desktop lg:px-6
+ * (24) → 8 here — so frame content is exactly as wide as on the real page.
+ */
 const Stage = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-[#0A0B0D] p-4">{children}</div>
+  <div className="bg-[#0A0B0D] py-4 lg:px-2">{children}</div>
 );
 
 const SECTOR_COUNTS = new Map<string, number>([
