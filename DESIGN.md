@@ -2360,6 +2360,17 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 8. **移动端倒计时行承载副标题（CPO 2026-10-16 第二批）**：桌面副标题在 375 上没有位置，收进页头倒计时行的 `statsExtra` 槽——快轮 `● Ends in 00:09:46 · 15:30–15:45 ⓘ`，日线 `● Trading ends in 11:42:51 · Base Fri 04:00 ⓘ`（行上不带 `(Oct 15 close)`：带上 60+ 字符放不下，零截断铁律）；ⓘ 弹层 = `Base: $307.33 · as of Fri 04:00 (Oct 15 close)` / 结算规则整句 / 分隔线 / 原时间表（Trading ends · Official close · Payout）。组件 `ScheduleInfo` 两个终端共用：`/spot` 的 `SpotScheduleInfo` 改为它的壳（喂现货 hook 自己的时钟），`/trade` 由 `MobileTradingLayout` 对价格参照事件自动挂。非价格型事件倒计时行不变；桌面不动。字典 CH-M4。
 9. **两条同轮顺手的规范修正（CPO 2026-10-16 反馈）**：(a) 移动合约价格块的 Up / Down 徽标与桌面 Order Preview 的 Side 徽标改走 §2 市场轴 `bg-yes/15 text-yes` / `bg-no/15 text-no`——side 词是选边不是盈亏，与现货移动价格块同款；(b) **Pro 终端表格行操作钮（Positions `Close`、现货 Holdings `Close`）** 统一为 `px-3 py-1 text-xs text-foreground border border-foreground/25 bg-muted/40 rounded hover:bg-muted hover:border-foreground/40`——原 `border-border/50` 在 9% 卡面上几乎不可见，强光下读不出是按钮；`Cancel`（破坏性行操作钮）2026-10-21 同步提亮为 `text-trading-red border border-trading-red/70 bg-trading-red/10 hover:bg-trading-red/20 hover:border-trading-red`——原 `/50` 描边无底色，强光下同样读不出是按钮。以后终端表格里的中性行操作钮用前一组 class，破坏性的用这一组。
 
+## §Quick Play 现行条目索引（2026-11-04，先读这一节）
+
+Quick Play 的视觉规范分四节逐轮叠加（10-19 → 10-28 → 11-02 → 11-04），后一轮会改前一轮。下表标明每条现在是否有效；**作废的条目只留档，不要照做**。交付口径以 `docs/delivery/quick-play-v1.md` 为准。
+
+| 节 | 仍有效 | 已作废 / 被取代 |
+|---|---|---|
+| 10-19 | 1 全屏游戏页 · 2 皮肤只在专区 · 11 路单画法（珠盘 / 大路按赌场标准）· 12 机柜内不出现 `sh` / 份额数 · 14 筹码塔按面额归堆 | 3–8（轮次玩法，10-28 作废）· 9 / 10 / 13（轮次版的时间、字典、移动走查，已被后面各节覆盖） |
+| 10-28 | 1 没有局 · 2 三所指数（但「机柜底下 `LIVE · 3 of 3`」已删）· 3 报价模型 · 5 S0 / S1 · 6 舞台 = 时间轴（到期标记已改为 11-02 #8 的杆）· 9 键不锁 · 12 路单 = 桌子的路 · 13 暂停态 · 14 猞猁 · 18 设计师版式 · 20 桌面四行 · 21 入口横幅 · 22 分享海报（海报样式见 11-02 #9）· 23 / 24 演示桌 · 25 一场 · 26 / 27 | 4 费用里的「2 秒取消」→ 11-04 #1 · 7 连输红闪 / `×3 LOST` → 11-02 #5（连输什么都不显示）· 8 MY CALLS / TABLE 页签 → 11-02 #3 · 10 头条文案 → 11-02（`Settles on the BTC Index ⓘ` / `TOTAL OPEN POSITIONS`）· 11 免责门第二行与 $5–100 → 11-04 #1（`Locked once you tap`、$2–50）· 15 移动端里的 `YOUR OPEN` / TABLE → 交付文档 §4.2 · 16「SESSION = 本次打开以来、LAST 10 / COMBO = 账号历史」→ 25（都按这一场）· 17 字典编号 → 交付文档 §6 · 19 浏览器直连 Binance 画线 → 11-02 #2（效果照 Lovable，正式版用真实行情做） |
+| 11-02 | 1 颜色只表示方向 · 2 舞台只画自己的单 · 3 右栏两态 · 5 combo · 7 手机说明一律底部抽屉 · 8 到期杆 · 9 海报与分享弹层 | 4 里的 `UNDO` 键与撤单费 → 11-04 #1（筹码与飘字部分仍有效）· 6 路单条四块 → 11-04 #3 |
+| 11-04 | 1 没有撤销 · 2 券计量条（含加载中）· 3 01 一块屏 · 4 窄桌面筹码盘标头 | — |
+
 ## §Addendum 2026-10-19 · Quick Play 专区（/arcade · 30s / 1m Up/Down · 机柜皮肤，LOCKED · 内测）
 
 > **2026-10-28 更正（CPO）**：BTC 桌改为"每一枚筹码一张 30 秒合约 + 真实三所指数"，本节第 3–8 条对 BTC 桌作废，见 §Addendum 2026-10-28；ETH / SOL / 美股桌隐藏待价格源。
@@ -2443,7 +2454,7 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 
 ## §Addendum 2026-11-04 · Quick Play · James 第二轮（LOCKED · 内测）
 
-> 修订 §Addendum 2026-11-02 第 4、5、6 条。CPO 2026-11-04 批 A / B / C（mock claude.ai/artifact/WThp74V4FmNs6gHiYfFLfZ）；交付 `docs/delivery/quick-play-v1.md` §4.8；字典 AR-2 / AR-15 / AR-16 / AR-17 / AR-24 / AR-25 / AR-26。作用域：`.arcade-root` 机柜（桌面 `.cockpit .cab.v2`、手机 `.v2m`）。
+> 修订 §Addendum 2026-11-02 第 4、5、6 条。CPO 2026-11-04 批 A / B / C（mock claude.ai/artifact/WThp74V4FmNs6gHiYfFLfZ）；交付 `docs/delivery/quick-play-v1.md` §4.5 · §4.6；字典 AR-2 / AR-15 / AR-16 / AR-17 / AR-24 / AR-25 / AR-26。作用域：`.arcade-root` 机柜（桌面 `.cockpit .cab.v2`、手机 `.v2m`）。
 
 1. **没有撤销**：UP / DOWN 键上不再有 `UNDO` 键（黑键 + 金色倒数条整体删除），点一下就是一张 30 秒合约。下单后 1.5 秒内键底注 `Placed ✓ · locked in, settles in 30s`（多笔 `3 placed ✓ · each settles in 30s`），之后回到平时底注；YOUR CALLS 新单第一秒起就是 `ahead` / `behind`。后台撤单接口同时关闭。取代 11-02 第 4 条的 UNDO 部分。
 2. **券计量条**（取代 11-02 第 5 条的虚线券条）：位置不变（桌面 03 标题行右侧、手机 YOUR STAKE 右侧）；实线框 `1px rgba(207,255,74,.7)` + 底 `rgba(207,255,74,.10)`，桌面高 30 / 字 12px，手机高 22 / 字 10.5px；内容 = 黄绿券图标（16×11，手机 13×9）+ 3 个方格（9px，手机 7px；亮 = 实心黄绿 + 光，暗 = 描边）+ 文案 + 竖分隔线 + 今日 `$4 / $10 today ›`。亮几格 = 本场连赢数 % 3；掉券那一刻 3 格全亮、框变亮发光 8 秒；今天满了 = 框变暗、没有格子；未登录 = 只有图标 + 规则一句；加载中（登录后服务端还没回今天的券额，约 1 秒）= 框不变、3 格降到 35% 不透明、文案 `$— / $10 today ›`（数字用 muted 色），桌面手机同一句——不许先显示 `$0` 再跳（CPO 2026-11-04 批，字典 AR-25 / AR-26）。

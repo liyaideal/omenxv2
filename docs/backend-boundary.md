@@ -315,3 +315,14 @@
 | `roll_sports_matches()` 跳过 `match_status = 'live'` 的比赛（`20261104160000_sports_match_status.sql`） | 🔴 演示专用 | 演示结算引擎跟上“结束只看状态”的规则 |
 | 演示赛 `demo-live-ot-nhl`（加时中、预计结束已过 20 分钟）+ `keep_demo_overtime_fixture()` | 🔴 演示专用 | 每 10 分钟的保持定时任务待 CPO 确认；未加时约 3 小时后进入兜底显示 |
 
+
+## 2026-11-04 Quick Play · 交付前修订（append-only 补录，与 2026-10-30 节冲突时以本节为准）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `arcade_cancel(id)` | 🔴 已关闭 | 2026-11-04 起 `cancel_window_ms = 0` 且收回 EXECUTE（`20261104170000_arcade_no_undo.sql`）。**正式版不做撤单接口**；10-30 节里「🟢 A 照抄」作废 |
+| `arcade_place` 超限文案 | 🟢 A | 统一为 `Limit reached · $500 in play · room frees up as your calls settle`（`20261104230000_arcade_limit_copy.sql`）；完整校验顺序与原文见交付文档 §3.1.4 |
+| `arcade_params` 数值 | 🟢 A / 研发稿 | 产品参数（费率、筹码、$500、每秒 2 张、模型系数、券）见交付文档 §3.1.1；**熔断、亏损上限、全桌最坏赔付等风控数值以《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》为准** |
+| `arcade_table_feed()` + `arcade_sim_tick` | 🟢 A / 🔴 | 正式版 LIVE TABLE **只放真实用户**的未到期单（打码规则照抄）；模拟单 `arcade_sim_tick` / `sim_table` 是演示专用 |
+| 钱包流水（`transactions`） | 🟢 A | 每种结果写哪几行、金额多少见交付文档 §3.1.7；撤单相关两行只存在于历史数据 |
+| 演示行情节奏 | 🔴 演示专用 | 实际约 2 秒一条（`arcade_sim_feed` 每秒跑、1.2 秒节流），不是 10-30 节写的 1 秒 |

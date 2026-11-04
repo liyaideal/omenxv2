@@ -26,13 +26,14 @@
 | FT-TG-3 | 按站点语言高亮推荐行 | ✅ | ⬜ 前端照抄 |
 | FT-TG-4 | 两条新文案 7 语 | ✅ | ⬜ 进正式版词典 |
 
-## 2026-11-04 — Quick Play · James 第二轮（[文档 §4.8](../delivery/quick-play-v1.md#48-james-第二轮2026-11-04没有撤销--券计量条--01-一块屏)）
+## 2026-11-04 — Quick Play · James 第二轮（[文档](../delivery/quick-play-v1.md)）
 
 | 编号 | 项 | Lovable | 正式版 |
 |---|---|---|---|
 | QP-R2-1 | 删除撤销：键上无 UNDO、下单即锁定；免责门 / RULES 文案；后台撤单接口关闭 | ✅ | ⬜ 不做撤单接口 |
 | QP-R2-2 | 券计量条（五态含加载中，桌面 + 手机） | ✅ | ⬜ 前端照抄 |
 | QP-R2-3 | 01 / REPLAY 一块屏：同一批 60 个结果、屏头一次时间段、首尾钉（桌面 + 手机抽屉） | ✅ | ⬜ 前端照抄 |
+| QP-R2-4 | 四处文案：免责门第一行 `vs the price right after we take it`、RULES `A quote lives for a moment`、超限报错统一 `Limit reached · …`（服务端）、券重置时间显示用户本地时间 | ✅ | ⬜ 前端照抄 |
 
 ## 2026-10-31 — Quick Play 专区（/arcade · BTC 30 秒合约 + 场次）QP-1（[文档](../delivery/quick-play-v1.md)）
 

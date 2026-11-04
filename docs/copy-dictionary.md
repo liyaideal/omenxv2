@@ -610,7 +610,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 
 ### Quick Play（/arcade · BTC 30 秒合约 · 流式舞台，2026-10-28 · 占位措辞）
 
-> 状态：**占位**。全部英文待合规措辞轮，i18n key 下一轮接。字典 AR-1…AR-19 / AB-1 / AB-2 / AS-1 / AS-2 见 `/style-guide` 交易页，PF-39…41 见 Portfolio。交付文档 `docs/delivery/quick-play-v1.md`（总文档）。
+> 状态：**占位**。全部英文待合规措辞轮，i18n key 下一轮接。字典 AR-1…AR-26 / AB-1 / AB-2 / AS-1…AS-4 见 `/style-guide` 交易页，PF-39…41 见 Portfolio。交付文档 `docs/delivery/quick-play-v1.md`（总文档）。
 
 概念（一句定义 / 判定表达式 / 出处）：
 
@@ -627,8 +627,10 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **COMBO ×n** | 当前连赢数（≥2 才显示）；每满 3 把掉一张 $2 有门槛仓位券，每天 ≤ $10 | 场内按结算顺序连续 won 计数，输一张归零、void 不算；服务端 `arcade_combo_vouchers` 同规则 |
 | **combo voucher** | 连赢 ×3 / ×6 / ×9… 掉的 $2 tiered Position Voucher，Rewards › Vouchers 来源 `From Quick Play — 3 wins in a row` | `position_vouchers.source_arcade_call_id` = 凑满那一张；UTC 日合计 ≤ `combo_voucher_cap_day` |
 | **preview line** | 自己没单（或 hover 一个键）时，图上从现价往右 30 秒的那条线：现在下单会在哪结算 | `!anyLive \|\| hover` |
-| **LIVE TABLE / YOUR CALLS** | 右栏：这一场第一笔之前看全桌，之后只看自己的 | `played && !(无未到期 && 距上一笔 > 30 min)` | quick-play-v1 §4.3 |
-| **This 30s so far ▼ −$7.40 · 13s left**（原 `Now · Ns left` / `THIS SLOT`） | 01 屏 UP VS DOWN 格底：正在形成的这 30 秒涨跌 + 还剩几秒（2026-11-04 改写，原 `Now` 被读成和上面无关）；点 / hover 任一格弹提示 | 格 = 30 秒墙钟 | quick-play-v1 §4.8 |铁律不变：机柜内不出现 `sh` / 份额数，所有金额讲钱、所有提示讲人话。
+| **LIVE TABLE / YOUR CALLS** | 右栏：这一场第一笔之前看全桌，之后只看自己的 | `played && !(无未到期 && 距上一笔 > 30 min)` | quick-play-v1 §4.1 |
+| **This 30s so far ▼ −$7.40 · 13s left**（原 `Now · Ns left` / `THIS SLOT`） | 01 屏 UP VS DOWN 格底：正在形成的这 30 秒涨跌 + 还剩几秒（2026-11-04 改写，原 `Now` 被读成和上面无关）；点 / hover 任一格弹提示 | 格 = 30 秒墙钟 | quick-play-v1 §4.6 |
+
+铁律不变：机柜内不出现 `sh` / 份额数，所有金额讲钱、所有提示讲人话。
 
 | Canonical | Where | Note |
 |---|---|---|
@@ -649,19 +651,20 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **$25 @ 51.0¢ · won** / **open 81,155.30 · close 81,194.73** | Settled 页签行（最多 30 条）+ **All settled calls → Portfolio** | `lost` / `void` · `no valid price · refunded` / `cancelled` · `taken back within 2 s` |
 | **▲ UP** / **▼ DN** · **$25 @ 51.2¢ · kz***88** | LIVE TABLE 行（11-02 方向都带 ▲▼） | |
 | **YOUR STAKE · PER CHIP** / **$5 SELECTED** | 筹码盘 | **$2 / 5 / 10 / 25 / 50**（11-02：删 $100、加 $2）；窄桌面（≤ 1120px，筹码盘只剩约 194px 宽）不显示 `$5 SELECTED`——选中的筹码本身高亮，原来会被截成 `$5 S…`（2026-11-04 CPO） |
-| **Win 3 in a row = $2 voucher · up to $10 a day**（未登录）/ **3 more wins → $2 voucher** · **2 more wins …** · **1 more win → $2 voucher** ｜ **$4 / $10 today ›**（计数中）/ **+$2 voucher · it's in your Vouchers**（刚掉券 8 秒）/ **Today's $10 of vouchers claimed · more from 00:00 UTC**（满了）/ **$— / $10 today ›**（加载中：登录后服务端还没回今天的券额，约 1 秒，桌面手机同一句） | 03 标题行券计量条（2026-11-04 James 第二轮，取代 11-02 虚线券条）：券图标 + 3 格（亮 = 本场连赢数 % 3，掉券时全亮 8 秒）+ 文案 + 今日数 | 移动（YOUR STAKE 右边）：`3 in a row = $2 voucher` / 3 格 + `$4 / $10 today ›` / 3 格 + `+$2 · $6 / $10 ›` / `$10 claimed today`；点 → Rewards › Vouchers |
+| **Win 3 in a row = $2 voucher · up to $10 a day**（未登录）/ **3 more wins → $2 voucher** · **2 more wins …** · **1 more win → $2 voucher** ｜ **$4 / $10 today ›**（计数中）/ **+$2 voucher · it's in your Vouchers**（刚掉券 8 秒）/ **Today's $10 of vouchers claimed · more from 08:00**（满了；`08:00` = UTC 零点换成用户本地时间，不带时区，11-04 起）/ **$— / $10 today ›**（加载中：登录后服务端还没回今天的券额，约 1 秒，桌面手机同一句） | 03 标题行券计量条（2026-11-04 James 第二轮，取代 11-02 虚线券条）：券图标 + 3 格（亮 = 本场连赢数 % 3，掉券时全亮 8 秒）+ 文案 + 今日数 | 移动（YOUR STAKE 右边）：`3 in a row = $2 voucher` / 3 格 + `$4 / $10 today ›` / 3 格 + `+$2 · $6 / $10 ›` / `$10 claimed today`；点 → Rewards › Vouchers |
 | **$5 in · fee $0.15 · to win $9.49 if Up** | UP / DOWN 底注（11-02） | to win 含本金、已扣 5% 佣金 |
 | **Placed ✓ · locked in, settles in 30s** / **3 placed ✓ · each settles in 30s** / **+$5 ▲** | 下单后 1.5 秒的键底注 + 落筹飘字（2026-11-04：UNDO 键、`Placed ✓ · undo costs $0.0075`、toast `Cancelled · … close fee` 全部删除） | 免责门第二行 `Locked once you tap. No undo, no cash-out.`；RULES §4 `No undo: a tapped chip is a call and runs its full 30 seconds.`、§7 `Voids don't count` |
 | **Limit reached · $500 in play · room frees up as your calls settle** | 到上限的底注 + toast（11-02，取代 `$500 max open per account`） | |
 | **Price moved · tap again** | 底注（拒单） | 键上价闪白；不扣钱 |
 | **Table paused · index invalid** / **· market moving too fast** / **· daily limit reached** / **Table full · room opens as calls settle** / **Table closed** | 底注（暂停） | 遮罩 `TABLE PAUSED` + `Index invalid · waiting for the exchanges` / `BTC is moving too fast · back in a moment` / `Daily limit reached · back tomorrow` / `TABLE FULL · Room opens as calls settle` + `Open calls keep running and settle as normal` |
 | **Waiting for the price** / **Warming up · odds in a moment** | 底注（无 tick / 无报价） | |
-| **$500 max open per account** / **Too fast · 2 calls per second** / **Not enough in your spot account** / **Accept the rules first** / **Sign in to play** | 拒单 | 服务端 RAISE 原文直接显示 |
+| **Sign in to play** / **Accept the rules first** / **Pick Up or Down** / **Chips are $2, $5, $10, $25 or $50** / **Too fast · 2 calls per second** / **Not enough in your spot account** | 拒单（服务端原文直接显示在键底注；完整校验顺序见 quick-play-v1 §3.1.4） | 超限统一是上面的 `Limit reached · …`（11-04 服务端也改成这句，旧 `$500 max open per account` 退役）|
+| **No price right now · try again in a second** / **Could not place that** / **Preview only · play it on /arcade** | 前端自己的拒单：没有可用报价 / 服务端没给原文 / 字典预览里点键 | |
 | **6 calls · $125** / **next in 3s** / **none** | OPEN 行（右栏底部 `04 / YOUR RESULT`） | 10-28 v32 改短：一行放得下 |
 | **if settled now** / **+$4.63** | LIVE 行 | |
-| **UP · 4 $105** / **DOWN · 2 $110** | TABLE 页签顶部汇总 | 右上金额 = 桌面总额 |
+| **▲ UP · 4 $105** / **▼ DOWN · 2 $110** | LIVE TABLE 顶部汇总（TABLE 页签 11-02 已删） | |
 | **QUICK PLAY** / **BTC · 30-SECOND CALLS · 24/7** / **$81,466.92 · ▲ +$4.80 · last 30s** / **TIME 00:22** / **▲ UP 51.2¢ · ▼ DOWN 48.8¢** / **PLAY ▸** | Events All 入口横幅（方案 C 像素夜景，10-28） | `last 30s` = 30 秒前的指数与变化；`TIME` = 桌子的 30 秒墙钟格（不是局）；无效时副行 **INDEX INVALID · WAITING FOR THE EXCHANGES**、报价 `—` |
-| **SESSION +$83.57** / **2 won · 1 lost** | SESSION 牌 | 本次打开以来 |
+| **SESSION +$83.57** / **2 won · 1 lost** | SESSION 牌 | 这一场（30 分钟没下单就结束；刷新不丢） |
 | **LAST 10** ✓✕ / **3 in a row** | LAST 10 牌 | 11-02：赢 = 白底 ✓、输 = 灰框 ✕；删 `2 lost in a row` |
 | **COMBO ×2** / **⇪ SHARE** / **win 1 more → free $2 voucher** / **you got a $2 voucher!** / **vouchers maxed today · keep it going** | COMBO HUD（11-02） | 删 `1 more → ×3 bonus` / `bonus!` / `COMBO BREAK` / `LOST ×N`；连输什么都不显示 |
 | **×3 COMBO** / **+$2 voucher · in your Vouchers** / **on fire** · **unstoppable** · **legendary** / **+$2 VOUCHER** | 大字（每 ×3 倍数、×5、×8）+ 飞向券条的牌（11-02） | 档位 ×3 ON FIRE / ×5 UNSTOPPABLE / ×8 LEGENDARY |
@@ -679,8 +682,8 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **Called Bitcoin up or down for 23 min on OmenX Quick Play — 7 of 10 right, +$83.57 ⚡** / **… −$21.40. We go again 😅** | 分享文案（X / Telegram / 系统分享） | |
 | **A session ends after 30 minutes without a call.** / **New session** | 机柜 SESSION 标签悬停 title + 点击 toast；场次详情页 Details 底注 / 闲 30 分钟后再下单的 toast（10-29） | 一场 = 一坐下来玩的这一把；三处（机柜 04 / 海报 / Portfolio）同一条规则，`ARCADE_SESSION_GAP_MIN` |
 | **BTC 30-second calls · Oct 28, 16:47 – 16:53** / **Oct 28 23:50 – Oct 29 00:12** / **QUICK PLAY**（小牌） / **8 calls · won 5 of 8** / **no calls settled · 1 refunded · 1 cancelled** | Portfolio › Settled › Standard 场次行（10-29）；移动端标题只留时间段、副行以 **BTC** 开头，标题与副行都允许折两行、小牌跟在标题末尾（10-31） | 列表只写张数与胜场（CPO 10-31）；best run / 每注金额 / 退款 / 取消只在详情页；一场没有任何结算时才写退款 / 取消计数 |
-| **Settled Oct 28, 2026 · 16:53** / **Open Quick Play ›** / **Result** · **Won · 5 of 8 calls right** / **Staked** · **8 calls @ $5 – $25** / **Payout** · **after $0.63 fees** · **Trading fee $0.08 · Winning commission $0.55** / **nothing returned** / **Market** · **BTC · 30-second calls** / **Calls** / **Record** · **5 won · 3 lost** / **Best run** · **3 in a row** / **Stake** / **Not settled** · **1 refunded · 1 cancelled** / **Started** / **Ended** / **ACTIVITY** · **16:52:41 · Up · $5.00 @ 50.9¢** / **$0.00 · refunded** / **-$0.01 · cancelled** / **Load more calls** / **No calls to show** / **SETTLED · OCT 28** · **Won +$12.06** | 场次详情页 `/portfolio/quick-play/{key}`（10-29） | 版式 = 单仓结算详情；移动端 inner header 标题 **Quick Play** |
-| **Quick Play fee · 3% · Up · BTC 30-second call** / **Quick Play cancel · 0.15% · …** / **Quick Play fee returned · cancelled within 2 s** / **Quick Play · Up · Won · open 81155.30 → close 81194.73** / **Winning commission · 5% · Quick Play · Up** / **Quick Play · Up · tie · chip and fee returned** | 钱包流水 description | |
+| **Settled Oct 28, 2026 · 16:53** / **Open Quick Play ›** / **Result** · **Won · 5 of 8 calls right** / **Staked** · **8 calls @ $5 – $25** / **Payout** · **after $2.65 fees** · **Trading fee $2.10 · Winning commission $0.55** / **nothing returned** / **Market** · **BTC · 30-second calls** / **Calls** / **Record** · **5 won · 3 lost** / **Best run** · **3 in a row** / **Stake** / **Not settled** · **1 refunded**（2026-11-04 前的历史单还可能有 `· 1 cancelled`） / **Started** / **Ended** / **ACTIVITY** · **16:52:41 · Up · $5.00 @ 50.9¢** / **$0.00 · refunded** / **-$0.01 · cancelled** / **Load more calls** / **No calls to show** / **SETTLED · OCT 28** · **Won +$12.06** | 场次详情页 `/portfolio/quick-play/{key}`（10-29） | 版式 = 单仓结算详情；移动端 inner header 标题 **Quick Play** |
+| **Quick Play fee · 3% · Up · BTC 30-second call** / **Quick Play · Up · Won · open 81155.30 → close 81194.73** / **Winning commission · 5% · Quick Play · Up** / **Quick Play · Up · Lost · open … → close …** / **Quick Play · Up · tie · chip and fee returned** / **Quick Play · Up · no valid price · chip and fee returned** | 钱包流水 description（每行金额见 quick-play-v1 §3.1.7） | 历史撤单的 `Quick Play cancel · 0.15% · …` / `Quick Play fee returned · cancelled within 2 s` 只出现在 2026-11-04 之前的流水里 |
 
 ### Quick Play · 轮次版旧组件术语（2026-10-19 · 已被上节取代，仅留档）
 
