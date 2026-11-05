@@ -5258,7 +5258,8 @@
     "screen.lite_spot_trade.closes_in": "Closes in",
     "screen.lite_spot_trade.view_in_portfolio": "View in Portfolio →",
     "screen.lite_spot_trade.buy_market": "Buy {{market}}",
-    "screen.lite_spot_trade.chance": "{{percent}} chance"
+    "screen.lite_spot_trade.chance": "{{percent}} chance",
+    "screen.lite_spot_order_panel.low_balance_hint": "Add money to your Standard balance to place an order."
   },
   "trade": {
     "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} {{line}} covers",
@@ -5341,7 +5342,8 @@
     "screen.lite.lite_contract_trade_page.seo_title_fallback": "Trade | OmenX Lite",
     "screen.lite.lite_contract_trade_page.buy_market": "Buy {{market}}",
     "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
-    "screen.lite.lite_contract_trade_page.buy_side": "Buy {{side}}"
+    "screen.lite.lite_contract_trade_page.buy_side": "Buy {{side}}",
+    "screen.lite.lite_contract_order_panel.low_balance_hint": "Add money to your Boost balance to make a call."
   },
   "transparency": {
     "screen.TransparencyPage.hero_title": "On-Chain Transparency",

@@ -53,6 +53,8 @@ export interface LiteOrderPanelProps {
   variant: "desktop" | "mobile"; // framing only
   /** Style-guide only: force the `Want to place a limit order? Pro ›` line. */
   previewLimitHint?: boolean;
+  /** Style-guide only: force the low-balance state (hint + greyed presets). */
+  previewLowBalance?: boolean;
   onRequestAuth: () => void;
 }
 
@@ -86,6 +88,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
     onFilled,
     variant,
     previewLimitHint,
+    previewLowBalance,
     onRequestAuth,
   } = props;
 
@@ -111,13 +114,30 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
   // Net profit after the 5 % winning commission — the ONLY number we show.
   const potentialWinNet = netWin(potentialProceeds - amountNum, fee);
 
+  // 2026-11-05 · Max rule (CPO): a signed-in user's amount can never exceed what
+  // Max would put in (floor of the Standard balance) — typing or a preset above
+  // it snaps to Max. When Max is 0 the card says so in place (hint + greyed
+  // presets). Guests are exempt — their buy asks them to sign in first.
+  const maxAmount = Math.max(0, Math.floor(spotBalance));
+  const capApplies = !!user;
+  const lowBalance = !!previewLowBalance || (capApplies && maxAmount < 1);
+  const setAmountCapped = useCallback(
+    (v: string) => {
+      if (!capApplies) return onAmountChange(v);
+      const n = parseFloat(v);
+      if (isFinite(n) && n > maxAmount) return onAmountChange(String(maxAmount));
+      onAmountChange(v);
+    },
+    [capApplies, maxAmount, onAmountChange],
+  );
+
   const handlePreset = useCallback(
     (v: number | "max") => {
-      const target = v === "max" ? Math.floor(spotBalance) : v;
+      const target = v === "max" ? maxAmount : v;
       if (!isFinite(target) || target <= 0) return;
-      onAmountChange(String(target));
+      setAmountCapped(String(target));
     },
-    [onAmountChange, spotBalance],
+    [setAmountCapped, maxAmount],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -246,14 +266,21 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
             <input
               type="number"
               inputMode="decimal"
-              value={amount}
-              onChange={(e) => onAmountChange(e.target.value)}
+              value={lowBalance ? "" : amount}
+              onChange={(e) => setAmountCapped(e.target.value)}
               placeholder="0"
-              className="w-full bg-transparent font-mono text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground/40"
+              disabled={lowBalance}
+              aria-describedby={lowBalance ? "lite-standard-low-balance" : undefined}
+              className="w-full bg-transparent font-mono text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground/40 disabled:cursor-not-allowed"
             />
           </div>
         </div>
-        <div className="grid grid-cols-5 gap-1.5">
+        {lowBalance && (
+          <p id="lite-standard-low-balance" className="text-xs leading-[17px] text-foreground/75">
+            {t("spot.screen.lite_spot_order_panel.low_balance_hint")}
+          </p>
+        )}
+        <div className={cn("grid grid-cols-5 gap-1.5", lowBalance && "pointer-events-none opacity-40")} aria-disabled={lowBalance || undefined}>
           {PRESETS.map((p) => {
             const active = amountNum === p;
             const winAt = sidePrice > 0
@@ -263,6 +290,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
               <button
                 key={p}
                 type="button"
+                disabled={lowBalance}
                 onClick={() => handlePreset(p)}
                 className={cn(
                   "flex flex-col items-center justify-center rounded-lg border py-1.5 text-[11px] transition-colors",
@@ -285,6 +313,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
           })}
           <button
             type="button"
+            disabled={lowBalance}
             onClick={() => handlePreset("max")}
             className="rounded-lg border border-border py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >

@@ -76,6 +76,8 @@ export interface LiteContractOrderPanelProps {
   variant: "desktop" | "mobile";
   /** Style-guide only: force the `Want to place a limit order? Pro ›` line. */
   previewLimitHint?: boolean;
+  /** Style-guide only: force the low-balance state (hint + greyed presets). */
+  previewLowBalance?: boolean;
   /** Consumer label of the side the user currently holds on this event, if
    *  any. When the selected side is the other one, the buy nets it down. */
   heldSideLabel?: string | null;
@@ -140,6 +142,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     timeSlot,
     variant,
     previewLimitHint,
+    previewLowBalance,
     heldSideLabel,
     heldCurrentValue,
     heldQty,
@@ -192,6 +195,22 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const remainderMarginEst = effBoost > 0 ? (remainderQty * sidePrice) / effBoost : 0;
   const remainderFee = remainderMarginEst * effBoost * FEE_RATE;
   const remainderWinNet = netWin(remainderWin, remainderFee);
+
+  // 2026-11-05 · Max rule (CPO): a signed-in user's amount can never exceed what
+  // Max would put in (floor of the Boost balance) — typing or a preset above it
+  // snaps to Max. When Max is 0 the card says so in place (hint + greyed
+  // presets) instead of silently showing $0.00. Netting buys are exempt: the
+  // held leg's cash funds them, so the wallet is not the limit. Guests are
+  // exempt too — their buy asks them to sign in first.
+  const maxAmount = Math.max(0, Math.floor(balance));
+  const capApplies = !!user && !isNetting;
+  const lowBalance = !!previewLowBalance || (capApplies && maxAmount < 1);
+  const setAmountCapped = (v: string) => {
+    if (!capApplies) return onAmountChange(v);
+    const n = parseFloat(v);
+    if (isFinite(n) && n > maxAmount) return onAmountChange(String(maxAmount));
+    onAmountChange(v);
+  };
 
   const autoCloseComputed = useMemo(
     () =>
@@ -458,10 +477,12 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             <input
               type="number"
               inputMode="decimal"
-              value={amount}
-              onChange={(e) => onAmountChange(e.target.value)}
+              value={lowBalance ? "" : amount}
+              onChange={(e) => setAmountCapped(e.target.value)}
               placeholder="0"
-              className="min-w-0 flex-1 bg-transparent font-mono text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground/40"
+              disabled={lowBalance}
+              aria-describedby={lowBalance ? "lite-boost-low-balance" : undefined}
+              className="min-w-0 flex-1 bg-transparent font-mono text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground/40 disabled:cursor-not-allowed"
             />
             {effBoost > 1 && amountNum > 0 && (
               <span className="shrink-0 font-mono text-[11px] font-semibold text-muted-foreground">
@@ -471,14 +492,20 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-1.5">
+        {lowBalance && (
+          <p id="lite-boost-low-balance" className="text-xs leading-[17px] text-foreground/75">
+            {t("trade.screen.lite.lite_contract_order_panel.low_balance_hint")}
+          </p>
+        )}
+        <div className={cn("grid grid-cols-5 gap-1.5", lowBalance && "pointer-events-none opacity-40")} aria-disabled={lowBalance || undefined}>
           {PRESETS.map((p) => {
             const active = amountNum === p;
             return (
               <button
                 key={p}
                 type="button"
-                onClick={() => onAmountChange(String(p))}
+                disabled={lowBalance}
+                onClick={() => setAmountCapped(String(p))}
                 className={cn(
                   "rounded-lg border py-1.5 font-mono text-[11px] font-semibold transition-colors",
                   active
@@ -492,7 +519,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           })}
           <button
             type="button"
-            onClick={() => onAmountChange(String(Math.max(0, Math.floor(balance))))}
+            disabled={lowBalance}
+            onClick={() => onAmountChange(String(maxAmount))}
             className="rounded-lg border border-border py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
             {t("common.max")}
