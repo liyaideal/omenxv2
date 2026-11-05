@@ -3346,7 +3346,8 @@
     "screen.mobile_portfolio_airdrop_card.completed_suffix": " — Completed",
     "screen.mobile_portfolio_airdrop_card.this_airdrop_expired_without_activation": "This airdrop expired without activation",
     "screen.mobile_portfolio_voucher_card.credited_suffix": " — {{amount}} credited",
-    "screen.use_portfolio_airdrop_interactions.activation_failed": "Failed to activate airdrop"
+    "screen.use_portfolio_airdrop_interactions.activation_failed": "Failed to activate airdrop",
+    "lite.series.share_side_line": "Won {{wins}} of {{count}} rounds"
   },
   "resolved": {
     "title": "Resolved Events",

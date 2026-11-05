@@ -14,6 +14,7 @@ import type { LiteMonthGroup, LiteSettledRow } from "@/hooks/useLitePortfolio";
 import { RED, signedMoney, pnlColor } from "./parts";
 import { PortfolioEmptySettled } from "./PortfolioAsyncStates";
 import { QuickPlayTag } from "./QuickPlayTag";
+import { ShareIconButton } from "@/components/lite/share/ShareIconButton";
 
 // `wrap`: the phone variant of a Quick Play session row may run to two lines
 // (`BTC · 5 calls · won 1 of 5 · $100 a call · 1 cancelled` does not fit 375)
@@ -38,7 +39,7 @@ const MetaLine = forwardRef<HTMLDivElement, { row: LiteSettledRow; parts?: strin
 ));
 MetaLine.displayName = "MetaLine";
 
-export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow; highlight?: boolean }>(({ row, highlight }, ref) => {
+export const SettledRow = forwardRef<HTMLDivElement, { row: LiteSettledRow; highlight?: boolean; onShare?: (row: LiteSettledRow) => void }>(({ row, highlight, onShare }, ref) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const narrow = isMobile && row.mobile ? row.mobile : null;
@@ -50,11 +51,11 @@ export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow; h
       : navigate(`/portfolio/settlement/${row.id}`);
   };
   return (
-    <button
+    // The whole row opens the detail (a full-bleed button underneath); the
+    // share icon sits above it as its own button — never a button in a button.
+    <div
       ref={ref}
-      type="button"
-      onClick={go}
-      className="flex w-full items-center gap-3 px-4 py-[13px] text-left"
+      className="relative flex w-full items-center gap-3 px-4 py-[13px] text-left"
       style={{
         borderBottom: "1px solid rgba(28,31,38,.8)",
         // the row the cabinet just sent you to — a short lime wash, then gone
@@ -62,8 +63,14 @@ export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow; h
         transition: "background 1.2s ease",
       }}
     >
+      <button
+        type="button"
+        onClick={go}
+        aria-label={row.title}
+        className="absolute inset-0 h-full w-full"
+      />
 
-      <div className="min-w-0 flex-1">
+      <div className="pointer-events-none min-w-0 flex-1">
         {narrow ? (
           // Phone Quick Play row: the time span is the row's identity, so it wraps
           // (breaking only at " – ") with the tag flowing after it on the last line
@@ -85,20 +92,23 @@ export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow; h
         )}
         <MetaLine row={row} parts={narrow ? narrow.metaParts : undefined} wrap={!!narrow} />
       </div>
+      {/* 2026-11-05 · share on every settled row, left of the amount. The amount
+          column is fixed-width + right-aligned so the icons line up in one column. */}
+      {onShare && <ShareIconButton onClick={() => onShare(row)} className="relative z-10" />}
       <span
-        className="font-mono text-[14px] font-bold"
+        className="pointer-events-none min-w-[88px] text-right font-mono text-[14px] font-bold"
         style={{ color: pnlColor(row.net) }}
       >
         {signedMoney(row.net)}
       </span>
-      <span className="text-[#6B7280]">›</span>
-    </button>
+      <span className="pointer-events-none text-[#6B7280]">›</span>
+    </div>
   );
 });
 SettledRow.displayName = "SettledRow";
 
 
-export const SettledList = ({ groups, highlightId }: { groups: LiteMonthGroup[]; highlightId?: string | null }) => {
+export const SettledList = ({ groups, highlightId, onShare }: { groups: LiteMonthGroup[]; highlightId?: string | null; onShare?: (row: LiteSettledRow) => void }) => {
   const [visible, setVisible] = useState(2);
   // The highlighted row (arrived from the cabinet) washes lime for ~2 s.
   const [hl, setHl] = useState<string | null>(highlightId ?? null);
@@ -149,7 +159,7 @@ export const SettledList = ({ groups, highlightId }: { groups: LiteMonthGroup[];
               />
             </button>
             {!isCollapsed && g.rows.map((r) => (
-              <SettledRow key={r.id} row={r} highlight={hl === r.id} />
+              <SettledRow key={r.id} row={r} highlight={hl === r.id} onShare={onShare} />
             ))}
           </div>
         );

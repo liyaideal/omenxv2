@@ -3211,7 +3211,8 @@
   "screen.mobile_portfolio_airdrop_card.completed_suffix": " — Hoàn thành",
   "screen.mobile_portfolio_airdrop_card.this_airdrop_expired_without_activation": "Airdrop này đã hết hạn mà chưa kích hoạt",
   "screen.mobile_portfolio_voucher_card.credited_suffix": " — đã ghi có {{amount}}",
-  "screen.use_portfolio_airdrop_interactions.activation_failed": "Kích hoạt airdrop thất bại"
+  "screen.use_portfolio_airdrop_interactions.activation_failed": "Kích hoạt airdrop thất bại",
+  "lite.series.share_side_line": "Thắng {{wins}}/{{count}} vòng"
  },
  "resolved": {
   "title": "Sự kiện đã kết toán",

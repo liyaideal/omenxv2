@@ -38,6 +38,8 @@ export interface SeriesDetailActions {
   backLabel?: string;
   onViewEvent?: () => void;
   onOpenRound?: (roundId: string) => void;
+  /** Signed-in only. Desktop: the title-row Share button; mobile: the page header icon (owned by the page). */
+  onShare?: () => void;
 }
 
 const HAIRLINE = "1px solid rgba(28,31,38,.8)";
@@ -148,7 +150,7 @@ export const SeriesDetailDesktop = ({
   actions?: SeriesDetailActions;
 }) => (
   <div className="bg-background">
-    <DetailTitleRow title={vm.seriesName} onViewEvent={actions?.onViewEvent} />
+    <DetailTitleRow title={vm.seriesName} onViewEvent={actions?.onViewEvent} onShare={actions?.onShare} />
 
     <div className="mt-1 text-[12.5px] text-[#6B7280]">
       Series · {vm.rounds.length} rounds · last settled {lastSettled(vm)}

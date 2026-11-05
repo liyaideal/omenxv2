@@ -3205,7 +3205,8 @@
   "screen.mobile_portfolio_airdrop_card.completed_suffix": " — 已完成",
   "screen.mobile_portfolio_airdrop_card.this_airdrop_expired_without_activation": "此空投未啟用即已過期",
   "screen.mobile_portfolio_voucher_card.credited_suffix": " — 已入帳 {{amount}}",
-  "screen.use_portfolio_airdrop_interactions.activation_failed": "啟用空投失敗"
+  "screen.use_portfolio_airdrop_interactions.activation_failed": "啟用空投失敗",
+  "lite.series.share_side_line": "{{count}} 輪中贏了 {{wins}} 輪"
  },
  "resolved": {
   "title": "已結算事件",

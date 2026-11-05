@@ -40,6 +40,13 @@ import {
 import { usePositions } from "@/hooks/usePositions";
 import { toast } from "sonner";
 import { SettledList } from "@/components/portfolio/lite/SettledList";
+import { singleSettlementShareSnap, seriesShareSnap } from "@/lib/liteSettledShare";
+import { ArcadeShareCard } from "@/components/lite/arcade/ArcadeShareCard";
+import type { ArcadeRunShare } from "@/pages/arcade/arcadeEngine";
+import { quickPlayShareRun } from "@/lib/arcade/quickPlayPortfolio";
+import { MobileHeaderIconButton } from "@/components/MobileHeader";
+import { Share2 } from "lucide-react";
+import type { LiteSettledRow } from "@/hooks/useLitePortfolio";
 import {
   SeriesDetailDesktop,
   SeriesDetailMobile,
@@ -107,6 +114,7 @@ export default function LitePortfolio() {
   }, [fromQuickPlay, p.settledRows]);
   const { positions, closePosition, refetch } = usePositions();
   const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
+  const [qpShare, setQpShare] = useState<ArcadeRunShare | null>(null);
 
   /* --------------------- batch cash-out selection --------------------- */
   const [selectMode, setSelectMode] = useState(false);
@@ -128,6 +136,24 @@ export default function LitePortfolio() {
       segment: r.segment,
     });
 
+
+  // Settled row share (2026-11-05) — one entry per row, same posters as the
+  // detail pages: single = settlement poster, series = settlement poster with
+  // series totals, Quick Play = the cabinet poster.
+  const shareSettledRow = (r: LiteSettledRow) => {
+    if (r.kind === "quickplay") {
+      const session = r.sessionKey ? p.quickPlaySession(r.sessionKey) : null;
+      if (session && session.calls > 0) setQpShare(quickPlayShareRun(session));
+      return;
+    }
+    if (r.isSeries) {
+      const vm = r.seriesId ? p.seriesDetail(r.seriesId) : null;
+      if (vm) setManualShare(seriesShareSnap(vm));
+      return;
+    }
+    const item = p.settlementItem(r.id);
+    if (item) setManualShare(singleSettlementShareSnap(item, p.eventIdByName(item.event)));
+  };
 
   const setTab = (v: "live" | "settled") => {
     const next = new URLSearchParams(params);
@@ -335,6 +361,7 @@ export default function LitePortfolio() {
       navigate(
         `/portfolio/settlement/${id}?series=${encodeURIComponent(series ?? "")}`,
       ),
+    onShare: user && seriesVm ? () => setManualShare(seriesShareSnap(seriesVm)) : undefined,
   };
 
   const seriesView = series && (
@@ -426,7 +453,9 @@ export default function LitePortfolio() {
     </>
   );
 
-  const settledBody = series ? seriesView : <SettledList groups={p.monthGroups(segment)} highlightId={highlightId} />;
+  const settledBody = series ? seriesView : (
+    <SettledList groups={p.monthGroups(segment)} highlightId={highlightId} onShare={user ? shareSettledRow : undefined} />
+  );
 
   const content = (
     <>
@@ -485,6 +514,7 @@ export default function LitePortfolio() {
         settledBody
       )}
       <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
+      <ArcadeShareCard run={qpShare} onClose={() => setQpShare(null)} />
     </>
   );
 
@@ -502,8 +532,16 @@ export default function LitePortfolio() {
             title={name.length > 24 ? `${name.slice(0, 24)}…` : name}
             showBack
             backTo="/portfolio?tab=settled"
+            rightContent={
+              seriesActions.onShare ? (
+                <MobileHeaderIconButton aria-label={t("common.share")} onClick={seriesActions.onShare}>
+                  <Share2 className="h-[18px] w-[18px]" />
+                </MobileHeaderIconButton>
+              ) : undefined
+            }
           />
           <LiteAuthGate>{seriesView}</LiteAuthGate>
+          <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
           <BottomNav />
         </div>
       );

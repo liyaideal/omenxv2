@@ -3211,7 +3211,8 @@
   "screen.mobile_portfolio_airdrop_card.completed_suffix": " — 完了",
   "screen.mobile_portfolio_airdrop_card.this_airdrop_expired_without_activation": "このエアドロップは有効化されずに失効しました",
   "screen.mobile_portfolio_voucher_card.credited_suffix": " — {{amount}} 入金済み",
-  "screen.use_portfolio_airdrop_interactions.activation_failed": "エアドロップの有効化に失敗しました"
+  "screen.use_portfolio_airdrop_interactions.activation_failed": "エアドロップの有効化に失敗しました",
+  "lite.series.share_side_line": "{{count}} ラウンド中 {{wins}} 勝"
  },
  "resolved": {
   "title": "確定済みイベント",

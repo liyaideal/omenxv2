@@ -455,6 +455,12 @@ export const useLitePortfolio = () => {
     seriesRows,
     seriesDetail,
     canonicalSeriesId,
+    /** Raw settled position behind a single Settled row (share snapshot source). */
+    settlementItem: (id: string) => settlements.find((x) => x.id === id) ?? null,
+    /** Event id for a settled event name, when the event row is loaded. */
+    eventIdByName: (name: string) => eventByName.get(name)?.id ?? null,
+    /** Quick Play sitting behind a Settled row (share uses the cabinet poster). */
+    quickPlaySession: (key: string) => sessions.find((x) => x.session_key === key) ?? null,
 
     pendingOrders,
     cents,

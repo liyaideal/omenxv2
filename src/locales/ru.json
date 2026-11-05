@@ -3262,7 +3262,8 @@
   "screen.mobile_portfolio_airdrop_card.completed_suffix": " — Завершено",
   "screen.mobile_portfolio_airdrop_card.this_airdrop_expired_without_activation": "Этот эйрдроп истёк без активации",
   "screen.mobile_portfolio_voucher_card.credited_suffix": " — зачислено {{amount}}",
-  "screen.use_portfolio_airdrop_interactions.activation_failed": "Не удалось активировать эйрдроп"
+  "screen.use_portfolio_airdrop_interactions.activation_failed": "Не удалось активировать эйрдроп",
+  "lite.series.share_side_line": "Выиграно {{wins}} из {{count}} раундов"
  },
  "resolved": {
   "title": "Урегулированные события",

@@ -3192,7 +3192,8 @@
   "screen.mobile_portfolio_airdrop_card.completed_suffix": " — 已完成",
   "screen.mobile_portfolio_airdrop_card.this_airdrop_expired_without_activation": "此空投未激活即已过期",
   "screen.mobile_portfolio_voucher_card.credited_suffix": " — 已入账 {{amount}}",
-  "screen.use_portfolio_airdrop_interactions.activation_failed": "激活空投失败"
+  "screen.use_portfolio_airdrop_interactions.activation_failed": "激活空投失败",
+  "lite.series.share_side_line": "{{count}} 轮中赢了 {{wins}} 轮"
  },
  "resolved": {
   "title": "已结算事件",

@@ -3211,7 +3211,8 @@
   "screen.mobile_portfolio_airdrop_card.completed_suffix": " — 완료",
   "screen.mobile_portfolio_airdrop_card.this_airdrop_expired_without_activation": "이 에어드롭은 활성화되지 않고 만료되었습니다",
   "screen.mobile_portfolio_voucher_card.credited_suffix": " — {{amount}} 입금됨",
-  "screen.use_portfolio_airdrop_interactions.activation_failed": "에어드롭 활성화에 실패했습니다"
+  "screen.use_portfolio_airdrop_interactions.activation_failed": "에어드롭 활성화에 실패했습니다",
+  "lite.series.share_side_line": "{{count}}라운드 중 {{wins}}승"
  },
  "resolved": {
   "title": "정산된 이벤트",
