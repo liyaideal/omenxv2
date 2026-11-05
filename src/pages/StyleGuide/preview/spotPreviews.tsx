@@ -210,11 +210,14 @@ const OrderPanel = ({
   side0 = "yes",
   amount0 = "",
   limitHint,
+  lowBalance,
 }: {
   side0?: "yes" | "no";
   amount0?: string;
   /** SW-2：强制显示 `Want to place a limit order? Pro ›` 脚注。 */
   limitHint?: boolean;
+  /** SP-20：余额不够下单（Max = 0）。 */
+  lowBalance?: boolean;
 }) => {
   const isMobile = useIsMobile();
   const [side, setSide] = useState<"yes" | "no">(side0);
@@ -240,6 +243,7 @@ const OrderPanel = ({
         onAmountChange={setAmount}
         variant={isMobile ? "mobile" : "desktop"}
         previewLimitHint={limitHint}
+        previewLowBalance={lowBalance}
         onRequestAuth={() => undefined}
       />
     </div>
@@ -250,6 +254,9 @@ const OrderPanel = ({
 export const Sp19Preview = () => <OrderPanel limitHint />;
 /** SP-19b · 已输入金额 → 入口让位给「Buys instantly…」（OR 规则）。 */
 export const Sp19bPreview = () => <OrderPanel limitHint amount0="50" />;
+
+/** SP-20 · Standard 余额不够下单（Max = 0）：提示行 + 快捷金额置灰，CTA 不变。 */
+export const Sp20Preview = () => <OrderPanel lowBalance />;
 
 /** SP-10 · Place your order 默认态（零单）。 */
 export const Sp10Preview = () => <OrderPanel />;

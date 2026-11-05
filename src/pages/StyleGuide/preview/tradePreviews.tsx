@@ -98,6 +98,7 @@ const Panel = ({
   remainderAutoCloseNone,
   countdown = "02:14:09",
   limitHint,
+  lowBalance,
   yesLabel = "Yes",
   noLabel = "No",
   sportsClock,
@@ -118,6 +119,8 @@ const Panel = ({
   countdown?: string;
   /** SW-2：强制显示 `Want to place a limit order? Pro ›` 脚注。 */
   limitHint?: boolean;
+  /** TR-30：余额不够下单（Max = 0）。 */
+  lowBalance?: boolean;
   /** TR-27c：多 market 选项名。 */
   yesLabel?: string;
   noLabel?: string;
@@ -156,6 +159,7 @@ const Panel = ({
         timeSlot={sportsClock ? <SportsClockLabel clock={sportsClock} variant="card" /> : undefined}
         variant={isMobile ? "mobile" : "desktop"}
         previewLimitHint={limitHint}
+        previewLowBalance={lowBalance}
         heldSideLabel={heldSideLabel}
         heldCurrentValue={heldCurrentValue}
         heldQty={heldQty}
@@ -181,6 +185,9 @@ export const Tr27bPreview = () => <Panel limitHint amount0="25" />;
 export const Tr27cPreview = () => <Panel limitHint yesLabel="Charles Leclerc" noLabel="Not Leclerc" />;
 /** TR-28 · Boost limit reached（Pro RESTRICTION 档 Risk ≥ 95% 的 Lite 写法）：CTA 置灰。 */
 export const Tr28Preview = () => <Panel amount0="25" blocked blockedReason="Boost limit reached — close a position first" />;
+
+/** TR-30 · Boost 余额不够下单（Max = 0）：提示行 + 快捷金额置灰，CTA 不变。 */
+export const Tr30Preview = () => <Panel lowBalance />;
 /* TR-29 · sports fixtures: the time slot follows the match phase, never the estimated end (CPO 2026-11-04). */
 const HOCKEY = { yesLabel: "Maple Leafs", noLabel: "Kraken" };
 export const Tr29Preview = () => <Panel {...HOCKEY} yesPrice={0.34} sportsClock={{ phase: "upcoming", kickoffInMs: (2 * 60 + 10) * 60_000, liveClock: null }} />;

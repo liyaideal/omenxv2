@@ -86,6 +86,17 @@ quantity  = notional / sidePrice
 
 ---
 
+### 1.6 桌面右栏下单卡悬浮（2026-11-05）
+
+适用所有 Lite 交易页桌面端：合约（Boost）、现货（Standard）、快速回合，一个 market 和多个 market 都一样。手机端是底部抽屉，不涉及。
+
+1. 右栏顶上那块（下单卡；已结算时是结果卡；快速回合是 pick 卡 + 下单卡）跟着页面悬浮，贴在站点顶栏下方 16px。用户滚到列表很下面选了一个 market，下单卡仍然在眼前，卡上 `Market · change in the list ←` 写着选中的是哪一个。
+2. 卡片比顶栏下面的可见区域还高时，改为贴底：卡底离窗口底 16px，先滚走卡片顶部，Buy 按钮永远看得见。
+3. 右栏下面原来的 `More markets` / `More stocks` / `Also live now` 挪到左栏最底部，否则会滚到悬浮卡下面被盖住。
+4. 不做"卡片跟着选中行上下对齐"——CPO 2026-11-05 定为只做悬浮。
+
+实现坐标：`src/components/lite/shared/StickyRailCard.tsx`，挂在 `LiteContractTrade` / `LiteSpotTrade` / `LiteQuickTrade` 的桌面 `<aside>` 里。
+
 ## 2. Cash out 流程
 取证：`src/components/lite/contract/LiteCashOutFlow.tsx`、`src/pages/lite/LiteContractTrade.tsx`、`src/hooks/usePositions.ts`
 

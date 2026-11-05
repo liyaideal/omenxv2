@@ -292,6 +292,16 @@ const SESSION_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "spot-sp20",
+    label: "SP-20 · 下单面板 · 余额不够下单（Max = 0）",
+    note: "CPO 2026-11-05，与合约 TR-30 同一条规则：已登录用户输入的金额永远不超过 Max（= floor(Standard balance)）；Max 为 0 时卡片就地说明。CTA 与脚注不变，划转靠余额旁已有的 ⇄。",
+    spec: [
+      { state: "超过 Max", when: "user && parseFloat(input) > floor(spotBalance)", visual: "输入框里的数直接变成 Max（静默）", source: "LiteOrderPanel setAmountCapped" },
+      { state: "余额不够", when: "user && floor(spotBalance) < 1", visual: "输入框锁住只显示占位 `0`；下一行 `Add money to your Standard balance to place an order.`；快捷金额置灰不可点；CTA 不变", source: "LiteOrderPanel lowBalance · i18n spot.screen.lite_spot_order_panel.low_balance_hint" },
+      { state: "游客例外", when: "!user", visual: "不封顶、不提示", source: "capApplies" },
+    ],
+  },
+  {
     key: "spot-sp18",
     label: "SP-18 · SessionBanner · preSession（SpotSessionBanner + LiteOrderPanel）",
     note:

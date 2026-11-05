@@ -42,7 +42,8 @@ import {
 import { SettledRow } from "@/components/portfolio/lite/SettledList";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
-import { MobileHeader } from "@/components/MobileHeader";
+import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
+import { Share2 } from "lucide-react";
 import { settledDayLabel, monthGroupLabel, monthKey } from "@/lib/settleLabel";
 import { QuickPlaySessionDesktop, QuickPlaySessionMobile } from "@/components/portfolio/lite/QuickPlaySessionView";
 import { quickPlayRow, quickPlaySessionVM } from "@/lib/arcade/quickPlayPortfolio";
@@ -469,7 +470,7 @@ export const PortfolioSettledListPreview = () => (
     <p className="px-4 pt-3 text-[11px] text-[#6B7280]">
       月份组头可点击折叠/展开（默认全展开）。试试点击 AUGUST 2026。
     </p>
-    <SettledList groups={groups} />
+    <SettledList groups={groups} onShare={() => {}} />
   </div>
 );
 
@@ -674,13 +675,13 @@ const seriesBoostWeekly: SeriesDetailVM = {
  * ----------------------------------------------------------------------- */
 const DetailDesktop = ({ vm }: { vm: SettlementDetailVM }) => (
   <div className="bg-background p-4">
-    <SettlementDetailDesktop vm={vm} actions={{ onViewEvent: () => {} }} />
+    <SettlementDetailDesktop vm={vm} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
 const DetailMobile = ({ vm }: { vm: SettlementDetailVM }) => (
   <div className="bg-background p-4">
-    <SettlementDetailMobile vm={vm} actions={{ onViewEvent: () => {} }} />
+    <SettlementDetailMobile vm={vm} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
@@ -698,24 +699,34 @@ export const SettlementDetailLostMobilePreview = () => <DetailMobile vm={detailL
 
 export const SettlementSeriesDetailPreview = () => (
   <div className="bg-background p-4">
-    <SeriesDetailDesktop vm={seriesVm} actions={{ onViewEvent: () => {} }} />
+    <SeriesDetailDesktop vm={seriesVm} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
 export const SettlementSeriesExtremesPreview = () => (
   <div className="space-y-4 bg-background p-4">
-    <SeriesDetailDesktop vm={seriesAllWon} actions={{ onViewEvent: () => {} }} />
-    <SeriesDetailDesktop vm={seriesAllLost} actions={{ onViewEvent: () => {} }} />
-    <SeriesDetailDesktop vm={seriesBoostWeekly} actions={{ onViewEvent: () => {} }} />
+    <SeriesDetailDesktop vm={seriesAllWon} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
+    <SeriesDetailDesktop vm={seriesAllLost} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
+    <SeriesDetailDesktop vm={seriesBoostWeekly} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
 /** Mobile series是独立整页：inner header + 返回，无 tabs / KPI / chips。 */
 export const SeriesMobilePagePreview = () => (
   <div className="min-h-[560px] bg-background">
-    <MobileHeader variant="inner" title="Ethereum — up or down?" showBack backTo="/portfolio?tab=settled" />
+    <MobileHeader
+      variant="inner"
+      title="Ethereum — up or down?"
+      showBack
+      backTo="/portfolio?tab=settled"
+      rightContent={
+        <MobileHeaderIconButton aria-label="Share" onClick={() => {}}>
+          <Share2 size={18} />
+        </MobileHeaderIconButton>
+      }
+    />
     <div className="pt-4">
-      <SeriesDetailMobile vm={seriesVm} actions={{ onViewEvent: () => {} }} />
+      <SeriesDetailMobile vm={seriesVm} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
     </div>
   </div>
 );
@@ -1176,8 +1187,8 @@ export const PortfolioBatchClosingMobilePreview = () => (
 /** PF-20 单仓结算行 — settlement / auto_close / cashout / close_reason=null / 零结果。 */
 export const PortfolioSettledRowPreview = () => (
   <div className="bg-background pb-4">
-    <SettledRow row={settled({ daysAgo: 3, net: 235 })} />
-    <SettledRow
+    <SettledRow onShare={() => {}} row={settled({ daysAgo: 3, net: 235 })} />
+    <SettledRow onShare={() => {}}
       row={settled({
         daysAgo: 4,
         title: "ETH above $4,000 today",
@@ -1188,7 +1199,7 @@ export const PortfolioSettledRowPreview = () => (
         won: false,
       })}
     />
-    <SettledRow
+    <SettledRow onShare={() => {}}
       row={settled({
         daysAgo: 5,
         title: "Arsenal to beat Liverpool",
@@ -1197,7 +1208,7 @@ export const PortfolioSettledRowPreview = () => (
         net: 42.5,
       })}
     />
-    <SettledRow
+    <SettledRow onShare={() => {}}
       row={settled({
         daysAgo: 6,
         title: "TSLA closes up",
@@ -1207,7 +1218,7 @@ export const PortfolioSettledRowPreview = () => (
         net: 18.4,
       })}
     />
-    <SettledRow
+    <SettledRow onShare={() => {}}
       row={settled({
         daysAgo: 7,
         title: "US jobs report beats forecast",
@@ -1223,7 +1234,7 @@ export const PortfolioSettledRowPreview = () => (
 /** PF-21 系列聚合行 — 全胜 / 部分 / 全败，点进系列详情。 */
 export const PortfolioSeriesRowPreview = () => (
   <div className="bg-background pb-4">
-    <SettledRow
+    <SettledRow onShare={() => {}}
       row={settled({
         daysAgo: 3,
         title: "Bitcoin — up or down?",
@@ -1233,7 +1244,7 @@ export const PortfolioSeriesRowPreview = () => (
         seriesId: "bitcoin-up-or-down",
       })}
     />
-    <SettledRow
+    <SettledRow onShare={() => {}}
       row={settled({
         daysAgo: 4,
         title: "Ethereum — up or down?",
@@ -1244,7 +1255,7 @@ export const PortfolioSeriesRowPreview = () => (
         won: false,
       })}
     />
-    <SettledRow
+    <SettledRow onShare={() => {}}
       row={settled({
         daysAgo: 5,
         title: "Solana — up or down?",
@@ -1261,10 +1272,10 @@ export const PortfolioSeriesRowPreview = () => (
 /** PF-22 Standard 段 settled 行 — Up / Down / Series，永不带杠杆后缀。 */
 export const PortfolioStandardSettledPreview = () => (
   <div className="bg-background pb-4">
-    <SettledRow
+    <SettledRow onShare={() => {}}
       row={settled({ daysAgo: 1, title: "TSLA closes up", metaHead: ["Up"], segment: "standard", net: 22.4 })}
     />
-    <SettledRow
+    <SettledRow onShare={() => {}}
       row={settled({
         daysAgo: 4,
         title: "9988.HK closes up",
@@ -1274,7 +1285,7 @@ export const PortfolioStandardSettledPreview = () => (
         won: false,
       })}
     />
-    <SettledRow
+    <SettledRow onShare={() => {}}
       row={settled({
         daysAgo: 6,
         title: "AAPL — up or down?",
@@ -1310,13 +1321,13 @@ const detailStandard: SettlementDetailVM = {
 
 export const SettlementDetailStandardPreview = () => (
   <div className="bg-background p-4">
-    <SettlementDetailDesktop vm={detailStandard} actions={{ onViewEvent: () => {} }} />
+    <SettlementDetailDesktop vm={detailStandard} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
 export const SettlementDetailStandardMobilePreview = () => (
   <div className="bg-background p-4">
-    <SettlementDetailMobile vm={detailStandard} actions={{ onViewEvent: () => {} }} />
+    <SettlementDetailMobile vm={detailStandard} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
@@ -1332,13 +1343,13 @@ const seriesRoundVm: SeriesDetailVM = {
 
 export const SettlementSeriesRoundPreview = () => (
   <div className="bg-background p-4">
-    <SeriesDetailDesktop vm={seriesRoundVm} actions={{ onViewEvent: () => {} }} />
+    <SeriesDetailDesktop vm={seriesRoundVm} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
 export const SettlementSeriesRoundMobilePreview = () => (
   <div className="bg-background p-4">
-    <SeriesDetailMobile vm={seriesRoundVm} actions={{ onViewEvent: () => {} }} />
+    <SeriesDetailMobile vm={seriesRoundVm} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
@@ -1362,13 +1373,13 @@ const seriesStandardVm: SeriesDetailVM = {
 
 export const SettlementSeriesStandardPreview = () => (
   <div className="bg-background p-4">
-    <SeriesDetailDesktop vm={seriesStandardVm} actions={{ onViewEvent: () => {} }} />
+    <SeriesDetailDesktop vm={seriesStandardVm} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
 export const SettlementSeriesStandardMobilePreview = () => (
   <div className="bg-background p-4">
-    <SeriesDetailMobile vm={seriesStandardVm} actions={{ onViewEvent: () => {} }} />
+    <SeriesDetailMobile vm={seriesStandardVm} actions={{ onViewEvent: () => {}, onShare: () => {} }} />
   </div>
 );
 
@@ -1551,7 +1562,7 @@ export const PortfolioQuickPlayRowsPreview = () => (
     <p className="px-4 pt-3 text-[11px] text-[#6B7280]">
       Settled › Standard 里的三种 Quick Play 行：刚玩完（赢）/ 有退款和取消（赢）/ 跨零点（输）。第一行带「刚从机柜过来」的 2 秒亮边。
     </p>
-    <SettledList groups={qpGroups} highlightId={`qp-${qpSessionLive.session_key}`} />
+    <SettledList groups={qpGroups} highlightId={`qp-${qpSessionLive.session_key}`} onShare={() => {}} />
   </div>
 );
 

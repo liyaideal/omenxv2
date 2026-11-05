@@ -584,6 +584,8 @@ const SETTLED_CASES: SectionCase[] = [
       { state: "月份折叠", when: "点击组头 → collapsed 加入 g.key", visual: "Chevron 旋转 180°（transition 200ms），组内行完全移出 DOM；组头仍可点击", source: "SettledList collapsed" },
       { state: "折叠不持久化", when: "重新挂载", visual: "collapsed 重置为空集，全部展开", source: "useState(new Set())" },
       { state: "懒加载新增组", when: "Load earlier months 追加的组", visual: "默认展开，不继承折叠状态", source: "SettledList visible" },
+      { state: "分享图标（2026-11-05）", when: "已登录（onShare 传入）——单仓 / 系列 / Quick Play 每一行", visual: "金额左边 28px ShareIconButton（同 Live 行）；金额列固定 min-w 88px 右对齐，所以所有行的图标在同一列；点图标只开海报不进详情", source: "SettledRow onShare · lite-share-v1 §4.1" },
+      { state: "分享海报", when: "点分享图标", visual: "单仓 = 结算海报（与单仓详情页同一组数）；系列 = 同一张结算海报，第二行 `Won {wins} of {count} rounds`，Put in = 总成本、Paid out = 总派彩、日期 = 最后一轮；Quick Play = 场次详情那张街机海报", source: "liteSettledShare.ts · quickPlayShareRun" },
     ],
   },
   {
@@ -724,6 +726,7 @@ const SERIES_CASES: SectionCase[] = [
       { state: "KPI 三卡", when: "始终", visual: "NET · COST · PAYOUT，Net = Payout − Cost（费后）", source: "SeriesDetailVM" },
       { state: "DETAILS", when: "始终", visual: "四行：段位 / 轮数 / Cost / Fees", source: "SeriesDetailView" },
       { state: "ROUNDS", when: "rounds[]", visual: "逐轮一行，倒序", source: "SeriesDetailVM rounds" },
+      { state: "Share（2026-11-05）", when: "已登录（actions.onShare）", visual: "桌面：标题行 `View event ›` 左边描边按钮 `Share`（同单仓详情 DetailTitleRow）；移动：页头右上分享图标。海报 = 结算海报填系列总数（见 PF-19 spec）", source: "SeriesDetailActions.onShare · seriesShareSnap" },
     ],
   },
   {
