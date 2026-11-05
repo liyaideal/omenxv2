@@ -139,8 +139,6 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .row.checking{opacity:.55}
 :is(.arcade-root .v2,.arcade-root .v2m) .row.checking .st{color:var(--mute)}
 :is(.arcade-root .v2,.arcade-root .v2m) .mc.checking{opacity:.5}
-:is(.arcade-root .v2,.arcade-root .v2m) .row.won{border-color:var(--lime);background:rgba(207,255,74,.1)!important}
-:is(.arcade-root .v2,.arcade-root .v2m) .row.lost{border-color:var(--hot);background:rgba(255,77,77,.1)!important}
 :is(.arcade-root .v2,.arcade-root .v2m) .mc.u,:is(.arcade-root .v2,.arcade-root .v2m) .mc.d{background:none;box-shadow:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .row.settling .st{animation:v2blink .4s steps(2) infinite}
 @keyframes v2blink{50%{opacity:.3}}

@@ -188,7 +188,7 @@ Lovable 里的实现 = 参考实现，函数可以整文件读（`supabase/migra
 | `model_intercept` / `model_z30` / `model_z60` | 报价模型系数 β0 / β30 / β60 | 0.010495 / 0.106198 / 0.030205 |
 | `min_history_sec` | 起报价需要的历史秒数 | 600（研发稿） |
 | `quote_ttl_ms` | 报价有效期 | 500（研发稿） |
-| `tick_max_age_ms` | 最新指数多老算过期（前端「报价可用」= 最新 tick 年龄 < `min(tick_max_age_ms, quote_ttl_ms)`） | 研发稿未列；Lovable 6000 |
+| `tick_max_age_ms` | 最新指数多老算过期（前端「报价可用」= 最新 tick 年龄 < `min(tick_max_age_ms, quote_ttl_ms)`） | 见风控文档 |
 | `settle_src_age_ms` | S1 必须在 t1 之前多少毫秒内 | 500（研发稿） |
 | `settle_wait_ms` | 到期后最多等迟到行情多久 | 2000（研发稿） |
 | `drift_max_bps` | 报价那一刻到接单时指数允许漂多少 | 1（研发稿） |

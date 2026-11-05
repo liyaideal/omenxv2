@@ -51,8 +51,8 @@ const PAUSE_SPEC = [
   { state: "共同点", when: "任一暂停", visual: "遮罩第三行 `Open calls keep running and settle as normal`；键灰；来源行只在指数无效时变红；桌面猞猁跑酷（`TABLE PAUSED` / `TABLE FULL` · TAP TO JUMP）", source: "同上 / Lx" },
 ];
 const FLIP_SPEC = [
-  { state: "翻牌 · 赢", when: "到期 + 0.5–1.2 s", visual: "行变黄绿框 `+$8.49`；图上杆顶变本方向色实心点、`+$8.49` 飘起；筹码飞向余额；04 的 LIVE / SESSION 更新、LAST 10 多一个实心点；手机 MY CALLS 那枚筹码写 `✓`", source: "reveal / flagFloat / flyChip / applySettled" },
-  { state: "翻牌 · 输", when: "同上", visual: "行变红框 `−$10.00`；灰空心圈、`−$10.00` 飘起；LAST 10 空心点；手机 `✕`", source: "同上" },
+  { state: "翻牌 · 赢", when: "到期 + 0.5–1.2 s", visual: "行框不变色（颜色只表示方向），右侧写绿字 `+$8.49`；图上杆顶变本方向色实心点、`+$8.49` 飘起；筹码飞向余额；04 的 LIVE / SESSION 更新、LAST 10 多一个实心点；手机 MY CALLS 那枚筹码写 `✓`", source: "reveal / flagFloat / flyChip / applySettled" },
+  { state: "翻牌 · 输", when: "同上", visual: "行框不变色，右侧红字 `−$10.00`；灰空心圈、`−$10.00` 飘起；LAST 10 空心点；手机 `✕`", source: "同上" },
   { state: "翻牌 · 平 / 无有效价", when: "同上", visual: "行写 `VOID`、灰横杠、`VOID` 飘起；本金和手续费全退（钱包流水多一行 `Quick Play fee returned · tie`）；不计入 LAST 10、不打断连赢也不算赢；手机 `–`", source: "同上 · arcade_settle_due" },
   { state: "新场次", when: "上一单之后 30 分钟没下单、再下一单", visual: "04 的面板归零、COMBO 消失、顶部 toast `New session` 2.2 s；海报和 Portfolio 都按第一单到最后一单算分钟数（B6）", source: "newSession / ARCADE_SESSION_NEW" },
 ];
