@@ -1,6 +1,7 @@
 // ============================================================
 // /spot?event=crypto-… — Intraday QUICK ROUND trade page.
 // Fusion design: round switcher + round tape + settle-line chart.
+import { StickyRailCard } from "@/components/lite/shared/StickyRailCard";
 import { t } from "@/i18n";
 import { RoundTape } from "@/components/lite/shared/RoundTape";
 // Execution reuses the existing spot order panel / service.
@@ -734,23 +735,26 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
             {Position}
             {MarketActivity}
             {CashOut}
+            {/* 2026-11-05: moved out of the rail — the rail card floats now. */}
+            {AlsoLiveNow}
             <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
             <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
           </div>
         </div>
-        <aside className="space-y-4">
-          {PickCard}
-          {contractRail ? (
-            <LiteContractOrderPanel {...contractPanelProps} variant="desktop" onFilled={() => setRefetchTick((n) => n + 1)} />
-          ) : (
-            <LiteOrderPanel
-              {...orderPanelProps}
-              variant="desktop"
-              hideSideSelector
-              onFilled={() => setRefetchTick((n) => n + 1)}
-            />
-          )}
-          {AlsoLiveNow}
+        <aside>
+          <StickyRailCard>
+            {PickCard}
+            {contractRail ? (
+              <LiteContractOrderPanel {...contractPanelProps} variant="desktop" onFilled={() => setRefetchTick((n) => n + 1)} />
+            ) : (
+              <LiteOrderPanel
+                {...orderPanelProps}
+                variant="desktop"
+                hideSideSelector
+                onFilled={() => setRefetchTick((n) => n + 1)}
+              />
+            )}
+          </StickyRailCard>
         </aside>
       </div>
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />

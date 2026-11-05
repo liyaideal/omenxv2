@@ -13,6 +13,7 @@
 //        Pro /spot keeps using it untouched.
 //   1/2. Price snapshot + balance leg live in LiteContractOrderPanel.
 // ============================================================
+import { StickyRailCard } from "@/components/lite/shared/StickyRailCard";
 import { t } from "@/i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -1849,21 +1850,24 @@ const LiteContractTrade = () => {
                 {MarketActivity}
               </>
             )}
-          </div>
-          <aside id="lite-odds-anchor" className="space-y-4">
-            {resolved ? (
-              OutcomeCard
-            ) : (
-              <LiteContractOrderPanel
-                {...panelProps}
-                variant="desktop"
-                onFilled={() => {
-                  setRefetchTick((n) => n + 1);
-                  refetchPositions();
-                }}
-              />
-            )}
+            {/* 2026-11-05: moved out of the rail — the rail card floats now. */}
             {MoreMarkets}
+          </div>
+          <aside id="lite-odds-anchor">
+            <StickyRailCard>
+              {resolved ? (
+                OutcomeCard
+              ) : (
+                <LiteContractOrderPanel
+                  {...panelProps}
+                  variant="desktop"
+                  onFilled={() => {
+                    setRefetchTick((n) => n + 1);
+                    refetchPositions();
+                  }}
+                />
+              )}
+            </StickyRailCard>
           </aside>
         </div>
         <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />

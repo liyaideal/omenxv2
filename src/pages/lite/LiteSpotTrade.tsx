@@ -1,4 +1,5 @@
 import { t } from "@/i18n";
+import { StickyRailCard } from "@/components/lite/shared/StickyRailCard";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 // ============================================================
 // /spot (surface=lite) — US-stock daily up/down, odds-forward.
@@ -964,22 +965,25 @@ const LiteSpotTrade = () => {
             {!resolved && YourPosition}
             {MarketActivity}
             {!resolved && CashOut}
+            {/* 2026-11-05: moved out of the rail — the rail card floats now. */}
+            {MoreStocks}
             <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
             <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
           </div>
-          <aside className="space-y-4">
-            {resolved ? (
-              OutcomeCard
-            ) : (
-              <LiteOrderPanel
-                {...orderPanelProps}
-                variant="desktop"
-                onFilled={() => {
-                  setRefetchTick((n) => n + 1);
-                }}
-              />
-            )}
-            {MoreStocks}
+          <aside>
+            <StickyRailCard>
+              {resolved ? (
+                OutcomeCard
+              ) : (
+                <LiteOrderPanel
+                  {...orderPanelProps}
+                  variant="desktop"
+                  onFilled={() => {
+                    setRefetchTick((n) => n + 1);
+                  }}
+                />
+              )}
+            </StickyRailCard>
           </aside>
         </div>
         <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
