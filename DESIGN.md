@@ -2468,7 +2468,7 @@ Quick Play 的视觉规范分四节逐轮叠加（10-19 → 10-28 → 11-02 → 
 
 1. **下单超时态**：5 秒没回音时筹码不动，YOUR CALLS 那一行 `opacity .55`、右侧灰字 `checking…`（`.row.checking`），键底注 `Checking your call…`；手机 MY CALLS 那枚筹码 `opacity .5`、秒数 `…`。查不到时键底注走拒单样式（红）但停 3 秒而不是 1.8 秒：`Didn’t go through · nothing was charged`。
 2. **断网态**：复用暂停遮罩的版式（`#dOv.on.offline`），标题 `CONNECTION LOST`（手机 `OFFLINE`），副行 `Reconnecting… check your internet`（手机 `Reconnecting…`），第三行 `YOUR OPEN CALLS STILL SETTLE ON OUR SIDE`；来源价**不变红**、大价停在最后一条；键置灰 + `Offline · reconnecting`；猞猁跑酷 HUD `OFFLINE · TAP TO JUMP`。入口横幅副行 `CONNECTION LOST · RECONNECTING…`。
-3. **登录状态读取中**：Deposit / Sign in 键的位置空着（`hidden`，不占位也不替换），Transfer 隐藏，余额 `—`，券计量条加载态；读完直接切成登录 / 未登录，不闪。
+3. **登录状态读取中**：Deposit / Sign in 键的位置空着（`hidden`，不占位也不替换），Transfer 隐藏，余额 `—`，券计量条加载态；读完直接切成登录 / 未登录，不闪。实现先同步读本地保存的会话，所以这一态通常只在本地存储不可读时才看得到（3 秒封顶）。
 4. **图标**：免责门四行用 Lucide `timer / lock / percent / triangle-alert`，20px、`stroke-width 2.2`、`stroke-linecap square` + `stroke-linejoin miter`（和像素机柜搭），颜色 `var(--lime)`；海报徽章 `zap` / `trending-down`（12px，颜色跟徽章字），combo 海报 `flame`（13px）。产品界面不再有 emoji（CLAUDE.md 红线 8）；分享到外站的文字不算界面，保留。
 5. **券计量条「池子空了」**：和「今天满了」同一套样式（`.max`，框变暗、没格子），再加 `.pool` 类作标识；文案 `Today's vouchers are all gone · more from 08:00` / 手机 `Vouchers all gone today`。个人满了优先于池子空了。
 6. **入口横幅暗着时按原因写**：`ARCADE_BANNER_OFF_COPY` 六条（指数无效 / 关桌 / 桌满 / 跳太快 / 日亏损 / 断网），样式不变（`.qpc.off` 红字）。

@@ -379,7 +379,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 **窄桌面（≤ 1120 px）**：01 题牌隐藏（屏头照样在）；筹码盘标头只留 `YOUR STAKE · PER CHIP`，不显示 `$5 SELECTED`（选中的筹码自己高亮）。
 
-**四态**：**登录状态读取中**（页面刚打开、站点还没读完本地保存的会话，通常 < 1 秒；CPO 2026-11-05 批，项 12）→ 余额 `—`、Deposit / `→ Sign in` 的位置空着、Transfer 隐藏、券计量条加载态 `$— / $10 today ›`、不弹免责门、点 UP / DOWN 不响应（不下单也不弹登录）；读完直接变成登录或未登录的样子，中间不闪「没登录」。实现只读一次 `supabase.auth.getSession()`，不碰登录 / 账号逻辑（字典 AR-33 / AR-34）。未登录 → 余额 `—`、Transfer 键隐藏、Deposit 位置换成 `→ Sign in` 键；点它或点 UP / DOWN 弹站内登录（桌面弹窗、手机底部抽屉）；右栏 LIVE TABLE、预览线照画、券计量条写规则。空 → 没下过单 = LIVE TABLE；下过单没开着的 = Open 空提示。加载 → `Waiting for the price`（没有有效指数）/ `Warming up · odds in a moment`（指数有效、模型还没报价，AR-37 / AR-38）。出错 / 暂停 → §2.3、§2.4；拒单 AR-39 … AR-44；下单超时 AR-27 … AR-30。
+**四态**：**登录状态读取中**（页面刚打开、站点还没读完本地保存的会话，通常 < 1 秒；CPO 2026-11-05 批，项 12）→ 余额 `—`、Deposit / `→ Sign in` 的位置空着、Transfer 隐藏、券计量条加载态 `$— / $10 today ›`、不弹免责门、点 UP / DOWN 不响应（不下单也不弹登录）；读完直接变成登录或未登录的样子，中间不闪「没登录」。实现：先同步读 localStorage 里保存的会话（`sb-<ref>-auth-token`，只读），有就按已登录起步、没有就按未登录起步，再用 `supabase.auth.getSession()` 确认一次；3 秒内没确认也结束读取中态。不碰登录 / 账号逻辑（字典 AR-33 / AR-34）。未登录 → 余额 `—`、Transfer 键隐藏、Deposit 位置换成 `→ Sign in` 键；点它或点 UP / DOWN 弹站内登录（桌面弹窗、手机底部抽屉）；右栏 LIVE TABLE、预览线照画、券计量条写规则。空 → 没下过单 = LIVE TABLE；下过单没开着的 = Open 空提示。加载 → `Waiting for the price`（没有有效指数）/ `Warming up · odds in a moment`（指数有效、模型还没报价，AR-37 / AR-38）。出错 / 暂停 → §2.3、§2.4；拒单 AR-39 … AR-44；下单超时 AR-27 … AR-30。
 
 ### 4.2 机柜（移动，375）
 

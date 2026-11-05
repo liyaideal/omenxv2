@@ -29,6 +29,20 @@ import { TransferDialog } from "@/components/wallet/TransferDialog";
 import "./arcade.css";
 import "./arcade-v2.css";
 
+/** the session supabase-js keeps in localStorage (`sb-<ref>-auth-token`), read without touching auth itself */
+const readStoredUser = (): { known: boolean; userId: string | null } => {
+  try {
+    const key = Object.keys(localStorage).find((k) => /^sb-.*-auth-token$/.test(k));
+    if (!key) return { known: true, userId: null };
+    const raw = JSON.parse(localStorage.getItem(key) || "null");
+    const sess = raw?.currentSession ?? raw;
+    const id = sess?.user?.id ?? null;
+    return { known: true, userId: typeof id === "string" ? id : null };
+  } catch {
+    return { known: false, userId: null };
+  }
+};
+
 /** tables the cabinet can show; only BTC has a real index feed today */
 export const ARCADE_LIVE_TABLES = ["BTC"] as const;
 
@@ -49,10 +63,15 @@ const ArcadePage = () => {
   // item 12 (2026-11-05): until the stored session has been read, the cabinet shows neither a signed-in
   // nor a signed-out account — balance "—", no Sign in key, no gate. This only *reads* the session (12.5);
   // useAuth stays the owner of sign-in itself.
-  const [authKnown, setAuthKnown] = useState(false);
-  const [storedUserId, setStoredUserId] = useState<string | null>(null);
+  // The stored session is first read straight from localStorage (synchronous, no auth lock): that
+  // alone removes the flash. getSession() then confirms it; if it is slow (another tab of the site
+  // holds the auth lock) or storage is unreadable, a 3 s cap ends the pending state either way.
+  const [stored] = useState(readStoredUser);
+  const [authKnown, setAuthKnown] = useState(stored.known);
+  const [storedUserId, setStoredUserId] = useState<string | null>(stored.userId);
   useEffect(() => {
     let alive = true;
+    const cap = setTimeout(() => alive && setAuthKnown(true), 3000);
     supabase.auth
       .getSession()
       .then(({ data }) => {
@@ -63,6 +82,7 @@ const ArcadePage = () => {
       .catch(() => alive && setAuthKnown(true));
     return () => {
       alive = false;
+      clearTimeout(cap);
     };
   }, []);
 
