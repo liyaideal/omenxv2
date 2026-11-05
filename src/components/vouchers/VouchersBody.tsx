@@ -159,7 +159,10 @@ export const VouchersBody = () => {
 
   /* ------------------------------ ready rows ------------------------------ */
   const grantedRow = (v: PositionVoucher) => {
-    const pool = byFaceValue(v.faceValue);
+    // The daily pool line (and its sold-out guard) is for the onboarding gift vouchers drawn from the pool.
+    // A voucher that came from a campaign task or a Quick Play combo already has its slot — the $2 tier
+    // joined voucher_daily_pools on 2026-11-05 and must not show "left today" / block Claim here.
+    const pool = v.sourceLabel ? null : byFaceValue(v.faceValue);
     const soldOut = !!pool && pool.remaining <= 0;
     const busy = claimingId === v.id;
     return (

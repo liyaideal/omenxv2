@@ -43,8 +43,8 @@ const AUTH_SPEC = [
   { state: "读完", when: "getSession 返回", visual: "已登录 → 直接是登录后的样子（AR-2）；没登录 → 未登录样子（AR-6）。中间不再闪一下「没登录」。只读登录状态，不碰任何登录 / 账号逻辑", source: "setUser" },
 ];
 const DENY_SPEC = [
-  { state: "拒单", when: "服务端明确说不", visual: "键抖一下 + 底注红字 1.8 s：`Price moved · tap again`（报价过期 / 漂移 > 5 bps，同时报价数字闪一下）· `Not enough in your spot account` · `Too fast · 2 calls per second` · `Limit reached · $500 in play · room frees up as your calls settle`（AR-14）· `Table full · …` / `Table paused · …`；筹码退回、余额加回", source: "deny / setPays · arcade_place 的 RAISE 文案" },
-  { state: "预热中", when: "指数有效但模型还没报价（重启后第一分钟）", visual: "两键 `—`、底注 `Warming up · odds in a moment`、键置灰；指数无效时是 `Waiting for the price`", source: "renderPays · liveQuote" },
+  { state: "拒单", when: "服务端明确说不", visual: "键抖一下 + 底注红字 1.8 s：`Price moved · tap again`（报价过期 / 指数漂移超过 `drift_max_bps`，同时报价数字闪一下）· `Not enough in your spot account` · `Too fast · 2 calls per second` · `Limit reached · $500 in play · room frees up as your calls settle`（AR-14）· `Table full · …` / `Table paused · …`；筹码退回、余额加回", source: "deny / setPays · arcade_place 的 RAISE 文案" },
+  { state: "预热中", when: "指数有效但模型还没报价（历史不满 `min_history_sec`，Lovable 60 秒 / 研发稿 600 秒）", visual: "两键 `—`、底注 `Warming up · odds in a moment`、键置灰；指数无效时是 `Waiting for the price`", source: "renderPays · liveQuote" },
 ];
 const PAUSE_SPEC = [
   { state: "原因 → 文案", when: "state.paused_reason", visual: "`full` → 遮罩 `TABLE FULL` / `Room opens as calls settle`、键底注 `Table full · room opens as calls settle` ｜ `off` → `TABLE PAUSED` / `The table is closed`、`Table closed` ｜ `breaker` → `BTC is moving too fast · back in a moment`、`Table paused · market moving too fast` ｜ `loss` → `Daily limit reached · back tomorrow`、`Table paused · daily limit reached` ｜ `index`（AR-3 / AR-53）→ `Index invalid · waiting for the exchanges`、`Table paused · index invalid`。手机遮罩标题统一 `PAUSED`（桌满 `TABLE FULL`）、副行短句", source: "renderPrice / renderPays" },
@@ -248,6 +248,12 @@ const MORE_DESK: SectionCase[] = [
       { state: "满额", when: "vToday ≥ 10", visual: "HUD 副行 `VOUCHERS MAXED TODAY · KEEP IT GOING`；券计量条变暗、不显示格子：`Today's $10 of vouchers claimed · more from 08:00`（本地时间）", source: "comboUpdate / renderVouchers" },
     ],
   },
+  {
+    key: "arcade-ar25",
+    label: "AR-25 · 桌面 · 券计量条加载中",
+    note: "进页或刚登录后约 1 秒，服务端还没回今天的券额：框不变、格子变暗、`$— / $10 today ›`。这一帧的账号其实今天已满 $10——服务端一回就直接变成 AR-16 的样子，中间不出现 `$0`。",
+    spec: VOUCHER_SPEC,
+  },
 ];
 
 const MORE_MOB: SectionCase[] = [
@@ -280,12 +286,6 @@ const MORE_MOB: SectionCase[] = [
     spec: VOUCHER_SPEC,
   },
   {
-    key: "arcade-ar25",
-    label: "AR-25 · 桌面 · 券计量条加载中",
-    note: "进页或刚登录后约 1 秒，服务端还没回今天的券额：框不变、格子变暗、`$— / $10 today ›`。这一帧的账号其实今天已满 $10——服务端一回就直接变成 AR-16 的样子，中间不出现 `$0`。",
-    spec: VOUCHER_SPEC,
-  },
-  {
     key: "arcade-ar26",
     label: "AR-26 · 移动版 · 券计量条加载中",
     note: "同 AR-25，手机 YOUR STAKE 旁边那条：格子变暗 + `$— / $10 today ›`；服务端一回变成 AR-24。",
@@ -297,10 +297,10 @@ const SHARE: SectionCase[] = [
   {
     key: "arcade-as1",
     label: "AS-1 · 分享海报「Share your run」· 赚 / 亏 / 长金额",
-    note: "设计师掌机稿（Figma omenx_lite 1283:1437，CPO 2026-11-02）：机壳渐变 → 黑色边框 → 屏幕（像素夜空 + 山）里放头像 + `⚡ 7 of 10 right` 徽章、青色 `QUICK PLAY` 框、`PROFIT` / `LOST` + Jersey 10 大字、人话两行 + `23 minutes · 10 calls · $5 each`、`Best run` / `Biggest win` 两格、猞猁；屏幕下 十字键 / 电源灯 / A·B 键；底部 `Referral: ALEX7K` + OmenX 字标 + `Pick UP or DOWN · from $2` + 二维码。按场分享，入口只有 `04 / YOUR RESULT` 标题行的 `⇪ SHARE`（≥1 笔结算才亮；手机在 ROAD & STATS 抽屉）。",
+    note: "设计师掌机稿（Figma omenx_lite 1283:1437，CPO 2026-11-02）：机壳渐变 → 黑色边框 → 屏幕（像素夜空 + 山）里放头像 + `7 of 10 right`（Lucide zap） 徽章、青色 `QUICK PLAY` 框、`PROFIT` / `LOST` + Jersey 10 大字、人话两行 + `23 minutes · 10 calls · $5 each`、`Best run` / `Biggest win` 两格、猞猁；屏幕下 十字键 / 电源灯 / A·B 键；底部 `Referral: ALEX7K` + OmenX 字标 + `Pick UP or DOWN · from $2` + 二维码。按场分享，入口只有 `04 / YOUR RESULT` 标题行的 `⇪ SHARE`（≥1 笔结算才亮；手机在 ROAD & STATS 抽屉）。",
     spec: [
-      { state: "赚", when: "pnl ≥ 0", visual: "黄绿 #CFFF4A：头像框、徽章 ⚡、PROFIT 大字（18px 同色光晕）、Best run 值、电源灯、B 键、CTA；撒金币猞猁", source: "ArcadeRunPoster" },
-      { state: "亏", when: "pnl < 0", visual: "珊瑚红 #FF8B80：同上各处换色、徽章 📉、LOST；哭的猞猁（比赢的小一号、靠右下）", source: "ArcadeRunPoster" },
+      { state: "赚", when: "pnl ≥ 0", visual: "黄绿 #CFFF4A：头像框、徽章（Lucide zap）、PROFIT 大字（18px 同色光晕）、Best run 值、电源灯、B 键、CTA；撒金币猞猁", source: "ArcadeRunPoster" },
+      { state: "亏", when: "pnl < 0", visual: "珊瑚红 #FF8B80：同上各处换色、徽章（Lucide trending-down）、LOST；哭的猞猁（比赢的小一号、靠右下）", source: "ArcadeRunPoster" },
       { state: "长金额", when: "金额字符 > 7", visual: "大字 60 → 52（≤ 9 字符）→ 44px，永远不压到猞猁；猞猁在文字下层", source: "ArcadeRunPoster.bigSize" },
       { state: "导出", when: "Save / More Options", visual: "PNG 里 Jersey 10 / Archivo 是真字体（导出时把站内自托管的 woff2 以 data URL 嵌入），和预览一致", source: "arcadePosterFontCSS → ShareModal.fontEmbedCSS" },
     ],
@@ -309,7 +309,7 @@ const SHARE: SectionCase[] = [
     key: "arcade-as2",
     label: "AS-2 · combo 海报（过渡版 · 设计稿到了整张替换）",
     note: "字段 = 和 Liya 定给设计的那份：N 连对、这次 combo 赚了多少（净）、一句人话、本金、最大一笔、用户名 / QUICK PLAY / 推荐码 / 二维码 / logo。设计方向 B · Fever / E · Arcade score screen。",
-    spec: [{ state: "combo", when: "HUD `⇪ SHARE`", visual: "徽章 `🔥 3 in a row`；小标 `COMBO ×3 · ON FIRE`；大字 `+$13.92`；`Called Bitcoin up or down — 3 right in a row`；`30 seconds a call · $15 staked`；两格 `Combo ×3` / `Biggest win +$4.71`", source: "ArcadeComboPoster / ArcadeComboShareCard" }],
+    spec: [{ state: "combo", when: "HUD `⇪ SHARE`", visual: "徽章 `3 in a row（Lucide flame）`；小标 `COMBO ×3 · ON FIRE`；大字 `+$13.92`；`Called Bitcoin up or down — 3 right in a row`；`30 seconds a call · $15 staked`；两格 `Combo ×3` / `Biggest win +$4.71`", source: "ArcadeComboPoster / ArcadeComboShareCard" }],
   },
 ];
 
@@ -333,8 +333,8 @@ const SHEET_MOB: SectionCase[] = [
 const BANNER: SectionCase[] = [
   {
     key: "arcade-ab1",
-    label: "AB-1 · Events All 入口横幅（桌面 · 方案 C 像素夜景）· 活体 / 指数无效",
-    note: "CPO 2026-10-28 选入口比稿方案 C：124px 像素夜景 + 指数线 + 猞猁；本轮未改。",
+    label: "AB-1 · Events All 入口横幅（桌面 · 方案 C 像素夜景）· 活体 + 六种暗着的原因",
+    note: "CPO 2026-10-28 选入口比稿方案 C：124px 像素夜景 + 指数线 + 猞猁；2026-11-05 B3 起暗着时按原因写，帧里七条。",
     spec: [
       { state: "活体", when: "tick valid && p_up", visual: "夜景 + 指数线 + 猞猁；`TIME 00:22` 按墙钟 30 秒循环；`▲ UP 51.2¢ · ▼ DOWN 48.8¢`", source: "ArcadeEntryBanner" },
       { state: "暗着 · 按原因写", when: "!live", visual: "副行红字按原因（B3，2026-11-05）：指数无效 `INDEX INVALID · WAITING FOR THE EXCHANGES` ｜ 关桌 `TABLE CLOSED` ｜ 桌满 `TABLE FULL · ROOM OPENS AS CALLS SETTLE` ｜ 跳太快 `PAUSED · BTC IS MOVING TOO FAST` ｜ 日亏损 `PAUSED · BACK TOMORROW` ｜ 本机断网（连续 3 次拉不到 / 浏览器报离线）`CONNECTION LOST · RECONNECTING…`；时钟红闪、报价 `—`。帧里从上到下：活体、指数无效、关桌、桌满、跳太快、日亏损、断网", source: "ARCADE_BANNER_OFF_COPY（.qpc.off）" },
@@ -342,7 +342,7 @@ const BANNER: SectionCase[] = [
   },
   {
     key: "arcade-ab2",
-    label: "AB-2 · 入口横幅（移动 · 方案 C 竖排）· 活体 / 指数无效",
+    label: "AB-2 · 入口横幅（移动 · 方案 C 竖排）· 活体 + 六种暗着的原因",
     spec: [
       { state: "活体", when: "live", visual: "竖排六段；猞猁在底部路面", source: "ArcadeEntryBanner (isMobile · .qpc.m)" },
       { state: "暗着 · 按原因写", when: "!live", visual: "同桌面，七条顺序一样", source: "同上" },
@@ -399,10 +399,10 @@ export const ArcadeStatesSection = () => (
       <Desk cases={FLAGS_DESK} min={700} />
       <Mob cases={FLAGS_MOB} min={780} />
     </SubSection>
-    <SubSection title="右栏 / 预览线 / 上限 / combo 与券 / 说明框 / RULES（AR-7 … AR-9 · AR-12 … AR-16 · AR-19，桌面）">
+    <SubSection title="右栏 / 预览线 / 上限 / combo 与券 / 说明框 / RULES（AR-7 … AR-9 · AR-12 … AR-16 · AR-19 · AR-25，桌面）">
       <Desk cases={MORE_DESK} min={700} />
     </SubSection>
-    <SubSection title="移动版 · 抽屉 / 免责门 / 掉券 / ⓘ（AR-10 / AR-11 / AR-17 / AR-18）">
+    <SubSection title="移动版 · 抽屉 / 免责门 / 掉券 / ⓘ / 券计量条（AR-10 / AR-11 / AR-17 / AR-18 / AR-24 / AR-26）">
       <Mob cases={MORE_MOB} min={780} />
     </SubSection>
     <SubSection title="2026-11-05 补帧 · 下单超时 / 断网 / 登录读取中 / 券池空 / 预热与拒单 / 四种暂停 / 新场次与翻牌 / ×8 / 猞猁（AR-27 … AR-67，桌面）">

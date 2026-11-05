@@ -9,7 +9,7 @@
 
 查什么去哪儿：
 - **长什么样** → 生产页 `/arcade`（机柜）、`/events`（All 页顶部入口横幅）、`/portfolio?tab=settled`（场次行）、`/portfolio/quick-play/<key>`（场次详情）。
-- **什么时候变成什么样** → `/style-guide`（不用登录）左栏 Lite → **交易页**，页内小节「/arcade · Quick Play」（AR-1…AR-26 · AB-1 / AB-2 · AS-1…AS-4）；Portfolio 节点的 Ⓛ 区（PF-39…PF-41）。每帧下面一张「状态 / 触发条件 / 视觉 / 数据来源」表。
+- **什么时候变成什么样** → `/style-guide`（不用登录）左栏 Lite → **交易页**，页内小节「/arcade · Quick Play」（AR-1…AR-67 · AB-1 / AB-2 · AS-1…AS-4）；Portfolio 节点的 Ⓛ 区（PF-39…PF-41）。每帧下面一张「状态 / 触发条件 / 视觉 / 数据来源」表。
 - **字段、文案、公式、术语** → `docs/copy-dictionary.md` 顶部「Lite 术语对照表」+ 节「Quick Play（/arcade · BTC 30 秒合约 · 流式舞台）」→ 本文档对应章节。
 - **视觉规范** → `DESIGN.md` 的 Quick Play 各节；先看「§Quick Play 现行条目索引」，它标明哪几条已被后来的轮次取代。
 - **后端哪些是需求、哪些只是演示** → 本文档 §3 + `docs/backend-boundary.md` 的 Quick Play 补录（以最新一节为准）。
@@ -52,7 +52,7 @@
 Portfolio：arcade_my_sessions() 按 30 分钟间隔把合约切成「场」──► Settled › Standard 一场一行 ──► /portfolio/quick-play/<key>
 ```
 
-**一条故事线**（用户小 A）：① 第一次进 `/arcade`，先过四行免责门，点 `I GET IT · START PLAYING`，以后不再弹；② 选 $5 点 UP，筹码立刻进键上的塔，键底注 `Placed ✓ · locked in, settles in 30s`，右栏变成 YOUR CALLS，多一行 `$5 · to win $9.29` / `@ 50.9¢ · open $80,900.87 · 30s`，图上一个菱形 + 一根杆；③ 点下去就撤不了；④ 再点一张 UP，行尾显示 `ahead`；⑤ 30 秒到，杆顶翻成实心点，`+$4.29` 飘出来、筹码飞进余额，LAST 10 打一个勾；⑥ 连赢三张，金币雨 + 大字 `×3 COMBO` + `+$2 VOUCHER` 飞到券计量条；⑦ 去吃饭，40 分钟后回来再下一单 → toast `New session`，04 的板子归零；⑧ 晚上在 Portfolio › Settled 看到带 QUICK PLAY 小牌的场次行，点进去是三张卡 + 每一张合约的明细；⑨ 点 Share，海报写 `7 of 10 right · Profit +$31.20`。
+**一条故事线**（用户小 A）：① 第一次进 `/arcade`，先过四行免责门，点 `I GET IT · START PLAYING`，以后不再弹；② 选 $5 点 UP，筹码立刻进键上的塔，键底注 `Placed ✓ · locked in, settles in 30s`，右栏变成 YOUR CALLS，多一行 `$5 · to win $9.29` / `@ 50.9¢ · open … · 30s`（开仓价要等服务端接单后第一条指数，约 1 秒内填上），右侧第一秒起写 `ahead` / `behind`，图上一个菱形 + 一根杆；③ 点下去就撤不了；④ 再点一张 UP，行尾显示 `ahead`；⑤ 30 秒到，杆顶翻成实心点，`+$4.29` 飘出来、筹码飞进余额，LAST 10 打一个勾；⑥ 连赢三张，金币雨 + 大字 `×3 COMBO` + `+$2 VOUCHER` 飞到券计量条；⑦ 去吃饭，40 分钟后回来再下一单 → toast `New session`，04 的板子归零；⑧ 晚上在 Portfolio › Settled 看到带 QUICK PLAY 小牌的场次行，点进去是三张卡 + 每一张合约的明细；⑨ 点 Share，海报写 `7 of 10 right · Profit +$31.20`。
 
 **概念词典**（每条在 copy-dictionary 有定义行）
 
@@ -80,7 +80,7 @@ Portfolio：arcade_my_sessions() 按 30 分钟间隔把合约切成「场」─�
 - 赢 = (筹码 − 3%) ÷ 报价，向下取到分，再扣利润的 5%；输 = 筹码没了。
 - 限额：单笔 $2–50、单账户未到期合计 ≤ $500、每秒 ≤ 2 笔；桌子暂停时不接新单，已开的照常结算（暂停原因见 §2.3）。
 - 连赢每满 3 张掉一张 $2 仓位券，每人每天最多 $10，每天 UTC 零点重置（页面上换成用户本地时间显示），在 Rewards › Vouchers 里领。
-- 一场 = 30 分钟没下单就结束；页面开着闲 30 分钟后再下单，04 归零并 toast `New session`；刷新页面从最近 30 分钟内的合约复原这一场。
+- 一场 = 30 分钟没下单就结束；页面开着闲 30 分钟后再下单，04 归零并 toast `New session`；刷新页面时把本人最近 400 张合约按下单时间倒着往回链（相邻间隔 ≤ 30 分钟），链到的就是这一场——和服务端 `arcade_my_sessions` 同一规则，只多一个 400 张的上限（一场超过 400 张时机柜里的数字会少于 Portfolio，接受）。
 
 ### 易混点辨析
 
@@ -106,7 +106,7 @@ Portfolio：arcade_my_sessions() 按 30 分钟间隔把合约切成「场」─�
 | open | 已接单、未到期 | `arcade_place` | YOUR CALLS 一行 + 图上菱形 / 虚线 / 杆；行尾第一秒起 `ahead` / `behind`（S0 出来之前写 `open…`） |
 | won / lost | 到期按 S0 / S1 判 | `arcade_settle_due` / `arcade_settle_mine` | 杆顶翻牌、飘字、筹码飞进余额、行进 Settled 页签、LAST 10 一格 |
 | void | 平局或没有有效价，全退 | 同上 | 杆顶灰横杠、飘 `VOID`；Settled 行 `void · no valid price · refunded`；不进 LAST 10、不算 calls |
-| cancelled | **只剩历史数据**（2026-11-04 前 2 秒内撤回的单） | 无（撤单接口已关闭） | 只在 Portfolio / 场次详情出现 |
+| cancelled | **只剩历史数据**（2026-11-04 前 2 秒内撤回的单） | 无（撤单接口已关闭） | Portfolio / 场次详情照常显示；机柜 Settled 页签里历史上的这类行也会出现（`cancelled · taken back within 2 s`），新单不会再有 |
 
 ### 2.2 一场（展示层分组，不落状态）
 
@@ -141,6 +141,9 @@ Portfolio：arcade_my_sessions() 按 30 分钟间隔把合约切成「场」─�
 | `full` | 全桌最坏赔付到上限（只拦新单） | `TABLE FULL` / `Room opens as calls settle` | `TABLE FULL` / 同左副行 | `Table full · room opens as calls settle` | `Table full · room opens as calls settle` |
 
 - 桌面遮罩下还有一行固定字 `Open calls keep running and settle as normal`；手机没有。
+- **谁置位 / 谁清除**：`paused_reason` 由风控引擎写（熔断、亏损上限、全桌最坏赔付的公式、阈值、冷却与恢复条件都在《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》，本文不复述）；运营关桌是参数 `live = 0`。前端只读它。
+- **`index` 的两个来源**：风控引擎置的 `paused_reason = index`，和前端自己判断的「最新 tick 过期 / 无效」——前端两者取或，显示同一套 `index` 文案；服务端下单时以自己的校验（§3.1.4 第 6 条）为准。
+- **亏损上限有两档**（60 分钟滚动 / UTC 日，数值见风控文档），两档共用同一套 `loss` 文案 `Daily limit reached · back tomorrow`（60 分钟档约一小时后恢复，这句话对它偏保守）。
 - 跑酷 HUD：`TABLE PAUSED · TAP TO JUMP`（full 时 `TABLE FULL · TAP TO JUMP`）/ `CRASH · TAP TO RETRY` / 分数 `41 · HI 58`。
 - **指数无效时**：三家来源价那一行变红（桌面 `FROM …` 行；手机来源格写 `INVALID`）。
 - 入口横幅的暂停表现见 §4.7。
@@ -185,7 +188,7 @@ Lovable 里的实现 = 参考实现，函数可以整文件读（`supabase/migra
 | `model_intercept` / `model_z30` / `model_z60` | 报价模型系数 β0 / β30 / β60 | 0.010495 / 0.106198 / 0.030205 |
 | `min_history_sec` | 起报价需要的历史秒数 | 600（研发稿） |
 | `quote_ttl_ms` | 报价有效期 | 500（研发稿） |
-| `tick_max_age_ms` | 最新指数多老算过期 | 研发稿 |
+| `tick_max_age_ms` | 最新指数多老算过期（前端「报价可用」= 最新 tick 年龄 < `min(tick_max_age_ms, quote_ttl_ms)`） | 研发稿未列；Lovable 6000 |
 | `settle_src_age_ms` | S1 必须在 t1 之前多少毫秒内 | 500（研发稿） |
 | `settle_wait_ms` | 到期后最多等迟到行情多久 | 2000（研发稿） |
 | `drift_max_bps` | 报价那一刻到接单时指数允许漂多少 | 1（研发稿） |
@@ -246,7 +249,7 @@ Lovable 里的实现 = 参考实现，函数可以整文件读（`supabase/migra
 
 **查单 `arcade_lookup(client_id)`**：返回本人这个编号的那张单（整行 + 当前余额），没有返回空。前端在「下单超时」时用它（§4.1 下单超时）。
 
-前端在发请求之前先自己拦几条，文案和服务端一致：未登录 → 弹登录（不出字）；没接受免责 → 弹免责门；桌子暂停 → 见 §2.3；没有可用报价 → `No price right now · try again in a second`；超 $500 → 键底注 + 红色 toast 都是 `Limit reached · …`；余额不够 → `Not enough in your spot account`。服务端没给原文时显示 `Could not place that`。被拒时键抖一下、键底注变色 1.8 秒后恢复；`Price moved` 时键上报价闪一下。前端判定「报价可用」用的有效期和服务端同一个数（`min(tick_max_age_ms, quote_ttl_ms)`），不会出现前端还在报价、服务端已经拒的 1.5 秒缝。
+前端在发请求之前先自己拦几条，文案和服务端一致：未登录 → 弹登录（不出字）；没接受免责 → 弹免责门；桌子暂停 → 见 §2.3；没有可用报价 → `No price right now · try again in a second`；超 $500 → 键底注 + 红色 toast 都是 `Limit reached · …`；余额不够 → `Not enough in your spot account`。服务端没给原文时显示 `Could not place that`。被拒时键抖一下、键底注变色 1.8 秒后恢复；`Price moved` 时键上报价闪一下。**置灰的键仍然可以点**（不是 `disabled`）：点了走上面这套前端拦截——抖一下 + 拒单音 + 底注写原因；键盘 ↑ / ↓ 同样。前端判定「报价可用」用的有效期和服务端同一个数（`min(tick_max_age_ms, quote_ttl_ms)`），不会出现前端还在报价、服务端已经拒的 1.5 秒缝。
 
 **下单超时（5 秒没回音）**：筹码留在键上的塔里和 YOUR CALLS 里，那一行变淡、右侧灰字 `checking…`，键底注 `Checking your call…`（手机 MY CALLS 那枚筹码变淡、秒数换成 `…`），余额先按扣了显示；前端拿编号每 2 秒调一次 `arcade_lookup`，最多 15 秒。查到进去了 → 那一行恢复正常（ahead / behind，倒计时按服务端接单时刻算），键底注回到平时；服务端明确拒单 → 和平时一样退筹码、退余额、写原因；15 秒都查不到（或服务端说没有）→ 那一行和筹码移走、余额加回，键底注红字 `Didn’t go through · nothing was charged` 3 秒。checking 期间可以继续下别的单，这一笔钱算在 $500 上限里。网络错误（请求发不出去 / 没回音）和服务端拒单的区分：有 PostgREST 错误码的是拒单，没有的是网络。字典 AR-27 … AR-30。
 
@@ -295,7 +298,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 - `arcade_table_now()`：一次返回最新 tick + 桌态 + 参数 + 我的未到期合计 + 免责接受时间 + 今天已得 combo 券额 `combo_today` + 服务器时间。前端每秒调一次。
 - `arcade_index_ticks`：图表拉最近 60 秒 + 增量（只读）。
 - `arcade_road(120)`：最近 120 个 30 秒格的开 / 收，路单用（前端只画最近 60 格，见 §4.6）。
-- `arcade_my_calls(since, limit)`：我的合约；刷新页面时拉最近 400 张复原这一场。
+- `arcade_my_calls(since, limit)`：我的合约；刷新页面时拉最近 400 张、按 30 分钟链式规则复原这一场（见通俗导读「一句话规则」）。
 - `arcade_table_feed()`：全桌未到期合约，按到期先后，最多 30 条（§3.1.10）。
 - `arcade_lookup(client_id)`：本人这个编号的那张单 + 当前余额，没有返回空（§3.1.4 下单超时）。
 - `arcade_accept_terms()`：写 `arcade_acks`。
@@ -303,7 +306,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 #### 3.1.9 combo 券 `arcade_combo_vouchers(user)`
 
 - 每次结算出现赢单，就对这个用户跑一次（加用户锁）。
-- 数连赢：本人 won / lost 的合约按 (t1, id) 排序；lost 清零；**void 跳过、不清零**；相邻两张 t1 间隔 > 30 分钟清零（新一场）。
+- 数连赢：本人 won / lost 的合约按 (t1, id) 排序；lost 清零；**void 跳过、不清零**；相邻两张 **t1** 间隔 > 30 分钟清零（场次切分用的是下单时刻 `created_at`——合约固定 30 秒时两者等价，若以后 `duration_sec` 可变要改成同一个）。
 - 连赢数是 3 的倍数的那一张 → 发一张 $2 仓位券，条件：这张是今天（UTC）结算的，且本人今天已得 + 2 ≤ $10。券：有门槛（tiered），`granted` 状态（Rewards › Vouchers 里 `Claim voucher` 领），30 天内有效，参数与 referral 券一致（50% 封顶、持仓 ≤ 72 h、入场价 0.20–0.80、距结算 ≥ 12 h），来源行 `From Quick Play — 3 wins in a row`。
 - 幂等：`position_vouchers.source_arcade_call_id` 唯一，同一张单只发一次。
 - 日界是 UTC 自然日，看完成连赢那一张的**结算时间**；`combo_today` = 本人今天（UTC，按发券时间）combo 券面值合计。
@@ -379,7 +382,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 **窄桌面（≤ 1120 px）**：01 题牌隐藏（屏头照样在）；筹码盘标头只留 `YOUR STAKE · PER CHIP`，不显示 `$5 SELECTED`（选中的筹码自己高亮）。
 
-**四态**：**登录状态读取中**（页面刚打开、站点还没读完本地保存的会话，通常 < 1 秒；CPO 2026-11-05 批，项 12）→ 余额 `—`、Deposit / `→ Sign in` 的位置空着、Transfer 隐藏、券计量条加载态 `$— / $10 today ›`、不弹免责门、点 UP / DOWN 不响应（不下单也不弹登录）；读完直接变成登录或未登录的样子，中间不闪「没登录」。实现：先同步读 localStorage 里保存的会话（`sb-<ref>-auth-token`，只读），有就按已登录起步、没有就按未登录起步，再用 `supabase.auth.getSession()` 确认一次；3 秒内没确认也结束读取中态。已登录但余额还没拉到时，`AVAILABLE · SPOT` 也写 `—`，不写 `$0.00`。不碰登录 / 账号逻辑（字典 AR-33 / AR-34）。未登录 → 余额 `—`、Transfer 键隐藏、Deposit 位置换成 `→ Sign in` 键；点它或点 UP / DOWN 弹站内登录（桌面弹窗、手机底部抽屉）；右栏 LIVE TABLE、预览线照画、券计量条写规则。空 → 没下过单 = LIVE TABLE；下过单没开着的 = Open 空提示。加载 → `Waiting for the price`（没有有效指数）/ `Warming up · odds in a moment`（指数有效、模型还没报价，AR-37 / AR-38）。出错 / 暂停 → §2.3、§2.4；拒单 AR-39 … AR-44；下单超时 AR-27 … AR-30。
+**四态**：**登录状态读取中**（页面刚打开、站点还没读完本地保存的会话，通常 < 1 秒；CPO 2026-11-05 批，项 12）→ 余额 `—`、Deposit / `→ Sign in` 的位置空着、Transfer 隐藏、券计量条加载态 `$— / $10 today ›`、不弹免责门、点 UP / DOWN 不响应（不下单也不弹登录）；读完直接变成登录或未登录的样子，中间不闪「没登录」。实现：先同步读 localStorage 里保存的会话（`sb-<ref>-auth-token`，只读），有就按已登录起步、没有就按未登录起步，再用 `supabase.auth.getSession()` 确认一次；3 秒内没确认也结束读取中态——结束后按本地读到的那个状态走（本地有会话 = 已登录，没有 = 未登录）。已登录但余额还没拉到时，`AVAILABLE · SPOT` 也写 `—`，不写 `$0.00`。不碰登录 / 账号逻辑（字典 AR-33 / AR-34）。未登录 → 余额 `—`、Transfer 键隐藏、Deposit 位置换成 `→ Sign in` 键；点它或点 UP / DOWN 弹站内登录（桌面弹窗、手机底部抽屉）；右栏 LIVE TABLE、预览线照画、券计量条写规则。空 → 没下过单 = LIVE TABLE；下过单没开着的 = Open 空提示。加载 → `Waiting for the price`（没有有效指数）/ `Warming up · odds in a moment`（指数有效、模型还没报价，AR-37 / AR-38）。出错 / 暂停 → §2.3、§2.4；拒单 AR-39 … AR-44；下单超时 AR-27 … AR-30。
 
 ### 4.2 机柜（移动，375）
 
@@ -471,12 +474,12 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 「像素夜景」一条（桌面 124 px，移动折成一列）：`■ QUICK PLAY` + `BTC · 30-SECOND CALLS · 24/7` / 大价 / `$81,466.92 · ▲ +$4.80 · last 30s`（30 秒前的指数与变化）/ 右侧 `TIME` 条 + `00:22`（桌子的 30 秒墙钟格倒数）/ `▲ UP 51.2¢` `▼ DOWN 48.8¢` / `PLAY ▸`。只在 All 视图出现（非日历、非 watchlist），整条可点 → `/arcade`。读机柜同一条指数（打开时拉最近 45 秒 tick，之后每 2 秒调一次 `arcade_table_now`）。
 
-桌子不能交易时副行红字、报价 `—¢`、线变灰，红字**按原因写**（B3）：指数无效 / 没有报价 `INDEX INVALID · WAITING FOR THE EXCHANGES` ｜ 关桌 `TABLE CLOSED` ｜ 桌满 `TABLE FULL · ROOM OPENS AS CALLS SETTLE` ｜ 跳太快 `PAUSED · BTC IS MOVING TOO FAST` ｜ 日亏损 `PAUSED · BACK TOMORROW` ｜ 本机断网（连续 3 次拉不到 / 浏览器报离线）`CONNECTION LOST · RECONNECTING…`（断网时价格保持上一次读数）。映射表在 `ArcadeEntryBanner.tsx` 的 `ARCADE_BANNER_OFF_COPY`。字典 AB-1 / AB-2 每个原因一条。
+桌子不能交易时副行红字、报价 `—¢`、线变灰，红字**按原因写**（B3）：指数无效 / 没有报价 `INDEX INVALID · WAITING FOR THE EXCHANGES` ｜ 关桌 `TABLE CLOSED` ｜ 桌满 `TABLE FULL · ROOM OPENS AS CALLS SETTLE` ｜ 跳太快 `PAUSED · BTC IS MOVING TOO FAST` ｜ 日亏损 `PAUSED · BACK TOMORROW` ｜ 本机断网（横幅每 2 秒拉一次，连续 3 次拉不到 ≈ 6 秒，或浏览器报离线）`CONNECTION LOST · RECONNECTING…`（断网时价格保持上一次读数；机柜是每秒一次、3 次 ≈ 3 秒，两处阈值不同只因轮询节奏不同）。映射表在 `ArcadeEntryBanner.tsx` 的 `ARCADE_BANNER_OFF_COPY`。字典 AB-1 / AB-2 每个原因一条。
 
 ### 4.8 分享海报「Share your run」与 combo 海报
 
 - **按场分享**，入口只有 04 的 `⇪ SHARE`（手机在 ROAD & STATS 抽屉里同一位置；≥ 1 张结算才亮，全是 void 不亮）和场次详情页右上 Share。连赢 / 大赢都不主动弹。
-- 海报 = 设计师像素掌机稿（Figma omenx_lite 1283:1437 桌面 · 1283:1841 / 1283:2110 手机），恒 400 px：头像 + 徽章 `7 of 10 right`、青色 `QUICK PLAY` 框、`Profit` / `Lost` + 大字净利（已扣佣金）、`Called Bitcoin up or down, 30 seconds at a time`、`23 minutes · 10 calls · $5 each`（面额不一样写 `$80 staked`）、两格 `Best run · 4 in a row` / `Biggest win · +$9.20`、推荐码 + logo + `Pick UP or DOWN · from $2` + 二维码 → `/arcade?ref=<推荐码>`。赚黄绿 `#CFFF4A`、亏珊瑚红 `#FF8B80`。金额超过 7 个字符字号缩到 52 / 44 px。只写净利与对了几次，不写 ROI、不出 SESSION / COMBO / LAST 10。
+- 海报 = 设计师像素掌机稿（Figma omenx_lite 1283:1437 桌面 · 1283:1841 / 1283:2110 手机），恒 400 px：头像 + 徽章 `7 of 10 right`、青色 `QUICK PLAY` 框、`Profit` / `Lost` + 大字净利（已扣佣金）、`Called Bitcoin up or down, 30 seconds at a time`、`23 minutes · 10 calls · $5 each`（面额不一样写 `$80 staked`）、两格 `Best run · 4 in a row` / `Biggest win · +$9.20`、推荐码 + logo + `Pick UP or DOWN · from $2` + 二维码 → `/arcade?ref=<推荐码>`（落地后 `?ref` 走全站的推荐捕获：注册 / 登录弹窗读 `ref` 预填推荐码，与其它分享链接同一套，本需求不另做）。赚黄绿 `#CFFF4A`、亏珊瑚红 `#FF8B80`。金额超过 7 个字符字号缩到 52 / 44 px。只写净利与对了几次，不写 ROI、不出 SESSION / COMBO / LAST 10。
 - 边界：pnl = 0 → 按赚的样式（`Profit +$0.00`）；没赢过 → Biggest win `—`、Best run `—`（赢过 1 张写 `1`，≥ 2 写 `4 in a row`；海报和 Portfolio 共用 `arcadeBestRunLabel`）；分钟数 = **第一张到最后一张**，至少 1 分钟（机柜海报和 Portfolio 同一个算法：机柜的场次时钟从第一单开始计，不是打开页面）。
 - 徽章图标是 Lucide：赢 `zap`、亏 `trending-down`，颜色跟徽章字，方角线头（CPO 2026-11-05 批，项 17）；免责门四行也是 Lucide `timer / lock / percent / triangle-alert`。
 - 弹层 = 站点 ShareModal 的 arcade 外观（Jersey 10 标题 `Share your run`，副标 `Save the card or post it straight to X / Telegram`，亏时 `Rough one — share it anyway, we go again`）；**手机是底部抽屉**。保存的 PNG 里像素字是真字体。
@@ -491,7 +494,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 ### 4.10 免责门与 RULES 原文
 
-**免责门**（登录后第一次进来；也会在下单时服务端说没接受时弹；没有关闭键，Esc 关不掉；未登录点 I GET IT → 关门并弹登录；请求中按钮写 `SAVING…`，失败 toast 服务端原文或 `Could not save that · try again`）：
+**免责门**（登录后第一次进来，每个账号一次——`arcade_acks` 有 `version` 列但本期不用，改文案不重弹；也会在下单时服务端说没接受时弹；没有关闭键，Esc 关不掉；未登录点 I GET IT → 关门并弹登录；请求中按钮写 `SAVING…`，失败 toast 服务端原文或 `Could not save that · try again`）：
 `BEFORE YOU PLAY` / `BTC · 30-second calls`
 1. **Each chip = one 30-second call.** Up or Down vs the price right after we take it.
 2. **Locked once you tap.** No undo, no cash-out.
@@ -499,9 +502,47 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 4. **High risk.** $2–50 a call · $500 open max.
 按钮 `I GET IT · START PLAYING`；链接 `How the price and odds are made →`。
 
-**RULES**（`HOW IT WORKS`，七段一栏，全文以 `src/pages/arcade/arcadeMarkup.ts` 为准）：1 The price · 2 Open and close · 3 The odds · 4 Payout & fees（含 `No undo: a tapped chip is a call and runs its full 30 seconds.`）· 5 Limits & pauses · 6 Your record（争议渠道 `support@omenx.com`，可用）· 7 Combo vouchers（`resets every day at 08:00`，本地时间）。
+**RULES**（`HOW IT WORKS`，七段一栏；全文见本节末尾「RULES 全文」，`src/pages/arcade/arcadeMarkup.ts` 与之一致）：1 The price · 2 Open and close · 3 The odds · 4 Payout & fees（含 `No undo: a tapped chip is a call and runs its full 30 seconds.`）· 5 Limits & pauses · 6 Your record（争议渠道 `support@omenx.com`，可用）· 7 Combo vouchers（`resets every day at 08:00`，本地时间）。
 
 **ⓘ 说明**：BTC Index `The BTC Index turns the live BTC prices from Binance, Hyperliquid and Coinbase into one price, updated every second. Every call opens and settles on it, so a glitch on any single exchange can't swing your result.`；open limit `You can have up to $500 in open calls at once. Room frees up as your calls settle.`
+
+**RULES 全文**（`HOW IT WORKS`；七段；`<本地时间 00:00 UTC>` 处显示用户本地的 UTC 零点，如 `08:00`）：
+
+**1 · The price**
+
+The **BTC Index** is the median of three exchanges' mid prices (best bid + best ask ÷ 2) in USDT terms: **Binance** BTC/USDT, **Hyperliquid** BTC/USDC and **Coinbase** BTC-USD (both converted at the live USDT-USD rate). A snapshot counts only when at least two sources are fresh, no book is crossed and every spread is ≤ 2 bps; with just two sources they must agree within 5 bps. If that fails the index is **invalid** for that second and we stop taking new calls (open ones still settle).
+
+The three live prices sit right under the BTC Index price. The chart line moves many times a second; every open, close and settlement uses the index only.
+
+**2 · Open and close**
+
+**Open (S0)** = the first valid index *after* the server accepts your chip — never a price from before you tapped, so nobody can front-run a move they already saw. **Close (S1)** = the last valid index at or before the 30-second mark (we wait up to 2 s for late data, and never use a price from after the mark). The result shows about a second after the mark.
+
+S1 > S0 → Up wins. S1 < S0 → Down wins. Equal, or no valid S0 / S1 → the call is void and you get everything back, fees included.
+
+**3 · The odds**
+
+The cents on UP / DOWN are a probability from our pricing model, built from the last 10 minutes of index moves. It is clipped to **40–60¢** and UP + DOWN always add to $1.00. A quote lives for a moment; your chip is filled at the exact quote you saw, and the payout is locked then. If the price moved too much in between, the chip is refused and you simply tap again — we never fill at a price you didn't see.
+
+**4 · Payout & fees**
+
+**Fee:** 3% of the chip, taken on entry. **Payout if you win:** (chip − fee) ÷ odds, rounded down to the cent, minus **5%** of the profit. **Lose:** the chip is gone.
+
+Example: $50 on Up at 53.0¢ → fee $1.50 → working $48.50 → payout $91.50 → profit $41.50 − 5% ($2.08) = **$39.42**. The key shows this as **to win $89.42** — what comes back, chip included.
+
+**No undo:** a tapped chip is a call and runs its full 30 seconds.
+
+**5 · Limits & pauses**
+
+$2–50 per call · $500 open per account · 2 calls per second. The table pauses new calls (open ones still settle) when the index is invalid, when BTC moves more than 10 bps in one second, when our daily loss limit is hit, or when the table's risk room is full. You always see why on the chart.
+
+**6 · Your record**
+
+Every call stores its accept time, open, close, quote, fee and payout. The **Settled** tab next to Open shows open → close for each call this session; every call is also in Portfolio. A session ends after 30 minutes without a call. Disputes: support@omenx.com with the time of the call.
+
+**7 · Combo vouchers**
+
+Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more wins in the same run, another one — up to **$10 a day** (resets every day at ). Voids don't count, a loss starts the count over, and so does a new session. Your vouchers are in Rewards › Vouchers.
 
 ## 5. Lovable / 正式版边界与未了账
 
@@ -510,7 +551,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 | 风控数值、合规上线要求 | 见《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》 |
 | 行情、报价门槛、有效期 | 正式版照 §3.1；Lovable 放宽了，见 §3.3 |
 | LIVE TABLE | 正式版只放真实用户的单；模拟单只在 Lovable |
-| 展示线 | 要的效果 = Lovable 现在这条线（白色 1.8 px 带淡光，每 100 ms 一个点，45 秒窗口约 450 个点，最新点到 NOW 之间也在动，大价 / 线头圆点 / 右侧价签跟着线走；纵轴留白 = 区间的 25%，至少 $8）。正式版用真实行情画到 ≥ 10 Hz；开仓菱形、✓ / ✕、结算价只认指数 |
+| 展示线 | 要的效果 = Lovable 现在这条线（白色 1.8 px 带淡光，每 100 ms 一个点，45 秒窗口约 450 个点，最新点到 NOW 之间也在动，**大价 / 线头圆点 / 右侧白价签跟着线头走**——线头 = 最新指数 + Binance 盘口此刻相对那条指数的偏移，所以大价和"最新 idx"相差通常不到几美元、每秒收敛一次；开仓菱形、✓ / ✕、结算价只认指数；纵轴留白 = 区间的 25%，至少 $8）。正式版用真实行情画到 ≥ 10 Hz；开仓菱形、✓ / ✕、结算价只认指数 |
 | 翻牌节奏 | 到 30 秒杆顶立刻 `…`，0.5–1.2 秒后翻；正式版后端仍按研发稿（等迟到行情 ≤ 2 秒），前端节奏照这个做 |
 | 文案 / i18n | 英文，未进 i18n |
 | 埋点 | 本期不做 |
@@ -591,7 +632,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 ## 8. 验证方法
 
-1. 行情：`select ts, idx, valid, p_up from arcade_index_ticks order by ts desc limit 5` —— 有效、`p_up` 在 0.40–0.60；机柜大价 = 最新 idx（Lovable 约 2 秒一条）。
+1. 行情：`select ts, idx, valid, p_up from arcade_index_ticks order by ts desc limit 5` —— 有效、`p_up` 在 0.40–0.60；机柜大价跟展示线头走，和最新 idx 差不超过几美元、新 tick 到了就收敛（Lovable 约 2 秒一条）；行里的开仓价 / 结算价 = idx。
 2. 下单：演示账号下一枚 $5 Up → `arcade_calls` 新一行（open，t1 = t0 + 30 s，p = 当时报价，win_payout = floor(4.85 ÷ p × 100) / 100）；现货余额减 5；流水多一行 `fee −0.15`。
 3. 撤不了：以普通用户身份调 `arcade_cancel(<id>)` → `permission denied for function arcade_cancel`；`select num from arcade_params where key = 'cancel_window_ms'` = 0。
 4. 结算：30 秒后约 1 秒内 status 变 won / lost / void；s0 = t0 之后第一条 tick 的 idx，s1 = t1 前最近一条；赢时余额 + (win_payout − commission)；Settled 行 open / close 与 s0 / s1 一致（实测 $5 @ 50.9¢ 赢：派彩 9.52、佣金 0.23、入账 9.29、pnl +4.29）。结算函数连跑两次，第二次零副作用。
@@ -621,7 +662,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 | 代号 | 指 | 章节 |
 |---|---|---|
-| AR-1…AR-26 / AB-1 AB-2 / AS-1…AS-4 / PF-39…41 | style-guide 样张 | §6 |
+| AR-1…AR-67 / AB-1 AB-2 / AS-1…AS-4 / PF-39…41 | style-guide 样张 | §6 |
 | 像素夜景 | Events All 入口横幅的视觉方案名 | §4.7 |
 | 研发稿 | 《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》 | 文首 |
 
