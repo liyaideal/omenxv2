@@ -36,7 +36,8 @@
 | QP-R3-4 | 免责门 / 海报徽章图标 Lucide（timer / lock / percent / triangle-alert · zap / trending-down · flame） | ✅ | ⬜ 前端照抄 |
 | QP-R3-5 | combo 券走全站每日券池 $2 档（`combo_pool_day`，演示 2,000）；计量条「池子空了」态；HUD 副行 | ✅ | ⬜ 配额值见风控文档 |
 | QP-R3-6 | B1–B11：分精确派彩 / void 退费流水 / 横幅按原因 / 报价有效期对齐 / 方向键 / 海报分钟 / pnl = 0 / Best run / 模拟单清理 / 短名打码 / ⓘ 与焦点 | ✅ | ⬜ 前端照抄；B2 / B10 服务端照 §3.1.7 / §3.1.10 |
-| QP-R3-7 | 字典 AR-27 … AR-67 + AB-1 / AB-2 六种原因 | ✅ | — |
+| QP-R3-7 | 字典 AR-27 … AR-69 + AB-1 / AB-2 七种原因 | ✅ | — |
+| QP-R3-8 | 60 分钟亏损熔断单独文案（`loss_hour`：`back within the hour`，三处）| ✅ | ⬜ 风控引擎置位 + 前端照抄 |
 
 ## 2026-11-04 — Quick Play · James 第二轮（[文档](../delivery/quick-play-v1.md)）
 

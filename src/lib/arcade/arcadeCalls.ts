@@ -30,7 +30,8 @@ export interface ArcadeTick {
 }
 
 export interface ArcadeTableState {
-  paused_reason: "index" | "breaker" | "loss" | "full" | "off" | null;
+  /** loss = the day's limit (back tomorrow) · loss_hour = the 60-minute rolling limit (back within the hour), CPO 2026-11-05 */
+  paused_reason: "index" | "breaker" | "loss" | "loss_hour" | "full" | "off" | null;
   breaker_until: string | null;
   worst_loss: number;
   open_calls: number;

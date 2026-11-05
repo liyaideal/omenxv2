@@ -1,5 +1,5 @@
 /**
- * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-67 · AB-1 / AB-2 · AS-1 … AS-4）。
+ * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-69 · AB-1 / AB-2 · AS-1 … AS-4）。
  *
  * 规则（Liya 2026-10-27 / 10-28 拍板，研发稿 v1.0 + 她的修订；2026-11-02 James 反馈轮修订）：先只上 BTC；没有「局」，
  * 每一枚筹码就是一张自己的 30 秒合约（t0 = 服务端接单时刻）；价格 = Binance / Hyperliquid / Coinbase 三所中间价
@@ -47,7 +47,7 @@ const DENY_SPEC = [
   { state: "预热中", when: "指数有效但模型还没报价（历史不满 `min_history_sec`，Lovable 60 秒 / 研发稿 600 秒）", visual: "两键 `—`、底注 `Warming up · odds in a moment`、键置灰；指数无效时是 `Waiting for the price`", source: "renderPays · liveQuote" },
 ];
 const PAUSE_SPEC = [
-  { state: "原因 → 文案", when: "state.paused_reason", visual: "`full` → 遮罩 `TABLE FULL` / `Room opens as calls settle`、键底注 `Table full · room opens as calls settle` ｜ `off` → `TABLE PAUSED` / `The table is closed`、`Table closed` ｜ `breaker` → `BTC is moving too fast · back in a moment`、`Table paused · market moving too fast` ｜ `loss` → `Daily limit reached · back tomorrow`、`Table paused · daily limit reached` ｜ `index`（AR-3 / AR-53）→ `Index invalid · waiting for the exchanges`、`Table paused · index invalid`。手机遮罩标题统一 `PAUSED`（桌满 `TABLE FULL`）、副行短句", source: "renderPrice / renderPays" },
+  { state: "原因 → 文案", when: "state.paused_reason", visual: "`full` → 遮罩 `TABLE FULL` / `Room opens as calls settle`、键底注 `Table full · room opens as calls settle` ｜ `off` → `TABLE PAUSED` / `The table is closed`、`Table closed` ｜ `breaker` → `BTC is moving too fast · back in a moment`、`Table paused · market moving too fast` ｜ `loss`（全天档）→ `Daily limit reached · back tomorrow`、`Table paused · daily limit reached` ｜ `loss_hour`（60 分钟滚动档，CPO 2026-11-05）→ `Back within the hour`、`Table paused · back within the hour` ｜ `index`（AR-3 / AR-53）→ `Index invalid · waiting for the exchanges`、`Table paused · index invalid`。手机遮罩标题统一 `PAUSED`（桌满 `TABLE FULL`）、副行短句", source: "renderPrice / renderPays" },
   { state: "共同点", when: "任一暂停", visual: "遮罩第三行 `Open calls keep running and settle as normal`；键灰；来源行只在指数无效时变红；桌面猞猁跑酷（`TABLE PAUSED` / `TABLE FULL` · TAP TO JUMP）", source: "同上 / Lx" },
 ];
 const FLIP_SPEC = [
@@ -80,6 +80,7 @@ const NEW_DESK: SectionCase[] = [
   { key: "arcade-ar47", label: "AR-47 · 暂停 · 关桌（The table is closed）", spec: PAUSE_SPEC },
   { key: "arcade-ar49", label: "AR-49 · 暂停 · 跳太快（breaker）", spec: PAUSE_SPEC },
   { key: "arcade-ar51", label: "AR-51 · 暂停 · 日亏损触顶（back tomorrow）", spec: PAUSE_SPEC },
+  { key: "arcade-ar68", label: "AR-68 · 暂停 · 60 分钟亏损熔断（back within the hour）", spec: PAUSE_SPEC },
   { key: "arcade-ar54", label: "AR-54 · 新场次 toast", spec: FLIP_SPEC },
   { key: "arcade-ar56", label: "AR-56 · 单笔翻牌 · 赢", spec: FLIP_SPEC },
   { key: "arcade-ar58", label: "AR-58 · 单笔翻牌 · 输", spec: FLIP_SPEC },
@@ -105,6 +106,7 @@ const NEW_MOB: SectionCase[] = [
   { key: "arcade-ar50", label: "AR-50 · 移动版 · 跳太快", spec: PAUSE_SPEC },
   { key: "arcade-ar52", label: "AR-52 · 移动版 · 日亏损触顶", spec: PAUSE_SPEC },
   { key: "arcade-ar53", label: "AR-53 · 移动版 · 指数无效（AR-3 的手机版）", spec: PAUSE_SPEC },
+  { key: "arcade-ar69", label: "AR-69 · 移动版 · 60 分钟亏损熔断", spec: PAUSE_SPEC },
   { key: "arcade-ar55", label: "AR-55 · 移动版 · 新场次 toast", spec: FLIP_SPEC },
   { key: "arcade-ar57", label: "AR-57 · 移动版 · 翻牌 · 赢", spec: FLIP_SPEC },
   { key: "arcade-ar59", label: "AR-59 · 移动版 · 翻牌 · 输", spec: FLIP_SPEC },
@@ -337,7 +339,7 @@ const BANNER: SectionCase[] = [
     note: "CPO 2026-10-28 选入口比稿方案 C：124px 像素夜景 + 指数线 + 猞猁；2026-11-05 B3 起暗着时按原因写，帧里七条。",
     spec: [
       { state: "活体", when: "tick valid && p_up", visual: "夜景 + 指数线 + 猞猁；`TIME 00:22` 按墙钟 30 秒循环；`▲ UP 51.2¢ · ▼ DOWN 48.8¢`", source: "ArcadeEntryBanner" },
-      { state: "暗着 · 按原因写", when: "!live", visual: "副行红字按原因（B3，2026-11-05）：指数无效 `INDEX INVALID · WAITING FOR THE EXCHANGES` ｜ 关桌 `TABLE CLOSED` ｜ 桌满 `TABLE FULL · ROOM OPENS AS CALLS SETTLE` ｜ 跳太快 `PAUSED · BTC IS MOVING TOO FAST` ｜ 日亏损 `PAUSED · BACK TOMORROW` ｜ 本机断网（连续 3 次拉不到 / 浏览器报离线）`CONNECTION LOST · RECONNECTING…`；时钟红闪、报价 `—`。帧里从上到下：活体、指数无效、关桌、桌满、跳太快、日亏损、断网", source: "ARCADE_BANNER_OFF_COPY（.qpc.off）" },
+      { state: "暗着 · 按原因写", when: "!live", visual: "副行红字按原因（B3，2026-11-05）：指数无效 `INDEX INVALID · WAITING FOR THE EXCHANGES` ｜ 关桌 `TABLE CLOSED` ｜ 桌满 `TABLE FULL · ROOM OPENS AS CALLS SETTLE` ｜ 跳太快 `PAUSED · BTC IS MOVING TOO FAST` ｜ 日亏损 `PAUSED · BACK TOMORROW` ｜ 60 分钟亏损熔断 `PAUSED · BACK WITHIN THE HOUR` ｜ 本机断网（连续 3 次拉不到 / 浏览器报离线）`CONNECTION LOST · RECONNECTING…`；时钟红闪、报价 `—`。帧里从上到下：活体、指数无效、关桌、桌满、跳太快、日亏损、60 分钟熔断、断网", source: "ARCADE_BANNER_OFF_COPY（.qpc.off）" },
     ],
   },
   {
@@ -345,7 +347,7 @@ const BANNER: SectionCase[] = [
     label: "AB-2 · 入口横幅（移动 · 方案 C 竖排）· 活体 + 六种暗着的原因",
     spec: [
       { state: "活体", when: "live", visual: "竖排六段；猞猁在底部路面", source: "ArcadeEntryBanner (isMobile · .qpc.m)" },
-      { state: "暗着 · 按原因写", when: "!live", visual: "同桌面，七条顺序一样", source: "同上" },
+      { state: "暗着 · 按原因写", when: "!live", visual: "同桌面，八条顺序一样", source: "同上" },
     ],
   },
 ];
@@ -382,7 +384,7 @@ const FLAGS_MOB: SectionCase[] = [
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-67 · AB-1 / AB-2 · AS-1 … AS-4）"
+    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-69 · AB-1 / AB-2 · AS-1 … AS-4）"
     description="CPO 2026-10-27 / 10-28 拍板 + 2026-11-02 James 反馈轮（mock claude.ai/artifact/1hCirCctvs2VNkP2J5bUfC v17c）：先只上 BTC；每一枚筹码一张 30 秒合约；三所中位数指数；报价 0.40–0.60；3% 开仓费、没有撤销（2026-11-04）、不可平仓、盈利扣 5% 佣金、平局全退；$2–50 一注、单账户未到期 ≤ $500；连赢每 3 把一张 $2 有门槛仓位券、每天 ≤ $10。颜色只表示方向（青涨 / 柠檬绿跌），输赢看实心 / 空心与 ✓ / ✕。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">

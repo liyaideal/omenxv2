@@ -340,3 +340,4 @@
 | 运营参数 | 🟡 B | CPO 2026-11-05：正式版参数（开关桌、费率、筹码档位、单账户上限、每秒单数、报价系数、券池配额）走后台配置，不单独做页面 |
 | `ensure_voucher_pool_today()` 整体重写 | 🔴 演示专用 | 为加 $2 档把建池函数重写了一遍，$10 / $25 / $50 档的日配额 1000 / 500 / 100 原样保留（这三档是注册送券用的，Quick Play 不碰）；正式版按自己的券池表加一档即可 |
 | `arcade_table_now().params` 现在把 `arcade_params` 整表（含风控阈值）回给所有人，`arcade_params` 对 anon 可读 | 🟡 B | 演示库为了方便；正式版只下发前端要用的几项（费率、筹码档、单账户上限、`quote_ttl_ms` / `tick_max_age_ms`、`combo_*`、`live`），风控阈值不出后端 |
+| `arcade_table_state.paused_reason` 新增值 `loss_hour`（60 分钟滚动亏损上限）；`arcade_place` 对应拒单文案（`20261105120000_arcade_loss_hour.sql`） | 🟡 B | 由风控引擎置位 / 清除；Lovable 没有风控引擎，只有字典 AR-68 / AR-69 能看到这一态 |

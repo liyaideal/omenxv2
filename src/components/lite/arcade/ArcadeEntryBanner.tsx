@@ -22,7 +22,7 @@ const money = (n: number) => "$" + n.toLocaleString("en-US", { minimumFractionDi
 const SLOT_MS = 30000;
 
 /** why the strip is dark — the table's paused_reason, or the index itself, or this browser's connection (B3, 2026-11-05) */
-export type ArcadeBannerOff = "index" | "off" | "full" | "breaker" | "loss" | "offline";
+export type ArcadeBannerOff = "index" | "off" | "full" | "breaker" | "loss" | "loss_hour" | "offline";
 /** the red line under the price, one per reason */
 export const ARCADE_BANNER_OFF_COPY: Record<ArcadeBannerOff, string> = {
   index: "INDEX INVALID · WAITING FOR THE EXCHANGES",
@@ -30,6 +30,7 @@ export const ARCADE_BANNER_OFF_COPY: Record<ArcadeBannerOff, string> = {
   full: "TABLE FULL · ROOM OPENS AS CALLS SETTLE",
   breaker: "PAUSED · BTC IS MOVING TOO FAST",
   loss: "PAUSED · BACK TOMORROW",
+  loss_hour: "PAUSED · BACK WITHIN THE HOUR",
   offline: "CONNECTION LOST · RECONNECTING…",
 };
 

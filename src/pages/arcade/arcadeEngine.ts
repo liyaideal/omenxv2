@@ -316,7 +316,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     tick: null as ArcadeTick | null,
     pUp: null as number | null,
     quoteTs: null as string | null,
-    paused: null as string | null, // index | breaker | loss | full | off | null
+    paused: null as string | null, // index | breaker | loss | loss_hour | full | off | null
     /** this browser can't reach us (item 11): the browser says so, or 3 polls in a row got no answer */
     offline: false,
     misses: 0,
@@ -1948,7 +1948,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       let txt: string;
       if (S.offline) txt = OFFLINE_KEY_TEXT;
       else if (S.paused === "full") txt = "Table full · room opens as calls settle";
-      else if (S.paused) txt = S.paused === "breaker" ? "Table paused · market moving too fast" : S.paused === "loss" ? "Table paused · daily limit reached" : S.paused === "off" ? "Table closed" : "Table paused · index invalid";
+      else if (S.paused) txt = S.paused === "breaker" ? "Table paused · market moving too fast" : S.paused === "loss" ? "Table paused · daily limit reached" : S.paused === "loss_hour" ? "Table paused · back within the hour" : S.paused === "off" ? "Table closed" : "Table paused · index invalid";
       else if (live.some((c: Call) => c.checking)) txt = CHECKING_TEXT;
       else if (!liveQuote() || p == null) txt = S.tick && S.tick.valid ? "Warming up · odds in a moment" : "Waiting for the price";
       else if (fresh.length) txt = fresh.length > 1 ? `${fresh.length} placed ✓ · each settles in 30s` : "Placed ✓ · locked in, settles in 30s"; else if (openStake() + S.chip > ARCADE_MAX_OPEN) txt = LIMIT_TEXT;
@@ -2263,7 +2263,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       } else if (onv) {
         const r = S.paused;
         set("#dOvT", r === "full" ? "TABLE FULL" : mobile ? "PAUSED" : "TABLE PAUSED");
-        set("#dOvS", r === "full" ? "Room opens as calls settle" : r === "breaker" ? "BTC is moving too fast · back in a moment" : r === "loss" ? "Daily limit reached · back tomorrow" : r === "off" ? "The table is closed" : mobile ? "Index invalid" : "Index invalid · waiting for the exchanges");
+        set("#dOvS", r === "full" ? "Room opens as calls settle" : r === "breaker" ? "BTC is moving too fast · back in a moment" : r === "loss" ? "Daily limit reached · back tomorrow" : r === "loss_hour" ? "Back within the hour" : r === "off" ? "The table is closed" : mobile ? "Index invalid" : "Index invalid · waiting for the exchanges");
         set("#dOvH", "Open calls keep running and settle as normal");
       }
     }

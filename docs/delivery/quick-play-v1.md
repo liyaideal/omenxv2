@@ -9,7 +9,7 @@
 
 查什么去哪儿：
 - **长什么样** → 生产页 `/arcade`（机柜）、`/events`（All 页顶部入口横幅）、`/portfolio?tab=settled`（场次行）、`/portfolio/quick-play/<key>`（场次详情）。
-- **什么时候变成什么样** → `/style-guide`（不用登录）左栏 Lite → **交易页**，页内小节「/arcade · Quick Play」（AR-1…AR-67 · AB-1 / AB-2 · AS-1…AS-4）；Portfolio 节点的 Ⓛ 区（PF-39…PF-41）。每帧下面一张「状态 / 触发条件 / 视觉 / 数据来源」表。
+- **什么时候变成什么样** → `/style-guide`（不用登录）左栏 Lite → **交易页**，页内小节「/arcade · Quick Play」（AR-1…AR-69 · AB-1 / AB-2 · AS-1…AS-4）；Portfolio 节点的 Ⓛ 区（PF-39…PF-41）。每帧下面一张「状态 / 触发条件 / 视觉 / 数据来源」表。
 - **字段、文案、公式、术语** → `docs/copy-dictionary.md` 顶部「Lite 术语对照表」+ 节「Quick Play（/arcade · BTC 30 秒合约 · 流式舞台）」→ 本文档对应章节。
 - **视觉规范** → `DESIGN.md` 的 Quick Play 各节；先看「§Quick Play 现行条目索引」，它标明哪几条已被后来的轮次取代。
 - **后端哪些是需求、哪些只是演示** → 本文档 §3 + `docs/backend-boundary.md` 的 Quick Play 补录（以最新一节为准）。
@@ -136,14 +136,15 @@ Portfolio：arcade_my_sessions() 按 30 分钟间隔把合约切成「场」─�
 |---|---|---|---|---|---|
 | `index` | 指数无效（有效来源 < 2 等，§3.1.2），或最新 tick 过期 | `TABLE PAUSED` / `Index invalid · waiting for the exchanges` | `PAUSED` / `Index invalid` | `Table paused · index invalid` | `Table paused` |
 | `breaker` | 价格急跳熔断（阈值与冷却时间见研发稿） | `TABLE PAUSED` / `BTC is moving too fast · back in a moment` | `PAUSED` / 同左副行 | `Table paused · market moving too fast` | `Table paused` |
-| `loss` | 平台亏损上限（数值见研发稿） | `TABLE PAUSED` / `Daily limit reached · back tomorrow` | `PAUSED` / 同左副行 | `Table paused · daily limit reached` | `Table paused` |
+| `loss` | 平台全天亏损上限（数值见风控文档） | `TABLE PAUSED` / `Daily limit reached · back tomorrow` | `PAUSED` / 同左副行 | `Table paused · daily limit reached` | `Table paused` |
+| `loss_hour` | 平台 60 分钟滚动亏损上限（数值见风控文档；CPO 2026-11-05 批，和全天档分开写） | `TABLE PAUSED` / `Back within the hour` | `PAUSED` / 同左副行 | `Table paused · back within the hour` | `Table paused` |
 | `off` | 运营关桌（参数 `live = 0`） | `TABLE PAUSED` / `The table is closed` | `PAUSED` / 同左副行 | `Table closed` | `Table paused` |
 | `full` | 全桌最坏赔付到上限（只拦新单） | `TABLE FULL` / `Room opens as calls settle` | `TABLE FULL` / 同左副行 | `Table full · room opens as calls settle` | `Table full · room opens as calls settle` |
 
 - 桌面遮罩下还有一行固定字 `Open calls keep running and settle as normal`；手机没有。
 - **谁置位 / 谁清除**：`paused_reason` 由风控引擎写（熔断、亏损上限、全桌最坏赔付的公式、阈值、冷却与恢复条件都在《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》，本文不复述）；运营关桌是参数 `live = 0`。前端只读它。
 - **`index` 的两个来源**：风控引擎置的 `paused_reason = index`，和前端自己判断的「最新 tick 过期 / 无效」——前端两者取或，显示同一套 `index` 文案；服务端下单时以自己的校验（§3.1.4 第 6 条）为准。
-- **亏损上限有两档**（60 分钟滚动 / UTC 日，数值见风控文档），两档共用同一套 `loss` 文案 `Daily limit reached · back tomorrow`（60 分钟档约一小时后恢复，这句话对它偏保守）。
+- **亏损上限有两档**（60 分钟滚动 / UTC 日，数值见风控文档）：风控引擎分别置 `loss_hour` / `loss`，文案见上表；入口横幅对应 `PAUSED · BACK WITHIN THE HOUR` / `PAUSED · BACK TOMORROW`。
 - 跑酷 HUD：`TABLE PAUSED · TAP TO JUMP`（full 时 `TABLE FULL · TAP TO JUMP`）/ `CRASH · TAP TO RETRY` / 分数 `41 · HI 58`。
 - **指数无效时**：三家来源价那一行变红（桌面 `FROM …` 行；手机来源格写 `INVALID`）。
 - 入口横幅的暂停表现见 §4.7。
@@ -235,7 +236,7 @@ Lovable 里的实现 = 参考实现，函数可以整文件读（`supabase/migra
 | 2 | 接受过免责（`arcade_acks` 有本人） | `Accept the rules first`（前端收到后弹免责门） |
 | 3 | side ∈ up / down | `Pick Up or Down` |
 | 4 | gross ∈ 2 / 5 / 10 / 25 / 50 | `Chips are $2, $5, $10, $25 or $50` |
-| 5 | 桌子没暂停 | 按原因：`Table full · room opens as calls settle` / `Table paused · index invalid` / `Table paused · market moving too fast` / `Table paused · daily limit reached` / `Table closed` |
+| 5 | 桌子没暂停 | 按原因：`Table full · room opens as calls settle` / `Table paused · index invalid` / `Table paused · market moving too fast` / `Table paused · daily limit reached` / `Table paused · back within the hour` / `Table closed` |
 | 6 | 最新 tick 存在、有效、没过期 | `Table paused · index invalid` |
 | 7 | 用户看到的那条报价 tick 存在、有报价、有效 | `Price moved · tap again` |
 | 8 | 报价没过有效期（`quote_ttl_ms`）——这也保证了前端放弃查单之后，迟到的请求不可能再成交 | `Price moved · tap again` |
@@ -474,7 +475,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 「像素夜景」一条（桌面 124 px，移动折成一列）：`■ QUICK PLAY` + `BTC · 30-SECOND CALLS · 24/7` / 大价 / `$81,466.92 · ▲ +$4.80 · last 30s`（30 秒前的指数与变化）/ 右侧 `TIME` 条 + `00:22`（桌子的 30 秒墙钟格倒数）/ `▲ UP 51.2¢` `▼ DOWN 48.8¢` / `PLAY ▸`。只在 All 视图出现（非日历、非 watchlist），整条可点 → `/arcade`。读机柜同一条指数（打开时拉最近 45 秒 tick，之后每 2 秒调一次 `arcade_table_now`）。
 
-桌子不能交易时副行红字、报价 `—¢`、线变灰，红字**按原因写**（B3）：指数无效 / 没有报价 `INDEX INVALID · WAITING FOR THE EXCHANGES` ｜ 关桌 `TABLE CLOSED` ｜ 桌满 `TABLE FULL · ROOM OPENS AS CALLS SETTLE` ｜ 跳太快 `PAUSED · BTC IS MOVING TOO FAST` ｜ 日亏损 `PAUSED · BACK TOMORROW` ｜ 本机断网（横幅每 2 秒拉一次，连续 3 次拉不到 ≈ 6 秒，或浏览器报离线）`CONNECTION LOST · RECONNECTING…`（断网时价格保持上一次读数；机柜是每秒一次、3 次 ≈ 3 秒，两处阈值不同只因轮询节奏不同）。映射表在 `ArcadeEntryBanner.tsx` 的 `ARCADE_BANNER_OFF_COPY`。字典 AB-1 / AB-2 每个原因一条。
+桌子不能交易时副行红字、报价 `—¢`、线变灰，红字**按原因写**（B3）：指数无效 / 没有报价 `INDEX INVALID · WAITING FOR THE EXCHANGES` ｜ 关桌 `TABLE CLOSED` ｜ 桌满 `TABLE FULL · ROOM OPENS AS CALLS SETTLE` ｜ 跳太快 `PAUSED · BTC IS MOVING TOO FAST` ｜ 全天亏损 `PAUSED · BACK TOMORROW` ｜ 60 分钟亏损熔断 `PAUSED · BACK WITHIN THE HOUR` ｜ 本机断网（横幅每 2 秒拉一次，连续 3 次拉不到 ≈ 6 秒，或浏览器报离线）`CONNECTION LOST · RECONNECTING…`（断网时价格保持上一次读数；机柜是每秒一次、3 次 ≈ 3 秒，两处阈值不同只因轮询节奏不同）。映射表在 `ArcadeEntryBanner.tsx` 的 `ARCADE_BANNER_OFF_COPY`。字典 AB-1 / AB-2 每个原因一条。
 
 ### 4.8 分享海报「Share your run」与 combo 海报
 
@@ -605,6 +606,7 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 | AR-47 / AR-48 | `arcade-ar47` / `arcade-ar48` | 桌面 / 移动 | 暂停 · 关桌 |
 | AR-49 / AR-50 | `arcade-ar49` / `arcade-ar50` | 桌面 / 移动 | 暂停 · 跳太快 |
 | AR-51 / AR-52 | `arcade-ar51` / `arcade-ar52` | 桌面 / 移动 | 暂停 · 日亏损触顶 |
+| AR-68 / AR-69 | `arcade-ar68` / `arcade-ar69` | 桌面 / 移动 | 暂停 · 60 分钟亏损熔断（back within the hour） |
 | AR-53 | `arcade-ar53` | 移动 | 暂停 · 指数无效（AR-3 的手机版） |
 | AR-54 / AR-55 | `arcade-ar54` / `arcade-ar55` | 桌面 / 移动 | 新场次 toast |
 | AR-56 / AR-57 | `arcade-ar56` / `arcade-ar57` | 桌面 / 移动 | 单笔翻牌 · 赢 |
@@ -612,7 +614,7 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 | AR-60 / AR-61 | `arcade-ar60` / `arcade-ar61` | 桌面 / 移动 | 单笔翻牌 · VOID |
 | AR-62 / AR-63 | `arcade-ar62` / `arcade-ar63` | 桌面 / 移动 | COMBO ×8 LEGENDARY |
 | AR-64 … AR-67 | `arcade-ar64` … `arcade-ar67` | 桌面 | 猞猁 · DRAGON 举牌 / choppy / new here? / 睡着 |
-| AB-1 / AB-2 | `arcade-ab1` / `arcade-ab2` | 桌面 / 移动 | 入口横幅 · 正常 + 六种暗着的原因各一条 |
+| AB-1 / AB-2 | `arcade-ab1` / `arcade-ab2` | 桌面 / 移动 | 入口横幅 · 正常 + 七种暗着的原因各一条 |
 | AS-1 | `arcade-as1` | — | 分享海报 · 赚 / 亏 |
 | AS-2 | `arcade-as2` | — | combo 海报（过渡版） |
 | AS-3 | `arcade-as3-win` / `arcade-as3-lose` | 桌面 | 分享弹窗 · 赚 / 亏 |
@@ -627,7 +629,7 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 - 公共：`src/lib/arcade/arcadeCalls.ts`（RPC 封装 + 费用 / 派彩算式 + 路单格）、`src/lib/arcade/session.ts`（30 分钟断场与时间段文案）、`src/lib/arcade/quickPlayPortfolio.ts`（场次行 / 详情 / 海报的数据与文案）、`src/lib/arcade/sprites.ts`。
 - 入口与分享：`src/components/lite/arcade/ArcadeEntryBanner.tsx` + `arcade-entry.css`；`ArcadeRunPoster` / `ArcadeComboPoster` / `ArcadeShareCard`（弹层复用 ShareModal）；字体 `public/fonts/arcade/`。
 - Portfolio：`src/hooks/useArcadeSessions.ts`、`src/hooks/useLitePortfolio.ts`、`src/components/portfolio/lite/SettledList.tsx`、`QuickPlayTag.tsx`、`QuickPlaySessionView.tsx`、`src/pages/lite/LiteQuickPlaySession.tsx`、`PortfolioRoutes.tsx`、`SettlementDetailView.tsx`。
-- 后端迁移（按时间）：`20261028120000_arcade_calls.sql`（主体）· `20261028190000_arcade_housekeeping.sql` · `20261028213000_arcade_always_on.sql` · `20261029163000_arcade_load.sql` · `20261029170000_arcade_sim_feed.sql` · `20261029190000_arcade_sessions.sql` · `20261102180000_arcade_combo_vouchers.sql`（combo 券 + 演示节奏）· `20261104170000_arcade_no_undo.sql`（关撤单）· `20261104230000_arcade_limit_copy.sql`（上限文案统一）。`20261019*` 两个是旧轮次流，只给站内其他页的 BTC 价。 · `20261105110000_arcade_pre_handoff.sql`（下单编号 `client_id` + `arcade_lookup`、$2 券池档 `combo_pool_day`、void 退费流水、模拟单清理、短名打码；已在 Lovable 库执行）
+- 后端迁移（按时间）：`20261028120000_arcade_calls.sql`（主体）· `20261028190000_arcade_housekeeping.sql` · `20261028213000_arcade_always_on.sql` · `20261029163000_arcade_load.sql` · `20261029170000_arcade_sim_feed.sql` · `20261029190000_arcade_sessions.sql` · `20261102180000_arcade_combo_vouchers.sql`（combo 券 + 演示节奏）· `20261104170000_arcade_no_undo.sql`（关撤单）· `20261104230000_arcade_limit_copy.sql`（上限文案统一）。`20261019*` 两个是旧轮次流，只给站内其他页的 BTC 价。 · `20261105110000_arcade_pre_handoff.sql`（下单编号 `client_id` + `arcade_lookup`、$2 券池档 `combo_pool_day`、void 退费流水、模拟单清理、短名打码；已在 Lovable 库执行）· `20261105120000_arcade_loss_hour.sql`（`paused_reason = loss_hour` 的拒单文案；已执行）
 - 字典 / 规范：`src/pages/StyleGuide/sections/ArcadeStatesSection.tsx` + `preview/arcadePreviews.tsx`；`PortfolioStatesSection.tsx` Ⓛ + `portfolioPreviews.tsx`；`DESIGN.md` Quick Play 各节；`docs/copy-dictionary.md`「Quick Play（/arcade · BTC 30 秒合约 · 流式舞台）」节；`docs/backend-boundary.md` Quick Play 补录。
 
 ## 8. 验证方法
@@ -662,7 +664,7 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 
 | 代号 | 指 | 章节 |
 |---|---|---|
-| AR-1…AR-67 / AB-1 AB-2 / AS-1…AS-4 / PF-39…41 | style-guide 样张 | §6 |
+| AR-1…AR-69 / AB-1 AB-2 / AS-1…AS-4 / PF-39…41 | style-guide 样张 | §6 |
 | 像素夜景 | Events All 入口横幅的视觉方案名 | §4.7 |
 | 研发稿 | 《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》 | 文首 |
 
@@ -674,3 +676,4 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 - 2026-11-02 James 反馈轮：颜色只表示方向、图只画自己的单、右栏两态、$2 筹码、combo 券、到期杆方案、设计师海报。
 - 2026-11-04 James 第二轮：删除撤销（键、文案、后台接口一起关）、券计量条、01 一块屏；窄桌面不显示 `$5 SELECTED`；券计量条加载态；交付前冷读修订（四处文案、本文档按现状重写）。
 - 2026-11-05 · CPO 批冷读待批项全部落地（commit 见 git log）：下单编号 + `Checking your call…`（10）、断网态（11）、登录读取中态（12）、emoji → Lucide（17）、$2 券池档（5）、B1–B11；style-guide 补 AR-27 … AR-67；§5 不再有待定项；运营参数口径 = 走后台配置。
+- 2026-11-05（下午）· 第二次冷读修 24 处矛盾；CPO 批：60 分钟亏损熔断单独一套文案（`loss_hour`，AR-68 / AR-69，横幅第七条）；`▼ DN` 保留；`tick_max_age_ms` 指向风控文档。

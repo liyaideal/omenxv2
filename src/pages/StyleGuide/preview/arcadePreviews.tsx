@@ -242,7 +242,7 @@ export const Ar23Preview = () => <Cabinet mobile fixture={base({ calls: BURST_FL
 /* ---------- AR-27 … AR-67 · the states the pre-handoff read found no frame for (CPO 2026-11-05) ----------
    Every held state goes through a fixture prop the engine only reads in fixture mode (deny / toast / checking /
    offline / authLoading / poolEmpty / lynx) — production behaviour is untouched. */
-const pausedFx = (reason: "full" | "off" | "breaker" | "loss" | "index") =>
+const pausedFx = (reason: "full" | "off" | "breaker" | "loss" | "loss_hour" | "index") =>
   base({
     ticks: reason === "index" ? FX_PAUSED.ticks : ticksFx,
     calls: CALLS_LIVE.slice(0, 3),
@@ -287,7 +287,8 @@ export const Ar44Preview = () => <Cabinet mobile fixture={FX_FAST} width={375} h
 const FX_FULL = pausedFx("full"),
   FX_OFF = pausedFx("off"),
   FX_BREAKER = pausedFx("breaker"),
-  FX_LOSS = pausedFx("loss");
+  FX_LOSS = pausedFx("loss"),
+  FX_LOSS_HOUR = pausedFx("loss_hour");
 export const Ar45Preview = () => <Cabinet fixture={FX_FULL} width={1040} height={700} />;
 export const Ar46Preview = () => <Cabinet mobile fixture={FX_FULL} width={375} height={760} />;
 export const Ar47Preview = () => <Cabinet fixture={FX_OFF} width={1040} height={700} />;
@@ -297,6 +298,9 @@ export const Ar50Preview = () => <Cabinet mobile fixture={FX_BREAKER} width={375
 export const Ar51Preview = () => <Cabinet fixture={FX_LOSS} width={1040} height={700} />;
 export const Ar52Preview = () => <Cabinet mobile fixture={FX_LOSS} width={375} height={760} />;
 export const Ar53Preview = () => <Cabinet mobile fixture={FX_PAUSED} width={375} height={760} />;
+/* the 60-minute rolling loss limit (CPO 2026-11-05): back within the hour, not tomorrow */
+export const Ar68Preview = () => <Cabinet fixture={FX_LOSS_HOUR} width={1040} height={700} />;
+export const Ar69Preview = () => <Cabinet mobile fixture={FX_LOSS_HOUR} width={375} height={760} />;
 /* a new session · the first call after 30 quiet minutes: boards reset, the "New session" toast (2.2 s live) */
 const FX_NEWSES = base({ calls: CALLS_LIVE.slice(5), toast: ARCADE_SESSION_NEW });
 export const Ar54Preview = () => <Cabinet fixture={FX_NEWSES} width={1040} height={700} />;
@@ -352,7 +356,7 @@ export const Ar6MobilePreview = () => <Guest mobile width={375} height={760} />;
 const BANNER_TICK: ArcadeBannerFixture = { live: true, price: ticksFx[ticksFx.length - 1].idx!, open: ticksFx[ticksFx.length - 31].idx!, up: 51.2, pts: ticksFx.slice(-45).map((t) => t.idx!) };
 const BANNER_OPENING: ArcadeBannerFixture = { live: false, reason: "index", price: 0, open: 0, up: 50, pts: [] };
 // B3 (2026-11-05): the red line names the reason — one strip per reason, same frozen readout
-const BANNER_OFF = (["off", "full", "breaker", "loss", "offline"] as const).map((reason): ArcadeBannerFixture => ({ ...BANNER_TICK, live: false, reason }));
+const BANNER_OFF = (["off", "full", "breaker", "loss", "loss_hour", "offline"] as const).map((reason): ArcadeBannerFixture => ({ ...BANNER_TICK, live: false, reason }));
 // banners follow the frame's width like the Events container does (a fixed 1120 px wrapper clipped PLAY, QA 2026-11-02)
 export const Ab1Preview = () => (
   <div className="space-y-4">
