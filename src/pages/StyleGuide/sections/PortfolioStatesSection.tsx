@@ -660,7 +660,7 @@ const DETAIL_CASES: SectionCase[] = [
     note: "桌面：Payout 卡片第二行小字；移动：Fees 行下小字",
     spec: [
       { state: "won", when: 'closeReason === "settlement" && outcomeWon === true', visual: "眉线 SETTLED；RESULT `+$X` 绿，副行 `Won · Up settled at $1.00`", source: "SettlementDetailVM" },
-      { state: "Payout 公式", when: "始终", visual: "Payout = max(0, Cost + PnL − Fees)，副行 `after $F fees`", source: "settlementCopy.payoutOf()" },
+      { state: "Payout 公式", when: "始终", visual: "结果数 = PnL − Fees（费后，2026-11-05 起列表行 / Settled KPI / 详情 / 海报同一个数）；Payout = max(0, Cost + 结果)，副行 `after $F fees`", source: "detailPayout · LiteSettlementDetail netAfterFees" },
       { state: "View event", when: "eventId != null", visual: "右上 `View event ›`，带 fromState 返回本详情页", source: "portfolioReturn" },
     ],
   },

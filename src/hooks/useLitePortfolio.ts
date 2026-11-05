@@ -329,11 +329,12 @@ export const useLitePortfolio = () => {
         title: s.event,
         metaParts: meta,
         remark: s.closeReason === "settlement" ? "none" : s.closeReason,
-        net: s.pnlValue,
+        // Net of this position's fees — same number as its detail page (2026-11-05).
+        net: s.pnlValue - s.fees,
         segment,
         closedAt: s.closedAt,
         isSeries: false,
-        won: s.pnlValue > 0,
+        won: s.pnlValue - s.fees > 0,
       });
     }
 
@@ -346,14 +347,15 @@ export const useLitePortfolio = () => {
     const qpWins = sessions.reduce((a, s) => a + s.won, 0);
     const qpTotal = sessions.reduce((a, s) => a + s.won + s.lost, 0);
     const qpNet = sessions.reduce((a, s) => a + s.pnl, 0);
-    const wins = settlements.filter((s) => s.pnlValue > 0).length + qpWins;
+    const wins = settlements.filter((s) => s.pnlValue - s.fees > 0).length + qpWins;
     const total = settlements.length + qpTotal;
     return {
       winRate: total > 0 ? Math.round((wins / total) * 100) : 0,
       wins,
       losses: total - wins,
       total,
-      net: settlements.reduce((s, i) => s + i.pnlValue, 0) + qpNet,
+      // Net of fees, so the KPI equals the sum of the Settled rows (2026-11-05).
+      net: settlements.reduce((s, i) => s + (i.pnlValue - i.fees), 0) + qpNet,
     };
   }, [settlements, sessions]);
 

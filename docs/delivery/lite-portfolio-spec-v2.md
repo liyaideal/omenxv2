@@ -106,6 +106,7 @@ Settled 行 ─单仓─> /portfolio/settlement/:id
 | `hot` | `isAutoCloseHot(autoClose, priceNow)`：`kind === 'level'` 且 `|priceNow − price| / priceNow ≤ 0.10` |
 | `riskRatio` | `imTotal / equity × 100`（账户级，跨仓） |
 | `untilAutoClose` | `max(equity − imTotal, 0)` |
+| Settled 单仓 `net` | `pnl − fees`（费后）。2026-11-05 起列表行、顶部 Net Profit / Win Rate / Record、详情页、分享海报全部用这一个数；赢输按费后结果判（`net > 0` 才算赢） |
 | Settled `payout` | `max(0, cost + net)` |
 | 系列 `net` | 各轮 `pnl − fees` 之和；对账契约：**Net = Payout − Cost**，各轮 net 相加必须等于 Net |
 | 详情页 fees | 取列表行的**按仓摊分** fees；详情 hook 汇总整条 (event, option) 账本，在共享系列账本上会重复计数 |

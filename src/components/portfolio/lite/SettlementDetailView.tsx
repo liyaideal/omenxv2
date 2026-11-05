@@ -79,8 +79,9 @@ export const Row = ({ k, v, color }: { k: string; v: string; color?: string }) =
 
 /* --------------------------- derived copy --------------------------- */
 
+/** vm.net is already net of fees (2026-11-05), so Net = Payout − Cost everywhere. */
 export const detailPayout = (vm: SettlementDetailVM) =>
-  Math.max(0, vm.cost + vm.net - vm.fees);
+  Math.max(0, vm.cost + vm.net);
 
 const exitValueLine = (vm: SettlementDetailVM) => {
   if (vm.closeReason === "auto_close") return `${centsLabel(vm.exitPrice)} · auto-closed`;

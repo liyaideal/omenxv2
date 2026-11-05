@@ -18,7 +18,7 @@ import type { LiteManualShareSnap } from "@/components/lite/share/LiteShareFlow"
 import { legTitle, resolveLegSide } from "@/lib/liteSideName";
 import { segmentFromProductLine } from "@/lib/liteTradePath";
 
-/** Same numbers as LiteSettlementDetail's share snapshot (list fee split included). */
+/** Same numbers as LiteSettlementDetail's share snapshot (list fee split included); result is net of fees. */
 export const singleSettlementShareSnap = (
   s: SettlementListItem,
   eventId?: string | null,
@@ -27,8 +27,8 @@ export const singleSettlementShareSnap = (
   eventId: eventId ?? "",
   eventName: s.event,
   sideLine: legTitle(resolveLegSide({ option: s.option, type: s.side }, { side_labels: s.sideLabels })),
-  pnl: s.pnlValue,
-  pnlPercent: s.cost > 0 ? (s.pnlValue / s.cost) * 100 : 0,
+  pnl: s.pnlValue - s.fees,
+  pnlPercent: s.cost > 0 ? ((s.pnlValue - s.fees) / s.cost) * 100 : 0,
   leftAmount: s.cost,
   rightAmount: Math.max(0, s.cost + s.pnlValue - s.fees),
   segment: segmentFromProductLine(s.productLine),

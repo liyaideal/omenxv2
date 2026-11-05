@@ -853,7 +853,7 @@ Live 带钟点、Settled 列表只到日、详情带年份与钟点——三种�
 | `auto_close` | `CLOSED · {日期}` | `Closed at {价} · auto-closed` | `Closed` |
 | `cashout` | `CLOSED · {日期}` | `Closed at {价}`（无备注） | `Closed` |
 
-`Payout = max(0, Cost + PnL − Fees)`；为 0 时副行写 `nothing returned`。
+结果数（Won / Lost 后面那个钱数）= `PnL − Fees`，费后（2026-11-05 起 Settled 列表行、顶部 Net Profit、详情页、分享海报全部用这一个数，系列同理逐轮相加）；`Payout = max(0, Cost + 结果)`；为 0 时副行写 `nothing returned`。
 系列眉线为 `SERIES · WON {x} OF {n}`。
 
 ### Close-reason remarks
