@@ -326,3 +326,15 @@
 | `arcade_table_feed()` + `arcade_sim_tick` | 🟢 A / 🔴 | 正式版 LIVE TABLE **只放真实用户**的未到期单（打码规则照抄）；模拟单 `arcade_sim_tick` / `sim_table` 是演示专用 |
 | 钱包流水（`transactions`） | 🟢 A | 每种结果写哪几行、金额多少见交付文档 §3.1.7；撤单相关两行只存在于历史数据 |
 | 演示行情节奏 | 🔴 演示专用 | 实际约 2 秒一条（`arcade_sim_feed` 每秒跑、1.2 秒节流），不是 10-30 节写的 1 秒 |
+
+## 2026-11-05 Quick Play · 交付前批项落地（append-only 补录）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `arcade_calls.client_id` + 唯一索引 `(user_id, client_id)`；`arcade_place(side, gross, quote_ts, client_id)` | 🟢 A | 每次点击带一个前端生成的 uuid；同一用户同一编号只认一次，重发 / 并发第二份都拿回第一份建的单（`20261105110000_arcade_pre_handoff.sql`）。旧的三参数 `arcade_place` 已删 |
+| `arcade_lookup(client_id)` | 🟢 A | 本人这个编号的那张单 + 当前余额；前端下单 5 秒没回音时每 2 秒问一次、最多 15 秒。配合 `quote_ttl_ms` 保证放弃之后不会再成交 |
+| `voucher_daily_pools` 加 $2 档；`arcade_params.combo_pool_day`（演示 2,000）；`arcade_combo_vouchers` 发券前 `consume_daily_voucher_pool(2)`；`arcade_table_now().combo_pool_left` | 🟢 A / 配额值 🟡 | combo 券算进全站每日券池：个人 ≤ $10 且池里有剩才发；配额正式值在《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》 |
+| `arcade_settle_due` void 分支多写一行 `fee +fee · Quick Play fee returned · tie / no valid price · Up` | 🟢 A | 该单流水合计 = pnl = 0（B2） |
+| `arcade_housekeeping` 多删 `user_id is null and t1 < now() - 24h` 的模拟单；`arcade_sim_feed` 计入秒级 job 的 1 小时运行记录 | 🔴 演示专用 | B9：首跑清掉 28,817 行 |
+| `arcade_table_feed()` 用户名短于 5 个字符 → `pl***er` | 🟢 A | B10：打码规则照抄 |
+| 运营参数 | 🟡 B | CPO 2026-11-05：正式版参数（开关桌、费率、筹码档位、单账户上限、每秒单数、报价系数、券池配额）走后台配置，不单独做页面 |

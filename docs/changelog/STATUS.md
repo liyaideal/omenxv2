@@ -26,6 +26,18 @@
 | FT-TG-3 | 按站点语言高亮推荐行 | ✅ | ⬜ 前端照抄 |
 | FT-TG-4 | 两条新文案 7 语 | ✅ | ⬜ 进正式版词典 |
 
+## 2026-11-05 — Quick Play · 交付前批项落地（[文档](../delivery/quick-play-v1.md)）
+
+| 编号 | 项 | Lovable | 正式版 |
+|---|---|---|---|
+| QP-R3-1 | 下单编号 `client_id` + `arcade_lookup`；前端 `Checking your call…` → 查 15 秒 → 成功 / `Didn't go through · nothing was charged` | ✅ | ⬜ 服务端照 §3.1.4 幂等；前端照抄 |
+| QP-R3-2 | 断网态 `CONNECTION LOST` / `OFFLINE`（判定：浏览器离线或连续 3 次没回音） | ✅ | ⬜ 前端照抄 |
+| QP-R3-3 | 登录状态读取中态（余额 —、无 Sign in 键、券条加载态、不弹门、键不响应） | ✅ | ⬜ 前端照抄 |
+| QP-R3-4 | 免责门 / 海报徽章图标 Lucide（timer / lock / percent / triangle-alert · zap / trending-down · flame） | ✅ | ⬜ 前端照抄 |
+| QP-R3-5 | combo 券走全站每日券池 $2 档（`combo_pool_day`，演示 2,000）；计量条「池子空了」态；HUD 副行 | ✅ | ⬜ 配额值见风控文档 |
+| QP-R3-6 | B1–B11：分精确派彩 / void 退费流水 / 横幅按原因 / 报价有效期对齐 / 方向键 / 海报分钟 / pnl = 0 / Best run / 模拟单清理 / 短名打码 / ⓘ 与焦点 | ✅ | ⬜ 前端照抄；B2 / B10 服务端照 §3.1.7 / §3.1.10 |
+| QP-R3-7 | 字典 AR-27 … AR-67 + AB-1 / AB-2 六种原因 | ✅ | — |
+
 ## 2026-11-04 — Quick Play · James 第二轮（[文档](../delivery/quick-play-v1.md)）
 
 | 编号 | 项 | Lovable | 正式版 |

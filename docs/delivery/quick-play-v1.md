@@ -147,13 +147,21 @@ Portfolio：arcade_my_sessions() 按 30 分钟间隔把合约切成「场」─�
 
 ### 2.4 断网（用户自己的网络）
 
-现状：前端每秒拉一次 `arcade_table_now()`。拉不到时：
-- 超过 6 秒：报价视为过期，键置灰、报价 `—`、键底注 `Warming up · odds in a moment`；
-- 超过 8 秒：按 `index` 暂停显示（遮罩 `TABLE PAUSED · Index invalid…`）；
-- 恢复后下一次拉成功就按服务端状态恢复。
-- 页面一打开就离线：价格 `$—`、键置灰、键底注 `Waiting for the price`，不出暂停遮罩。
+断网是**用户自己的网络**的问题，和桌子、指数无关，所以它是一个单独的态，不说成指数无效（CPO 2026-11-05 批，项 11）。
 
-**正在改**：断网要单独一个态，不能说成指数无效（见 §5「待批」第 11 条）。
+| 条目 | 口径 |
+|---|---|
+| 什么时候算断网 | 浏览器报离线（`offline` 事件 / `navigator.onLine = false`），或者前端每秒一次的 `arcade_table_now()` **连续 3 次**没回音（≈ 3 秒）。服务端有回应、只是指数无效 → 还是 §2.3 的 `index` 暂停 |
+| 桌面图表遮罩 | `CONNECTION LOST` / `Reconnecting… check your internet` / `YOUR OPEN CALLS STILL SETTLE ON OUR SIDE`（第三行替换掉暂停态的 `Open calls keep running…`） |
+| 手机图表遮罩 | `OFFLINE` / `Reconnecting…` |
+| 来源价 | 三家来源价**不变红**、大价停在最后一条（手机 BTC INDEX 格也停在最后一条，不写 `INVALID`） |
+| 键 | UP / DOWN 置灰、报价 `—`、底注 `Offline · reconnecting`；点了不下单 |
+| 猞猁窗（桌面） | 照样变跑酷，提示条 `OFFLINE · TAP TO JUMP` |
+| 入口横幅 | 副行 `CONNECTION LOST · RECONNECTING…`（§4.7） |
+| 恢复 | 第一次请求成功就撤遮罩、键恢复；期间到期的单按服务端结果补翻牌（读一遍本人合约 + 触发一次结算） |
+| 页面一打开就离线 | 同上判定；拿不到任何 tick 时大价 `$—` |
+
+字典：AR-31（桌面）/ AR-32（手机）。
 
 ## 3. 数据库 / 后端
 
@@ -185,6 +193,7 @@ Lovable 里的实现 = 参考实现，函数可以整文件读（`supabase/migra
 | `breaker_*` / `loss_break_*` / `max_worst_loss` | 熔断与亏损上限 | **研发稿** |
 | `hl_spot_coin` | Hyperliquid 现货币对（txt） | `@142` |
 | `combo_voucher_every` / `combo_voucher_face` / `combo_voucher_cap_day` | 连赢几张发一张 / 面额 / 每人每天上限 | 3 / 2 / 10 |
+| `combo_pool_day` | 全站每天 $2 combo 券总配额（`voucher_daily_pools` 的 $2 档） | 见风控文档（Lovable 2,000） |
 | `sim_table` / `display_texture` / `cancel_*` | 演示与历史参数 | 正式版不用 |
 
 参数行的 `note` 列是 10-28 写的旧说明，以本表为准。
@@ -212,29 +221,34 @@ Lovable 里的实现 = 参考实现，函数可以整文件读（`supabase/migra
 
 历史不满 600 秒、或 30 / 60 秒前那条找不到、或本条无效 → `p_up = NULL` → 前端键置灰，底注 `Warming up · odds in a moment`。
 
-#### 3.1.4 下单 `arcade_place(side, gross, quote_ts)`
+#### 3.1.4 下单 `arcade_place(side, gross, quote_ts, client_id)`
 
-服务端、以当前用户身份执行。按下表顺序校验，任何一条不过就报错、不扣钱；报错原文前端直接显示在键底注。
+服务端、以当前用户身份执行。`client_id` 是**这一次点击自己的编号**（前端 `crypto.randomUUID()`，落 `arcade_calls.client_id`，`(user_id, client_id)` 唯一）：同一个用户、同一个编号只认一次——重发拿回同一张单，不会下两张；两份同时到达时后到的那份也拿回先到那份建的单（CPO 2026-11-05 批，项 10.1）。校验顺序如下，任何一条不过就报错、不扣钱；报错原文前端直接显示在键底注。
 
 | # | 校验 | 报错原文 |
 |---|---|---|
 | 1 | 已登录 | `Sign in to play` |
+| 1a | 这个编号已经有单 → 直接返回那张单 + 当前余额（不再往下校验） | — |
 | 2 | 接受过免责（`arcade_acks` 有本人） | `Accept the rules first`（前端收到后弹免责门） |
 | 3 | side ∈ up / down | `Pick Up or Down` |
 | 4 | gross ∈ 2 / 5 / 10 / 25 / 50 | `Chips are $2, $5, $10, $25 or $50` |
 | 5 | 桌子没暂停 | 按原因：`Table full · room opens as calls settle` / `Table paused · index invalid` / `Table paused · market moving too fast` / `Table paused · daily limit reached` / `Table closed` |
 | 6 | 最新 tick 存在、有效、没过期 | `Table paused · index invalid` |
 | 7 | 用户看到的那条报价 tick 存在、有报价、有效 | `Price moved · tap again` |
-| 8 | 报价没过有效期 | `Price moved · tap again` |
+| 8 | 报价没过有效期（`quote_ttl_ms`）——这也保证了前端放弃查单之后，迟到的请求不可能再成交 | `Price moved · tap again` |
 | 9 | 报价那一刻到现在指数漂移 ≤ `drift_max_bps` | `Price moved · tap again` |
 | 10 | 本人未到期合计 + 这一枚 ≤ $500 | `Limit reached · $500 in play · room frees up as your calls settle` |
 | 11 | 本人过去 1 秒内下单 < 2 张 | `Too fast · 2 calls per second` |
 | 12 | 全桌最坏赔付 + 这一张没超上限 | `Table full · room opens as calls settle` |
 | 13 | 现货余额 ≥ gross | `Not enough in your spot account` |
 
-全部通过：扣 `spot_balance` 整枚筹码 → 写一行开仓费流水 → 插 `arcade_calls`（t0 = 服务端当前时刻，t1 = t0 + 30 s，报价 p 与 win_payout 当场锁定）→ 返回整行 + 新余额。
+全部通过：扣 `spot_balance` 整枚筹码 → 写一行开仓费流水 → 插 `arcade_calls`（t0 = 服务端当前时刻，t1 = t0 + 30 s，报价 p 与 win_payout 当场锁定，带 client_id）→ 返回整行 + 新余额。
 
-前端在发请求之前先自己拦几条，文案和服务端一致：未登录 → 弹登录（不出字）；没接受免责 → 弹免责门；桌子暂停 → 见 §2.3；没有可用报价 → `No price right now · try again in a second`；超 $500 → 键底注 + 红色 toast 都是 `Limit reached · …`；余额不够 → `Not enough in your spot account`。服务端没给原文时显示 `Could not place that`。被拒时键抖一下、键底注变色 1.8 秒后恢复；`Price moved` 时键上报价闪一下。
+**查单 `arcade_lookup(client_id)`**：返回本人这个编号的那张单（整行 + 当前余额），没有返回空。前端在「下单超时」时用它（§4.1 下单超时）。
+
+前端在发请求之前先自己拦几条，文案和服务端一致：未登录 → 弹登录（不出字）；没接受免责 → 弹免责门；桌子暂停 → 见 §2.3；没有可用报价 → `No price right now · try again in a second`；超 $500 → 键底注 + 红色 toast 都是 `Limit reached · …`；余额不够 → `Not enough in your spot account`。服务端没给原文时显示 `Could not place that`。被拒时键抖一下、键底注变色 1.8 秒后恢复；`Price moved` 时键上报价闪一下。前端判定「报价可用」用的有效期和服务端同一个数（`min(tick_max_age_ms, quote_ttl_ms)`），不会出现前端还在报价、服务端已经拒的 1.5 秒缝。
+
+**下单超时（5 秒没回音）**：筹码留在键上的塔里和 YOUR CALLS 里，那一行变淡、右侧灰字 `checking…`，键底注 `Checking your call…`（手机 MY CALLS 那枚筹码变淡、秒数换成 `…`），余额先按扣了显示；前端拿编号每 2 秒调一次 `arcade_lookup`，最多 15 秒。查到进去了 → 那一行恢复正常（ahead / behind，倒计时按服务端接单时刻算），键底注回到平时；服务端明确拒单 → 和平时一样退筹码、退余额、写原因；15 秒都查不到（或服务端说没有）→ 那一行和筹码移走、余额加回，键底注红字 `Didn’t go through · nothing was charged` 3 秒。checking 期间可以继续下别的单，这一笔钱算在 $500 上限里。网络错误（请求发不出去 / 没回音）和服务端拒单的区分：有 PostgREST 错误码的是拒单，没有的是网络。字典 AR-27 … AR-30。
 
 #### 3.1.5 钱怎么算（一律按分精确算，不用浮点数）
 
@@ -270,9 +284,11 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 | 赢（佣金 > 0） | `winning_commission` | −commission | `Winning commission · 5% · Quick Play · Up` |
 | 输 | `trade_loss` | −net | `Quick Play · Up · Lost · open … → close …` |
 | void · 平局 | `trade_profit` | 0 | `Quick Play · Up · tie · chip and fee returned` |
+| void · 平局 · 退费 | `fee` | +fee | `Quick Play fee returned · tie · Up` |
 | void · 没有有效价 | `trade_profit` | 0 | `Quick Play · Up · no valid price · chip and fee returned` |
+| void · 没有有效价 · 退费 | `fee` | +fee | `Quick Play fee returned · no valid price · Up` |
 
-赢、输两种情况，流水加起来 = 该单 pnl。下单时不写本金扣款行，本金在结算时体现在 `trade_loss` / `trade_profit` 里。**void 现在流水对不上余额**（开仓费那行还在、却没有退费行），正在改，见 §5「待批」B2。2026-11-04 之前的撤单还有两行历史流水（`Quick Play cancel · 0.15% · …` / `Quick Play fee returned · cancelled within 2 s`），正式版不会产生。
+任何一种结果，该单的流水加起来 = 该单 pnl（void 为 0：−fee + 0 + fee）。下单时不写本金扣款行，本金在结算时体现在 `trade_loss` / `trade_profit` 里。2026-11-04 之前的撤单还有两行历史流水（`Quick Play cancel · 0.15% · …` / `Quick Play fee returned · cancelled within 2 s`），正式版不会产生。
 
 #### 3.1.8 读接口
 
@@ -281,6 +297,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 - `arcade_road(120)`：最近 120 个 30 秒格的开 / 收，路单用（前端只画最近 60 格，见 §4.6）。
 - `arcade_my_calls(since, limit)`：我的合约；刷新页面时拉最近 400 张复原这一场。
 - `arcade_table_feed()`：全桌未到期合约，按到期先后，最多 30 条（§3.1.10）。
+- `arcade_lookup(client_id)`：本人这个编号的那张单 + 当前余额，没有返回空（§3.1.4 下单超时）。
 - `arcade_accept_terms()`：写 `arcade_acks`。
 
 #### 3.1.9 combo 券 `arcade_combo_vouchers(user)`
@@ -291,10 +308,12 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 - 幂等：`position_vouchers.source_arcade_call_id` 唯一，同一张单只发一次。
 - 日界是 UTC 自然日，看完成连赢那一张的**结算时间**；`combo_today` = 本人今天（UTC，按发券时间）combo 券面值合计。
 - 前端掉券那一刻先乐观 +$2，8 秒内以服务端为准。
+- **全站每日券池**（CPO 2026-11-05 批，项 5）：combo 券从 `voucher_daily_pools` 的 **$2 档**出，每天总配额 = `arcade_params.combo_pool_day`（Lovable 演示 2,000 张；正式值见《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》）。发券前两个条件都要满足：本人今天 < $10，**且**池里 $2 档还有剩（`consume_daily_voucher_pool(2)` 先占位再发，同一张完成连赢的单不会占两次）。池子当天发完：连赢照样算、COMBO 大字和金币雨照样有，只是不掉券，HUD 副行 `vouchers all gone today · keep it going`，券计量条进「池子空了」态（§4.5）。个人 $10 先满就显示个人满了，个人没满、池子空了才显示池子空了。池子和个人上限都是 UTC 零点重置（页面上显示成用户本地时间）。
+- `arcade_table_now().combo_pool_left` = 今天 $2 档还剩几张（今天还没建池子行时 = 总配额）。
 
 #### 3.1.10 LIVE TABLE 打码
 
-`前 2 个字符 + *** + 后 2 个字符`，例 `alexcarter` → `al***er`；没有用户名用 `player` 代替（`pl***er`）。只放真实用户的未到期单。**短名现在会全露**（3 个字符的 `bob` → `bo***ob`），怎么处理待批（§5 B10）。
+`前 2 个字符 + *** + 后 2 个字符`，例 `alexcarter` → `al***er`；用户名**短于 5 个字符**（打码后等于全露）或没有用户名 → 统一显示 `pl***er`（CPO 2026-11-05 批，B10）。只放真实用户的未到期单。
 
 #### 3.1.11 场次 `arcade_my_sessions(limit)` / `arcade_my_session_calls(key, limit = 30, offset = 0)`
 
@@ -314,7 +333,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 | `arcade_table_state` | 桌态（paused_reason 及其统计） |
 | `arcade_acks` | 免责接受记录（user_id, accepted_at） |
 | `position_vouchers.source_arcade_call_id` | combo 券对应的那张合约（唯一） |
-| 函数 | `arcade_place` / `arcade_settle_due` / `arcade_settle_mine` / `arcade_combo_vouchers` / `arcade_table_now` / `arcade_table_feed` / `arcade_road` / `arcade_my_calls` / `arcade_my_sessions` / `arcade_my_session_calls` / `arcade_accept_terms` |
+| 函数 | `arcade_place(side, gross, quote_ts, client_id)` / `arcade_lookup` / `arcade_settle_due` / `arcade_settle_mine` / `arcade_combo_vouchers` / `arcade_table_now` / `arcade_table_feed` / `arcade_road` / `arcade_my_calls` / `arcade_my_sessions` / `arcade_my_session_calls` / `arcade_accept_terms` |
 | 正式版不要 | `arcade_cancel`（已关闭）· `arcade_feed_tick` / `arcade_feed_req`（Lovable 里的取价写法，正式版用自己的行情服务）· `arcade_sim_*` / `arcade_synth_tick` / `arcade_housekeeping`（演示）· `arcade_rounds*`（旧轮次流，只给站内其他页的 BTC 价用） |
 
 ### 3.3 Lovable 演示引擎（🔴 仅演示，正式版禁止参考）
@@ -323,12 +342,13 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 |---|---|---|
 | 行情 | `arcade_sim_feed` 模拟 tick，实际约 **2 秒一条**（每秒跑一次，但上一条不满 1.2 秒就跳过）：在每分钟取一次的 Binance 真价附近随机游走；三家来源价 = 模拟价 ± 微小偏移 | 自己的行情服务，500 ms 采样三所取中位数 |
 | 行情停顿 | 前端每秒的 `arcade_table_now()` 发现最新 tick 超过 3.5 秒没来，就补一条合成 tick 并结算到期合约 | 不适用 |
+| 券池 | `combo_pool_day = 2000`（演示值），池子行按天懒建 | 配额见风控文档 |
 | 报价门槛 | 60 条 tick 就开始报价；不够时沿用上一个报价（演示上 `p_up` 从不为空） | 600 秒，不够时没有报价 |
 | 有效期 / 新鲜度 | 报价有效期 4.5 s、tick 过期 6 s、S1 新鲜度 4.5 s、到期不等迟到行情（0）、漂移容忍 5 bps | §3.1.1 |
 | 暂停 | 熔断、亏损上限、全桌上限都拨到够不着，只有人工关桌 `live = 0` 会暂停；其他暂停态只在字典 AR-3 看 | 研发稿 |
 | LIVE TABLE | 冷清时每条 tick 约 12% 概率补一张匿名模拟单（最多同时 6 张，`sim_table = 1`），不占限额、不碰钱 | 只放真实用户 |
 | 展示线 | 指数点之间用固定种子的随机游走补到 100 ms 一点、首尾精确落在指数点上（`texSeries`）——**演示用，不许照抄** | 用真实行情画到 ≥ 10 Hz，效果照 Lovable |
-| 清理 | 每 10 分钟：tick 留 24 小时；模拟单目前没清理（见 §5 B9） | 自己的留存策略 |
+| 清理 | 每 10 分钟（`arcade_housekeeping`）：tick 留 24 小时、模拟单（`user_id` 为空）留 24 小时、秒级 cron 的运行记录留 1 小时 | 自己的留存策略 |
 
 ## 4. 用户端
 
@@ -359,7 +379,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 **窄桌面（≤ 1120 px）**：01 题牌隐藏（屏头照样在）；筹码盘标头只留 `YOUR STAKE · PER CHIP`，不显示 `$5 SELECTED`（选中的筹码自己高亮）。
 
-**四态**：未登录 → 余额 `—`、Transfer 键隐藏、Deposit 位置换成 `→ Sign in` 键；点它或点 UP / DOWN 弹站内登录（桌面弹窗、手机底部抽屉）；右栏 LIVE TABLE、预览线照画、券计量条写规则。空 → 没下过单 = LIVE TABLE；下过单没开着的 = Open 空提示。加载 → `Waiting for the price` / `Warming up · odds in a moment`。出错 / 暂停 → §2.3、§2.4。
+**四态**：**登录状态读取中**（页面刚打开、站点还没读完本地保存的会话，通常 < 1 秒；CPO 2026-11-05 批，项 12）→ 余额 `—`、Deposit / `→ Sign in` 的位置空着、Transfer 隐藏、券计量条加载态 `$— / $10 today ›`、不弹免责门、点 UP / DOWN 不响应（不下单也不弹登录）；读完直接变成登录或未登录的样子，中间不闪「没登录」。实现只读一次 `supabase.auth.getSession()`，不碰登录 / 账号逻辑（字典 AR-33 / AR-34）。未登录 → 余额 `—`、Transfer 键隐藏、Deposit 位置换成 `→ Sign in` 键；点它或点 UP / DOWN 弹站内登录（桌面弹窗、手机底部抽屉）；右栏 LIVE TABLE、预览线照画、券计量条写规则。空 → 没下过单 = LIVE TABLE；下过单没开着的 = Open 空提示。加载 → `Waiting for the price`（没有有效指数）/ `Warming up · odds in a moment`（指数有效、模型还没报价，AR-37 / AR-38）。出错 / 暂停 → §2.3、§2.4；拒单 AR-39 … AR-44；下单超时 AR-27 … AR-30。
 
 ### 4.2 机柜（移动，375）
 
@@ -413,15 +433,14 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 | 键 | 作用 |
 |---|---|
-| ↑ / ↓ | 下 Up / Down 单（当前选中的筹码）；焦点在输入框里时不响应 |
+| ↑ / ↓ | 下 Up / Down 单（当前选中的筹码），**按住只算一次**（忽略键盘自动重复）；焦点在输入框里、或任何弹层 / 抽屉 / 说明框开着（免责门、RULES、登录、Deposit / Transfer、手机 ROAD & STATS、ⓘ 说明）时不响应 |
+| ⓘ 上 Enter / 空格 | 打开那条说明（和点击一样） |
 | Esc | 关 RULES、关手机抽屉 |
 | M | 静音开关 |
 | 空格 | 跑酷起跳（只在跑酷中） |
 | logo 上 Enter / 空格 | 回 `/events` |
 
-现状里有两处要改（§5 B5）：按住方向键会连续下单；RULES 等弹层开着时方向键也会下单。
-
-无障碍：toast 是 `role="status" aria-live="polite"`；免责门、RULES、手机抽屉都是 `role="dialog" aria-modal="true"`；静音键 `aria-pressed` + `Mute sound` / `Unmute sound`；筹码 `aria-pressed`；ⓘ 有 `aria-label`（`What is the BTC Index` / `About the open limit` / `How to read the road`）。用户开了「减少动态效果」：所有 CSS 动画瞬间完成、粒子和金币雨大幅减少、不抖、猞猁不走动、入口横幅静止。现状没有的：ⓘ 不能用键盘 Enter 打开；弹层打开时焦点不移进去；Esc 关不掉 ⓘ 说明和免责门（免责门本来就要求必须点确认）。前两条补不补待批（§5 B11）。
+无障碍：toast 是 `role="status" aria-live="polite"`；免责门、RULES、手机抽屉都是 `role="dialog" aria-modal="true"`；静音键 `aria-pressed` + `Mute sound` / `Unmute sound`；筹码 `aria-pressed`；ⓘ 有 `aria-label`（`What is the BTC Index` / `About the open limit` / `How to read the road`）。用户开了「减少动态效果」：所有 CSS 动画瞬间完成、粒子和金币雨大幅减少、不抖、猞猁不走动、入口横幅静止。焦点管理：免责门、RULES、手机 ROAD & STATS 打开时焦点移到层里第一个可操作件（I GET IT / 关闭键），关掉回到打开它的那个控件。Esc 关不掉 ⓘ 说明和免责门（免责门本来就要求必须点确认）。
 
 ### 4.5 券计量条
 
@@ -434,8 +453,9 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 | 计数中 | 登录、今天没满 | 图标 + 3 格（亮 `连赢数 % 3` 格）+ `3 more wins` / `2 more wins` / `1 more win → $2 voucher` ｜ `$4 / $10 today ›` | 图标 + 3 格 + `$4 / $10 today ›` |
 | 刚掉券 | 掉券后 8 秒 | 3 格全亮、框发光 + `+$2 voucher · it's in your Vouchers` ｜ `$6 / $10 today ›` | 3 格全亮 + `+$2 · $6 / $10 ›` |
 | 今天满了 | 今天已得 ≥ $10 | 框变暗、没格子 + `Today's $10 of vouchers claimed · more from 08:00` | `$10 claimed today` |
+| 池子空了 | 今天 < $10，但全站 $2 券池今天发完（`combo_pool_left = 0`） | 样式同「今天满了」+ `Today's vouchers are all gone · more from 08:00` | `Vouchers all gone today` |
 
-`08:00` = UTC 零点换成用户本地时间（例中是东八区），24 小时制、不带时区。今天的券额只认服务端，没回之前不显示数字。字典：未登录 AR-6 / AR-6 移动 · 计数中 AR-2 / AR-5 · 刚掉券 AR-15 / AR-17 · 满了 AR-16 / AR-24 · 加载中 AR-25 / AR-26。
+`08:00` = UTC 零点换成用户本地时间（例中是东八区），24 小时制、不带时区。今天的券额只认服务端，没回之前不显示数字。字典：未登录 AR-6 / AR-6 移动 · 计数中 AR-2 / AR-5 · 刚掉券 AR-15 / AR-17 · 满了 AR-16 / AR-24 · 池子空了 AR-35 / AR-36 · 加载中 AR-25 / AR-26（登录状态读取中也是加载态，AR-33 / AR-34）。
 
 ### 4.6 01 / REPLAY 一块屏
 
@@ -451,22 +471,23 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 「像素夜景」一条（桌面 124 px，移动折成一列）：`■ QUICK PLAY` + `BTC · 30-SECOND CALLS · 24/7` / 大价 / `$81,466.92 · ▲ +$4.80 · last 30s`（30 秒前的指数与变化）/ 右侧 `TIME` 条 + `00:22`（桌子的 30 秒墙钟格倒数）/ `▲ UP 51.2¢` `▼ DOWN 48.8¢` / `PLAY ▸`。只在 All 视图出现（非日历、非 watchlist），整条可点 → `/arcade`。读机柜同一条指数（打开时拉最近 45 秒 tick，之后每 2 秒调一次 `arcade_table_now`）。
 
-现状：桌子不能交易（任何暂停原因、指数无效、没有报价）时，副行一律红字 `INDEX INVALID · WAITING FOR THE EXCHANGES`、报价 `—¢`、线变灰；网络断了保持上一次的读数。**要改成按原因写**，见 §5 B3。
+桌子不能交易时副行红字、报价 `—¢`、线变灰，红字**按原因写**（B3）：指数无效 / 没有报价 `INDEX INVALID · WAITING FOR THE EXCHANGES` ｜ 关桌 `TABLE CLOSED` ｜ 桌满 `TABLE FULL · ROOM OPENS AS CALLS SETTLE` ｜ 跳太快 `PAUSED · BTC IS MOVING TOO FAST` ｜ 日亏损 `PAUSED · BACK TOMORROW` ｜ 本机断网（连续 3 次拉不到 / 浏览器报离线）`CONNECTION LOST · RECONNECTING…`（断网时价格保持上一次读数）。映射表在 `ArcadeEntryBanner.tsx` 的 `ARCADE_BANNER_OFF_COPY`。字典 AB-1 / AB-2 每个原因一条。
 
 ### 4.8 分享海报「Share your run」与 combo 海报
 
 - **按场分享**，入口只有 04 的 `⇪ SHARE`（手机在 ROAD & STATS 抽屉里同一位置；≥ 1 张结算才亮，全是 void 不亮）和场次详情页右上 Share。连赢 / 大赢都不主动弹。
 - 海报 = 设计师像素掌机稿（Figma omenx_lite 1283:1437 桌面 · 1283:1841 / 1283:2110 手机），恒 400 px：头像 + 徽章 `7 of 10 right`、青色 `QUICK PLAY` 框、`Profit` / `Lost` + 大字净利（已扣佣金）、`Called Bitcoin up or down, 30 seconds at a time`、`23 minutes · 10 calls · $5 each`（面额不一样写 `$80 staked`）、两格 `Best run · 4 in a row` / `Biggest win · +$9.20`、推荐码 + logo + `Pick UP or DOWN · from $2` + 二维码 → `/arcade?ref=<推荐码>`。赚黄绿 `#CFFF4A`、亏珊瑚红 `#FF8B80`。金额超过 7 个字符字号缩到 52 / 44 px。只写净利与对了几次，不写 ROI、不出 SESSION / COMBO / LAST 10。
-- 边界：pnl = 0 → 按赚的样式（`Profit +$0.00`）；没赢过 → Biggest win `—`，Best run 现在写 `0 in a row`（要改成 `—`，§5 B8）；分钟数 = 第一张到最后一张，至少 1 分钟（机柜里现在算法不同，§5 B6）。
+- 边界：pnl = 0 → 按赚的样式（`Profit +$0.00`）；没赢过 → Biggest win `—`、Best run `—`（赢过 1 张写 `1`，≥ 2 写 `4 in a row`；海报和 Portfolio 共用 `arcadeBestRunLabel`）；分钟数 = **第一张到最后一张**，至少 1 分钟（机柜海报和 Portfolio 同一个算法：机柜的场次时钟从第一单开始计，不是打开页面）。
+- 徽章图标是 Lucide：赢 `zap`、亏 `trending-down`，颜色跟徽章字，方角线头（CPO 2026-11-05 批，项 17）；免责门四行也是 Lucide `timer / lock / percent / triangle-alert`。
 - 弹层 = 站点 ShareModal 的 arcade 外观（Jersey 10 标题 `Share your run`，副标 `Save the card or post it straight to X / Telegram`，亏时 `Rough one — share it anyway, we go again`）；**手机是底部抽屉**。保存的 PNG 里像素字是真字体。
-- 分享出去的文字：`Called Bitcoin up or down for 23 min on OmenX Quick Play — 7 of 10 right, +$83.57 ⚡`；亏 `… −$21.40. We go again 😅`。
-- **combo 海报**：COMBO 小框的 `⇪ SHARE` → `Share your combo`；海报暂用场次海报家族（`ArcadeComboPoster`）：徽章 `3 in a row`、`COMBO ×3 · ON FIRE`、大字 `+$13.92`（这一串连赢的净利）、`Called Bitcoin up or down — 3 right in a row`、`30 seconds a call · $15 staked`、两格 `Combo ×3` / `Biggest win +$4.71`。**过渡版**，设计正式稿到了整张替换。分享文字 `3 Bitcoin calls right in a row on OmenX Quick Play — COMBO ×3, +$13.92 🔥`。
+- 分享出去的文字（发到 X / Telegram 的，不是界面，保留 emoji）：`Called Bitcoin up or down for 23 min on OmenX Quick Play — 7 of 10 right, +$83.57 ⚡`；亏 `… −$21.40. We go again 😅`。
+- **combo 海报**：COMBO 小框的 `⇪ SHARE` → `Share your combo`；海报暂用场次海报家族（`ArcadeComboPoster`）：徽章 `3 in a row`、`COMBO ×3 · ON FIRE`（徽章图标 Lucide `flame`）、大字 `+$13.92`（这一串连赢的净利）、`Called Bitcoin up or down — 3 right in a row`、`30 seconds a call · $15 staked`、两格 `Combo ×3` / `Biggest win +$4.71`。**过渡版**，设计正式稿到了整张替换。分享文字 `3 Bitcoin calls right in a row on OmenX Quick Play — COMBO ×3, +$13.92 🔥`。
 
 ### 4.9 Portfolio
 
 - **Settled › Standard 一场一行**（不另立页签；chip 计数按场 +1；Win rate 按单算 won ÷ (won + lost)，void / cancelled 不进分母；Net profit 加上各场 pnl）：标题 `BTC 30-second calls · Oct 28, 16:47 – 16:53` + 右侧 QUICK PLAY 小牌；副行 `8 calls · won 5 of 8`；一场没有任何结算时写 `no calls settled · 1 refunded`；右侧这一场净利，› 进详情。**手机**：标题只留时间段、`BTC` 挪进副行，标题与副行都允许折成两行，不截断。从机柜 `All settled calls → Portfolio` 过来：落在 Standard，最新一场 2.2 秒 lime 底色后淡出。
 - **场次详情 `/portfolio/quick-play/<key>`**：套单仓结算详情的版式——标题 + 小牌 / `Settled Oct 28, 2026 · 16:53` / Share + `Open Quick Play ›`；三卡 Result（净利 + `Won · 5 of 8 calls right`；一张都没结 `No call went to settlement`）/ Staked（`$70.00` + `8 calls @ $5 – $25`）/ Payout（`$82.06` + `after $2.65 fees` + `Trading fee $2.10 · Winning commission $0.55`；0 写 `nothing returned`）；Details（Market `BTC · 30-second calls` / Calls / Record `5 won · 3 lost` / Best run `3 in a row`（1 写 `1`、0 写 `—`）/ Stake / Not settled `1 refunded` / Started / Ended + 底注 `A session ends after 30 minutes without a call.`）+ ACTIVITY（一张合约一行 `16:52:41 · Up · $5.00 @ 50.9¢` → `+$4.29`；void `$0.00 · refunded`、历史撤单 `−$0.01 · cancelled` 灰字；最新在上，30 条一页 `Load more calls`；空 `No calls to show`）。手机 inner header 标题 `Quick Play`，右上 Share 图标。别人的 key / 不存在的 key 同一张「not found」。
-- pnl = 0 的一场：详情页写 Won，列表现在算没赢——要统一（§5 B7）。
+- pnl = 0 的一场：海报、详情页、列表一律按赢的样式（`Won`、绿色）。
 
 ### 4.10 免责门与 RULES 原文
 
@@ -493,18 +514,12 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 | 翻牌节奏 | 到 30 秒杆顶立刻 `…`，0.5–1.2 秒后翻；正式版后端仍按研发稿（等迟到行情 ≤ 2 秒），前端节奏照这个做 |
 | 文案 / i18n | 英文，未进 i18n |
 | 埋点 | 本期不做 |
-| 运营后台（开关桌、改参数） | 待 CPO 定：正式版是否单独做后台页 |
+| 运营后台（开关桌、改参数） | 参数走后台配置（`arcade_params` 那组：开关桌、费率、筹码档位、单账户上限、每秒单数、报价系数、券池配额）；Lovable 里直接改库 |
 | combo 海报 | 过渡版，设计正式稿到了替换 |
 | 跑酷 | 只在桌面暂停态；手机抽屉里的猞猁只会跳 |
 | alex_carter 演示数据 | 真实下单 + 补种历史（won / lost / void / cancelled），不碰余额；三场可在 Portfolio 看到 |
 
-**待批（2026-11-04，批完改代码并更新本文档）**：
-- 10 下单超时：先显示 `Checking your call…`，查清楚再说成功或失败（每笔单带唯一编号，重发不会下两张）。
-- 11 用户断网：单独一个 `CONNECTION LOST` / `OFFLINE` 态，不再说成指数无效。
-- 12 登录状态读出来之前不显示「未登录」的样子。
-- 17 免责门与海报徽章的 emoji 换成图标。
-- 5 combo 券算进全站每日券池（加 $2 档 + 每天总配额；发完时券计量条多一个「今天券发完了」的态）。
-- B1 键上 `to win` 偶尔差 1 分（前端浮点）；B2 void 流水补一行退费；B3 横幅按暂停原因写；B4 前端报价有效期跟服务端一致；B5 方向键按住只算一次、弹层开着不下单；B6 海报分钟数统一按第一张到最后一张；B7 pnl = 0 统一按赚；B8 Best run 0 写 `—`；B9 演示模拟单清理；B10 LIVE TABLE 短用户名会全露（建议短于 5 个字符统一显示 `pl***er`）；B11 无障碍补两条（ⓘ 支持键盘 Enter、弹层打开时焦点移进去）。
+2026-11-04 冷读列出的待批项（10 / 11 / 12 / 17 / 5 / B1–B11）2026-11-05 全部批准并落地，口径已写进上面各节（§2.4、§3.1.4、§3.1.7、§3.1.9、§3.1.10、§3.3、§4.1、§4.4、§4.5、§4.7、§4.8、§4.9）；本文档不再有待定项。
 
 ## 6. 状态索引
 
@@ -536,7 +551,27 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 | AR-24 | `arcade-ar24` | 移动 | 券计量条 · 今天 $10 已满 |
 | AR-25 | `arcade-ar25` | 桌面 | 券计量条 · 加载中 |
 | AR-26 | `arcade-ar26` | 移动 | 券计量条 · 加载中 |
-| AB-1 / AB-2 | `arcade-ab1` / `arcade-ab2` | 桌面 / 移动 | 入口横幅 · 正常 + 指数无效 |
+| AR-27 / AR-28 | `arcade-ar27` / `arcade-ar28` | 桌面 / 移动 | 下单超时 · 查单中（`checking…` / `Checking your call…`） |
+| AR-29 / AR-30 | `arcade-ar29` / `arcade-ar30` | 桌面 / 移动 | 下单超时 · 没进去（`Didn’t go through · nothing was charged`） |
+| AR-31 / AR-32 | `arcade-ar31` / `arcade-ar32` | 桌面 / 移动 | 用户断网 · `CONNECTION LOST` / `OFFLINE` |
+| AR-33 / AR-34 | `arcade-ar33` / `arcade-ar34` | 桌面 / 移动 | 登录状态读取中 |
+| AR-35 / AR-36 | `arcade-ar35` / `arcade-ar36` | 桌面 / 移动 | 券计量条 · 池子空了 |
+| AR-37 / AR-38 | `arcade-ar37` / `arcade-ar38` | 桌面 / 移动 | 预热中（指数有效、没报价） |
+| AR-39 / AR-40 | `arcade-ar39` / `arcade-ar40` | 桌面 / 移动 | 拒单 · `Price moved · tap again` |
+| AR-41 / AR-42 | `arcade-ar41` / `arcade-ar42` | 桌面 / 移动 | 拒单 · `Not enough in your spot account` |
+| AR-43 / AR-44 | `arcade-ar43` / `arcade-ar44` | 桌面 / 移动 | 拒单 · `Too fast · 2 calls per second` |
+| AR-45 / AR-46 | `arcade-ar45` / `arcade-ar46` | 桌面 / 移动 | 暂停 · TABLE FULL |
+| AR-47 / AR-48 | `arcade-ar47` / `arcade-ar48` | 桌面 / 移动 | 暂停 · 关桌 |
+| AR-49 / AR-50 | `arcade-ar49` / `arcade-ar50` | 桌面 / 移动 | 暂停 · 跳太快 |
+| AR-51 / AR-52 | `arcade-ar51` / `arcade-ar52` | 桌面 / 移动 | 暂停 · 日亏损触顶 |
+| AR-53 | `arcade-ar53` | 移动 | 暂停 · 指数无效（AR-3 的手机版） |
+| AR-54 / AR-55 | `arcade-ar54` / `arcade-ar55` | 桌面 / 移动 | 新场次 toast |
+| AR-56 / AR-57 | `arcade-ar56` / `arcade-ar57` | 桌面 / 移动 | 单笔翻牌 · 赢 |
+| AR-58 / AR-59 | `arcade-ar58` / `arcade-ar59` | 桌面 / 移动 | 单笔翻牌 · 输 |
+| AR-60 / AR-61 | `arcade-ar60` / `arcade-ar61` | 桌面 / 移动 | 单笔翻牌 · VOID |
+| AR-62 / AR-63 | `arcade-ar62` / `arcade-ar63` | 桌面 / 移动 | COMBO ×8 LEGENDARY |
+| AR-64 … AR-67 | `arcade-ar64` … `arcade-ar67` | 桌面 | 猞猁 · DRAGON 举牌 / choppy / new here? / 睡着 |
+| AB-1 / AB-2 | `arcade-ab1` / `arcade-ab2` | 桌面 / 移动 | 入口横幅 · 正常 + 六种暗着的原因各一条 |
 | AS-1 | `arcade-as1` | — | 分享海报 · 赚 / 亏 |
 | AS-2 | `arcade-as2` | — | combo 海报（过渡版） |
 | AS-3 | `arcade-as3-win` / `arcade-as3-lose` | 桌面 | 分享弹窗 · 赚 / 亏 |
@@ -551,7 +586,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 - 公共：`src/lib/arcade/arcadeCalls.ts`（RPC 封装 + 费用 / 派彩算式 + 路单格）、`src/lib/arcade/session.ts`（30 分钟断场与时间段文案）、`src/lib/arcade/quickPlayPortfolio.ts`（场次行 / 详情 / 海报的数据与文案）、`src/lib/arcade/sprites.ts`。
 - 入口与分享：`src/components/lite/arcade/ArcadeEntryBanner.tsx` + `arcade-entry.css`；`ArcadeRunPoster` / `ArcadeComboPoster` / `ArcadeShareCard`（弹层复用 ShareModal）；字体 `public/fonts/arcade/`。
 - Portfolio：`src/hooks/useArcadeSessions.ts`、`src/hooks/useLitePortfolio.ts`、`src/components/portfolio/lite/SettledList.tsx`、`QuickPlayTag.tsx`、`QuickPlaySessionView.tsx`、`src/pages/lite/LiteQuickPlaySession.tsx`、`PortfolioRoutes.tsx`、`SettlementDetailView.tsx`。
-- 后端迁移（按时间）：`20261028120000_arcade_calls.sql`（主体）· `20261028190000_arcade_housekeeping.sql` · `20261028213000_arcade_always_on.sql` · `20261029163000_arcade_load.sql` · `20261029170000_arcade_sim_feed.sql` · `20261029190000_arcade_sessions.sql` · `20261102180000_arcade_combo_vouchers.sql`（combo 券 + 演示节奏）· `20261104170000_arcade_no_undo.sql`（关撤单）· `20261104230000_arcade_limit_copy.sql`（上限文案统一）。`20261019*` 两个是旧轮次流，只给站内其他页的 BTC 价。
+- 后端迁移（按时间）：`20261028120000_arcade_calls.sql`（主体）· `20261028190000_arcade_housekeeping.sql` · `20261028213000_arcade_always_on.sql` · `20261029163000_arcade_load.sql` · `20261029170000_arcade_sim_feed.sql` · `20261029190000_arcade_sessions.sql` · `20261102180000_arcade_combo_vouchers.sql`（combo 券 + 演示节奏）· `20261104170000_arcade_no_undo.sql`（关撤单）· `20261104230000_arcade_limit_copy.sql`（上限文案统一）。`20261019*` 两个是旧轮次流，只给站内其他页的 BTC 价。 · `20261105110000_arcade_pre_handoff.sql`（下单编号 `client_id` + `arcade_lookup`、$2 券池档 `combo_pool_day`、void 退费流水、模拟单清理、短名打码；已在 Lovable 库执行）
 - 字典 / 规范：`src/pages/StyleGuide/sections/ArcadeStatesSection.tsx` + `preview/arcadePreviews.tsx`；`PortfolioStatesSection.tsx` Ⓛ + `portfolioPreviews.tsx`；`DESIGN.md` Quick Play 各节；`docs/copy-dictionary.md`「Quick Play（/arcade · BTC 30 秒合约 · 流式舞台）」节；`docs/backend-boundary.md` Quick Play 补录。
 
 ## 8. 验证方法
@@ -569,6 +604,11 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 11. 手机 375：免责门、RULES、ROAD & STATS、登录、ⓘ、分享全部从底部升起；MY CALLS 筹码带不被裁切。
 12. 券：连赢 3 张 → `position_vouchers` 多一张 $2（`source_arcade_call_id` = 第三张），券计量条 `+$2 voucher …` 8 秒；当天满 $10 后再连赢不再发、计量条变「今天满了」；刷新页面计量条先 `$— / $10 today` 再出真值，不出现 `$0`。
 13. 字典：`/style-guide` 交易页 + Portfolio 节点，跑 `scripts/sg-overflow-scan.js`，除 Radix sr-only「Close」外 0 命中。
+14. 下单编号：同一个 `client_id` 调两次 `arcade_place` → 第二次返回同一张单（`arcade_calls` 里只有一行）；`arcade_lookup(<id>)` 返回那张单，陌生 id 返回空。
+15. 断网：DevTools 切 Offline → 3 秒内遮罩 `CONNECTION LOST`、键 `Offline · reconnecting`、来源价不变红；切回 Online → 下一秒恢复，期间到期的单补翻牌。
+16. 券池：`update voucher_daily_pools set claimed_count = total_quota where face_value = 2 and pool_date = current_date` → 券计量条「池子空了」、连赢第 3 把不掉券但 COMBO 照常；改回去恢复。
+17. void 流水：一张 void 的单在钱包流水里是三行（`fee −0.15` / `trade_profit 0` / `fee +0.15 · Quick Play fee returned`），合计 0。
+18. 短名打码：用户名 ≤ 4 个字符的账号开一张单，别人的 LIVE TABLE 里显示 `pl***er`。
 
 ## 9. 本需求不碰的东西
 
@@ -592,3 +632,4 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 - 2026-10-29：「一场」记账单位、Portfolio 场次行与详情页、演示行情改模拟。
 - 2026-11-02 James 反馈轮：颜色只表示方向、图只画自己的单、右栏两态、$2 筹码、combo 券、到期杆方案、设计师海报。
 - 2026-11-04 James 第二轮：删除撤销（键、文案、后台接口一起关）、券计量条、01 一块屏；窄桌面不显示 `$5 SELECTED`；券计量条加载态；交付前冷读修订（四处文案、本文档按现状重写）。
+- 2026-11-05 · CPO 批冷读待批项全部落地（commit 见 git log）：下单编号 + `Checking your call…`（10）、断网态（11）、登录读取中态（12）、emoji → Lucide（17）、$2 券池档（5）、B1–B11；style-guide 补 AR-27 … AR-67；§5 不再有待定项；运营参数口径 = 走后台配置。

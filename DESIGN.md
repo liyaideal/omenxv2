@@ -2370,6 +2370,7 @@ Quick Play 的视觉规范分四节逐轮叠加（10-19 → 10-28 → 11-02 → 
 | 10-28 | 1 没有局 · 2 三所指数（但「机柜底下 `LIVE · 3 of 3`」已删）· 3 报价模型 · 5 S0 / S1 · 6 舞台 = 时间轴（到期标记已改为 11-02 #8 的杆）· 9 键不锁 · 12 路单 = 桌子的路 · 13 暂停态 · 14 猞猁 · 18 设计师版式 · 20 桌面四行 · 21 入口横幅 · 22 分享海报（海报样式见 11-02 #9）· 23 / 24 演示桌 · 25 一场 · 26 / 27 | 4 费用里的「2 秒取消」→ 11-04 #1 · 7 连输红闪 / `×3 LOST` → 11-02 #5（连输什么都不显示）· 8 MY CALLS / TABLE 页签 → 11-02 #3 · 10 头条文案 → 11-02（`Settles on the BTC Index ⓘ` / `TOTAL OPEN POSITIONS`）· 11 免责门第二行与 $5–100 → 11-04 #1（`Locked once you tap`、$2–50）· 15 移动端里的 `YOUR OPEN` / TABLE → 交付文档 §4.2 · 16「SESSION = 本次打开以来、LAST 10 / COMBO = 账号历史」→ 25（都按这一场）· 17 字典编号 → 交付文档 §6 · 19 浏览器直连 Binance 画线 → 11-02 #2（效果照 Lovable，正式版用真实行情做） |
 | 11-02 | 1 颜色只表示方向 · 2 舞台只画自己的单 · 3 右栏两态 · 5 combo · 7 手机说明一律底部抽屉 · 8 到期杆 · 9 海报与分享弹层 | 4 里的 `UNDO` 键与撤单费 → 11-04 #1（筹码与飘字部分仍有效）· 6 路单条四块 → 11-04 #3 |
 | 11-04 | 1 没有撤销 · 2 券计量条（含加载中）· 3 01 一块屏 · 4 窄桌面筹码盘标头 | — |
+| 11-05 | 1 下单超时态 · 2 断网态 · 3 登录读取中态 · 4 免责门 / 海报图标用 Lucide · 5 券计量条「池子空了」· 6 横幅按原因 · 7 方向键 / 焦点 | — |
 
 ## §Addendum 2026-10-19 · Quick Play 专区（/arcade · 30s / 1m Up/Down · 机柜皮肤，LOCKED · 内测）
 
@@ -2460,6 +2461,18 @@ Quick Play 的视觉规范分四节逐轮叠加（10-19 → 10-28 → 11-02 → 
 2. **券计量条**（取代 11-02 第 5 条的虚线券条）：位置不变（桌面 03 标题行右侧、手机 YOUR STAKE 右侧）；实线框 `1px rgba(207,255,74,.7)` + 底 `rgba(207,255,74,.10)`，桌面高 30 / 字 12px，手机高 22 / 字 10.5px；内容 = 黄绿券图标（16×11，手机 13×9）+ 3 个方格（9px，手机 7px；亮 = 实心黄绿 + 光，暗 = 描边）+ 文案 + 竖分隔线 + 今日 `$4 / $10 today ›`。亮几格 = 本场连赢数 % 3；掉券那一刻 3 格全亮、框变亮发光 8 秒；今天满了 = 框变暗、没有格子；未登录 = 只有图标 + 规则一句；加载中（登录后服务端还没回今天的券额，约 1 秒）= 框不变、3 格降到 35% 不透明、文案 `$— / $10 today ›`（数字用 muted 色），桌面手机同一句——不许先显示 `$0` 再跳（CPO 2026-11-04 批，字典 AR-25 / AR-26）。
 3. **01 / REPLAY 是一整块屏**（CPO 2026-11-04 比稿选定「一块屏三种看法 + 首尾钉」，Claude Design 画布 claude.ai/artifact/6etnfVn8qUD7SAV25SpuFC；取代 11-02 第 6 条「路单条四块同骨架」）：题牌 160px 不变（副题 `BTC EVERY` / `30 SECONDS`），右边一块 `.rscreen`：屏头 `LAST 30 MIN`（Jersey 18 黄绿）+ `15:22 → NOW`（12px 白、大写）+ 说明句（11px `#B9C2CD`、正常大小写），下边一条 `1px #1D2C37`；内容三格 `auto / 1.3fr / 1.1fr`，格间 `1px dashed #2B3A48`，每格标签 = 百家乐原名 + 一句怎么读（`· in order` / `· in streaks` / `· the count`，`#6F7A88`）。三格读同一批最近 60 个结果；珠盘、大路的点 / 格样子不动。首尾钉：9px 小签，起点深底 `#1D2A35` 白字、`NOW` 白底黑字，钉在第一格 / 最新一格上方；最新一格外套 `0 0 0 2px 屏底 + 0 0 0 3.5px #fff + 10px 白光`。手机：同一块屏放在 ROAD & STATS 抽屉，屏头拆两行，三格竖排（UP VS DOWN · BIG ROAD · BEAD）。高度与改前一致（屏头 + 钉行 = 去掉的时间脚 + 收紧的内边距）。
 4. **窄桌面筹码盘标头**（CPO 2026-11-04）：≤ 1120px 时筹码盘只剩约 194px 宽，`YOUR STAKE · PER CHIP` 占 160px，`$5 SELECTED` 会被截成 `$5 S…`——这个宽度下 `#dSel` 不显示，选中状态只看筹码本身的高亮；> 1120 不变。字典里 1040 宽的 AR 帧都是这个样子。
+
+## §Addendum 2026-11-05 · Quick Play · 交付前批项（LOCKED · 内测）
+
+> CPO 2026-11-05 批 10 / 11 / 12 / 17 / 5 + B1–B11（待批页 claude.ai/artifact/USxkJWfwrSkYCEemSvEh2p）；交付 `docs/delivery/quick-play-v1.md` §2.4 · §3.1.4 · §4.1 · §4.4 · §4.5 · §4.7 · §4.8；字典 AR-27 … AR-67、AB-1 / AB-2。作用域：`.arcade-root` 机柜 + `ArcadeEntryBanner` + 海报。
+
+1. **下单超时态**：5 秒没回音时筹码不动，YOUR CALLS 那一行 `opacity .55`、右侧灰字 `checking…`（`.row.checking`），键底注 `Checking your call…`；手机 MY CALLS 那枚筹码 `opacity .5`、秒数 `…`。查不到时键底注走拒单样式（红）但停 3 秒而不是 1.8 秒：`Didn’t go through · nothing was charged`。
+2. **断网态**：复用暂停遮罩的版式（`#dOv.on.offline`），标题 `CONNECTION LOST`（手机 `OFFLINE`），副行 `Reconnecting… check your internet`（手机 `Reconnecting…`），第三行 `YOUR OPEN CALLS STILL SETTLE ON OUR SIDE`；来源价**不变红**、大价停在最后一条；键置灰 + `Offline · reconnecting`；猞猁跑酷 HUD `OFFLINE · TAP TO JUMP`。入口横幅副行 `CONNECTION LOST · RECONNECTING…`。
+3. **登录状态读取中**：Deposit / Sign in 键的位置空着（`hidden`，不占位也不替换），Transfer 隐藏，余额 `—`，券计量条加载态；读完直接切成登录 / 未登录，不闪。
+4. **图标**：免责门四行用 Lucide `timer / lock / percent / triangle-alert`，20px、`stroke-width 2.2`、`stroke-linecap square` + `stroke-linejoin miter`（和像素机柜搭），颜色 `var(--lime)`；海报徽章 `zap` / `trending-down`（12px，颜色跟徽章字），combo 海报 `flame`（13px）。产品界面不再有 emoji（CLAUDE.md 红线 8）；分享到外站的文字不算界面，保留。
+5. **券计量条「池子空了」**：和「今天满了」同一套样式（`.max`，框变暗、没格子），再加 `.pool` 类作标识；文案 `Today's vouchers are all gone · more from 08:00` / 手机 `Vouchers all gone today`。个人满了优先于池子空了。
+6. **入口横幅暗着时按原因写**：`ARCADE_BANNER_OFF_COPY` 六条（指数无效 / 关桌 / 桌满 / 跳太快 / 日亏损 / 断网），样式不变（`.qpc.off` 红字）。
+7. **方向键与焦点**：↑ / ↓ 忽略自动重复（按住只算一次）；任何 `role=dialog` 可见或 ⓘ 说明框开着时不下单；免责门 / RULES / 手机抽屉打开时焦点进层、关闭回原控件；`.info[role=button]` 响应 Enter / 空格。
 
 ## §Addendum 2026-11-04 · Sports 列表直播与预告（LOCKED）
 
