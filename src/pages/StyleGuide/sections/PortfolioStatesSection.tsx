@@ -799,10 +799,10 @@ const QUICKPLAY_CASES: SectionCase[] = [
     spec: [
       { state: "Result 卡", when: "calls > 0", visual: "净利着色，副行 `Won · 5 of 8 calls right` / `Lost · 1 of 5 calls right`", source: "resultSub()" },
       { state: "Staked 卡", when: "始终", visual: "`$70.00`，副行 `8 calls @ $5 – $25`", source: "quickPlayStakeSub()" },
-      { state: "Payout 卡", when: "payout > 0", visual: "`$82.06`，副行 `after $0.63 fees` + `Trading fee $0.08 · Winning commission $0.55`", source: "fees + commission" },
+      { state: "Payout 卡", when: "payout > 0", visual: "`$82.06`，副行 `after $2.65 fees` + `Trading fee $2.10 · Winning commission $0.55`（3% × $70 + 佣金）", source: "fees + commission" },
       { state: "Payout 为 0", when: "payout === 0", visual: "副行 `nothing returned`", source: "QuickPlaySessionDesktop" },
       { state: "Details 行", when: "始终", visual: "Market / Calls / Record `5 won · 3 lost` / Best run `3 in a row` / Stake / Started / Ended；有退款取消时多一行 `Not settled 1 refunded · 1 cancelled`", source: "QuickPlaySessionView" },
-      { state: "ACTIVITY 行", when: "每张合约", visual: "`16:52:41 · Up · $5.00 @ 50.9¢` → 右侧盈亏着色；void → `$0.00 · refunded`（灰）；cancelled → `-$0.01 · cancelled`（灰）", source: "callLeft() / callRight()" },
+      { state: "ACTIVITY 行", when: "每张合约", visual: "`16:52:41 · Up · $5.00 @ 50.9¢` → 右侧盈亏着色；void → `$0.00 · refunded`（灰）；历史 cancelled → `-$0.0075 · cancelled`（灰）", source: "callLeft() / callRight()" },
       { state: "翻页", when: "hasMore", visual: "ACTIVITY 底部整宽描边按钮 `Load more calls`，加载中禁用并显示 Loading…", source: "useArcadeSessionCalls" },
       { state: "Share", when: "signed in && calls > 0", visual: "右上 Share → 「Share your run」海报，数字取这一场（分钟数 = 首尾下单间隔）", source: "quickPlayShareRun()" },
       { state: "移动端", when: "isMobile", visual: "inner header `Quick Play` + 返回 + 右上分享；居中 `SETTLED · OCT 28` + `Won +$12.06` + 时间段与小牌；键值行；ACTIVITY；底部 `Open Quick Play ›`", source: "QuickPlaySessionMobile" },
@@ -813,7 +813,7 @@ const QUICKPLAY_CASES: SectionCase[] = [
     label: "PF-41 · 场次详情 · lost · 跨零点 · 单一面额",
     spec: [
       { state: "lost", when: "pnl < 0", visual: "Result 红，`Lost · 1 of 5 calls right`；Best run `1` 时只写 `1`，为 0 写 `—`", source: "bestRunLine()" },
-      { state: "单一面额", when: "min_stake === max_stake", visual: "Staked 副行 `5 calls @ $100`，Details Stake `$100 a call`", source: "quickPlayStakeSub()" },
+      { state: "单一面额", when: "min_stake === max_stake", visual: "Staked 副行 `5 calls @ $50`，Details Stake `$50 a call`", source: "quickPlayStakeSub()" },
       { state: "无退款取消", when: "refunded + cancelled === 0", visual: "Details 不出现 Not settled 行", source: "extrasLine()" },
       { state: "到底", when: "!hasMore", visual: "没有 Load more calls 按钮", source: "QuickPlaySessionView" },
     ],

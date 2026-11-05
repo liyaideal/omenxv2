@@ -646,7 +646,8 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **▲ +$136.86 in the last 30s** | 大价下（自己没单时，11-02） | |
 | **LIVE TABLE 7** · **everyone's open calls** / **Tap UP or DOWN to start — your calls and results show here** | 右栏 · 这一场还没下过单（11-02） | 移动筹码带 `LIVE TABLE 7` |
 | **YOUR CALLS** · **only you see these** / **Open 3** · **$75 in play** / **Settled 5** | 右栏 · 第一笔之后（11-02，取代 MY CALLS / TABLE 页签） | 不叫 MINE |
-| **No open calls · tap UP or DOWN** / **Nothing settled yet this session** / **↓ 3 more** | Open / Settled 空态、列表溢出（11-02） | 移动筹码带 `Tap UP or DOWN — your calls show here` |
+| **No open calls · tap UP or DOWN** / **Nothing settled yet this session** / **↓ 3 more** | Open / Settled 空态、列表溢出（11-02） | 移动筹码带两种空态：没下过单且没有别人的单 `Tap UP or DOWN — your calls show here`；下过单、手上没单 `No open calls · tap UP or DOWN` |
+| **ahead** / **behind** / **open…** / **settling** | Open 行行尾：领先（白）/ 落后（灰）/ 开仓价还没出来 / 到期到翻牌前约 1 秒 | 翻牌后换成 `+$4.43` / `−$5.00` / `VOID` |
 | **$25 · to win $46.46** / **@ 51.2¢ · open $80,900.87 · 12s** | Open 行（11-02：to win = 赢了拿回的钱，含本金、已扣佣金，同主站 To win） | 行尾 `open…` → `ahead`（白）/ `behind`（灰）→ `+$21.46` / `−$25.00` |
 | **$25 @ 51.0¢ · won** / **open 81,155.30 · close 81,194.73** | Settled 页签行（最多 30 条）+ **All settled calls → Portfolio** | `lost` / `void` · `no valid price · refunded` / `cancelled` · `taken back within 2 s` |
 | **▲ UP** / **▼ DN** · **$25 @ 51.2¢ · kz***88** | LIVE TABLE 行（11-02 方向都带 ▲▼） | 用户名打码 = 前 2 + `***` + 后 2；短于 5 个字符或没有用户名统一 **pl***er**（11-05 B10） |

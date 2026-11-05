@@ -103,7 +103,7 @@ Portfolio：arcade_my_sessions() 按 30 分钟间隔把合约切成「场」─�
 
 | status | 含义 | 谁写 | 机柜上 |
 |---|---|---|---|
-| open | 已接单、未到期 | `arcade_place` | YOUR CALLS 一行 + 图上菱形 / 虚线 / 杆；行尾第一秒起 `ahead` / `behind`（S0 出来之前写 `open…`） |
+| open | 已接单、未到期 | `arcade_place` | YOUR CALLS 一行 + 图上菱形 / 虚线 / 杆；行尾第一秒起 `ahead` / `behind`（S0 出来之前写 `open…`；到期那一刻到翻牌前约 1 秒写 `settling`） |
 | won / lost | 到期按 S0 / S1 判 | `arcade_settle_due` / `arcade_settle_mine` | 杆顶翻牌、飘字、筹码飞进余额、行进 Settled 页签、LAST 10 一格 |
 | void | 平局或没有有效价，全退 | 同上 | 杆顶灰横杠、飘 `VOID`；Settled 行 `void · no valid price · refunded`；不进 LAST 10、不算 calls |
 | cancelled | **只剩历史数据**（2026-11-04 前 2 秒内撤回的单） | 无（撤单接口已关闭） | Portfolio / 场次详情照常显示；机柜 Settled 页签里历史上的这类行也会出现（`cancelled · taken back within 2 s`），新单不会再有 |
@@ -364,8 +364,8 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 |---|---|
 | 头条 | logo / `BTC · 30-second calls` + 副行 `Settles on the BTC Index ⓘ` / `TOTAL OPEN POSITIONS ⓘ` + `Current $125 / Max $500` / `AVAILABLE · SPOT $6,249.09` / 单独一块键板 `+ Deposit` `⇄ Transfer` `Rules`（Deposit / Transfer 就地弹站内弹窗，Deposit 预选现货账户、Transfer 预选转入现货）/ 静音键 |
 | 01 / REPLAY | 一整块屏，见 §4.6 |
-| 02 / LIVE FEED · 舞台 | 头：`BTC INDEX` 小标 + 白色大价 + 上一秒 ▲▼；下一行 `FROM Binance $x · Hyperliquid $x · Coinbase $x`（缺一家写 `—`，指数无效整行红）；自己没单时再一行 `▼ −$19.72 in the last 30s`；COMBO 小框；右上 `NEXT SETTLE · 12s`（没单 `—`）。图：白色价格线、过去 45 秒 + 未来 30 秒、真实时间刻度每 15 秒 + `NOW`、右侧价格刻度（白签 = 现价，青 / 绿签 = 最近 3 张未到期单的开仓价）；自己没有开着的单时画**预览线**（现价往右 30 秒白虚线 + 旗 `if you call now · settles here`）；鼠标停在 UP / DOWN 上把赢的那一侧染色并写 `▲ UP wins if BTC ends above` / `▼ DOWN wins if BTC ends below`；底注 `← last 45 seconds` / `each call settles 30s after you tap →` |
-| 右栏 | 这一场第一笔之前：`LIVE TABLE N · everyone's open calls` + `▲ UP · n $x` / `▼ DOWN · n $x` 汇总 + 每单一行 `▲ UP $5 @ 50.9¢ · al***er · 12s`（最多 9 行，≤ 5 秒的高亮）+ `Tap UP or DOWN to start — your calls and results show here`。第一笔起到这一场结束：`YOUR CALLS · only you see these` + 页签 `Open N · $x in play` ｜ `Settled N`。Open 行 `▲ UP` / `$5 · to win $9.23` / 小字 `@ 51.3¢ · open $80,900.87 · 23s` / 进度条 / 行尾 `open…` → `ahead`（白）/ `behind`（灰），放不下底部渐隐 + `↓ 3 more`，空 `No open calls · tap UP or DOWN`。Settled 行 `$5 @ 51.2¢ · won` + `open 80,933.97 · close 80,950.10` + 盈亏，最多 30 条，空 `Nothing settled yet this session`，底部 `All settled calls → Portfolio`。右栏下面另一块钢板 `04 / YOUR RESULT`（第一笔之后出现）：OPEN `6 calls · $125` / `next in 3s`；LIVE `if settled now` / `+$4.63`；SESSION `+$83.57` / `2 won · 1 lost`；LAST 10 ✓✕ / `3 in a row`；右上 `⇪ SHARE`（≥ 1 张结算才亮） |
+| 02 / LIVE FEED · 舞台 | 头：`BTC INDEX` 小标 + 白色大价 + 上一秒 ▲▼；下一行 `FROM Binance $x · Hyperliquid $x · Coinbase $x`（缺一家写 `—`，指数无效整行红）；自己没单时再一行 `▼ −$19.72 in the last 30s`；COMBO 小框；右上 `NEXT SETTLE · 12s`（没单 `—`）。图：白色价格线、过去 45 秒 + 未来 30 秒、真实时间刻度每 15 秒 + `NOW`、右侧价格刻度（白签 = 现价，青 / 绿签 = 最近 3 张未到期单的开仓价）；自己没有开着的单时、或鼠标停在 UP / DOWN 上时画**预览线**（现价往右 30 秒白虚线 + 旗 `if you call now · settles here`；有单时只在 hover 期间画）；鼠标停在 UP / DOWN 上把赢的那一侧染色并写 `▲ UP wins if BTC ends above` / `▼ DOWN wins if BTC ends below`；底注 `← last 45 seconds` / `each call settles 30s after you tap →` |
+| 右栏 | 这一场第一笔之前：`LIVE TABLE N · everyone's open calls` + `▲ UP · n $x` / `▼ DOWN · n $x` 汇总 + 每单一行 `▲ UP $5 @ 50.9¢ · al***er · 12s`（最多 9 行，≤ 5 秒的高亮）+ `Tap UP or DOWN to start — your calls and results show here`。第一笔起到这一场结束：`YOUR CALLS · only you see these` + 页签 `Open N · $x in play` ｜ `Settled N`。Open 行 `▲ UP` / `$5 · to win $9.23` / 小字 `@ 51.3¢ · open $80,900.87 · 23s` / 进度条 / 行尾 `open…` → `ahead`（白）/ `behind`（灰）→ 到期 `settling` → 翻牌后 `+$4.43` / `−$5.00` / `VOID`，放不下底部渐隐 + `↓ 3 more`，空 `No open calls · tap UP or DOWN`。Settled 行 `$5 @ 51.2¢ · won` + `open 80,933.97 · close 80,950.10` + 盈亏，**最新在上、列表只留 30 条，页签上的数字 = 这一场全部已结算张数**（刷新复原后也一样），空 `Nothing settled yet this session`，底部 `All settled calls → Portfolio`。右栏下面另一块钢板 `04 / YOUR RESULT`（第一笔之后出现）：OPEN `6 calls · $125` / `next in 3s`；LIVE `if settled now` / `+$4.63`；SESSION `+$83.57` / `2 won · 1 lost`；LAST 10 ✓✕ / `3 in a row`；右上 `⇪ SHARE`（≥ 1 张结算才亮） |
 | 03 / SELECT YOUR DIRECTION | 标题行右侧券计量条（§4.5）+ `EVERY CHIP IS ITS OWN 30-SECOND CALL`。`▲ UP` 键 / 筹码盘 `YOUR STAKE · PER CHIP` + `$5 SELECTED` + `$2 5 10 25 50` / `▼ DOWN` 键。键上筹码塔 = 这一边正在跑的合约（同面额一堆）；点下去筹码立刻进塔 + 键上方飘 `+$5 ▲`。键底注见下表 |
 | 底部 | 猞猁太空窗（§4.3） |
 
@@ -381,13 +381,15 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 | 平时 | `$5 in · fee $0.15 · to win $9.29 if Up` |
 | 被拒（1.8 秒） | 拒单原文（§3.1.4） |
 
+**大小写**：机柜里标签类文字由 CSS 全大写显示（`SETTLES ON THE BTC INDEX`、`NEXT SETTLE · 21S`、`← LAST 45 SECONDS`、`EACH CALL SETTLES 30S AFTER YOU TAP →`、`01 / REPLAY` 题牌等），本文与词典写的是源码里的原文；研发用 `text-transform: uppercase`，不要把大写写死进文案。
+
 **窄桌面（≤ 1120 px）**：01 题牌隐藏（屏头照样在）；筹码盘标头只留 `YOUR STAKE · PER CHIP`，不显示 `$5 SELECTED`（选中的筹码自己高亮）。
 
 **四态**：**登录状态读取中**（页面刚打开、站点还没读完本地保存的会话，通常 < 1 秒；CPO 2026-11-05 批，项 12）→ 余额 `—`、Deposit / `→ Sign in` 的位置空着、Transfer 隐藏、券计量条加载态 `$— / $10 today ›`、不弹免责门、点 UP / DOWN 不响应（不下单也不弹登录）；读完直接变成登录或未登录的样子，中间不闪「没登录」。实现：先同步读 localStorage 里保存的会话（`sb-<ref>-auth-token`，只读），有就按已登录起步、没有就按未登录起步，再用 `supabase.auth.getSession()` 确认一次；3 秒内没确认也结束读取中态——结束后按本地读到的那个状态走（本地有会话 = 已登录，没有 = 未登录）。已登录但余额还没拉到时，`AVAILABLE · SPOT` 也写 `—`，不写 `$0.00`。不碰登录 / 账号逻辑（字典 AR-33 / AR-34）。未登录 → 余额 `—`、Transfer 键隐藏、Deposit 位置换成 `→ Sign in` 键；点它或点 UP / DOWN 弹站内登录（桌面弹窗、手机底部抽屉）；右栏 LIVE TABLE、预览线照画、券计量条写规则。空 → 没下过单 = LIVE TABLE；下过单没开着的 = Open 空提示。加载 → `Waiting for the price`（没有有效指数）/ `Warming up · odds in a moment`（指数有效、模型还没报价，AR-37 / AR-38）。出错 / 暂停 → §2.3、§2.4；拒单 AR-39 … AR-44；下单超时 AR-27 … AR-30。
 
 ### 4.2 机柜（移动，375）
 
-顶栏 logo / `AVAILABLE · SPOT $6,249.09`（不折行）/ `+`（未登录是 `SIGN IN`）/ `RULES` / 静音 → `BTC · 30s calls · $价` + `OPEN POSITIONS $0 / $500 ⓘ` → 四格来源价 `BINANCE` / `HYPERLIQ.` / `COINBASE` / `BTC INDEX`（指数无效时写 `INVALID`）→ 舞台（白大价 + `▲ +$x in the last 30s`，COMBO 右上小盒；图同桌面，预览旗只写 `30s`，没有 hover）→ 筹码带（这一场没下过单 `LIVE TABLE N` 别人的筹码，最多 7 个；下过单 `MY CALLS N` 自己的筹码 + 剩余秒数）→ OPEN / LIVE / SESSION 三格（第一笔之后才出现）→ `YOUR STAKE` + 券计量条 + 筹码 → UP / DOWN → 底部 `ROAD & STATS` 窥条。
+顶栏 logo / `AVAILABLE · SPOT $6,249.09`（不折行）/ `+`（未登录是 `SIGN IN`）/ `RULES` / 静音 → `BTC · 30s calls · $价` + `OPEN POSITIONS $0 / $500 ⓘ` → 四格来源价 `BINANCE` / `HYPERLIQ.` / `COINBASE` / `BTC INDEX`（指数无效时写 `INVALID`）→ 舞台（白大价 + `▲ +$x in the last 30s`，COMBO 右上小盒；图同桌面，预览旗只写 `30s`，没有 hover）→ 筹码带（这一场没下过单 `LIVE TABLE N` 别人的筹码，最多 7 个，没有别人的单时写 `Tap UP or DOWN — your calls show here`；下过单 `MY CALLS N` 自己的筹码 + 剩余秒数，手上没单时 `No open calls · tap UP or DOWN`）→ OPEN / LIVE / SESSION 三格（第一笔之后才出现）→ `YOUR STAKE` + 券计量条 + 筹码 → UP / DOWN → 底部 `ROAD & STATS` 窥条。
 
 `ROAD & STATS` 是底部抽屉：标题行右侧图例 `▲ Up ▼ Down` → 01 一块屏（§4.6，三格竖排：UP VS DOWN / BIG ROAD / BEAD）→ SESSION / LAST 10 / `⇪ SHARE` → SETTLED 列表 → 猞猁 + 气泡说路单（§4.3）。
 
@@ -409,7 +411,7 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 
 | n | 看到什么 |
 |---|---|
-| 2 | 图表头 `COMBO ×2` + `⇪ SHARE` + 副行 `win 1 more → free $2 voucher` |
+| 2 | 图表头 `COMBO ×2` + `⇪ SHARE` + 副行 `win 1 more → free $2 voucher`（今天 $10 已满写 `vouchers maxed today · keep it going`，券池空了写 `vouchers all gone today · keep it going`——任何 n 都一样） |
 | 3 的倍数 | 掉一张 $2 券：大字 `×3 COMBO` + `+$2 voucher · in your Vouchers` + 金币雨 + `+$2 VOUCHER` 飞到券计量条；副行 `you got a $2 voucher!`；当天已满 $10 则不掉券，副行 `vouchers maxed today · keep it going` |
 | 大字 + 金币雨出现在 | n 是 3 的倍数，或 n = 5、8（即 3 / 5 / 6 / 8 / 9 / 12 / 15…） |
 | 档位词（大字没掉券时的副行） | ≥ 3 `on fire`、≥ 5 `unstoppable`、≥ 8 `legendary` |
@@ -543,7 +545,7 @@ Every call stores its accept time, open, close, quote, fee and payout. The **Set
 
 **7 · Combo vouchers**
 
-Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more wins in the same run, another one — up to **$10 a day** (resets every day at ). Voids don't count, a loss starts the count over, and so does a new session. Your vouchers are in Rewards › Vouchers.
+Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more wins in the same run, another one — up to **$10 a day** (resets every day at <本地时间 00:00 UTC>). Voids don't count, a loss starts the count over, and so does a new session. Your vouchers are in Rewards › Vouchers.
 
 ## 5. Lovable / 正式版边界与未了账
 
@@ -639,12 +641,12 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 3. 撤不了：以普通用户身份调 `arcade_cancel(<id>)` → `permission denied for function arcade_cancel`；`select num from arcade_params where key = 'cancel_window_ms'` = 0。
 4. 结算：30 秒后约 1 秒内 status 变 won / lost / void；s0 = t0 之后第一条 tick 的 idx，s1 = t1 前最近一条；赢时余额 + (win_payout − commission)；Settled 行 open / close 与 s0 / s1 一致（实测 $5 @ 50.9¢ 赢：派彩 9.52、佣金 0.23、入账 9.29、pnl +4.29）。结算函数连跑两次，第二次零副作用。
 5. 暂停：`update arcade_params set num = 0 where key = 'live'` → 机柜几秒内 `TABLE PAUSED · The table is closed`、猞猁跑酷；改回 1 恢复。
-6. 横幅价格 / 报价与 `/arcade` 同一时刻一致。
+6. 横幅与 `/arcade` 读同一条指数：横幅每 2 秒拉一次、机柜大价跟展示线头走，所以同一时刻价差在十几美元、报价差零点几分之内都正常；30 秒之内要收敛到同一条 tick。
 7. 展示线：`document.querySelector('.arcade-root').__arcade.debug()` → 每张合约 `s0OnLine / s1OnLine` 为 true（线的首尾落在指数点上）。
 8. 场次：演示账号 `/portfolio?tab=settled` → Standard 里带 QUICK PLAY 小牌的行数 = `select count(*) from arcade_my_sessions()`（以该账号身份）；点一行 → 三卡数字与 `arcade_my_sessions` 同一行一致（`payout − staked = pnl(won + lost)`），ACTIVITY 条数 = 该场非 open 合约数；机柜里闲 30 分钟后再下一单 → toast `New session`、SESSION 归零；刷新机柜 → 最近 30 分钟内的合约复原成同一场。
 9. 未登录：头条 `AVAILABLE · SPOT —` + `→ Sign in`（手机 `SIGN IN`）；点 UP → 登录（手机底部抽屉）；登录后不误弹免责门（已接受过的账号）。点珠盘 / 大路任一格 → 白边 + 提示框写那格的时间段与涨跌。
 10. 桌面 `+ Deposit` → 站内 Deposit 弹窗、预选现货；`⇄ Transfer` → 预选转入现货；关掉后余额刷新。手机 `+` → `/deposit`。
-11. 手机 375：免责门、RULES、ROAD & STATS、登录、ⓘ、分享全部从底部升起；MY CALLS 筹码带不被裁切。
+11. 手机 375：免责门、RULES、ROAD & STATS、登录、分享都是底部抽屉；ⓘ 说明和路单格提示是贴底的说明框（抓手 + 通栏，不是 MobileDrawer 组件，点别处关）；MY CALLS 筹码带不被裁切。
 12. 券：连赢 3 张 → `position_vouchers` 多一张 $2（`source_arcade_call_id` = 第三张），券计量条 `+$2 voucher …` 8 秒；当天满 $10 后再连赢不再发、计量条变「今天满了」；刷新页面计量条先 `$— / $10 today` 再出真值，不出现 `$0`。
 13. 字典：`/style-guide` 交易页 + Portfolio 节点，跑 `scripts/sg-overflow-scan.js`，除 Radix sr-only「Close」外 0 命中。
 14. 下单编号：同一个 `client_id` 调两次 `arcade_place` → 第二次返回同一张单（`arcade_calls` 里只有一行）；`arcade_lookup(<id>)` 返回那张单，陌生 id 返回空。
@@ -677,3 +679,4 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 - 2026-11-04 James 第二轮：删除撤销（键、文案、后台接口一起关）、券计量条、01 一块屏；窄桌面不显示 `$5 SELECTED`；券计量条加载态；交付前冷读修订（四处文案、本文档按现状重写）。
 - 2026-11-05 · CPO 批冷读待批项全部落地（commit 见 git log）：下单编号 + `Checking your call…`（10）、断网态（11）、登录读取中态（12）、emoji → Lucide（17）、$2 券池档（5）、B1–B11；style-guide 补 AR-27 … AR-67；§5 不再有待定项；运营参数口径 = 走后台配置。
 - 2026-11-05（下午）· 第二次冷读修 24 处矛盾；CPO 批：60 分钟亏损熔断单独一套文案（`loss_hour`，AR-68 / AR-69，横幅第七条）；`▼ DN` 保留；`tick_max_age_ms` 指向风控文档。
+- 2026-11-05（晚）· 正式站冷读：修 4 个线上问题（刷新后 Settled 列表取错段 + 页签计数、断网时大价还在跳、暂停 / 断网时键上报价没立刻 `—`、海报金额千分位）；Portfolio 字典夹具改成 3% / $2–50 的数字；本文补 `settling`、手机两种空态、hover 预览线、COMBO 副行、横幅价差口径、CSS 大写、ⓘ 说明框形态。

@@ -51,7 +51,8 @@ if (typeof window !== "undefined") {
   });
 }
 
-const money = (n: number) => `${n < 0 ? "−" : "+"}$${Math.abs(n).toFixed(2)}`;
+// thousands separated like everywhere else on the site: +$1,234.56 (QA 2026-11-05)
+const money = (n: number) => `${n < 0 ? "−" : "+"}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /** the big number is 60px in the design; longer amounts step down so they never run under the lynx */
 const bigSize = (txt: string) => (txt.length <= 7 ? 60 : txt.length <= 9 ? 52 : 44);

@@ -1432,10 +1432,10 @@ const qpSessionWon: ArcadeSession = {
   best_run: 3,
   staked: 70,
   payout: 82.06,
-  fees: 0.08,
+  fees: 2.1, // 3% of $70 (QA 2026-11-05: the old 0.15% figures were still in these fixtures)
   commission: 0.55,
   pnl: 12.06,
-  biggest_win: 23.87,
+  biggest_win: 22.7, // $25 @ 49.6¢: payout 48.89 − commission 1.19 − 25
   min_stake: 5,
   max_stake: 25,
   active: false,
@@ -1453,14 +1453,14 @@ const qpSessionLost: ArcadeSession = {
   refunded: 0,
   cancelled: 0,
   best_run: 1,
-  staked: 500,
-  payout: 189.3,
-  fees: 0.5,
-  commission: 4.7,
-  pnl: -310.7,
-  biggest_win: 89.3,
-  min_stake: 100,
-  max_stake: 100,
+  staked: 250,
+  payout: 89.26,
+  fees: 7.5, // 3% of $250
+  commission: 2.07,
+  pnl: -160.74,
+  biggest_win: 39.26,
+  min_stake: 50,
+  max_stake: 50,
 };
 
 const qpSessionLive: ArcadeSession = {
@@ -1477,7 +1477,7 @@ const qpSessionLive: ArcadeSession = {
   best_run: 6,
   staked: 35,
   payout: 57.53,
-  fees: 0.04,
+  fees: 1.05, // 3% of $35
   commission: 1.2,
   pnl: 22.53,
   biggest_win: 4.1,
@@ -1486,19 +1486,20 @@ const qpSessionLive: ArcadeSession = {
   active: true,
 };
 
-const qpCall = (o: Partial<ArcadeCall> & { minsAgo: number; secs?: number }): ArcadeCall => {
-  const { minsAgo, secs = 0, ...rest } = o;
-  const t0 = new Date(Date.now() - minsAgo * 60_000 - secs * 1000);
+// `base` = the session's ended_at, so ACTIVITY times fall inside the session span (QA 2026-11-05)
+const qpCall = (o: Partial<ArcadeCall> & { minsAgo: number; secs?: number; base?: string }): ArcadeCall => {
+  const { minsAgo, secs = 0, base, ...rest } = o;
+  const t0 = new Date((base ? new Date(base).getTime() : Date.now()) - minsAgo * 60_000 - secs * 1000);
   return {
     id: `qp-${minsAgo}-${secs}`,
     user_id: "u",
     side: "up",
     gross: 5,
-    fee: 0.01,
-    net: 4.99,
+    fee: 0.15,
+    net: 4.85,
     p: 0.509,
     p_up: 0.509,
-    win_payout: 9.8,
+    win_payout: 9.52,
     quote_ts: t0.toISOString(),
     quote_idx: 81155.3,
     t0: t0.toISOString(),
@@ -1507,7 +1508,7 @@ const qpCall = (o: Partial<ArcadeCall> & { minsAgo: number; secs?: number }): Ar
     s1: 81194.73,
     status: "won",
     pnl: 4.29,
-    commission: 0.24,
+    commission: 0.23,
     cancel_fee: null,
     settled_at: new Date(t0.getTime() + 32_000).toISOString(),
     created_at: t0.toISOString(),
@@ -1515,21 +1516,25 @@ const qpCall = (o: Partial<ArcadeCall> & { minsAgo: number; secs?: number }): Ar
   };
 };
 
+const wonEnd = qpSessionWon.ended_at;
 const qpCallsWon: ArcadeCall[] = [
-  qpCall({ minsAgo: 1, secs: 2 }),
-  qpCall({ minsAgo: 1, secs: 40, side: "down", gross: 10, p: 0.472, status: "lost", pnl: -10, commission: null }),
-  qpCall({ minsAgo: 2, secs: 30, p: 0.52, status: "void", pnl: 0, commission: null }),
-  qpCall({ minsAgo: 3, secs: 10, gross: 25, p: 0.496, status: "won", pnl: 23.87, commission: 1.26 }),
-  qpCall({ minsAgo: 3, secs: 45, side: "down", p: 0.488, status: "cancelled", pnl: -0.01, cancel_fee: 0.01, commission: null }),
-  qpCall({ minsAgo: 4, secs: 20, p: 0.502, status: "lost", pnl: -5, commission: null }),
+  qpCall({ base: wonEnd, minsAgo: 0, secs: 32 }),
+  qpCall({ base: wonEnd, minsAgo: 1, secs: 10, side: "down", gross: 10, fee: 0.3, net: 9.7, p: 0.472, status: "lost", pnl: -10, commission: null }),
+  qpCall({ base: wonEnd, minsAgo: 2, secs: 0, p: 0.52, status: "void", pnl: 0, commission: null }),
+  qpCall({ base: wonEnd, minsAgo: 2, secs: 40, gross: 25, p: 0.496, fee: 0.75, net: 24.25, win_payout: 48.89, status: "won", pnl: 22.7, commission: 1.19 }),
+  qpCall({ base: wonEnd, minsAgo: 3, secs: 15, side: "down", p: 0.488, status: "cancelled", pnl: -0.0075, cancel_fee: 0.0075, commission: null }),
+  qpCall({ base: wonEnd, minsAgo: 3, secs: 50, p: 0.502, status: "lost", pnl: -5, commission: null }),
 ];
 
+// five $50 chips (the biggest chip; $100 was retired 2026-11-02): 1 won @ 53.1¢ → payout 91.33, commission 2.07, +39.26
+const big = { gross: 50, fee: 1.5, net: 48.5 };
+const lostEnd = qpSessionLost.ended_at;
 const qpCallsLost: ArcadeCall[] = [
-  qpCall({ minsAgo: 1, secs: 5, gross: 100, p: 0.468, side: "down", status: "lost", pnl: -100, commission: null }),
-  qpCall({ minsAgo: 2, secs: 0, gross: 100, p: 0.531, status: "won", pnl: 89.3, commission: 4.7 }),
-  qpCall({ minsAgo: 3, secs: 15, gross: 100, p: 0.512, status: "lost", pnl: -100, commission: null }),
-  qpCall({ minsAgo: 4, secs: 30, gross: 100, p: 0.49, side: "down", status: "lost", pnl: -100, commission: null }),
-  qpCall({ minsAgo: 5, secs: 45, gross: 100, p: 0.503, status: "lost", pnl: -100, commission: null }),
+  qpCall({ base: lostEnd, minsAgo: 0, secs: 32, ...big, p: 0.468, side: "down", status: "lost", pnl: -50, commission: null }),
+  qpCall({ base: lostEnd, minsAgo: 4, secs: 0, ...big, p: 0.531, win_payout: 91.33, status: "won", pnl: 39.26, commission: 2.07 }),
+  qpCall({ base: lostEnd, minsAgo: 9, secs: 15, ...big, p: 0.512, status: "lost", pnl: -50, commission: null }),
+  qpCall({ base: lostEnd, minsAgo: 15, secs: 30, ...big, p: 0.49, side: "down", status: "lost", pnl: -50, commission: null }),
+  qpCall({ base: lostEnd, minsAgo: 21, secs: 45, ...big, p: 0.503, status: "lost", pnl: -50, commission: null }),
 ];
 
 const qpGroups: LiteMonthGroup[] = groupByMonth([

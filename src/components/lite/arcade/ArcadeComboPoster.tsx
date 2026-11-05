@@ -44,7 +44,7 @@ if (typeof window !== "undefined") {
   });
 }
 
-const money = (n: number) => `${n < 0 ? "−" : "+"}$${Math.abs(n).toFixed(2)}`;
+const money = (n: number) => `${n < 0 ? "−" : "+"}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /** ×3 ON FIRE · ×5 UNSTOPPABLE · ×8 LEGENDARY — the cabinet's tier words */
 const tierWord = (n: number) => (n >= 8 ? "LEGENDARY" : n >= 5 ? "UNSTOPPABLE" : "ON FIRE");

@@ -42,7 +42,7 @@ export const ArcadeRunShareSheet = ({
   // the Portfolio session page opens this too, where the cabinet's pixel font isn't loaded yet
   useEffect(() => ensureArcadeFonts(), []);
   const isWin = run.pnl >= 0;
-  const amount = `$${Math.abs(run.pnl).toFixed(2)}`;
+  const amount = `$${Math.abs(run.pnl).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const shareText = isWin
     ? `Called Bitcoin up or down for ${run.minutes} min on OmenX Quick Play — ${run.won} of ${run.won + run.lost} right, +${amount} ⚡`
     : `Called Bitcoin up or down for ${run.minutes} min on OmenX Quick Play — ${run.won} of ${run.won + run.lost} right, −${amount}. We go again 😅`;
@@ -87,7 +87,7 @@ export const ArcadeComboShareCard = ({ combo, onClose }: { combo: ArcadeComboSha
   const { referralCode } = useReferral();
   const { username, avatarUrl, isLoading } = useUserProfile();
   if (!combo || !user) return null;
-  const shareText = `${combo.n} Bitcoin calls right in a row on OmenX Quick Play — COMBO ×${combo.n}, +$${Math.abs(combo.pnl).toFixed(2)} 🔥`;
+  const shareText = `${combo.n} Bitcoin calls right in a row on OmenX Quick Play — COMBO ×${combo.n}, +$${Math.abs(combo.pnl).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 🔥`;
   return (
     <ShareModal
       isOpen

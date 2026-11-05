@@ -339,6 +339,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     chip: 5,
     calls: [] as Call[],
     done: [] as Call[],
+    /** settled (won / lost / void) calls this session — the Settled tab's number; the list itself keeps the latest 30 */
+    doneTotal: 0,
     bursts: [] as any[],
     feed: [] as ArcadeFeedRow[],
     roadRows: [] as RoadSlot[],
@@ -936,6 +938,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     S.bigWin = 0;
     S.sesStakes = [];
     S.done = [];
+    S.doneTotal = 0;
     S.played = false;
     S.runPnl = 0;
     S.runStake = 0;
@@ -968,6 +971,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (c.status === "open") S.calls.push(c);
       else if (c.status !== "cancelled") S.done.push(c);
     });
+    // the Settled list is newest-first and keeps 30; the tab's number is the whole session (QA 2026-11-05:
+    // a reload used to show the oldest 30 and a count that jumped 57 ↔ 30 at the next reconcile)
+    S.done.sort((a: Call, b: Call) => (b.settledAt || b.t1) - (a.settledAt || a.t1));
+    S.doneTotal = S.done.length;
+    if (S.done.length > 30) S.done.length = 30;
     const settled = ses.filter((r) => r.status === "won" || r.status === "lost");
     S.ses = settled.reduce((a, r) => a + (r.pnl ?? 0), 0);
     S.won = settled.filter((r) => r.status === "won").length;
@@ -1047,6 +1055,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     comboUpdate(status);
     Lx.react(won ? "win" : status === "lost" ? "lose" : "bet");
     S.done.unshift(c);
+    S.doneTotal++;
     if (S.done.length > 30) S.done.pop();
     S.bursts.push({ t: perf(), c });
     render();
@@ -1085,6 +1094,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
             // settled while we were away: count it, no fireworks
             real.tDone = now();
             S.done.unshift(real);
+            S.doneTotal++;
             if (real.status !== "void" && real.status !== "cancelled") {
               S.ses += real.pnl;
               if (real.status === "won") S.won++;
@@ -1368,10 +1378,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         b = ticks[k + 1];
       if (a.t >= from) out.push({ t: a.t, p: a.p });
       if (b && b.t - a.t > 3500) continue; // a gap in the index stays a gap
-      const end = b ? b.t : tNow;
+      // past the newest tick the texture runs on for at most the same 3.5 s, then the head stands still
+      // (QA 2026-11-05: offline, the big price kept wandering ±$100 on texture alone)
+      const end = b ? b.t : Math.min(tNow, a.t + 3500);
       const n = Math.max(1, Math.round((end - a.t) / TEX_STEP));
       const w = texWalk(a.t, n, a.p);
-      const last = b ? n - 1 : Math.min(n, Math.floor((tNow - a.t) / TEX_STEP));
+      const last = b ? n - 1 : Math.min(n, Math.floor((end - a.t) / TEX_STEP));
       for (let i = 1; i <= last; i++) {
         const t = a.t + i * TEX_STEP;
         if (t < from) continue;
@@ -1934,7 +1946,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       }
       key.classList.toggle("off", !!S.paused || S.offline || !liveQuote());
       const p = side === "u" ? S.pUp : S.pUp == null ? null : 1 - S.pUp;
-      $(side === "u" ? "#btncU" : "#btncD").textContent = p == null || !liveQuote() ? "—" : cents(p);
+      $(side === "u" ? "#btncU" : "#btncD").textContent = p == null || !liveQuote() || S.paused || S.offline ? "—" : cents(p);
     }
   }
   function renderPays() {
@@ -2045,7 +2057,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       $$("#dMineWrap .tab").forEach((b) => b.classList.toggle("on", b.dataset.tab === railTab));
       dOpenN.textContent = String(open.length);
       $("#dOpenSum").textContent = whole(open.reduce((a: number, c: Call) => a + c.gross, 0)) + " in play";
-      $("#dDoneN").textContent = String(S.done.length);
+      $("#dDoneN").textContent = String(Math.max(S.doneTotal, S.done.length));
       $("#dDoneHint").hidden = !!S.done.length;
       $("#dPlink").hidden = !S.done.length;
       const list = $("#dList");
@@ -3191,7 +3203,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         const ser = texSeries(now() - 1000);
         if (ser.length) target = ser[ser.length - 1].p;
       }
-      if (target) S.disp += (target - S.disp) * Math.min(1, dt / (texOn() ? 60 : liveOn() ? 120 : 420)); // ease the head toward the latest print
+      // offline the head freezes where it is (item 11.2: the last price just stands still)
+      if (target && !S.offline) S.disp += (target - S.disp) * Math.min(1, dt / (texOn() ? 60 : liveOn() ? 120 : 420)); // ease the head toward the latest print
     }
     draw(cv);
   });
@@ -3282,7 +3295,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     if (FX.ack === false) openGate(true);
     if (FX.checking) {
       const c = S.calls.filter((x: Call) => x.status === "open").sort((a: Call, b: Call) => b.t0 - a.t0)[0];
-      if (c) c.checking = true;
+      if (c) {
+        c.checking = true;
+        c.s0 = null; // the server hasn't taken it yet, so there is no open price
+      }
     }
     renderRoads();
     slotLoop();
