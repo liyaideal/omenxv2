@@ -53,7 +53,7 @@ export const quickPlayRow = (s: ArcadeSession): LiteSettledRow => {
     segment: "standard",
     closedAt: s.last_settled_at ?? s.ended_at,
     isSeries: false,
-    won: s.pnl > 0,
+    won: s.pnl >= 0, // break-even reads as a win everywhere (poster, detail, this list) — B7, 2026-11-05
     kind: "quickplay",
     sessionKey: s.session_key,
     mobile: { title: arcadeSessionSpan(s.started_at, s.ended_at), metaParts: ["BTC", ...meta] },

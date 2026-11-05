@@ -12,7 +12,7 @@ import { KpiCard, KpiGrid, GREEN, RED, money, signedMoney } from "./parts";
 import { DetailCard, DetailTitleRow, Row } from "./SettlementDetailView";
 import { QuickPlayTag } from "./QuickPlayTag";
 import { settledDayLabel, settledStampLabel } from "@/lib/settleLabel";
-import { ARCADE_SESSION_NOTE, arcadeSessionSpan } from "@/lib/arcade/session";
+import { ARCADE_SESSION_NOTE, arcadeBestRunLabel, arcadeSessionSpan } from "@/lib/arcade/session";
 import type { QuickPlayCallVM, QuickPlaySessionVM } from "@/lib/arcade/quickPlayPortfolio";
 
 export interface QuickPlaySessionActions {
@@ -44,7 +44,7 @@ const resultSub = (vm: QuickPlaySessionVM) => {
 };
 
 const recordLine = (vm: QuickPlaySessionVM) => `${vm.won} won · ${vm.lost} lost`;
-const bestRunLine = (vm: QuickPlaySessionVM) => (vm.bestRun >= 2 ? `${vm.bestRun} in a row` : vm.bestRun === 1 ? "1" : "—");
+const bestRunLine = (vm: QuickPlaySessionVM) => arcadeBestRunLabel(vm.bestRun);
 const extrasLine = (vm: QuickPlaySessionVM) =>
   [vm.refunded ? `${vm.refunded} refunded` : "", vm.cancelled ? `${vm.cancelled} cancelled` : ""].filter(Boolean).join(" · ");
 

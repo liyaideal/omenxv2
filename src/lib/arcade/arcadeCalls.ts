@@ -47,6 +47,8 @@ export interface ArcadeTableNow {
   ack: string | null;
   /** USD of combo vouchers this account got today (UTC) — every 3 wins in a row = $2, max $10 (CPO 2026-11-02) */
   combo_today: number;
+  /** combo vouchers left in today's site-wide $2 pool (item 5, 2026-11-05); 0 = all gone until UTC midnight */
+  combo_pool_left: number;
 }
 
 export interface ArcadeCall {
@@ -93,17 +95,27 @@ export const ARCADE_DURATION_MS = 30000;
 export const ARCADE_CANCEL_MS = 2000;
 export const ARCADE_MAX_OPEN = 500;
 
-const roundHalfUpCent = (n: number) => Math.floor(n * 100 + 0.5) / 100;
-export const callFee = (gross: number) => roundHalfUpCent(gross * ARCADE_FEE_RATE_V2);
-export const callNet = (gross: number) => Math.round((gross - callFee(gross)) * 100) / 100;
-export const callPayout = (gross: number, p: number) => Math.floor((callNet(gross) / p) * 100) / 100;
-/** what lands in the balance if the call wins, net of the 5 % commission on profit */
-export const callCredit = (gross: number, p: number) => {
-  const pay = callPayout(gross, p);
-  return Math.round((pay - roundHalfUpCent((pay - gross) * ARCADE_COMMISSION_RATE)) * 100) / 100;
+// All of this is done in whole cents, the way the server does it in exact decimals
+// (arcade_place / arcade_settle). Floating point was off by a cent now and then —
+// $2 @ 40.0¢: 1.94 / 0.4 → 4.8499999… → floor → $4.84 on the key, $4.85 paid (B1, 2026-11-05).
+const toCents = (n: number) => Math.round(n * 100);
+/** round_half_up to a cent of (cents × rate), rate given in basis points /10000 */
+const pctCents = (cents: number, bps: number) => Math.floor((cents * bps) / 10000 + 0.5);
+const feeCents = (gross: number) => pctCents(toCents(gross), ARCADE_FEE_RATE_V2 * 10000);
+const netCents = (gross: number) => toCents(gross) - feeCents(gross);
+/** p is numeric(4,3) on the server, so p × 1000 is a whole number */
+const payCents = (gross: number, p: number) => Math.floor((netCents(gross) * 1000) / Math.round(p * 1000));
+const creditCents = (gross: number, p: number) => {
+  const pay = payCents(gross, p);
+  return pay - pctCents(pay - toCents(gross), ARCADE_COMMISSION_RATE * 10000);
 };
+export const callFee = (gross: number) => feeCents(gross) / 100;
+export const callNet = (gross: number) => netCents(gross) / 100;
+export const callPayout = (gross: number, p: number) => payCents(gross, p) / 100;
+/** what lands in the balance if the call wins, net of the 5 % commission on profit */
+export const callCredit = (gross: number, p: number) => creditCents(gross, p) / 100;
 /** the +$ shown on the key: profit after commission */
-export const callNetWin = (gross: number, p: number) => Math.round((callCredit(gross, p) - gross) * 100) / 100;
+export const callNetWin = (gross: number, p: number) => (creditCents(gross, p) - toCents(gross)) / 100;
 /** history only (undo removed 2026-11-04): the old 2-second undo fee, charged and shown to 4 decimals: $5 → $0.0075, $2 → $0.003 (CPO 2026-11-02) */
 export const cancelFee = (gross: number) => Math.floor(gross * ARCADE_CANCEL_FEE_RATE * 10000 + 0.5) / 10000;
 /** "$0.0075" — 4 decimals, trailing zeros dropped */
@@ -144,6 +156,7 @@ export async function fetchTableNow(): Promise<ArcadeTableNow> {
     my_open: num(d.my_open),
     ack: d.ack ?? null,
     combo_today: num(d.combo_today),
+    combo_pool_left: d.combo_pool_left == null ? Number.POSITIVE_INFINITY : num(d.combo_pool_left),
   };
 }
 
@@ -172,9 +185,32 @@ export async function fetchTicksAfter(afterTs: string): Promise<ArcadeTick[]> {
   return (data || []).map((t: any) => ({ ...t, idx: numOrNull(t.idx), p_up: numOrNull(t.p_up) }));
 }
 
-export async function placeCall(side: CallSide, gross: number, quoteTs: string): Promise<ArcadeCall & { balance: number }> {
-  const { data, error } = await db().rpc("arcade_place", { p_side: side, p_gross: gross, p_quote_ts: quoteTs });
-  if (error) throw new Error(cleanErr(error.message));
+/** A place() failure the server never saw (no response / connection dropped) — the chip may still have landed. */
+export class ArcadeNetworkError extends Error {
+  network = true as const;
+}
+const isNetworkFailure = (error: any) =>
+  // PostgREST / our RAISE come back with a code (P0001, 42501…) and a status; a dropped connection has neither
+  !error?.code && (!error?.status || error.status === 0 || error.status >= 502);
+
+/**
+ * One tap = one chip. `clientId` is the tap's own id (item 10, 2026-11-05): the server
+ * takes a given (user, clientId) once, so a retry or a second send never makes a second call.
+ */
+export async function placeCall(side: CallSide, gross: number, quoteTs: string, clientId?: string): Promise<ArcadeCall & { balance: number }> {
+  const { data, error } = await db().rpc("arcade_place", { p_side: side, p_gross: gross, p_quote_ts: quoteTs, p_client_id: clientId ?? null });
+  if (error) {
+    if (isNetworkFailure(error)) throw new ArcadeNetworkError(cleanErr(error.message));
+    throw new Error(cleanErr(error.message));
+  }
+  return { ...normCall(data), balance: num(data.balance) };
+}
+
+/** "did my tap go through?" — the call with this clientId, if the server has it (own calls only) */
+export async function lookupCall(clientId: string): Promise<(ArcadeCall & { balance: number }) | null> {
+  const { data, error } = await db().rpc("arcade_lookup", { p_client_id: clientId });
+  if (error) throw error;
+  if (!data || !data.id) return null;
   return { ...normCall(data), balance: num(data.balance) };
 }
 

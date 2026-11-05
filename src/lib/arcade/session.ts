@@ -36,3 +36,6 @@ export const arcadeSessionSpan = (startedAtIso: string, endedAtIso: string): str
 /** Whole minutes between first and last call, never below 1. */
 export const arcadeSessionMinutes = (startedAtIso: string, endedAtIso: string) =>
   Math.max(1, Math.round((new Date(endedAtIso).getTime() - new Date(startedAtIso).getTime()) / 60_000));
+
+/** "4 in a row" · a single win is just "1" · no win at all is "—" (poster and Portfolio say the same thing — B8, 2026-11-05) */
+export const arcadeBestRunLabel = (n: number) => (n >= 2 ? `${n} in a row` : n === 1 ? "1" : "—");

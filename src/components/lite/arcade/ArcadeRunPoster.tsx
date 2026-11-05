@@ -2,7 +2,7 @@
 // Quick Play run poster — the designer's handheld (Figma omenx_lite 1283:1437
 // desktop · 1283:1841 / 1283:2110 phone, CPO 2026-11-02 "用设计师的最新设计").
 // A pixel handheld: shell gradient → bezel → screen (night sky + hills) holding
-// avatar + "⚡ N of M right" badge, QUICK PLAY chip, PROFIT / LOST in Jersey 10,
+// avatar + "N of M right" badge with a Lucide zap / trending-down (item 17: no emoji on product surfaces), QUICK PLAY chip, PROFIT / LOST in Jersey 10,
 // the plain-words line, Best run / Biggest win cells and the coin-shower /
 // crying lynx; under the screen a d-pad, A/B buttons and a power LED; footer =
 // referral code + OmenX wordmark + "Pick UP or DOWN · from $2" + QR.
@@ -12,6 +12,7 @@
 // matches the preview.
 // ============================================================
 import { forwardRef } from "react";
+import { TrendingDown, Zap } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { omenxLogoSolid as omenxLogo } from "@/components/Logo";
 import screenWin from "@/assets/arcade/poster/screen-win.png";
@@ -23,6 +24,7 @@ import abLose from "@/assets/arcade/poster/ab-lose.svg";
 import ledWin from "@/assets/arcade/poster/led-win.svg";
 import ledLose from "@/assets/arcade/poster/led-lose.svg";
 import { SITE_URL } from "@/lib/site";
+import { arcadeBestRunLabel } from "@/lib/arcade/session";
 import type { ArcadeRunShare } from "@/pages/arcade/arcadeEngine";
 
 export interface ArcadeRunPosterProps {
@@ -37,8 +39,8 @@ const SANS = "'Archivo', system-ui, -apple-system, sans-serif";
 const CYAN = "#33D6FF";
 
 const T = {
-  win: { accent: "#CFFF4A", glow: "rgba(207,255,74,0.45)", badgeInk: "#0B1206", screen: screenWin, lynx: lynxWin, lynxBox: { left: 196, top: 75, width: 116, height: 130 }, ab: abWin, led: ledWin, label: "Profit", emoji: "⚡" },
-  lose: { accent: "#FF8B80", glow: "rgba(255,139,128,0.45)", badgeInk: "#2A0805", screen: screenLose, lynx: lynxLose, lynxBox: { left: 212, top: 92, width: 95, height: 106 }, ab: abLose, led: ledLose, label: "Lost", emoji: "📉" },
+  win: { accent: "#CFFF4A", glow: "rgba(207,255,74,0.45)", badgeInk: "#0B1206", screen: screenWin, lynx: lynxWin, lynxBox: { left: 196, top: 75, width: 116, height: 130 }, ab: abWin, led: ledWin, label: "Profit", Icon: Zap },
+  lose: { accent: "#FF8B80", glow: "rgba(255,139,128,0.45)", badgeInk: "#2A0805", screen: screenLose, lynx: lynxLose, lynxBox: { left: 212, top: 92, width: 95, height: 106 }, ab: abLose, led: ledLose, label: "Lost", Icon: TrendingDown },
 };
 
 // Decode the art before the first export so html-to-image never grabs a blank.
@@ -117,9 +119,10 @@ export const ArcadeRunPoster = forwardRef<HTMLDivElement, ArcadeRunPosterProps>(
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px", minWidth: 0 }}>
                   <div style={{ fontSize: "14px", fontWeight: 700, lineHeight: "17px", color: "#ffffff", maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{username}</div>
                   <div style={{ display: "inline-flex", alignItems: "center", padding: "3px 7px 2px", borderRadius: "10px", background: t.accent, color: t.badgeInk, fontSize: "11px", lineHeight: "13px", whiteSpace: "nowrap" }}>
-                    <span style={{ fontWeight: 400 }}>{t.emoji}</span>
+                    {/* Lucide zap / trending-down in the badge's ink, square caps like the cabinet (item 17) */}
+                    <t.Icon size={12} strokeWidth={2.4} strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true" style={{ display: "block", flexShrink: 0, marginRight: "4px" }} />
                     <span style={{ fontWeight: 700 }}>
-                      &nbsp;{run.won} of {total} right
+                      {run.won} of {total} right
                     </span>
                   </div>
                 </div>
@@ -148,7 +151,7 @@ export const ArcadeRunPoster = forwardRef<HTMLDivElement, ArcadeRunPosterProps>(
             {/* two cells */}
             <div style={{ paddingTop: "14px", display: "flex", gap: "8px" }}>
               {[
-                { label: "Best run", value: `${run.bestRun} in a row`, color: t.accent },
+                { label: "Best run", value: arcadeBestRunLabel(run.bestRun), color: t.accent },
                 { label: "Biggest win", value: run.biggestWin > 0 ? money(run.biggestWin) : "—", color: "#ffffff" },
               ].map((cell) => (
                 <div

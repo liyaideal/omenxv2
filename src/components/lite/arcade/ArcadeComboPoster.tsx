@@ -8,6 +8,7 @@
 // Fixed 400px, 100% inline styles — html-to-image export (skipFonts) needs it.
 // ============================================================
 import { forwardRef } from "react";
+import { Flame } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { omenxLogoSolid as omenxLogo } from "@/components/Logo";
 import artWin from "@/assets/arcade/share-win.png";
@@ -96,7 +97,8 @@ export const ArcadeComboPoster = forwardRef<HTMLDivElement, ArcadeComboPosterPro
             <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
               <div style={{ fontSize: "16px", fontWeight: 700, lineHeight: "20px", color: "#ffffff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{username}</div>
               <div style={{ alignSelf: "flex-start", marginTop: "6px", display: "inline-flex", alignItems: "center", height: "24px", padding: "0 10px", borderRadius: "9999px", background: t.badgeBg, color: "#0a0d16", fontSize: "12px", fontWeight: 700, whiteSpace: "nowrap" }}>
-                🔥 {combo.n} in a row
+                <Flame size={13} strokeWidth={2.4} strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true" style={{ display: "block", flexShrink: 0, marginRight: "4px" }} />
+                {combo.n} in a row
               </div>
             </div>
           </div>

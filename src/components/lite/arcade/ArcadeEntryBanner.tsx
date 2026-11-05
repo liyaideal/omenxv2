@@ -21,9 +21,23 @@ import "./arcade-entry.css";
 const money = (n: number) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const SLOT_MS = 30000;
 
+/** why the strip is dark — the table's paused_reason, or the index itself, or this browser's connection (B3, 2026-11-05) */
+export type ArcadeBannerOff = "index" | "off" | "full" | "breaker" | "loss" | "offline";
+/** the red line under the price, one per reason */
+export const ARCADE_BANNER_OFF_COPY: Record<ArcadeBannerOff, string> = {
+  index: "INDEX INVALID · WAITING FOR THE EXCHANGES",
+  off: "TABLE CLOSED",
+  full: "TABLE FULL · ROOM OPENS AS CALLS SETTLE",
+  breaker: "PAUSED · BTC IS MOVING TOO FAST",
+  loss: "PAUSED · BACK TOMORROW",
+  offline: "CONNECTION LOST · RECONNECTING…",
+};
+
 interface Tick {
   /** the index is valid and quoting */
   live: boolean;
+  /** set when !live */
+  reason?: ArcadeBannerOff;
   /** the index now */
   price: number;
   /** the index 30 s ago (what a call placed then would be measured against) */
@@ -36,9 +50,10 @@ interface Tick {
 
 /** Live readout of the BTC table — polls arcade_table_now every 2 s and keeps the last 45 s of index ticks. */
 export const useArcadeTicker = (enabled = true): Tick => {
-  const [tick, setTick] = useState<Tick>({ live: false, price: 0, open: 0, up: 50, pts: [] });
+  const [tick, setTick] = useState<Tick>({ live: false, reason: "index", price: 0, open: 0, up: 50, pts: [] });
   const ptsRef = useRef<{ t: number; p: number }[]>([]);
   const lastTs = useRef<string | null>(null);
+  const misses = useRef(0);
   useEffect(() => {
     if (!enabled) return;
     let alive = true;
@@ -58,10 +73,15 @@ export const useArcadeTicker = (enabled = true): Tick => {
         const nowMs = Date.now();
         const old = pts.find((x) => x.t >= nowMs - 31000) || pts[0];
         const t = d.tick;
+        misses.current = 0;
         const live = !!(t && t.valid && t.p_up != null && !d.state?.paused_reason);
-        setTick({ live, price: t && t.idx != null ? t.idx : pts.length ? pts[pts.length - 1].p : 0, open: old ? old.p : 0, up: t && t.p_up != null ? Math.round(t.p_up * 1000) / 10 : 50, pts: pts.map((x) => x.p) });
+        const reason: ArcadeBannerOff | undefined = live ? undefined : d.state?.paused_reason ?? "index";
+        setTick({ live, reason, price: t && t.idx != null ? t.idx : pts.length ? pts[pts.length - 1].p : 0, open: old ? old.p : 0, up: t && t.p_up != null ? Math.round(t.p_up * 1000) / 10 : 50, pts: pts.map((x) => x.p) });
       } catch (e) {
-        /* keep the last readout */
+        /* keep the last readout; three misses in a row (or the browser saying so) = this connection, not the table */
+        misses.current++;
+        if (misses.current >= 3 || (typeof navigator !== "undefined" && navigator.onLine === false))
+          setTick((x) => (x.live || x.reason !== "offline" ? { ...x, live: false, reason: "offline" } : x));
       }
     };
     void fetchTicks(45)
@@ -511,7 +531,7 @@ export const ArcadeEntryBanner = ({ isMobile, fixture }: { isMobile: boolean; fi
               {money(t.open)} · <span className={up ? "u" : "d"}>{up ? "▲ +" : "▼ −"}{money(Math.abs(chg))}</span> · last 30s
             </>
           ) : (
-            <span className="x">INDEX INVALID · WAITING FOR THE EXCHANGES</span>
+            <span className="x">{ARCADE_BANNER_OFF_COPY[t.reason ?? "index"]}</span>
           )}
         </span>
       </span>

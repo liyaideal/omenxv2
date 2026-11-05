@@ -42,6 +42,17 @@ const MEGA = (id: string) => `<div class="mega" id="${id}"><div><div class="t"><
 const DIR = (side: "u" | "d", prefix: string) =>
   `<button class="dir ${side}" id="${prefix}${side === "u" ? "U" : "D"}" data-side="${side}"><span class="side">${side === "u" ? "▲ UP" : "▼ DOWN"}</span><span class="mid"><span class="stack"></span><span class="ringwrap"></span></span><span class="cents" id="${prefix}c${side === "u" ? "U" : "D"}">—</span><span class="pays" id="${prefix}p${side === "u" ? "U" : "D"}"></span></button>`;
 
+/* gate icons = Lucide line icons drawn with square caps so they sit with the pixel chrome (item 17, 2026-11-05):
+   timer / lock / percent / triangle-alert — no emoji on product surfaces (CLAUDE.md red line 8) */
+const GI = (inner: string) =>
+  `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true">${inner}</svg>`;
+const GATE_ICON = {
+  timer: GI('<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>'),
+  lock: GI('<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'),
+  percent: GI('<line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>'),
+  alert: GI('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>'),
+};
+
 export const ARCADE_OVERLAYS = `<canvas id="fx" aria-hidden="true"></canvas>
 <div class="tip" id="tip" role="tooltip" hidden></div>
 <div class="tipbox" id="qtip" role="tooltip" hidden></div>
@@ -50,10 +61,10 @@ export const ARCADE_OVERLAYS = `<canvas id="fx" aria-hidden="true"></canvas>
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateT" hidden><div class="gbox steel rivets">
   <div class="gh scr"><span class="tag" id="gateT">BEFORE YOU PLAY</span><span class="sub">BTC · 30-second calls</span></div>
   <ul class="gl scr">
-    <li><i>⏱</i><span><b>Each chip = one 30-second call.</b> Up or Down vs the price right after we take it.</span></li>
-    <li><i>🔒</i><span><b>Locked once you tap.</b> No undo, no cash-out.</span></li>
-    <li><i>%</i><span><b>3% in · 5% of profit out.</b> Ties refund in full.</span></li>
-    <li><i>⚠</i><span><b>High risk.</b> $2–50 a call · $500 open max.</span></li>
+    <li><i>${GATE_ICON.timer}</i><span><b>Each chip = one 30-second call.</b> Up or Down vs the price right after we take it.</span></li>
+    <li><i>${GATE_ICON.lock}</i><span><b>Locked once you tap.</b> No undo, no cash-out.</span></li>
+    <li><i>${GATE_ICON.percent}</i><span><b>3% in · 5% of profit out.</b> Ties refund in full.</span></li>
+    <li><i>${GATE_ICON.alert}</i><span><b>High risk.</b> $2–50 a call · $500 open max.</span></li>
   </ul>
   <button class="gbtn" id="gateGo">I GET IT · START PLAYING</button>
   <a href="#" class="gmore" id="gateRules">How the price and odds are made →</a>
@@ -108,7 +119,7 @@ export const ARCADE_DESKTOP = `<main>
       <div class="r2">
         <div class="feedplate steel rivets"><div class="feed scr crt">
           <div class="feed-head"><div class="titles"><span class="tag">02 / LIVE FEED</span><span class="sub">WHAT'S HAPPENING</span></div><div class="pricebox"><span class="lbl">BTC Index</span><div class="price"><span id="price">$—</span><span class="parr" id="dArr"></span></div><div class="srcA" id="srcA"><span class="k">from</span><span>Binance <b id="s1">—</b></span><span class="dot">·</span><span>Hyperliquid <b id="s2">—</b></span><span class="dot">·</span><span>Coinbase <b id="s3">—</b></span></div><span class="chg30" id="d30"></span></div>${COMBO("dCombo", "⇪ SHARE")}<div class="lbl" id="dNext">NEXT SETTLE · —</div></div>
-          <div class="plot" id="plot"><canvas id="cv"></canvas><div class="ov" id="dOv"><div><div class="t" id="dOvT">TABLE PAUSED</div><div class="s" id="dOvS"></div><div class="h">Open calls keep running and settle as normal</div></div></div></div>
+          <div class="plot" id="plot"><canvas id="cv"></canvas><div class="ov" id="dOv"><div><div class="t" id="dOvT">TABLE PAUSED</div><div class="s" id="dOvS"></div><div class="h" id="dOvH">Open calls keep running and settle as normal</div></div></div></div>
           <div class="axis"><span>← last 45 seconds</span><span>each call settles 30s after you tap →</span></div>${MEGA("dMega")}
         </div></div>
         <div class="rcol">

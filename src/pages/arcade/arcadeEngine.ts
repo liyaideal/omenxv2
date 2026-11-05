@@ -49,6 +49,7 @@ import {
   fetchTableNow,
   fetchTicks,
   fetchTicksAfter,
+  lookupCall,
   placeCall,
   roadCells,
   settleMine,
@@ -71,7 +72,9 @@ export interface ArcadeData {
   ticks: (seconds: number) => Promise<ArcadeTick[]>;
   ticksAfter: (afterTs: string) => Promise<ArcadeTick[]>;
   road: (slots: number) => Promise<RoadSlot[]>;
-  place: (side: "up" | "down", gross: number, quoteTs: string) => Promise<ArcadeCall & { balance: number }>;
+  place: (side: "up" | "down", gross: number, quoteTs: string, clientId?: string) => Promise<ArcadeCall & { balance: number }>;
+  /** did the tap with this id land? (item 10) */
+  lookup: (clientId: string) => Promise<(ArcadeCall & { balance: number }) | null>;
   settleMine: () => Promise<{ id: string; status: string; pnl: number; s0: number | null; s1: number | null }[]>;
   myCalls: (since: string | null, limit?: number) => Promise<ArcadeCall[]>;
   feed: () => Promise<ArcadeFeedRow[]>;
@@ -84,6 +87,7 @@ export const realData: ArcadeData = {
   ticksAfter: fetchTicksAfter,
   road: fetchRoad,
   place: placeCall,
+  lookup: lookupCall,
   settleMine,
   myCalls: (since, limit) => fetchMyCalls(since, limit),
   feed: fetchTableFeed,
@@ -92,13 +96,14 @@ export const realData: ArcadeData = {
 
 /** style-guide stand-in: nothing leaves the page */
 const previewData: ArcadeData = {
-  tableNow: async () => ({ tick: null, state: null, params: {}, now: new Date().toISOString(), my_open: 0, ack: null, combo_today: 0 }),
+  tableNow: async () => ({ tick: null, state: null, params: {}, now: new Date().toISOString(), my_open: 0, ack: null, combo_today: 0, combo_pool_left: 2000 }),
   ticks: async () => [],
   ticksAfter: async () => [],
   road: async () => [],
   place: async () => {
     throw new Error("Preview only · play it on /arcade");
   },
+  lookup: async () => null,
   settleMine: async () => [],
   myCalls: async () => [],
   feed: async () => [],
@@ -108,6 +113,8 @@ const previewData: ArcadeData = {
 export interface ArcadeApi {
   isMobile: boolean;
   userId: string | null;
+  /** false while the site is still reading who is signed in (item 12): nothing says "signed out" yet; undefined = known */
+  authKnown?: boolean;
   requireAuth: () => void;
   getBalance: () => number;
   /** React refreshes the profile after the server moved money */
@@ -175,6 +182,10 @@ export interface ArcadeFixture {
   hover?: Side;
   /** replay the combo effects of the last settled win (the ×3 voucher drop) once the frame is up */
   comboEvent?: "won";
+  /** the viewer's own connection is down (item 11): CONNECTION LOST mask, keys off, lynx runs */
+  offline?: boolean;
+  /** today's site-wide $2 combo-voucher pool is empty (item 5): the meter says so, the combo still counts */
+  poolEmpty?: boolean;
 }
 
 export interface ArcadeMountOptions {
@@ -199,9 +210,22 @@ interface Call {
   settledAt?: number;
   /** server ms when the result is revealed: t1 + 0.5–1.2 s, the mock's settle beat */
   revealAt?: number;
+  /** the tap's own id, sent with the order (item 10) */
+  clientId?: string;
+  /** no answer 5 s after the tap: we are asking the server whether it landed (item 10.3) */
+  checking?: boolean;
 }
 
 const C = { up: "#33d6ff", dn: "#cfff4a", cy: "#05d7ed", hot: "#ff5c5c" };
+/** item 10 (2026-11-05): no answer 5 s after a tap → ask by id every 2 s, give up after 15 s */
+const CHECK_AFTER_MS = 5000,
+  CHECK_EVERY_MS = 2000,
+  CHECK_MAX_MS = 15000;
+const CHECKING_TEXT = "Checking your call…";
+/** item 11 (2026-11-05): the user's own connection is down — not the index, not the exchanges */
+const OFFLINE_KEY_TEXT = "Offline · reconnecting";
+const OFFLINE_MISSES = 3;
+const NOT_PLACED_TEXT = "Didn’t go through · nothing was charged";
 /** the $500 cap, said once in the key note and the toast (James #15) */
 const LIMIT_TEXT = `Limit reached · $${ARCADE_MAX_OPEN} in play · room frees up as your calls settle`;
 /** ⓘ notes (header, phone header) */
@@ -281,6 +305,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     pUp: null as number | null,
     quoteTs: null as string | null,
     paused: null as string | null, // index | breaker | loss | full | off | null
+    /** this browser can't reach us (item 11): the browser says so, or 3 polls in a row got no answer */
+    offline: false,
+    misses: 0,
+    /** which account the session / ack / vouchers were loaded for (setUser boots once per account) */
+    bootedFor: null as string | null,
     price: 0,
     disp: 0,
     lastPx: 0,
@@ -328,6 +357,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     /** combo vouchers today (USD), from arcade_table_now().combo_today; a fresh drop holds until perf ms vHold */
     vToday: 0,
     vHold: 0,
+    /** combo vouchers left in today's site-wide $2 pool (item 5); null = not known yet */
+    poolLeft: null as number | null,
     /** vToday came from the server for this account (false until the first arcade_table_now with combo_today) */
     vKnown: false,
     /** the run of wins on right now: profit, stake, biggest win (the combo poster) */
@@ -338,11 +369,16 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   const myOpen = () => S.calls.filter((c: Call) => c.status === "open" || c.status === "pending" || c.status === "settling");
   const openStake = () => myOpen().reduce((a: number, c: Call) => a + c.gross, 0);
   const nextT1 = () => Math.min(...myOpen().map((c: Call) => c.t1));
+  const authKnown = () => api.authKnown !== false;
   const maxAge = () => Number(S.params?.tick_max_age_ms) || 4000;
-  const liveQuote = () => !!(S.tick && S.tick.valid && S.pUp != null && now() - ms(S.tick.ts) < maxAge());
+  /** the server refuses a quote older than quote_ttl_ms (4.5 s) — the key must stop offering it at the same age (B4, 2026-11-05) */
+  const quoteTtl = () => Math.min(maxAge(), Number(S.params?.quote_ttl_ms) || 4500);
+  const liveQuote = () => !!(S.tick && S.tick.valid && S.pUp != null && now() - ms(S.tick.ts) < quoteTtl());
   /** combo voucher rules live in arcade_params (combo_voucher_every / _face / _cap_day) */
   const vEvery = () => Number(S.params?.combo_voucher_every) || 3;
   const vFace = () => Number(S.params?.combo_voucher_face) || 2;
+  /** today's site-wide pool of combo vouchers is used up (item 5) */
+  const poolEmpty = () => S.poolLeft != null && S.poolLeft <= 0;
   const vCap = () => Number(S.params?.combo_voucher_cap_day) || 10;
   /** YOUR CALLS replaces the LIVE TABLE from the first call until the session ends (30 min without a call) */
   const mineView = () => S.played && !(myOpen().length === 0 && S.lastCallAt && now() - S.lastCallAt > ARCADE_SESSION_GAP_MS);
@@ -683,15 +719,16 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   const PLACED_MS = 1500;
   let tmpId = 0;
   const keyOf = (side: Side) => $(side === "u" ? "#btnU" : "#btnD");
-  function deny(side: Side, msg: string) {
+  function deny(side: Side, msg: string, holdMs?: number) {
     const k = keyOf(side);
     k.classList.remove("deny");
     void k.offsetWidth;
     k.classList.add("deny");
     sfx.deny();
-    setPays(side, msg, true);
+    setPays(side, msg, true, holdMs);
   }
   async function place(side: Side) {
+    if (!authKnown()) return; // the sign-in state isn't read yet: a tap does nothing, not even the sign-in sheet (12.3)
     audio();
     if (!api.userId) {
       sfx.key();
@@ -700,6 +737,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     if (S.ackKnown && !S.ack) {
       openGate(true);
+      return;
+    }
+    if (S.offline) {
+      deny(side, OFFLINE_KEY_TEXT);
       return;
     }
     if (S.paused) {
@@ -721,6 +762,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       return;
     }
     if (S.lastCallAt && now() - S.lastCallAt > ARCADE_SESSION_GAP_MS) newSession();
+    if (!S.played) S.sesStart = now(); // the session clock starts at the first call, not at page open (B6)
     S.lastCallAt = now();
     S.played = true;
     const p = side === "u" ? S.pUp : 1 - S.pUp,
@@ -736,23 +778,68 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     burst(ctr.x, ctr.y, side === "u" ? C.up : C.dn, 14);
     tapFloat(side, g);
     render();
-    try {
-      const row = await data.place(side === "u" ? "up" : "down", g, S.quoteTs!);
+    /* The order carries its own id (10.1). If the server answers, that settles it (10.2 / 10.5). If nothing
+       comes back in 5 s the chip stays where it is, marked "checking…", and we ask the server by id every 2 s
+       for up to 15 s (10.3 / 10.4); not found by then → the chip comes back off the key, nothing was charged (10.6).
+       The server refuses any order whose quote is older than quote_ttl_ms, so a late-arriving request can't
+       land after the lookups gave up. */
+    const clientId = (crypto as any).randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    c.clientId = clientId;
+    let done = false;
+    const landed = (row: ArcadeCall & { balance: number }) => {
+      if (done) return;
+      done = true;
+      clearTimeout(checkT);
+      c.checking = false;
       const real = fromRow(row);
-      Object.assign(c, { id: real.id, t0: real.t0, t1: real.t1, p: real.p, pay: real.pay, status: "open" });
-      armSettle(c);
+      Object.assign(c, { id: real.id, t0: real.t0, t1: real.t1, p: real.p, pay: real.pay, status: real.status === "open" ? "open" : real.status });
+      if (c.status === "open") armSettle(c);
+      else if (c.status !== "pending") reveal(c, c.status as any, row.pnl ?? 0, row.s0, row.s1); // it settled while we were asking
       if (typeof row.balance === "number") {
         S.bal = row.balance;
         api.onBalance?.(row.balance);
         eqEls().forEach((e) => (e.textContent = money(S.bal)));
       }
-    } catch (e: any) {
+      render();
+    };
+    const refused = (m: string, holdMs?: number) => {
+      if (done) return;
+      done = true;
+      clearTimeout(checkT);
       S.calls = S.calls.filter((x: Call) => x !== c);
       setBal(S.bal + g);
-      const m = String(e?.message || "Could not place that");
       if (/Price moved/i.test(m)) flashCents();
-      deny(side, m);
+      deny(side, m, holdMs);
       if (/Accept the rules/i.test(m)) openGate(true);
+      render();
+    };
+    const checkFrom = now();
+    const check = async () => {
+      if (done) return;
+      if (!c.checking) {
+        c.checking = true;
+        render();
+      }
+      try {
+        const row = await data.lookup(clientId);
+        if (row) return landed(row);
+      } catch {
+        /* still no answer */
+      }
+      if (done) return;
+      if (now() - checkFrom >= CHECK_MAX_MS) refused(NOT_PLACED_TEXT, 3000);
+      else checkT = setTimeout(check, CHECK_EVERY_MS);
+    };
+    let checkT: any = setTimeout(check, CHECK_AFTER_MS);
+    try {
+      landed(await data.place(side === "u" ? "up" : "down", g, S.quoteTs!, clientId));
+    } catch (e: any) {
+      // a server "no" is final; a dropped connection is not — the lookups decide (10.4)
+      if (!e?.network) refused(String(e?.message || "Could not place that"));
+      else if (!done && !c.checking) {
+        clearTimeout(checkT);
+        void check();
+      }
     }
     render();
   }
@@ -934,7 +1021,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (won) S.bigWin = Math.max(S.bigWin, pnl);
       S.sesStakes.push(c.gross);
     }
-    if (won) S.bal += c.pay - Math.round((c.pay - c.gross) * 5) / 100;
+    if (won) S.bal += callCredit(c.gross, c.p);
     else if (status === "void") S.bal += c.gross;
     flagFloat(c);
     flyChip(c);
@@ -1021,20 +1108,24 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const n = S.streakW >= 2 ? S.streakW : 0;
     const face = vFace();
     let dropped = false;
-    if (status === "won" && n && n % vEvery() === 0 && S.vToday + face <= vCap() + 1e-9) {
+    if (status === "won" && n && n % vEvery() === 0 && S.vToday + face <= vCap() + 1e-9 && !poolEmpty()) {
       // the server issues it on the same settlement; hold the optimistic total until its poll catches up
       S.vToday += face;
       S.vHold = perf() + 8000;
       dropped = true;
     }
     const left = vEvery() - (n % vEvery());
+    // the streak and the fireworks never stop — only the voucher does, when the account is at its
+    // daily cap or the site's daily pool is empty (5.2 / 5.4: the personal cap is named first)
     const sub = !n
       ? ""
       : dropped
         ? `you got a ${whole(face)} voucher!`
         : S.vToday + face > vCap() + 1e-9
           ? "vouchers maxed today · keep it going"
-          : `win ${left} more → free ${whole(face)} voucher`;
+          : poolEmpty()
+            ? "vouchers all gone today · keep it going"
+            : `win ${left} more → free ${whole(face)} voucher`;
     $$(".combo").forEach((el) => {
       const big = el.querySelector(".big"),
         sb = el.querySelector(".sub");
@@ -1128,7 +1219,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const pips = `<span class="vpips">${Array.from({ length: every }, (_, i) => `<i${i < lit ? ' class="on"' : ""}></i>`).join("")}</span>`;
     const today = `<span class="vday"><b>${whole(v)}</b> / ${whole(cap)} today ›</span>`;
     let st: string, h: string;
-    if (api.userId && !S.vKnown && !fresh) {
+    if (!authKnown() || (api.userId && !S.vKnown && !fresh)) {
       st = "loading";
       const dim = `<span class="vpips">${Array.from({ length: every }, () => "<i></i>").join("")}</span>`;
       h = `${TICKET}${dim}<span class="vtx"><b>$—</b> / ${whole(cap)} today ›</span>`;
@@ -1141,6 +1232,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     } else if (maxed) {
       st = "max";
       h = mobile ? `${TICKET}<span class="vtx"><b>${whole(cap)}</b> claimed today</span>` : `${TICKET}<span class="vtx">Today's <b>${whole(cap)}</b> of vouchers claimed · more from ${resetLocal()}</span>`;
+    } else if (poolEmpty()) {
+      // the site's daily pool ran out before this account's cap (5.3) — same dark frame as "max", no pips
+      st = "max pool";
+      h = mobile ? `${TICKET}<span class="vtx">Vouchers all gone today</span>` : `${TICKET}<span class="vtx">Today's vouchers are all gone · more from ${resetLocal()}</span>`;
     } else {
       st = "";
       h = mobile ? `${TICKET}${pips}<span class="vtx"><b>${whole(v)}</b> / ${whole(cap)} today ›</span>` : `${TICKET}${pips}<span class="vtx"><b>${left} more win${left > 1 ? "s" : ""}</b> → ${face} voucher</span>${today}`;
@@ -1189,7 +1284,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     });
   }
   const paysT: Record<string, any> = {};
-  function setPays(side: Side, txt: string, warn?: boolean) {
+  function setPays(side: Side, txt: string, warn?: boolean, holdMs = 1800) {
     const e = $(side === "u" ? "#btnpU" : "#btnpD");
     if (!e) return;
     e.textContent = txt;
@@ -1198,7 +1293,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     paysT[side] = setTimeout(() => {
       e.className = "pays";
       renderPays();
-    }, 1800);
+    }, holdMs);
   }
 
   /* ---------- chart ---------- */
@@ -1825,7 +1920,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         st.innerHTML = h;
         lastHtml[side] = h;
       }
-      key.classList.toggle("off", !!S.paused || !liveQuote());
+      key.classList.toggle("off", !!S.paused || S.offline || !liveQuote());
       const p = side === "u" ? S.pUp : S.pUp == null ? null : 1 - S.pUp;
       $(side === "u" ? "#btncU" : "#btncD").textContent = p == null || !liveQuote() ? "—" : cents(p);
     }
@@ -1839,8 +1934,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       // the last ~1.5 s of taps on this key: say they are in (James #11) — there is no undo (CPO 2026-11-04)
       const fresh = live.filter((c: Call) => now() - c.t0 < PLACED_MS);
       let txt: string;
-      if (S.paused === "full") txt = "Table full · room opens as calls settle";
+      if (S.offline) txt = OFFLINE_KEY_TEXT;
+      else if (S.paused === "full") txt = "Table full · room opens as calls settle";
       else if (S.paused) txt = S.paused === "breaker" ? "Table paused · market moving too fast" : S.paused === "loss" ? "Table paused · daily limit reached" : S.paused === "off" ? "Table closed" : "Table paused · index invalid";
+      else if (live.some((c: Call) => c.checking)) txt = CHECKING_TEXT;
       else if (!liveQuote() || p == null) txt = S.tick && S.tick.valid ? "Warming up · odds in a moment" : "Waiting for the price";
       else if (fresh.length) txt = fresh.length > 1 ? `${fresh.length} placed ✓ · each settles in 30s` : "Placed ✓ · locked in, settles in 30s"; else if (openStake() + S.chip > ARCADE_MAX_OPEN) txt = LIMIT_TEXT;
       // "to win" = what comes back if it wins, chip included (same as the main site's To win)
@@ -1958,7 +2055,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
           st = signed(c.pnl);
           cls = c.status === "won" ? "pos" : "neg";
         } else if (c.status === "void") st = "VOID";
-        else if (c.s0 == null) {
+        else if (c.checking) {
+          st = "checking…";
+          cls = "pend";
+        } else if (c.s0 == null) {
           st = "open…";
           cls = "pend";
         } else {
@@ -1972,7 +2072,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
           row.dataset.id = c.id;
           row.innerHTML = `<span class="sd ${c.side}">${c.side === "u" ? "▲ UP" : "▼ DN"}</span><span class="mid"><b></b><small></small><span class="bar"><i></i></span></span><span class="st"></span>`;
         }
-        row.className = `row ${c.side} ${c.status}`;
+        row.className = `row ${c.side} ${c.status}${c.checking ? " checking" : ""}`;
         // "to win" = what comes back if it wins, chip included (James #12)
         const b = `${whole(c.gross)} · to win ${money(callCredit(c.gross, c.p))}`;
         if (row.firstChild.nextSibling.firstChild.textContent !== b) row.firstChild.nextSibling.firstChild.textContent = b;
@@ -2026,7 +2126,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
           .map((c: Call) => {
             const frac = 1 - clip((t - c.t0) / ARCADE_DURATION_MS, 0, 1);
             const done = c.status === "won" || c.status === "lost" || c.status === "void";
-            return `<span class="mc ${c.status}">${ringSvgLime(frac, c.side)}<span class="mchip ${chipCls(c.gross)}">${c.gross}</span>${done ? `<span class="fs">${c.status === "won" ? "✓" : c.status === "lost" ? "✕" : "–"}</span>` : `<span class="t">${c.status === "settling" ? "…" : Math.min(30, Math.max(0, Math.ceil((c.t1 - t) / 1000)))}</span>`}</span>`;
+            return `<span class="mc ${c.status}${c.checking ? " checking" : ""}">${ringSvgLime(frac, c.side)}<span class="mchip ${chipCls(c.gross)}">${c.gross}</span>${done ? `<span class="fs">${c.status === "won" ? "✓" : c.status === "lost" ? "✕" : "–"}</span>` : `<span class="t">${c.status === "settling" || c.checking ? "…" : Math.min(30, Math.max(0, Math.ceil((c.t1 - t) / 1000)))}</span>`}</span>`;
           })
           .join("");
       } else if (!mineView() && feedLive.length) {
@@ -2132,20 +2232,27 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     set("#s1", tk ? src(tk.binance) : "—");
     set("#s2", tk ? src(tk.hyperliquid) : "—");
     set("#s3", tk ? src(tk.coinbase) : "—");
-    set("#mIdx", tk && tk.valid && !stale ? money(tk.idx!) : "INVALID");
-    const invalid = !tk || !tk.valid || stale;
+    // offline, the last price just stands still — the sources are fine, this connection isn't (11.2)
+    set("#mIdx", S.offline ? (tk && tk.idx != null ? money(tk.idx) : "—") : tk && tk.valid && !stale ? money(tk.idx!) : "INVALID");
+    const invalid = !S.offline && (!tk || !tk.valid || stale);
     const ds = $("#srcA");
     if (ds) ds.classList.toggle("paused", invalid);
     const msrc = $("#mSrc");
     if (msrc) msrc.classList.toggle("paused", invalid);
     const ov = $("#dOv");
     if (ov) {
-      const onv = !!S.paused;
+      const onv = !!S.paused || S.offline;
       ov.classList.toggle("on", onv);
-      if (onv) {
+      ov.classList.toggle("offline", S.offline);
+      if (S.offline) {
+        set("#dOvT", mobile ? "OFFLINE" : "CONNECTION LOST");
+        set("#dOvS", mobile ? "Reconnecting…" : "Reconnecting… check your internet");
+        set("#dOvH", "Your open calls still settle on our side");
+      } else if (onv) {
         const r = S.paused;
         set("#dOvT", r === "full" ? "TABLE FULL" : mobile ? "PAUSED" : "TABLE PAUSED");
         set("#dOvS", r === "full" ? "Room opens as calls settle" : r === "breaker" ? "BTC is moving too fast · back in a moment" : r === "loss" ? "Daily limit reached · back tomorrow" : r === "off" ? "The table is closed" : mobile ? "Index invalid" : "Index invalid · waiting for the exchanges");
+        set("#dOvH", "Open calls keep running and settle as normal");
       }
     }
   }
@@ -2189,9 +2296,31 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       }
     }
   }
+  /** the connection came back (11.6): drop the mask, take the results of anything that settled meanwhile */
+  function backOnline() {
+    if (!S.offline) return;
+    S.offline = false;
+    S.misses = 0;
+    if (!S.paused) Lx.gameStop();
+    if (api.userId) {
+      void reconcile();
+      scheduleSettle(0);
+    }
+    render();
+    renderPrice();
+  }
+  function wentOffline() {
+    if (S.offline) return;
+    S.offline = true;
+    Lx.gameStart();
+    render();
+    renderPrice();
+  }
   async function poll() {
     try {
       const d = await data.tableNow();
+      S.misses = 0;
+      if (S.offline) backOnline();
       const prevTs = S.lastTs;
       if (d.tick) {
         if (prevTs && ms(d.tick.ts) - ms(prevTs) > 1800) {
@@ -2209,14 +2338,15 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         S.vToday = perf() < S.vHold ? Math.max(S.vToday, d.combo_today) : d.combo_today;
         S.vKnown = true;
       }
+      if (typeof d.combo_pool_left === "number") S.poolLeft = d.combo_pool_left;
       const wasPaused = S.paused;
       S.paused = d.state?.paused_reason || null;
       if (!S.paused && (!S.tick || !S.tick.valid || now() - ms(S.tick.ts) > maxAge())) S.paused = "index";
-      if (S.paused !== wasPaused) {
+      if (S.paused !== wasPaused && !S.offline) {
         if (S.paused) Lx.gameStart();
         else Lx.gameStop();
       }
-      if (api.userId) {
+      if (api.userId && authKnown()) {
         S.ack = d.ack;
         S.ackKnown = true;
         if (!S.ack) {
@@ -2231,10 +2361,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       }
       renderPrice();
     } catch (e) {
-      if (S.tick && now() - ms(S.tick.ts) > maxAge() + 2000) {
-        S.paused = S.paused || "index";
-        renderPrice();
-      }
+      // no answer: the browser knows it is offline, or three misses in a row (≈ 3 s) — that is this
+      // connection, not the index (11.1); the mask says so instead of TABLE PAUSED
+      S.misses++;
+      if (S.misses >= OFFLINE_MISSES || navigator.onLine === false) wentOffline();
+      renderPrice();
     }
   }
   async function pollFeed() {
@@ -2245,6 +2376,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
   }
   async function boot() {
+    S.bootedFor = api.userId;
     try {
       const ticks = await data.ticks(60);
       ticks.forEach((t) => adoptTick(t));
@@ -2272,9 +2404,25 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   const gate = $("#gate"),
     rules = $("#rules");
   $$(".vreset").forEach((e) => (e.textContent = resetLocal()));
+  /* B11 (2026-11-05): a layer takes the focus when it opens and gives it back when it closes */
+  const lastFocus: Record<string, Element | null> = {};
+  function focusLayer(el: HTMLElement | null, open: boolean, key: string) {
+    if (!el) return;
+    if (open) {
+      lastFocus[key] = document.activeElement;
+      const first = el.querySelector<HTMLElement>("button:not([disabled]),a[href],[tabindex]:not([tabindex='-1'])");
+      setTimeout(() => (first || el).focus?.({ preventScroll: true }), 0);
+    } else {
+      const back = lastFocus[key] as HTMLElement | null;
+      lastFocus[key] = null;
+      if (back && document.contains(back)) back.focus?.({ preventScroll: true });
+    }
+  }
   function openGate(o: boolean) {
     if (!gate) return;
+    if (gate.hidden === !o) return;
     gate.hidden = !o;
+    focusLayer(gate, o, "gate");
   }
   on($("#gateGo"), "click", async () => {
     audio();
@@ -2305,12 +2453,27 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     e?.preventDefault();
     audio();
     sfx.key();
+    if (!rules.hidden) return;
     rules.hidden = false;
+    focusLayer(rules, true, "rules");
+  };
+  const closeRules = () => {
+    if (!rules || rules.hidden) return;
+    rules.hidden = true;
+    focusLayer(rules, false, "rules");
   };
   $$("#rulesBtn,#gateRules").forEach((b) => on(b, "click", openRules));
-  on($("#rulesX"), "click", () => (rules.hidden = true));
+  on($("#rulesX"), "click", closeRules);
   on(rules, "click", (e: any) => {
-    if (e.target === rules) rules.hidden = true;
+    if (e.target === rules) closeRules();
+  });
+  // ⓘ and the road's "i" answer to Enter / Space like any button (B11)
+  on(root, "keydown", (e: KeyboardEvent) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const el = (e.target as HTMLElement)?.closest?.(".info[role='button']") as HTMLElement | null;
+    if (!el) return;
+    e.preventDefault();
+    el.click();
   });
   // The note lives outside the steel plates: the plates clip their corners with
   // clip-path, which also clipped the note (QA 2026-10-29). It is placed under
@@ -2428,18 +2591,20 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       on(k, "mouseenter", () => (S.hover = k.dataset.side));
       on(k, "mouseleave", () => (S.hover = null));
     });
+  /** any open layer — the gate, RULES, the phone sheet, a React dialog (sign-in, deposit, transfer) or a tooltip box — takes the arrow keys away from the table (B5) */
+  const overlayOpen = () =>
+    !!document.querySelector('[role="dialog"]:not([hidden]), [role="alertdialog"]:not([hidden])') || !!(qtip && !qtip.hidden);
   on(window, "keydown", (e: KeyboardEvent) => {
     if ((e.target as any)?.closest?.("input,textarea,[contenteditable]")) return;
-    if (e.key === "ArrowUp") {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       e.preventDefault();
-      void place("u");
-    }
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      void place("d");
+      // holding the key down is one call, not two a second (B5); a key never places through an open layer
+      if (e.repeat || overlayOpen()) return;
+      void place(e.key === "ArrowUp" ? "u" : "d");
+      return;
     }
     if (e.key === "Escape") {
-      if (rules) rules.hidden = true;
+      closeRules();
       sheetOpen(false);
     }
     if (e.key === "m" || e.key === "M") muteBtn?.click();
@@ -2455,17 +2620,21 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   });
   /** Signed out, the money strip is not an empty account: no balance, no Deposit / Transfer, one Sign in key. */
   function renderAuth() {
-    const out = !api.userId;
+    const pending = !authKnown();
+    const out = !pending && !api.userId;
     const dep = $("#depBtn") as HTMLButtonElement | null;
     if (dep) {
+      // still reading the sign-in state (12.2): the key's slot stays empty — neither Deposit nor Sign in
+      dep.hidden = pending;
       dep.classList.toggle("signin", out);
       dep.closest(".m-top")?.classList.toggle("guest", out);
       dep.textContent = out ? (api.isMobile ? "SIGN IN" : "→ Sign in") : api.isMobile ? "+" : "+ Deposit";
       dep.title = out ? "Sign in to play" : api.isMobile ? "Deposit" : "Buy USDC with card or deposit on Base";
     }
     const x = $("#xferBtn");
-    if (x) x.hidden = out;
-    $$("#equity").forEach((e) => (e.textContent = out ? "—" : money(S.bal)));
+    if (x) x.hidden = out || pending;
+    $$("#equity").forEach((e) => (e.textContent = out || pending ? "—" : money(S.bal)));
+    renderVouchers();
   }
   renderAuth();
   on($("#xferBtn"), "click", () => {
@@ -2488,7 +2657,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       lost: S.lost,
       bestRun: S.bestRun,
       biggestWin: S.bigWin,
-      minutes: Math.max(1, Math.round((now() - S.sesStart) / 60000)),
+      // first call → last call, the same count Portfolio shows for the session (B6)
+      minutes: Math.max(1, Math.round(((S.lastCallAt || now()) - S.sesStart) / 60000)),
       calls: S.won + S.lost,
       stakeLine: same ? `${whole(S.sesStakes[0])} each` : `${whole(S.sesStakes.reduce((a: number, g: number) => a + g, 0))} staked`,
     });
@@ -2539,9 +2709,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     peek = $("#mPeek");
   function sheetOpen(o: boolean) {
     if (!sheet) return;
+    const was = !sheet.hidden;
     sheet.hidden = !o;
     scrim.hidden = !o;
     peek.setAttribute("aria-expanded", String(o));
+    if (was !== o) focusLayer(sheet, o, "sheet");
     if (o) {
       renderRoads();
       render();
@@ -2753,7 +2925,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       view(2, true);
       win.classList.add("game");
       hud.hidden = false;
-      hudT.textContent = (S.paused === "full" ? "TABLE FULL" : "TABLE PAUSED") + " · TAP TO JUMP";
+      hudT.textContent = (S.offline ? "OFFLINE" : S.paused === "full" ? "TABLE FULL" : "TABLE PAUSED") + " · TAP TO JUMP";
     }
     function gameStop() {
       if (!G.on) return;
@@ -3008,6 +3180,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     slotLoop();
   }, 250);
   every(() => void poll(), 1000);
+  if (!FX) {
+    on(window, "offline", () => wentOffline());
+    on(window, "online", () => void poll());
+  }
   every(() => void pollFeed(), 2500);
   every(() => void reconcile(), 15000);
   every(() => renderRoads(), 30000);
@@ -3021,7 +3197,9 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   if (FX) {
     FX.ticks.forEach((t) => adoptTick(t));
     S.paused = FX.state?.paused_reason || null;
-    if (S.paused) Lx.gameStart();
+    S.offline = !!FX.offline;
+    S.poolLeft = FX.poolEmpty ? 0 : null;
+    if (S.paused || S.offline) Lx.gameStart();
     S.feed = FX.feed || [];
     S.roadRows = FX.road || [];
     rebuildRoad();
@@ -3100,7 +3278,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       series: lineSeries(now() - 45000).length, basis: S.basis, basisTarget: S.basisT, binanceMid: S.wsMid, tickAgeMs: S.tick ? now() - ms(S.tick.ts) : null }),
     setUser() {
       renderAuth();
-      if (api.userId && !FX) {
+      if (api.userId && !FX && S.bootedFor !== api.userId) {
         S.ackKnown = false;
         S.noAck = 0;
         // a new account: today's voucher total is unknown until its first poll (never show the last account's)

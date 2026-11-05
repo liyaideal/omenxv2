@@ -15,6 +15,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthDialog } from "@/components/auth/AuthDialog";
@@ -45,12 +46,31 @@ const ArcadePage = () => {
   const [transferOpen, setTransferOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<ArcadeApi | null>(null);
+  // item 12 (2026-11-05): until the stored session has been read, the cabinet shows neither a signed-in
+  // nor a signed-out account — balance "—", no Sign in key, no gate. This only *reads* the session (12.5);
+  // useAuth stays the owner of sign-in itself.
+  const [authKnown, setAuthKnown] = useState(false);
+  const [storedUserId, setStoredUserId] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!alive) return;
+        setStoredUserId(data.session?.user?.id ?? null);
+        setAuthKnown(true);
+      })
+      .catch(() => alive && setAuthKnown(true));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     ensureArcadeFonts();
   }, []);
 
-  const userId = user?.id ?? null;
+  const userId = user?.id ?? (authKnown ? storedUserId : null);
   const onBalance = useCallback(() => {
     // the server moved money; pick it up without racing the engine's own readout
     setTimeout(() => void refetchProfile(), 400);
@@ -60,6 +80,7 @@ const ArcadePage = () => {
     () => ({
       isMobile: !!isMobile,
       userId,
+      authKnown,
       requireAuth: () => setAuthOpen(true),
       getBalance: () => spotBalance,
       onBalance,
@@ -74,7 +95,7 @@ const ArcadePage = () => {
       username: username || "you",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isMobile, userId, onBalance, username],
+    [isMobile, userId, authKnown, onBalance, username],
   );
   apiRef.current = api;
 
@@ -97,14 +118,13 @@ const ArcadePage = () => {
   useEffect(() => {
     (rootRef.current as any)?.__arcade?.setBalance(spotBalance);
   }, [spotBalance]);
-  const firstUser = useRef(true);
+  // once the sign-in state is known, and on every later change of account, the engine re-reads it
+  // (setUser boots the account's session once; it is a no-op for an account already loaded)
+  const authKey = authKnown ? userId ?? "guest" : "pending";
   useEffect(() => {
-    if (firstUser.current) {
-      firstUser.current = false;
-      return;
-    }
+    if (authKey === "pending") return;
     (rootRef.current as any)?.__arcade?.setUser();
-  }, [userId]);
+  }, [authKey]);
 
   if (isMobile === undefined) return null;
 
