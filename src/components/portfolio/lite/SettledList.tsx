@@ -55,7 +55,7 @@ export const SettledRow = forwardRef<HTMLDivElement, { row: LiteSettledRow; high
     // share icon sits above it as its own button — never a button in a button.
     <div
       ref={ref}
-      className="relative flex w-full items-center gap-3 px-4 py-[13px] text-left"
+      className={`relative flex w-full items-center ${isMobile ? "gap-2" : "gap-3"} px-4 py-[13px] text-left`}
       style={{
         borderBottom: "1px solid rgba(28,31,38,.8)",
         // the row the cabinet just sent you to — a short lime wash, then gone
@@ -86,11 +86,14 @@ export const SettledRow = forwardRef<HTMLDivElement, { row: LiteSettledRow; high
           </div>
         ) : (
           <div className="flex min-w-0 items-center gap-2">
-            <span className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{row.title}</span>
+            {/* Phone: the share icon + fixed amount column take ~70px, so the title
+                may run to two lines and the meta wraps instead of losing its tail
+                (e.g. `auto-closed`) to an ellipsis (2026-11-05). */}
+            <span className={`${isMobile ? "line-clamp-2 leading-[18px]" : "truncate"} text-[13.5px] font-semibold text-[#F2F3F5]`}>{row.title}</span>
             {row.kind === "quickplay" && <QuickPlayTag />}
           </div>
         )}
-        <MetaLine row={row} parts={narrow ? narrow.metaParts : undefined} wrap={!!narrow} />
+        <MetaLine row={row} parts={narrow ? narrow.metaParts : undefined} wrap={!!narrow || isMobile} />
       </div>
       {/* 2026-11-05 · share on every settled row, left of the amount. The amount
           column is fixed-width + right-aligned so the icons line up in one column. */}
