@@ -291,8 +291,10 @@ export const useLitePortfolio = () => {
     for (const [eventName, items] of byEvent) {
       const segment: LiteSegment = items[0].productLine === "spot" ? "standard" : "boost";
       if (items.length > 1) {
-        const net = items.reduce((s, i) => s + i.pnlValue, 0);
-        const wins = items.filter((i) => i.pnlValue > 0).length;
+        // Same arithmetic as seriesDetail() (2026-11-05): each round is net of its
+        // own fees, so the row, the series page KPI and the share poster agree.
+        const net = items.reduce((s, i) => s + (i.pnlValue - i.fees), 0);
+        const wins = items.filter((i) => i.pnlValue - i.fees > 0).length;
         const latest = items.reduce((a, b) => (a.closedAt > b.closedAt ? a : b));
         rows.push({
           id: `series-${eventName}`,
