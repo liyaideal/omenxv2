@@ -115,6 +115,8 @@ export interface ArcadeApi {
   userId: string | null;
   /** false while the site is still reading who is signed in (item 12): nothing says "signed out" yet; undefined = known */
   authKnown?: boolean;
+  /** false while the signed-in account's balance hasn't loaded yet: the strip shows — rather than $0.00; undefined = known */
+  balanceKnown?: boolean;
   requireAuth: () => void;
   getBalance: () => number;
   /** React refreshes the profile after the server moved money */
@@ -2643,7 +2645,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     const x = $("#xferBtn");
     if (x) x.hidden = out || pending;
-    $$("#equity").forEach((e) => (e.textContent = out || pending ? "—" : money(S.bal)));
+    $$("#equity").forEach((e) => (e.textContent = out || pending || api.balanceKnown === false ? "—" : money(S.bal)));
     renderVouchers();
   }
   renderAuth();
@@ -3214,7 +3216,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   disposers.push(() => ro.disconnect());
 
   /* ---------- boot ---------- */
-  eqEls().forEach((e) => (e.textContent = money(S.bal)));
+  if (api.userId && api.balanceKnown !== false) eqEls().forEach((e) => (e.textContent = money(S.bal)));
   if (FX) {
     FX.ticks.forEach((t) => adoptTick(t));
     S.paused = FX.state?.paused_reason || null;
@@ -3295,8 +3297,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   /* ---------- public setters (React → engine) ---------- */
   (root as any).__arcade = {
     setBalance(v: number) {
-      if (!api.userId) return;
-      if (Math.abs(v - S.bal) > 0.005 && !S.calls.some((c: Call) => c.status === "pending")) {
+      if (!api.userId || api.balanceKnown === false) return;
+      // the first real figure replaces the — too, even when it is $0.00
+      const dash = eqEls()[0]?.textContent === "—";
+      if (dash || (Math.abs(v - S.bal) > 0.005 && !S.calls.some((c: Call) => c.status === "pending"))) {
         S.bal = v;
         eqEls().forEach((e) => (e.textContent = money(S.bal)));
       }

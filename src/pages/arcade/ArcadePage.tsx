@@ -49,7 +49,7 @@ export const ARCADE_LIVE_TABLES = ["BTC"] as const;
 const ArcadePage = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { spotBalance, username, refetchProfile } = useUserProfile();
+  const { spotBalance, username, refetchProfile, isLoading: profileLoading } = useUserProfile();
   const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
   const [shareRun, setShareRun] = useState<ArcadeRunShare | null>(null);
@@ -101,6 +101,7 @@ const ArcadePage = () => {
       isMobile: !!isMobile,
       userId,
       authKnown,
+      balanceKnown: !profileLoading,
       requireAuth: () => setAuthOpen(true),
       getBalance: () => spotBalance,
       onBalance,
@@ -115,7 +116,7 @@ const ArcadePage = () => {
       username: username || "you",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isMobile, userId, authKnown, onBalance, username],
+    [isMobile, userId, authKnown, profileLoading, onBalance, username],
   );
   apiRef.current = api;
 
@@ -136,8 +137,9 @@ const ArcadePage = () => {
 
   // ---- React → engine: balance + sign-in ----
   useEffect(() => {
-    (rootRef.current as any)?.__arcade?.setBalance(spotBalance);
-  }, [spotBalance]);
+    // the strip shows — until the profile has loaded once; then every change of the figure
+    if (!profileLoading) (rootRef.current as any)?.__arcade?.setBalance(spotBalance);
+  }, [spotBalance, profileLoading]);
   // once the sign-in state is known, and on every later change of account, the engine re-reads it
   // (setUser boots the account's session once; it is a no-op for an account already loaded)
   const authKey = authKnown ? userId ?? "guest" : "pending";
