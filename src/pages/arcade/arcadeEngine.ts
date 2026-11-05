@@ -186,6 +186,16 @@ export interface ArcadeFixture {
   offline?: boolean;
   /** today's site-wide $2 combo-voucher pool is empty (item 5): the meter says so, the combo still counts */
   poolEmpty?: boolean;
+  /** the sign-in state is still being read (item 12): balance —, no Sign in key, meter loading, taps do nothing */
+  authLoading?: boolean;
+  /** a key just refused a tap: held on the key so the frame shows it (live it clears after 1.8 s) */
+  deny?: { side: Side; msg: string };
+  /** a toast held open (live: 2.4 s) */
+  toast?: string;
+  /** the newest open call is in the "checking…" state (item 10.3) */
+  checking?: boolean;
+  /** freeze the lynx in a mood: the DRAGON / choppy… road signs, the "new here?" hint, or asleep */
+  lynx?: "dragon" | "choppy" | "new" | "nap";
 }
 
 export interface ArcadeMountOptions {
@@ -513,13 +523,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }
   let toastT: any;
-  function toast(m: string, bad?: boolean) {
+  function toast(m: string, bad?: boolean, hold?: boolean) {
     const t = $("#toast");
     t.textContent = m;
     t.className = "v2toast" + (bad ? " bad" : "");
     t.hidden = false;
     clearTimeout(toastT);
-    toastT = setTimeout(() => (t.hidden = true), 2200);
+    if (!hold) toastT = setTimeout(() => (t.hidden = true), 2200);
   }
   // signed out there is no balance to paint — the strip shows a dash (renderAuth)
   const eqEls = () => (api.userId ? $$("#equity") : []);
@@ -2737,7 +2747,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       win = $("#dWin"),
       sg = $("#sign");
     const G: any = { on: false, rocks: [] as any[], t0: 0, score: 0, hi: 0, dead: false, jumpUntil: 0, next: 0 };
-    if (!el) return { react: (_k: string) => {}, readRoad: () => {}, gameStart: () => {}, gameStop: () => {}, gameTick: (_t: number, _c: any, _w: number, _h: number) => {}, G };
+    if (!el) return { react: (_k: string) => {}, readRoad: () => {}, gameStart: () => {}, gameStop: () => {}, gameTick: (_t: number, _c: any, _w: number, _h: number) => {}, pose: (_k: string) => {}, G };
     const V = ["/arcade/lynx0.png", "/arcade/lynx1.png", "/arcade/lynx2.png", "/arcade/lynx3.png"];
     void spriteUrls(V).then((u) => u.forEach((x, i) => (V[i] = x)));
     let x = 60,
@@ -2768,11 +2778,22 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       emo.classList.add("show");
     }
     let signT: any = 0;
-    function sign(t: string) {
+    function sign(t: string, hold?: boolean) {
       sg.textContent = t;
       sg.hidden = false;
       clearTimeout(signT);
-      signT = setTimeout(() => (sg.hidden = true), 4000);
+      if (!hold) signT = setTimeout(() => (sg.hidden = true), 4000);
+    }
+    /** style-guide only: freeze the lynx in one of its moods so the frame shows it (the signs last 4 s live) */
+    function pose(kind: "dragon" | "choppy" | "new" | "nap") {
+      if (kind === "nap") {
+        lastTouch = perf() - 61000; // think() sends it to sleep on its next beat and keeps it there
+        return;
+      }
+      lockUntil = perf() + 1e9;
+      setMode("hop");
+      view(3, true);
+      sign(kind === "dragon" ? "DRAGON ×6 ▲" : kind === "choppy" ? "choppy…" : "new here? tap ⓘ ↗", true);
     }
     /* 1 · mood follows the session: up → struts, down → mopes, idle 60 s → sleeps */
     const moodOf = () => (S.ses > 0.5 ? "up" : S.ses < -0.5 ? "down" : "flat");
@@ -3006,7 +3027,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       }
       hudS.textContent = G.score + (G.hi ? " · HI " + G.hi : "");
     }
-    return { react, readRoad, gameStart, gameStop, gameTick, G };
+    return { react, readRoad, gameStart, gameStop, gameTick, pose, G };
   })();
 
   /* ---------- space window (designer's pixel art, 3× upscaled) ---------- */
@@ -3199,6 +3220,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     S.paused = FX.state?.paused_reason || null;
     S.offline = !!FX.offline;
     S.poolLeft = FX.poolEmpty ? 0 : null;
+    if (FX.authLoading) {
+      api.authKnown = false;
+      renderAuth();
+    }
     if (S.paused || S.offline) Lx.gameStart();
     S.feed = FX.feed || [];
     S.roadRows = FX.road || [];
@@ -3253,10 +3278,18 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     S.vKnown = !FX.vouchersLoading;
     if (FX.session && S.streakW >= 2) comboUpdate(FX.comboEvent || "boot");
     if (FX.ack === false) openGate(true);
+    if (FX.checking) {
+      const c = S.calls.filter((x: Call) => x.status === "open").sort((a: Call, b: Call) => b.t0 - a.t0)[0];
+      if (c) c.checking = true;
+    }
     renderRoads();
     slotLoop();
     render();
     renderPrice();
+    // held states for the frames: a refused tap, a toast, a lynx mood (live they all clear on their own)
+    if (FX.deny) setTimeout(() => deny(FX.deny!.side, FX.deny!.msg, 1e9), 300);
+    if (FX.toast) toast(FX.toast, false, true);
+    if (FX.lynx) setTimeout(() => Lx.pose(FX.lynx!), 400);
   } else void boot();
 
   /* ---------- public setters (React → engine) ---------- */

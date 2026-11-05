@@ -14,6 +14,7 @@ import { ArcadeRunShareSheet } from "@/components/lite/arcade/ArcadeShareCard";
 import type { ArcadeCall, ArcadeFeedRow, ArcadeTick, RoadSlot } from "@/lib/arcade/arcadeCalls";
 import { callPayout } from "@/lib/arcade/arcadeCalls";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
+import { ARCADE_SESSION_NEW } from "@/lib/arcade/session";
 import "@/pages/arcade/arcade.css";
 import "@/pages/arcade/arcade-v2.css";
 
@@ -238,6 +239,90 @@ export const Ar21Preview = () => <Cabinet fixture={base({ calls: BURST_FLIP })} 
 export const Ar22Preview = () => <Cabinet mobile fixture={base({ calls: BURST_LIVE })} width={375} height={760} />;
 export const Ar23Preview = () => <Cabinet mobile fixture={base({ calls: BURST_FLIP })} width={375} height={760} />;
 
+/* ---------- AR-27 … AR-67 · the states the pre-handoff read found no frame for (CPO 2026-11-05) ----------
+   Every held state goes through a fixture prop the engine only reads in fixture mode (deny / toast / checking /
+   offline / authLoading / poolEmpty / lynx) — production behaviour is untouched. */
+const pausedFx = (reason: "full" | "off" | "breaker" | "loss" | "index") =>
+  base({
+    ticks: reason === "index" ? FX_PAUSED.ticks : ticksFx,
+    calls: CALLS_LIVE.slice(0, 3),
+    state: { paused_reason: reason, breaker_until: reason === "breaker" ? iso(NOW + 4000) : null, worst_loss: 1240, open_calls: 3, open_stake: 85, updated_at: iso(NOW) },
+  });
+/* item 10 · no answer 5 s after the tap: the newest chip stays, row "checking…", key note "Checking your call…" */
+const FX_CHECKING = base({ calls: CALLS_LIVE, checking: true });
+export const Ar27Preview = () => <Cabinet fixture={FX_CHECKING} width={1040} height={700} />;
+export const Ar28Preview = () => <Cabinet mobile fixture={FX_CHECKING} width={375} height={760} />;
+/* item 10.6 · not found after 15 s: the chip came back, "Didn't go through · nothing was charged" (red, 3 s live) */
+const FX_NOT_PLACED = base({ calls: CALLS_LIVE.slice(0, 5), deny: { side: "d", msg: "Didn’t go through · nothing was charged" } });
+export const Ar29Preview = () => <Cabinet fixture={FX_NOT_PLACED} width={1040} height={700} />;
+export const Ar30Preview = () => <Cabinet mobile fixture={FX_NOT_PLACED} width={375} height={760} />;
+/* item 11 · this browser is offline: CONNECTION LOST / OFFLINE mask, keys off, sources not red, lynx runs */
+const FX_OFFLINE = base({ calls: CALLS_LIVE.slice(0, 3), offline: true });
+export const Ar31Preview = () => <Cabinet fixture={FX_OFFLINE} width={1040} height={700} />;
+export const Ar32Preview = () => <Cabinet mobile fixture={FX_OFFLINE} width={375} height={760} />;
+/* item 12 · the sign-in state is still being read: balance —, no Deposit / Sign in key, meter loading, no gate */
+const FX_AUTH = base({ authLoading: true });
+export const Ar33Preview = () => <Cabinet fixture={FX_AUTH} width={1040} height={700} />;
+export const Ar34Preview = () => <Cabinet mobile fixture={FX_AUTH} width={375} height={760} />;
+/* item 5 · today's site-wide $2 pool is empty before this account's $10: the meter says so, COMBO still counts */
+const FX_POOL = base({ calls: WIN3, session: { last: [false, true, true, true] }, vouchersToday: 4, poolEmpty: true });
+export const Ar35Preview = () => <Cabinet fixture={FX_POOL} width={1040} height={700} />;
+export const Ar36Preview = () => <Cabinet mobile fixture={FX_POOL} width={375} height={760} />;
+/* warming up · the index is valid but the model has no quote yet (first minute after a restart) */
+const FX_WARM = base({ ticks: ticksFx.map((t, i) => (i >= ticksFx.length - 3 ? { ...t, p_up: null } : t)) });
+export const Ar37Preview = () => <Cabinet fixture={FX_WARM} width={1040} height={700} />;
+export const Ar38Preview = () => <Cabinet mobile fixture={FX_WARM} width={375} height={760} />;
+/* the server said no · three refusals the key shows for 1.8 s (held here) */
+const denyFx = (msg: string) => base({ calls: CALLS_LIVE.slice(0, 2), deny: { side: "u", msg } });
+const FX_MOVED = denyFx("Price moved · tap again");
+const FX_FUNDS = denyFx("Not enough in your spot account");
+const FX_FAST = denyFx("Too fast · 2 calls per second");
+export const Ar39Preview = () => <Cabinet fixture={FX_MOVED} width={1040} height={700} />;
+export const Ar40Preview = () => <Cabinet mobile fixture={FX_MOVED} width={375} height={760} />;
+export const Ar41Preview = () => <Cabinet fixture={FX_FUNDS} width={1040} height={700} />;
+export const Ar42Preview = () => <Cabinet mobile fixture={FX_FUNDS} width={375} height={760} />;
+export const Ar43Preview = () => <Cabinet fixture={FX_FAST} width={1040} height={700} />;
+export const Ar44Preview = () => <Cabinet mobile fixture={FX_FAST} width={375} height={760} />;
+/* the table's own pauses · full / closed / breaker / daily loss (AR-3 is the index one) + the phone's index pause */
+const FX_FULL = pausedFx("full"),
+  FX_OFF = pausedFx("off"),
+  FX_BREAKER = pausedFx("breaker"),
+  FX_LOSS = pausedFx("loss");
+export const Ar45Preview = () => <Cabinet fixture={FX_FULL} width={1040} height={700} />;
+export const Ar46Preview = () => <Cabinet mobile fixture={FX_FULL} width={375} height={760} />;
+export const Ar47Preview = () => <Cabinet fixture={FX_OFF} width={1040} height={700} />;
+export const Ar48Preview = () => <Cabinet mobile fixture={FX_OFF} width={375} height={760} />;
+export const Ar49Preview = () => <Cabinet fixture={FX_BREAKER} width={1040} height={700} />;
+export const Ar50Preview = () => <Cabinet mobile fixture={FX_BREAKER} width={375} height={760} />;
+export const Ar51Preview = () => <Cabinet fixture={FX_LOSS} width={1040} height={700} />;
+export const Ar52Preview = () => <Cabinet mobile fixture={FX_LOSS} width={375} height={760} />;
+export const Ar53Preview = () => <Cabinet mobile fixture={FX_PAUSED} width={375} height={760} />;
+/* a new session · the first call after 30 quiet minutes: boards reset, the "New session" toast (2.2 s live) */
+const FX_NEWSES = base({ calls: CALLS_LIVE.slice(5), toast: ARCADE_SESSION_NEW });
+export const Ar54Preview = () => <Cabinet fixture={FX_NEWSES} width={1040} height={700} />;
+export const Ar55Preview = () => <Cabinet mobile fixture={FX_NEWSES} width={375} height={760} />;
+/* one call flipping · won / lost / void: the row, the chart mark, the +$ / −$ / VOID float, 04 updated */
+const flipFx = (status: "won" | "lost" | "void") => base({ calls: [mkCall("f1", "up", 10, 0.512, NOW - 30800, status)], session: { last: status === "won" ? [true] : status === "lost" ? [false] : [] } });
+const FX_FLIP_WON = flipFx("won"),
+  FX_FLIP_LOST = flipFx("lost"),
+  FX_FLIP_VOID = flipFx("void");
+export const Ar56Preview = () => <Cabinet fixture={FX_FLIP_WON} width={1040} height={700} />;
+export const Ar57Preview = () => <Cabinet mobile fixture={FX_FLIP_WON} width={375} height={760} />;
+export const Ar58Preview = () => <Cabinet fixture={FX_FLIP_LOST} width={1040} height={700} />;
+export const Ar59Preview = () => <Cabinet mobile fixture={FX_FLIP_LOST} width={375} height={760} />;
+export const Ar60Preview = () => <Cabinet fixture={FX_FLIP_VOID} width={1040} height={700} />;
+export const Ar61Preview = () => <Cabinet mobile fixture={FX_FLIP_VOID} width={375} height={760} />;
+/* ×8 LEGENDARY · the top combo tier (×3 ON FIRE · ×5 UNSTOPPABLE · ×8 LEGENDARY) */
+const WIN8 = Array.from({ length: 8 }, (_, i) => mkCall("l" + i, i % 2 ? "down" : "up", 5, i % 2 ? 0.49 : 0.51, NOW - 300000 + i * 32000, "won"));
+const FX_LEGEND = base({ calls: WIN8, session: { last: [true, true, true, true, true, true, true, true] }, vouchersToday: 4, comboEvent: "won" });
+export const Ar62Preview = () => <Cabinet fixture={FX_LEGEND} width={1040} height={700} />;
+export const Ar63Preview = () => <Cabinet mobile fixture={FX_LEGEND} width={375} height={760} />;
+/* the lynx's moods (desktop window) · DRAGON ×N sign / choppy… sign / "new here?" hint / asleep after 60 s */
+export const Ar64Preview = () => <Cabinet fixture={base({ lynx: "dragon" })} width={1040} height={700} />;
+export const Ar65Preview = () => <Cabinet fixture={base({ lynx: "choppy" })} width={1040} height={700} />;
+export const Ar66Preview = () => <Cabinet fixture={base({ lynx: "new" })} width={1040} height={700} />;
+export const Ar67Preview = () => <Cabinet fixture={base({ lynx: "nap" })} width={1040} height={700} />;
+
 /* ---------- AR-6 · signed out, desktop + mobile: no balance, no Deposit / Transfer, one Sign in key ---------- */
 const Guest = ({ mobile, width, height }: { mobile?: boolean; width: number; height: number }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -265,18 +350,26 @@ export const Ar6MobilePreview = () => <Guest mobile width={375} height={760} />;
 
 /* ---------- AB-1 / AB-2 entry banner, desktop + mobile (same index readout as the cabinet) ---------- */
 const BANNER_TICK: ArcadeBannerFixture = { live: true, price: ticksFx[ticksFx.length - 1].idx!, open: ticksFx[ticksFx.length - 31].idx!, up: 51.2, pts: ticksFx.slice(-45).map((t) => t.idx!) };
-const BANNER_OPENING: ArcadeBannerFixture = { live: false, price: 0, open: 0, up: 50, pts: [] };
+const BANNER_OPENING: ArcadeBannerFixture = { live: false, reason: "index", price: 0, open: 0, up: 50, pts: [] };
+// B3 (2026-11-05): the red line names the reason — one strip per reason, same frozen readout
+const BANNER_OFF = (["off", "full", "breaker", "loss", "offline"] as const).map((reason): ArcadeBannerFixture => ({ ...BANNER_TICK, live: false, reason }));
 // banners follow the frame's width like the Events container does (a fixed 1120 px wrapper clipped PLAY, QA 2026-11-02)
 export const Ab1Preview = () => (
   <div className="space-y-4">
     <ArcadeEntryBanner isMobile={false} fixture={BANNER_TICK} />
     <ArcadeEntryBanner isMobile={false} fixture={BANNER_OPENING} />
+    {BANNER_OFF.map((f) => (
+      <ArcadeEntryBanner key={f.reason} isMobile={false} fixture={f} />
+    ))}
   </div>
 );
 export const Ab2Preview = () => (
   <div className="space-y-4">
     <ArcadeEntryBanner isMobile fixture={BANNER_TICK} />
     <ArcadeEntryBanner isMobile fixture={BANNER_OPENING} />
+    {BANNER_OFF.map((f) => (
+      <ArcadeEntryBanner key={f.reason} isMobile fixture={f} />
+    ))}
   </div>
 );
 
