@@ -487,7 +487,8 @@ RULES 里的例子 $50 @ 53.0¢：fee 1.50 → net 48.50 → 派彩 91.50 → �
 - 徽章图标是 Lucide：赢 `zap`、亏 `trending-down`，颜色跟徽章字，方角线头（CPO 2026-11-05 批，项 17）；免责门四行也是 Lucide `timer / lock / percent / triangle-alert`。
 - 弹层 = 站点 ShareModal 的 arcade 外观（Jersey 10 标题 `Share your run`，副标 `Save the card or post it straight to X / Telegram`，亏时 `Rough one — share it anyway, we go again`）；**手机是底部抽屉**。保存的 PNG 里像素字是真字体。
 - 分享出去的文字（发到 X / Telegram 的，不是界面，保留 emoji）：`Called Bitcoin up or down for 23 min on OmenX Quick Play — 7 of 10 right, +$83.57 ⚡`；亏 `… −$21.40. We go again 😅`。
-- **combo 海报**：COMBO 小框的 `⇪ SHARE` → `Share your combo`；海报暂用场次海报家族（`ArcadeComboPoster`）：徽章 `3 in a row`、`COMBO ×3 · ON FIRE`（徽章图标 Lucide `flame`）、大字 `+$13.92`（这一串连赢的净利）、`Called Bitcoin up or down — 3 right in a row`、`30 seconds a call · $15 staked`、两格 `Combo ×3` / `Biggest win +$4.71`。**过渡版**，设计正式稿到了整张替换。分享文字 `3 Bitcoin calls right in a row on OmenX Quick Play — COMBO ×3, +$13.92 🔥`。
+- **combo 海报**（设计师三张卡，CPO 2026-11-06 批）：COMBO 小框的 `⇪ SHARE` → 同一套弹层，标题 `Share your combo`，文件名 `omenx-quick-play-combo`。海报恒 400 × 640 px，**按档位对应三张，不随机**：×3–4 顶砖块（猞猁顶 `$` 砖）· ×5–7 奖杯（猞猁举杯）· ×8 起宝箱（开箱金币雨）。每张从上到下：玩家条（头像 · 用户名 · 徽章 `5 of 5 right`，图标 Lucide `zap` · 青色 `QUICK PLAY` 框）→ 像素场景（`×5` 大字 + `COMBO`）→ `PROFIT` + 大字净利（这一串连赢的净利，已扣佣金）→ `Called Bitcoin up or down, 30 seconds at a time` + `3 minutes · 5 calls · $5 each`（分钟数 = 这串连赢**第一张下单到最后一张结算**，至少 1；面额不一样写 `$80 staked`）→ 两格 `Best run · 5 in a row` / `Biggest win · +$4.90`（这串里最大一笔净赢）→ 推荐码 + logo + `Pick UP or DOWN · from $2` + 二维码（同场次海报）。`×N` 两位数按 0.76、三位数按 0.62 缩，位置不变；净利超过 9 个字符大字 54 → 44 px。
+  **动效与定格**：弹层里的预览播一遍片头（约 3 秒：砖块卡 ×N 从砖里顶出 / 奖杯卡 ×N 砸进画面 + 猫举杯跳 / 宝箱卡开盖 + 金币喷射）再进入待机循环；**保存 / 分享出去的 PNG 是片头结束的那一帧**（定格，不是 GIF——CPO 2026-11-06「静态先上」）。系统开了「减少动态」时预览也是定格。字体 Jersey 10 / Chakra Petch / Archivo / Russo One（砖块与宝箱卡的 COMBO 字）全部自托管并嵌进 PNG。分享文字 `5 Bitcoin calls right in a row on OmenX Quick Play — COMBO ×5, +$23.40 🔥`（外站文字，保留 emoji）。
 
 ### 4.9 Portfolio
 
@@ -559,7 +560,7 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 | 文案 / i18n | 英文，未进 i18n |
 | 埋点 | 本期不做 |
 | 运营后台（开关桌、改参数） | 参数走后台配置（`arcade_params` 那组：开关桌、费率、筹码档位、单账户上限、每秒单数、报价系数、券池配额）；Lovable 里直接改库 |
-| combo 海报 | 过渡版，设计正式稿到了替换 |
+| combo 海报 | 定格 PNG 先上；GIF / 视频导出以后再议（CPO 2026-11-06） |
 | 跑酷 | 只在桌面暂停态；手机抽屉里的猞猁只会跳 |
 | alex_carter 演示数据 | 真实下单 + 补种历史（won / lost / void / cancelled），不碰余额；三场可在 Portfolio 看到 |
 
@@ -618,9 +619,10 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 | AR-64 … AR-67 | `arcade-ar64` … `arcade-ar67` | 桌面 | 猞猁 · DRAGON 举牌 / choppy / new here? / 睡着 |
 | AB-1 / AB-2 | `arcade-ab1` / `arcade-ab2` | 桌面 / 移动 | 入口横幅 · 正常 + 七种暗着的原因各一条 |
 | AS-1 | `arcade-as1` | — | 分享海报 · 赚 / 亏 |
-| AS-2 | `arcade-as2` | — | combo 海报（过渡版） |
-| AS-3 | `arcade-as3-win` / `arcade-as3-lose` | 桌面 | 分享弹窗 · 赚 / 亏 |
-| AS-4 | `arcade-as4-win` / `arcade-as4-lose` | 移动 | 分享抽屉 · 赚 / 亏 |
+| AS-2 | `arcade-as2` | — | combo 海报 · ×3 砖块 / ×5 奖杯 / ×8 宝箱 / ×12 长变体（定格） |
+| AS-2b | `arcade-as2-play` | — | combo 海报 · 动效（片头 + 待机循环，刷新重播） |
+| AS-3 | `arcade-as3-win` / `arcade-as3-lose` / `arcade-as3-combo` | 桌面 | 分享弹窗 · 赚 / 亏 / combo |
+| AS-4 | `arcade-as4-win` / `arcade-as4-lose` / `arcade-as4-combo` | 移动 | 分享抽屉 · 赚 / 亏 / combo |
 | PF-39 | `portfolio-lite-quickplay-rows` / `-mobile` | 两端 | Settled › Standard 里的 Quick Play 行（刚玩完 / 有退款 / 跨零点） |
 | PF-40 | `portfolio-lite-quickplay-detail` / `-mobile` | 两端 | 场次详情 · 赚 |
 | PF-41 | `portfolio-lite-quickplay-detail-lost` / `-mobile` | 两端 | 场次详情 · 亏 · 跨零点 · 单一面额 |
@@ -629,7 +631,7 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 
 - 机柜：`src/pages/arcade/ArcadePage.tsx`（React 壳：登录弹窗 / 抽屉、现货余额、Deposit / Transfer 弹窗、路由跳转）、`arcadeMarkup.ts`（桌面 / 移动 / 浮层 DOM，含免责门与 RULES 原文）、`arcade.css`（机柜皮肤）、`arcade-v2.css`（流式舞台与各模块样式）、`arcadeEngine.ts`（控制器：服务器时钟对齐、每秒轮询、下单 / 结算 / 对账、展示线、到期杆、COMBO、反馈、路单、ⓘ、免责门、场次、猞猁 + 跑酷、声音、键盘；`mountArcade(root, api, {data?, fixture?})`；调试 `root.__arcade.debug()`）。
 - 公共：`src/lib/arcade/arcadeCalls.ts`（RPC 封装 + 费用 / 派彩算式 + 路单格）、`src/lib/arcade/session.ts`（30 分钟断场与时间段文案）、`src/lib/arcade/quickPlayPortfolio.ts`（场次行 / 详情 / 海报的数据与文案）、`src/lib/arcade/sprites.ts`。
-- 入口与分享：`src/components/lite/arcade/ArcadeEntryBanner.tsx` + `arcade-entry.css`；`ArcadeRunPoster` / `ArcadeComboPoster` / `ArcadeShareCard`（弹层复用 ShareModal）；字体 `public/fonts/arcade/`。
+- 入口与分享：`src/components/lite/arcade/ArcadeEntryBanner.tsx` + `arcade-entry.css`；`ArcadeRunPoster` / `ArcadeComboPoster` + `arcadeComboPoster.css`（设计师三张卡的版式与动效，素材 `src/assets/arcade/combo/`）/ `ArcadeShareCard`（弹层复用 ShareModal，combo 用 `exportNode` 把定格那张交给导出）；字体 `public/fonts/arcade/`（含 Russo One）。
 - Portfolio：`src/hooks/useArcadeSessions.ts`、`src/hooks/useLitePortfolio.ts`、`src/components/portfolio/lite/SettledList.tsx`、`QuickPlayTag.tsx`、`QuickPlaySessionView.tsx`、`src/pages/lite/LiteQuickPlaySession.tsx`、`PortfolioRoutes.tsx`、`SettlementDetailView.tsx`。
 - 后端迁移（按时间）：`20261028120000_arcade_calls.sql`（主体）· `20261028190000_arcade_housekeeping.sql` · `20261028213000_arcade_always_on.sql` · `20261029163000_arcade_load.sql` · `20261029170000_arcade_sim_feed.sql` · `20261029190000_arcade_sessions.sql` · `20261102180000_arcade_combo_vouchers.sql`（combo 券 + 演示节奏）· `20261104170000_arcade_no_undo.sql`（关撤单）· `20261104230000_arcade_limit_copy.sql`（上限文案统一）。`20261019*` 两个是旧轮次流，只给站内其他页的 BTC 价。 · `20261105110000_arcade_pre_handoff.sql`（下单编号 `client_id` + `arcade_lookup`、$2 券池档 `combo_pool_day`、void 退费流水、模拟单清理、短名打码；已在 Lovable 库执行）· `20261105120000_arcade_loss_hour.sql`（`paused_reason = loss_hour` 的拒单文案；已执行）
 - 字典 / 规范：`src/pages/StyleGuide/sections/ArcadeStatesSection.tsx` + `preview/arcadePreviews.tsx`；`PortfolioStatesSection.tsx` Ⓛ + `portfolioPreviews.tsx`；`DESIGN.md` Quick Play 各节；`docs/copy-dictionary.md`「Quick Play（/arcade · BTC 30 秒合约 · 流式舞台）」节；`docs/backend-boundary.md` Quick Play 补录。
@@ -666,7 +668,7 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 
 | 代号 | 指 | 章节 |
 |---|---|---|
-| AR-1…AR-69 / AB-1 AB-2 / AS-1…AS-4 / PF-39…41 | style-guide 样张 | §6 |
+| AR-1…AR-69 / AB-1 AB-2 / AS-1…AS-4（含 AS-2b）/ PF-39…41 | style-guide 样张 | §6 |
 | 像素夜景 | Events All 入口横幅的视觉方案名 | §4.7 |
 | 研发稿 | 《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》 | 文首 |
 
@@ -680,3 +682,4 @@ Win **3 calls in a row** and you get a **$2 Position Voucher**; every 3 more win
 - 2026-11-05 · CPO 批冷读待批项全部落地（commit 见 git log）：下单编号 + `Checking your call…`（10）、断网态（11）、登录读取中态（12）、emoji → Lucide（17）、$2 券池档（5）、B1–B11；style-guide 补 AR-27 … AR-67；§5 不再有待定项；运营参数口径 = 走后台配置。
 - 2026-11-05（下午）· 第二次冷读修 24 处矛盾；CPO 批：60 分钟亏损熔断单独一套文案（`loss_hour`，AR-68 / AR-69，横幅第七条）；`▼ DN` 保留；`tick_max_age_ms` 指向风控文档。
 - 2026-11-05（晚）· 正式站冷读：修 4 个线上问题（刷新后 Settled 列表取错段 + 页签计数、断网时大价还在跳、暂停 / 断网时键上报价没立刻 `—`、海报金额千分位）；Portfolio 字典夹具改成 3% / $2–50 的数字；本文补 `settling`、手机两种空态、hover 预览线、COMBO 副行、横幅价差口径、CSS 大写、ⓘ 说明框形态。
+- 2026-11-06 · combo 海报换成设计师三张卡（×3–4 砖块 / ×5–7 奖杯 / ×8 起宝箱，按档位对应）；预览播动效，保存的 PNG 是定格那一帧（CPO 批「静态先上」）；分钟数 / 面额行加进 combo 分享数据；字典 AS-2 重做 + AS-2b / AS-3 combo / AS-4 combo；分享弹层短屏幕改成可滚动（以前把海报裁掉）。

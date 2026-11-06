@@ -17,6 +17,16 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-11-06 — Quick Play · combo 海报（[文档](../delivery/quick-play-v1.md)）
+
+| 编号 | 项 | Lovable | 正式版 |
+|---|---|---|---|
+| QP-R4-1 | combo 海报 = 设计师三张卡，按档位：×3–4 砖块 / ×5–7 奖杯 / ×8 起宝箱（`arcadeComboTier`）；版式、字体、素材见 DESIGN §Addendum 2026-11-06 | ✅ | ⬜ 前端照抄（素材在 `src/assets/arcade/combo/`） |
+| QP-R4-2 | 预览播片头 + 待机循环（`.play`），保存的 PNG 是定格一帧（`.still`，ShareModal `exportNode`）；减少动态 = 定格 | ✅ | ⬜ 前端照抄 |
+| QP-R4-3 | combo 分享数据：N / 净利 / 本金 / 最大一笔 / 分钟数（首单下单 → 末单结算）/ 面额行（`$5 each` 或 `$80 staked`） | ✅ | ⬜ 前端自算（同场次海报口径） |
+| QP-R4-4 | 分享弹层短屏幕整体滚动、海报缩放跟随盒宽 | ✅ | ⬜ 前端照抄 |
+| QP-R4-5 | 字典 AS-2（四张定格）/ AS-2b（动效）/ AS-3 combo / AS-4 combo | ✅ | — |
+
 ## 2026-11-04 — Footer · Telegram 入口（[文档](../delivery/footer-telegram-v1.md)）
 
 | 编号 | 项 | Lovable | 正式版 |
@@ -33,7 +43,7 @@
 | QP-R3-1 | 下单编号 `client_id` + `arcade_lookup`；前端 `Checking your call…` → 查 15 秒 → 成功 / `Didn't go through · nothing was charged` | ✅ | ⬜ 服务端照 §3.1.4 幂等；前端照抄 |
 | QP-R3-2 | 断网态 `CONNECTION LOST` / `OFFLINE`（判定：浏览器离线或连续 3 次没回音） | ✅ | ⬜ 前端照抄 |
 | QP-R3-3 | 登录状态读取中态（余额 —、无 Sign in 键、券条加载态、不弹门、键不响应） | ✅ | ⬜ 前端照抄 |
-| QP-R3-4 | 免责门 / 海报徽章图标 Lucide（timer / lock / percent / triangle-alert · zap / trending-down · flame） | ✅ | ⬜ 前端照抄 |
+| QP-R3-4 | 免责门 / 海报徽章图标 Lucide（timer / lock / percent / triangle-alert · zap / trending-down；combo 海报 11-06 起也是 zap） | ✅ | ⬜ 前端照抄 |
 | QP-R3-5 | combo 券走全站每日券池 $2 档（`combo_pool_day`，演示 2,000）；计量条「池子空了」态；HUD 副行 | ✅ | ⬜ 配额值见风控文档 |
 | QP-R3-6 | B1–B11：分精确派彩 / void 退费流水 / 横幅按原因 / 报价有效期对齐 / 方向键 / 海报分钟 / pnl = 0 / Best run / 模拟单清理 / 短名打码 / ⓘ 与焦点 | ✅ | ⬜ 前端照抄；B2 / B10 服务端照 §3.1.7 / §3.1.10 |
 | QP-R3-7 | 字典 AR-27 … AR-69 + AB-1 / AB-2 七种原因 | ✅ | — |

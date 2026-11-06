@@ -12,6 +12,11 @@ const FILES = [
   { family: "Archivo", weight: 500, url: "/fonts/archivo-latin-500-normal.woff2" },
   { family: "Archivo", weight: 600, url: "/fonts/archivo-latin-600-normal.woff2" },
   { family: "Archivo", weight: 700, url: "/fonts/archivo-latin-700-normal.woff2" },
+  // the combo poster (designer 2026-11-06): Chakra Petch for its text, Russo One for the COMBO word
+  { family: "Chakra Petch", weight: 500, url: "/fonts/arcade/chakra-petch-latin-500-normal.woff2" },
+  { family: "Chakra Petch", weight: 600, url: "/fonts/arcade/chakra-petch-latin-600-normal.woff2" },
+  { family: "Chakra Petch", weight: 700, url: "/fonts/arcade/chakra-petch-latin-700-normal.woff2" },
+  { family: "Russo One", weight: 400, url: "/fonts/arcade/russo-one-latin-400-normal.woff2" },
 ];
 
 const toDataUrl = (blob: Blob) =>

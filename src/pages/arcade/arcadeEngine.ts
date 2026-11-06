@@ -145,6 +145,10 @@ export interface ArcadeComboShare {
   stake: number;
   /** largest single net win in the run */
   biggestWin: number;
+  /** first call of the run → its last result, at least 1 (the poster's "N minutes" line) */
+  minutes: number;
+  /** "$5 each" when every chip in the run was the same size, otherwise "$80 staked" */
+  stakeLine: string;
 }
 
 /** What the share poster says about this run (this session of the cabinet, settled calls only) */
@@ -379,6 +383,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     runPnl: 0,
     runStake: 0,
     runBig: 0,
+    /** every chip of the run, first call placed (server ms) and last result (server ms) — the poster's meta line */
+    runStakes: [] as number[],
+    runT0: 0,
+    runT1: 0,
   };
   const myOpen = () => S.calls.filter((c: Call) => c.status === "open" || c.status === "pending" || c.status === "settling");
   const openStake = () => myOpen().reduce((a: number, c: Call) => a + c.gross, 0);
@@ -943,6 +951,9 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     S.runPnl = 0;
     S.runStake = 0;
     S.runBig = 0;
+    S.runStakes = [];
+    S.runT0 = 0;
+    S.runT1 = 0;
     S.sesStart = now();
     S.sessionStart = new Date(now()).toISOString();
     $$(".combo").forEach((el) => {
@@ -1000,6 +1011,9 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     S.runPnl = runRows.reduce((a, r) => a + (r.pnl ?? 0), 0);
     S.runStake = runRows.reduce((a, r) => a + r.gross, 0);
     S.runBig = runRows.reduce((a, r) => Math.max(a, r.pnl ?? 0), 0);
+    S.runStakes = runRows.map((r) => r.gross);
+    S.runT0 = runRows.length ? ms(runRows[0].t0) : 0;
+    S.runT1 = runRows.length ? ms(runRows[runRows.length - 1].settled_at || runRows[runRows.length - 1].t1) : 0;
     let run = 0;
     settled.forEach((r) => {
       run = r.status === "won" ? run + 1 : 0;
@@ -1029,10 +1043,14 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
           S.runPnl = 0;
           S.runStake = 0;
           S.runBig = 0;
+          S.runStakes = [];
+          S.runT0 = c.t0;
         }
         S.runPnl += pnl;
         S.runStake += c.gross;
         S.runBig = Math.max(S.runBig, pnl);
+        S.runStakes.push(c.gross);
+        S.runT1 = c.settledAt || c.t1;
       } else {
         S.streakL++;
         S.streakW = 0;
@@ -2582,7 +2600,15 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     if (e.target.closest(".cshare")) {
       audio();
       sfx.key();
-      api.shareCombo?.({ n: S.streakW, pnl: S.runPnl, stake: S.runStake, biggestWin: S.runBig });
+      const same = S.runStakes.length && S.runStakes.every((g: number) => g === S.runStakes[0]);
+      api.shareCombo?.({
+        n: S.streakW,
+        pnl: S.runPnl,
+        stake: S.runStake,
+        biggestWin: S.runBig,
+        minutes: Math.max(1, Math.round(((S.runT1 || now()) - (S.runT0 || now())) / 60000)),
+        stakeLine: same ? `${whole(S.runStakes[0])} each` : `${whole(S.runStake)} staked`,
+      });
       return;
     }
     if (e.target.closest("#vouChip")) {
@@ -3287,6 +3313,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       S.runPnl = runCalls.reduce((a: number, c: Call) => a + c.pnl, 0);
       S.runStake = runCalls.reduce((a: number, c: Call) => a + c.gross, 0);
       S.runBig = runCalls.reduce((a: number, c: Call) => Math.max(a, c.pnl), 0);
+      S.runStakes = runCalls.map((c: Call) => c.gross);
+      // S.done is newest-first: the run's first call is the last of these
+      S.runT0 = runCalls.length ? runCalls[runCalls.length - 1].t0 : 0;
+      S.runT1 = runCalls.length ? runCalls[0].settledAt || runCalls[0].t1 : 0;
     }
     if (FX.calls.length) S.played = true;
     S.vToday = FX.vouchersToday || 0;

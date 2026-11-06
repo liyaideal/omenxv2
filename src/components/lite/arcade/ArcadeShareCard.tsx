@@ -8,6 +8,8 @@
 // 2026-11-02: the designer's share sheet (ShareModal variant "arcade": pixel
 // title, dark keys, bottom sheet on phones) + handheld poster, pixel font
 // embedded in the saved PNG. Figma omenx_lite 1283:1437 / 1283:1841 / 1283:2110.
+// 2026-11-06: the combo HUD's share uses the same sheet around the designer's
+// three combo cards (one per tier); preview animated, saved PNG = last frame.
 // ============================================================
 import { useEffect } from "react";
 import { ShareModal } from "@/components/ShareModal";
@@ -81,27 +83,60 @@ export const ArcadeShareCard = ({ run, onClose }: { run: ArcadeRunShare | null; 
   );
 };
 
-/** the combo HUD's ⇪ SHARE (CPO 2026-11-02): same share sheet, the combo poster inside (interim poster until the designer's) */
-export const ArcadeComboShareCard = ({ combo, onClose }: { combo: ArcadeComboShare | null; onClose: () => void }) => {
-  const { user } = useAuth();
-  const { referralCode } = useReferral();
-  const { username, avatarUrl, isLoading } = useUserProfile();
-  if (!combo || !user) return null;
+/** presentational: the sheet + the designer's combo poster (production wraps it with the signed-in user; the style guide mounts it directly).
+ *  The preview plays the card's intro and idle loops; the PNG that gets saved is the frozen last frame (CPO 2026-11-06: static first, no GIF). */
+export const ArcadeComboShareSheet = ({
+  combo,
+  username,
+  avatarUrl,
+  referralCode,
+  isDataReady = true,
+  onClose,
+}: {
+  combo: ArcadeComboShare;
+  username?: string;
+  avatarUrl?: string;
+  referralCode?: string;
+  isDataReady?: boolean;
+  onClose: () => void;
+}) => {
+  useEffect(() => ensureArcadeFonts(), []);
   const shareText = `${combo.n} Bitcoin calls right in a row on OmenX Quick Play — COMBO ×${combo.n}, +$${Math.abs(combo.pnl).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 🔥`;
+  const poster = { combo, username, avatarUrl, referralCode };
   return (
     <ShareModal
       isOpen
       variant="arcade"
+      fontEmbedCSS={arcadePosterFontCSS}
       onClose={onClose}
       title="Share your combo"
       subtitle="Save the card or post it straight to X / Telegram"
       shareText={shareText}
       shareUrl={shareUrlFor(referralCode)}
       fileName="omenx-quick-play-combo"
-      isDataReady={!isLoading && !!referralCode}
+      isDataReady={isDataReady}
+      exportNode={<ArcadeComboPoster {...poster} mode="still" />}
     >
-      <ArcadeComboPoster combo={combo} username={username ?? undefined} avatarUrl={avatarUrl ?? undefined} referralCode={referralCode || undefined} />
+      <ArcadeComboPoster {...poster} mode="play" />
     </ShareModal>
+  );
+};
+
+/** the combo HUD's ⇪ SHARE (CPO 2026-11-02): same share sheet, the combo poster inside */
+export const ArcadeComboShareCard = ({ combo, onClose }: { combo: ArcadeComboShare | null; onClose: () => void }) => {
+  const { user } = useAuth();
+  const { referralCode } = useReferral();
+  const { username, avatarUrl, isLoading } = useUserProfile();
+  if (!combo || !user) return null;
+  return (
+    <ArcadeComboShareSheet
+      combo={combo}
+      username={username ?? undefined}
+      avatarUrl={avatarUrl ?? undefined}
+      referralCode={referralCode || undefined}
+      isDataReady={!isLoading && !!referralCode}
+      onClose={onClose}
+    />
   );
 };
 

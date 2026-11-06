@@ -24,6 +24,9 @@ interface ShareModalProps {
   variant?: "default" | "arcade";
   /** @font-face CSS (data URLs) embedded into the exported PNG; without it the export skips web fonts as before */
   fontEmbedCSS?: () => Promise<string>;
+  /** Captured instead of `children` when given: an animated preview keeps moving, the saved PNG is this still
+      (Quick Play combo poster, CPO 2026-11-06). Rendered off-screen at 400px, never shown. */
+  exportNode?: ReactNode;
 }
 
 export const ShareModal = ({ 
@@ -38,6 +41,7 @@ export const ShareModal = ({
   isDataReady = true,
   variant = "default",
   fontEmbedCSS,
+  exportNode,
 }: ShareModalProps) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -45,6 +49,7 @@ export const ShareModal = ({
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
   const previewBoxRef = useRef<HTMLDivElement>(null);
   const [posterScale, setPosterScale] = useState(1);
   const [scaledHeight, setScaledHeight] = useState<number | undefined>(undefined);
@@ -52,13 +57,14 @@ export const ShareModal = ({
 
   // Generate image when modal opens
   const generateImage = async () => {
-    if (!cardRef.current) return;
-    
+    const node = (exportNode ? exportRef.current : null) ?? cardRef.current;
+    if (!node) return;
+
     setIsGenerating(true);
     try {
       const embed = fontEmbedCSS ? await fontEmbedCSS().catch(() => undefined) : undefined;
       if (embed && typeof document !== "undefined" && document.fonts) await document.fonts.ready;
-      const blob = await htmlToImage.toBlob(cardRef.current, {
+      const blob = await htmlToImage.toBlob(node, {
         quality: 1,
         pixelRatio: 2,
         backgroundColor: '#0a0c14',
@@ -99,8 +105,11 @@ export const ShareModal = ({
     };
     measure();
     const card = cardRef.current;
+    const box = previewBoxRef.current;
     const ro = card ? new ResizeObserver(measure) : null;
     if (ro && card) ro.observe(card);
+    // the box itself can change width after the first paint (sheet width settling, a scrollbar appearing) — follow it too
+    if (ro && box) ro.observe(box);
     window.addEventListener("resize", measure);
     return () => {
       ro?.disconnect();
@@ -169,6 +178,13 @@ export const ShareModal = ({
     }
   };
 
+  // the still that gets saved when the preview is animated: same 400px layout, parked off-screen
+  const exportStill = exportNode ? (
+    <div aria-hidden style={{ position: "fixed", left: "-10000px", top: 0, width: `${POSTER_CAPTURE_WIDTH}px`, pointerEvents: "none" }}>
+      <div ref={exportRef}>{exportNode}</div>
+    </div>
+  ) : null;
+
   if (variant === "arcade") {
     const m = !!isMobile;
     const ARC_PIX = "'Jersey 10', 'VT323', monospace";
@@ -203,11 +219,13 @@ export const ShareModal = ({
             </button>
           </div>
 
-          {/* the poster: captured at 400px, only the outer box scales; centred like the design's card frame */}
-          <div ref={previewBoxRef} className="relative overflow-hidden" style={{ height: scaledHeight }}>
+          {/* the poster: captured at 400px, only the outer box scales; centred like the design's card frame.
+              shrink-0: on a short viewport the sheet scrolls instead of cropping the poster (the 640px combo card, 2026-11-06) */}
+          <div ref={previewBoxRef} className="relative shrink-0 overflow-hidden" style={{ height: scaledHeight }}>
             <div className="origin-top-left" style={{ width: `${POSTER_CAPTURE_WIDTH}px`, marginLeft: posterOffset, transform: `scale(${posterScale})` }}>
               <div ref={cardRef}>{children}</div>
             </div>
+            {exportStill}
             {isGenerating && (
               <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50">
                 <div className="w-8 h-8 border-2 border-[#CFFF4A] border-t-transparent rounded-full animate-spin" />
@@ -284,6 +302,7 @@ export const ShareModal = ({
           >
             <div ref={cardRef}>{children}</div>
           </div>
+          {exportStill}
           {isGenerating && (
             <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-2xl">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />

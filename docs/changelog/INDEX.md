@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-06 | [Quick Play · combo 海报换设计师三张卡（quick-play-v1 §4.8）](../delivery/quick-play-v1.md#48-分享海报share-your-run与-combo-海报) | COMBO HUD 的 `⇪ SHARE` 海报按档位对应三张（×3–4 砖块 / ×5–7 奖杯 / ×8 起宝箱，CPO 批不随机）；弹层预览播片头 + 待机循环，保存的 PNG 是定格一帧（静态先上，不做 GIF）；分享数据加分钟数 / 面额行；分享弹层短屏幕可滚动；字典 AS-2 重做 + AS-2b / AS-3 combo / AS-4 combo；DESIGN §Addendum 2026-11-06 |
 | 2026-11-05 | [Lite 交易页与 Portfolio 四处小优化 v1](../delivery/lite-polish-1105-v1.md) | 余额不够时下单卡提示、桌面下单卡悬浮、Settled 分享入口、Settled 统一扣手续费 |
 | 2026-11-05 | [Quick Play · 交付前批项落地（quick-play-v1 定稿，无待定项）](../delivery/quick-play-v1.md) | CPO 批冷读全部待批项并落地：**下单超时**（每笔单带 `client_id`，服务端只认一次；5 秒没回音 `Checking your call…`，每 2 秒 `arcade_lookup` 查 15 秒，查不到退筹码 `Didn't go through · nothing was charged`）；**断网态**（`CONNECTION LOST` / `OFFLINE`，不再说成指数无效，来源价不变红）；**登录读取中态**（不闪「未登录」）；免责门 / 海报 **emoji → Lucide**；**combo 券算进全站每日券池**（$2 档 + `combo_pool_day`，计量条「池子空了」态）；B1–B11（分精确派彩、void 退费流水、横幅按原因、报价有效期对齐、方向键只算一次 + 弹层不下单、海报分钟首单到末单、pnl = 0 算赢、Best run `—`、模拟单清理、短名 `pl***er`、ⓘ Enter + 焦点）；字典 **AR-27 … AR-69**（43 帧）+ AB-1 / AB-2 七种原因；60 分钟亏损熔断单独文案 `back within the hour`；DESIGN §Addendum 2026-11-05；运营参数口径 = 走后台配置 |
 | 2026-11-04 | [Footer · Telegram 入口 — 交付说明 v1](../delivery/footer-telegram-v1.md) | 全站 footer 社交行 X · Discord 后加 Telegram：桌面点开 220px 下拉、手机底部抽屉，四个官方群（English · Global / 中文 / Русский · CIS / Tiếng Việt）固定顺序、真链接新标签页打开；按站点语言高亮推荐行（不打 ✓）；新文案 2 条 7 语；字典 Common UI › Site-wide Footer FT-TG1…3；DESIGN §16.5 官方账号表 + Telegram 入口 9 条 |

@@ -2469,11 +2469,23 @@ Quick Play 的视觉规范分四节逐轮叠加（10-19 → 10-28 → 11-02 → 
 1. **下单超时态**：5 秒没回音时筹码不动，YOUR CALLS 那一行 `opacity .55`、右侧灰字 `checking…`（`.row.checking`），键底注 `Checking your call…`；手机 MY CALLS 那枚筹码 `opacity .5`、秒数 `…`。查不到时键底注走拒单样式（红）但停 3 秒而不是 1.8 秒：`Didn’t go through · nothing was charged`。
 2. **断网态**：复用暂停遮罩的版式（`#dOv.on.offline`），标题 `CONNECTION LOST`（手机 `OFFLINE`），副行 `Reconnecting… check your internet`（手机 `Reconnecting…`），第三行 `YOUR OPEN CALLS STILL SETTLE ON OUR SIDE`；来源价**不变红**、大价停在最后一条；键置灰 + `Offline · reconnecting`；猞猁跑酷 HUD `OFFLINE · TAP TO JUMP`。入口横幅副行 `CONNECTION LOST · RECONNECTING…`。
 3. **登录状态读取中**：Deposit / Sign in 键的位置空着（`hidden`，不占位也不替换），Transfer 隐藏，余额 `—`，券计量条加载态；读完直接切成登录 / 未登录，不闪。实现先同步读本地保存的会话，所以这一态通常只在本地存储不可读时才看得到（3 秒封顶）。
-4. **图标**：免责门四行用 Lucide `timer / lock / percent / triangle-alert`，20px、`stroke-width 2.2`、`stroke-linecap square` + `stroke-linejoin miter`（和像素机柜搭），颜色 `var(--lime)`；海报徽章 `zap` / `trending-down`（12px，颜色跟徽章字），combo 海报 `flame`（13px）。产品界面不再有 emoji（CLAUDE.md 红线 8）；分享到外站的文字不算界面，保留。
+4. **图标**：免责门四行用 Lucide `timer / lock / percent / triangle-alert`，20px、`stroke-width 2.2`、`stroke-linecap square` + `stroke-linejoin miter`（和像素机柜搭），颜色 `var(--lime)`；海报徽章 `zap` / `trending-down`（12px，颜色跟徽章字），combo 海报也是 `zap`（11-06 起设计师卡，原过渡版的 `flame` 作废）。产品界面不再有 emoji（CLAUDE.md 红线 8）；分享到外站的文字不算界面，保留。
 5. **券计量条「池子空了」**：和「今天满了」同一套样式（`.max`，框变暗、没格子），再加 `.pool` 类作标识；文案 `Today's vouchers are all gone · more from 08:00` / 手机 `Vouchers all gone today`。个人满了优先于池子空了。
 6. **入口横幅暗着时按原因写**：`ARCADE_BANNER_OFF_COPY` 七条（指数无效 / 关桌 / 桌满 / 跳太快 / 全天亏损 / 60 分钟亏损熔断 / 断网），样式不变（`.qpc.off` 红字）。
 8. **60 分钟亏损熔断单独一套文案**（CPO 2026-11-05 批）：`paused_reason = loss_hour` → 遮罩 `TABLE PAUSED` / `Back within the hour`、键底注 `Table paused · back within the hour`、横幅 `PAUSED · BACK WITHIN THE HOUR`；全天档 `loss` 仍是 `back tomorrow`。字典 AR-68 / AR-69。
 7. **方向键与焦点**：↑ / ↓ 忽略自动重复（按住只算一次）；任何 `role=dialog` 可见或 ⓘ 说明框开着时不下单；免责门 / RULES / 手机抽屉打开时焦点进层、关闭回原控件；`.info[role=button]` 响应 Enter / 空格。
+
+## §Addendum 2026-11-06 · Quick Play · combo 海报（LOCKED · 内测）
+
+> 设计师三张动效卡 claude.ai/artifact/3yr24DXSdwJkqW5BBKz4PD（布局自 Figma「Combo share · PC」），CPO 2026-11-06 批「静态先上；按档位对应三张」。交付 `docs/delivery/quick-play-v1.md` §4.8；字典 AS-2 / AS-2b / AS-3 combo / AS-4 combo。作用域：`ArcadeComboPoster`（`.cposter`）+ ShareModal arcade 外观。取代 11-02 的过渡版 combo 海报（11-05 #4 里的 `flame` 徽章随之作废）。
+
+1. **按档位对应，不随机**：`arcadeComboTier(n)` → ×3–4 `t2` 顶砖块 · ×5–7 `t1` 奖杯 · ×8 起 `t3` 宝箱。三张同一骨架：玩家条（绝对定位在场景上，`padding 14 16 0`）→ 场景 372px → `.info`（PROFIT 11/700 字距 3 lime；大字 Jersey 10 54px，> 9 字符 44px；右栏 Chakra Petch 12/500 `#CFD8E2`，meta 11 `#7E8EA3`）→ 两格（底 `rgba(255,255,255,.04)`、描边 `rgba(51,214,255,.25)`、r8；标签 10/600 字距 1.5 `#8796A6`；值 Jersey 10 26px，第一格 lime）→ 页脚（上线 `#1C2A33`，Referral Archivo 12 `#8D9AAB` + 码 Jersey 10 26 字距 3，字标 16px 高，`Pick UP or DOWN · from $2` Archivo 13/600 lime，二维码 54 白底 r6 + `omenx.com` 10 `#6F7D8C`）。卡 400 宽、r16、底 `#060B16`。
+2. **徽章**：`N of N right`，lime 底 `#0B1206` 字 11/700 r10，前置 Lucide `zap` 12px 方角线头（同 11-05 #4，不用 emoji；设计稿的 ⚡ 换掉）。`QUICK PLAY` 青框 Jersey 10 18px 字距 2。
+3. **×N 大字**：奖杯卡 142.84px 金色渐变文字（`.gold`：`#FFFBE0 → #FFE27A → #FFC52E → #C8860A` + 扫光条）、宝箱卡 103.09px 同金色、砖块卡 89px `#FFE27A` + `#050B16` 八向描边；位数多按设计师 F 表缩（两位数 ×0.76、三位数 ×0.62），锚点不变。数字后面是 CSS 光晕（旋转射线 ×2 + 呼吸辉光，`mix-blend-mode: screen`），每张卡各自的中心 / 半径 / 色调写在 `.t1 / .t2 / .t3` 变量里。
+4. **COMBO 字**：奖杯卡 Jersey 10 26px 字距 10 `#FEDF72`；砖块卡 Russo One 13.85px 字距 4.6；宝箱卡 Russo One 18px 字距 6 + 两侧 70×4 金线。Russo One 自托管 `public/fonts/arcade/russo-one-latin-400-normal.woff2`（OFL，fontsource 5.3.0），只给这两处用。
+5. **动效（`.play`）与定格（`.still`）**：弹层预览加 `.play`——片头一次（砖块卡 ×N 从砖里顶出 .6s / 奖杯卡 ×N 砸进 .5s + 场景轻震 + 猫 react / 宝箱卡 rattle → 盖子掀开 → flash + 冲击环 + jolt → 52 枚金币喷射落定 → ×N 升起），之后只剩待机循环（猫 idle / hop、砖块 bump + 金币、光晕呼吸、数字 throb / 扫光、火把闪）。导出节点加 `.still`：所有动画关掉，宝箱卡金币按各自 `--dx / --land` 落定、压扁 `scaleY(.55)`——这就是片头结束的那一帧。`prefers-reduced-motion` = 定格。ShareModal 新增 `exportNode`：预览动、保存定格，两份 DOM 同一组件。
+6. **弹层短屏幕可滚动**：arcade 外观的海报盒 `shrink-0`，视口不够高时整个弹层滚动，不再把海报裁掉（以前 90vh 内被 flex 压缩）；海报缩放同时跟随盒宽变化（`ResizeObserver` 也观察盒子）。
+7. **素材**：`src/assets/arcade/combo/`（三张 800×732 像素底、举杯猞猁 232×340、跳跃猞猁 152×192、砖块 206²、火把墙 746×174、箱底光 324×134、宝箱开 / 合 360²），全部是设计师原图，`image-rendering: pixelated` 只给像素底图与砖块。
 
 ## §Addendum 2026-11-04 · Sports 列表直播与预告（LOCKED）
 

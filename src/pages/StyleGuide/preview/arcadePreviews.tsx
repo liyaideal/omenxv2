@@ -10,6 +10,7 @@ import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "@/pages/arcade/a
 import { ArcadeEntryBanner, type ArcadeBannerFixture } from "@/components/lite/arcade/ArcadeEntryBanner";
 import { ArcadeRunPoster } from "@/components/lite/arcade/ArcadeRunPoster";
 import { ArcadeComboPoster } from "@/components/lite/arcade/ArcadeComboPoster";
+import { ArcadeComboShareSheet } from "@/components/lite/arcade/ArcadeShareCard";
 import { ArcadeRunShareSheet } from "@/components/lite/arcade/ArcadeShareCard";
 import type { ArcadeCall, ArcadeFeedRow, ArcadeTick, RoadSlot } from "@/lib/arcade/arcadeCalls";
 import { callPayout } from "@/lib/arcade/arcadeCalls";
@@ -380,13 +381,13 @@ export const Ab2Preview = () => (
 /* ---------- AS-1 run poster · win / loss (the 400px card the Share key exports) ---------- */
 const RUN_WIN = { pnl: 83.57, won: 7, lost: 3, bestRun: 4, biggestWin: 9.2, minutes: 23, calls: 10, stakeLine: "$5 each" };
 const RUN_LOSS = { pnl: -21.4, won: 3, lost: 7, bestRun: 2, biggestWin: 4.6, minutes: 12, calls: 10, stakeLine: "$5 each" };
-/* ---------- AS-2 combo poster (interim — the designer's B / E poster replaces it) ---------- */
-export const As2Preview = () => (
-  <div className="flex flex-wrap gap-6 p-4">
-    <ArcadeComboPoster combo={{ n: 3, pnl: 13.92, stake: 15, biggestWin: 4.71 }} username="alex_carter" referralCode="ALEX7K" />
-    <ArcadeComboPoster combo={{ n: 8, pnl: 37.12, stake: 40, biggestWin: 4.9 }} username="alex_carter" referralCode="ALEX7K" />
-  </div>
-);
+/* ---------- AS-2 combo poster · the designer's three cards, one per tier (CPO 2026-11-06) ----------
+   stills = the frame the intro ends on (what gets saved); AS-2b plays the intro + idle loops like the share sheet's preview */
+const COMBO_3 = { n: 3, pnl: 13.92, stake: 15, biggestWin: 4.71, minutes: 2, stakeLine: "$5 each" };
+const COMBO_5 = { n: 5, pnl: 23.4, stake: 25, biggestWin: 4.9, minutes: 3, stakeLine: "$5 each" };
+const COMBO_8 = { n: 8, pnl: 37.12, stake: 40, biggestWin: 4.9, minutes: 5, stakeLine: "$5 each" };
+// the longest things a run can plausibly say: two-digit ×N, a four-figure profit, mixed chips
+const COMBO_BIG = { n: 12, pnl: 1234.56, stake: 1200, biggestWin: 118.4, minutes: 14, stakeLine: "$1,200 staked" };
 const ALEX_AVATAR = "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=aneka&backgroundColor=ffdfbf";
 // the longest amount a 30-minute session can plausibly show — the big number steps down so it never runs under the lynx
 const RUN_BIG = { pnl: 1234.56, won: 41, lost: 12, bestRun: 9, biggestWin: 48.5, minutes: 30, calls: 53, stakeLine: "$25 – $50" };
@@ -394,6 +395,25 @@ const Fonts = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => ensureArcadeFonts(), []);
   return <>{children}</>;
 };
+export const As2Preview = () => (
+  <Fonts>
+    <div className="flex flex-wrap gap-6 p-4">
+      <ArcadeComboPoster combo={COMBO_3} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" mode="still" />
+      <ArcadeComboPoster combo={COMBO_5} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" mode="still" />
+      <ArcadeComboPoster combo={COMBO_8} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" mode="still" />
+      <ArcadeComboPoster combo={COMBO_BIG} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" mode="still" />
+    </div>
+  </Fonts>
+);
+export const As2PlayPreview = () => (
+  <Fonts>
+    <div className="flex flex-wrap gap-6 p-4">
+      <ArcadeComboPoster combo={COMBO_3} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" mode="play" />
+      <ArcadeComboPoster combo={COMBO_5} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" mode="play" />
+      <ArcadeComboPoster combo={COMBO_8} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" mode="play" />
+    </div>
+  </Fonts>
+);
 export const As1Preview = () => (
   <Fonts>
     <div className="flex flex-wrap gap-6 p-4">
@@ -414,3 +434,11 @@ export const As3WinPreview = () => <Sheet run={RUN_WIN} />;
 export const As3LosePreview = () => <Sheet run={RUN_LOSS} />;
 export const As4WinPreview = () => <Sheet run={RUN_WIN} />;
 export const As4LosePreview = () => <Sheet run={RUN_LOSS} />;
+// the combo HUD's share: same sheet, the designer's combo card inside (×5 → Trophy); preview animated, saved PNG = last frame
+const ComboSheet = () => (
+  <Fonts>
+    <ArcadeComboShareSheet combo={COMBO_5} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" isDataReady={false} onClose={() => {}} />
+  </Fonts>
+);
+export const As3ComboPreview = () => <ComboSheet />;
+export const As4ComboPreview = () => <ComboSheet />;

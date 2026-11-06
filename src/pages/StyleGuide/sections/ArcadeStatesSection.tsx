@@ -240,7 +240,7 @@ const MORE_DESK: SectionCase[] = [
     spec: [
       { state: "掉券", when: "赢 && streak % 3 === 0 && 今天 + $2 ≤ $10", visual: "大字 `×3 COMBO` + `+$2 VOUCHER · IN YOUR VOUCHERS`；金币雨；黄绿 `+$2 VOUCHER` 从 HUD 飞到券计量条，计量条弹一下、3 格全亮、变 `+$2 voucher · it's in your Vouchers` ｜ `$4 / $10 today ›`，亮 8 秒后回到计数（`3 more wins → $2 voucher`）；HUD 副行 `YOU GOT A $2 VOUCHER!`。服务端在同一次结算发券（`arcade_combo_vouchers`，Rewards › Vouchers 里显示 `From Quick Play — 3 wins in a row`）", source: "comboUpdate / mega / voucherFly" },
       { state: "档位", when: "×3 / ×5 / ×8", visual: "×3 ON FIRE（闪）· ×5 UNSTOPPABLE（白热光 + 双倍金币 + 机柜抖）· ×8 LEGENDARY（流光字）；之后每 ×3 倍数再来", source: "comboTier / isMega" },
-      { state: "分享", when: "HUD 亮着", visual: "`⇪ SHARE` → 站点 ShareModal + combo 海报（AS-2）；不会自己弹", source: "api.shareCombo" },
+      { state: "分享", when: "HUD 亮着", visual: "`⇪ SHARE` → 站点 ShareModal + combo 海报（AS-2，按档位：×3–4 砖块 / ×5–7 奖杯 / ×8 起宝箱）；带这串连赢的净利、本金、最大一笔、首单到末单的分钟数；不会自己弹", source: "api.shareCombo" },
     ],
   },
   {
@@ -309,9 +309,22 @@ const SHARE: SectionCase[] = [
   },
   {
     key: "arcade-as2",
-    label: "AS-2 · combo 海报（过渡版 · 设计稿到了整张替换）",
-    note: "字段 = 和 Liya 定给设计的那份：N 连对、这次 combo 赚了多少（净）、一句人话、本金、最大一笔、用户名 / QUICK PLAY / 推荐码 / 二维码 / logo。设计方向 B · Fever / E · Arcade score screen。",
-    spec: [{ state: "combo", when: "HUD `⇪ SHARE`", visual: "徽章 `3 in a row（Lucide flame）`；小标 `COMBO ×3 · ON FIRE`；大字 `+$13.92`；`Called Bitcoin up or down — 3 right in a row`；`30 seconds a call · $15 staked`；两格 `Combo ×3` / `Biggest win +$4.71`", source: "ArcadeComboPoster / ArcadeComboShareCard" }],
+    label: "AS-2 · combo 海报「Share your combo」· 三档各一张 + 长变体（定格）",
+    note: "设计师三张 combo 卡（claude.ai/artifact/3yr24DXSdwJkqW5BBKz4PD，布局自 Figma「Combo share · PC」），CPO 2026-11-06 批：按档位对应，不随机——×3–4 顶砖块 · ×5–7 奖杯 · ×8 起宝箱。每张 = 玩家条（头像 · 用户名 · `N of N right` Lucide zap 徽章 · 青色 `QUICK PLAY` 框）→ 372px 像素场景（×N 大字 + COMBO 字 + 光晕 + 猞猁）→ `PROFIT` Jersey 10 大字 + 人话两行 + `N minutes · N calls · $5 each` → `Best run` / `Biggest win` 两格 → `Referral: ALEX7K` + OmenX 字标 + `Pick UP or DOWN · from $2` + 二维码。帧里从左到右：×3 砖块、×5 奖杯、×8 宝箱、×12 / +$1,234.56 / `$1,200 staked` 长变体（大字 54 → 44px，右栏折行不溢出）。入口只有 combo HUD 的 `⇪ SHARE`，不会自己弹。",
+    spec: [
+      { state: "×3–4 · 顶砖块", when: "3 ≤ n ≤ 4", visual: "猞猁站绿线上顶 `$` 砖块，×N 黄字黑描边浮在砖块上方，`COMBO` Russo One 小字；底图 bg-block", source: "ArcadeComboPoster tier t2 / arcadeComboTier" },
+      { state: "×5–7 · 奖杯", when: "5 ≤ n ≤ 7", visual: "猞猁举杯在左，×N 金色渐变大字（142px，位数多按 1 / .76 / .62 缩）在右，`COMBO` 像素字距 10 在下，右上四角星", source: "tier t1" },
+      { state: "×8 起 · 宝箱", when: "n ≥ 8", visual: "火把墙 + 开着的宝箱 + 52 枚金币落满两侧，×N 金色大字（103px）在上，`COMBO` 两侧金线", source: "tier t3" },
+      { state: "大字缩放", when: "×N 两位数 / 三位数", visual: "设计师 F 表：两位数 ×0.76、三位数 ×0.62，盒子位置不变", source: "numScale" },
+      { state: "定格 vs 动效", when: "导出 / 预览", visual: "保存的 PNG = 片头结束那一帧（`.still`：所有动画关掉，宝箱金币落定）；分享弹窗里的预览播片头一次再循环待机动作（`.play`，见 AS-2b）；系统开了减少动态时也是定格", source: "mode=\"still\" / \"play\"；ShareModal.exportNode" },
+      { state: "字体", when: "页面 + 导出", visual: "Jersey 10（数字 / 推荐码 / 两格）、Chakra Petch（正文）、Archivo（Referral / Pick）、Russo One（砖块与宝箱卡的 COMBO）——全部自托管，导出时嵌进 PNG", source: "public/fonts/arcade · arcadePosterFontCSS" },
+    ],
+  },
+  {
+    key: "arcade-as2-play",
+    label: "AS-2b · combo 海报 · 动效（分享弹窗里的预览）",
+    note: "同三张卡 `mode=\"play\"`：砖块卡——猫一直蹲起顶砖、每顶一下弹一枚金币化成闪光、×N 从砖里顶出后轻浮；奖杯卡——×N 砸进画面（轻震）同时猫蹲一下举杯跳起，之后小动作循环，数字扫光、COMBO 字距展开、奖杯闪光；宝箱卡——箱子抖几下、盖子在一团光里掀开、画面震动、金币喷射落满两侧、×N 升起扫光、COMBO 两侧金线展开。片头约 3 秒，之后只剩待机循环。刷新本帧重播。",
+    spec: [{ state: "动效", when: "弹窗打开", visual: "片头一次 + 待机循环；减少动态 = 定格", source: "arcadeComboPoster.css（.play 规则）" }],
   },
 ];
 
@@ -321,15 +334,17 @@ const SHEET_SPEC = [
   { state: "外壳", when: "手机", visual: "底部抽屉：宽 min(356, 100% − 34)、上圆角 14.5、左右上描边、底部留 24 + 安全区；海报按宽度等比缩小（≈ 0.82）", source: "同上" },
   { state: "标题", when: "always", visual: "Jersey 10 白字 `Share Your Run`（桌面 28 / 手机 24）；副标 12/500 #94A0AD——赚 `Save the card or post it straight to X / Telegram`，亏 `Rough one — share it anyway, we go again`；右上 ✕", source: "ArcadeRunShareSheet" },
   { state: "按键", when: "always", visual: "两列：Save · Copy Link / X · Telegram，底 #1B2228、描边 #1C1F26（桌面 r15 / 18px 字，手机 r12 / 14px 字）；整行 `More Options` 黄绿 #CFFF4A（系统支持分享时才有）", source: "ShareModal" },
-  { state: "combo", when: "HUD `⇪ SHARE`", visual: "同一套外壳，里面是 AS-2 的过渡海报", source: "ArcadeComboShareCard" },
+  { state: "combo", when: "HUD `⇪ SHARE`", visual: "同一套外壳，标题 `Share your combo`，里面是 AS-2 的档位卡（预览播动效，保存的是定格）；文件名 omenx-quick-play-combo", source: "ArcadeComboShareSheet / ArcadeComboShareCard" },
 ];
 const SHEET_DESK: SectionCase[] = [
   { key: "arcade-as3-win", label: "AS-3 · 分享弹窗（桌面）· 赚", note: "Figma 1283:1437 左。", spec: SHEET_SPEC },
   { key: "arcade-as3-lose", label: "AS-3 · 分享弹窗（桌面）· 亏", note: "Figma 1283:1437 右。", spec: SHEET_SPEC },
+  { key: "arcade-as3-combo", label: "AS-3 · 分享弹窗（桌面）· combo（×5 奖杯卡，预览在播）", note: "combo HUD 的 `⇪ SHARE`；卡片片头播完停在待机循环。", spec: SHEET_SPEC },
 ];
 const SHEET_MOB: SectionCase[] = [
   { key: "arcade-as4-win", label: "AS-4 · 分享抽屉（手机）· 赚", note: "Figma 1283:1841。", spec: SHEET_SPEC },
   { key: "arcade-as4-lose", label: "AS-4 · 分享抽屉（手机）· 亏", note: "Figma 1283:2110。", spec: SHEET_SPEC },
+  { key: "arcade-as4-combo", label: "AS-4 · 分享抽屉（手机）· combo（×5 奖杯卡）", note: "手机 ROAD & STATS 抽屉里的 combo HUD `⇪ SHARE`；底部抽屉，海报按宽度等比缩小。", spec: SHEET_SPEC },
 ];
 
 const BANNER: SectionCase[] = [
@@ -421,7 +436,7 @@ export const ArcadeStatesSection = () => (
       <Desk cases={[BANNER[0]]} min={280} />
       <Mob cases={[BANNER[1]]} min={320} />
     </SubSection>
-    <SubSection title="分享海报（AS-1 · AS-2）">
+    <SubSection title="分享海报（AS-1 · AS-2 · AS-2b）">
       <Desk cases={SHARE} min={520} />
     </SubSection>
     <SubSection title="分享弹窗 / 抽屉（AS-3 桌面 · AS-4 手机，一态一帧）">
@@ -436,7 +451,6 @@ export const ArcadeStatesSection = () => (
       <ul className="list-disc space-y-1 pl-5 text-[12px] text-muted-foreground">
         <li>演示行情约 2 s 一条 / 报价有效 4.5 s / 指数过期 6 s / 模型历史 60 条起（研发稿 500 ms / 500 ms / 600 s）——Lovable 演示用，`arcade_params` 可调；正式版照交付文档 §3.1。</li>
         <li>演示桌永远能交易：行情停顿时服务端补合成 tick，熔断 / 亏损上限 / 全桌上限在演示桌拨到够不着；AR-3 的暂停是 fixture。</li>
-        <li>combo 海报是过渡版（AS-2），设计稿到了整张替换；文案词典 review 后续一轮。</li>
         <li>ETH / SOL / 美股桌隐藏（`ARCADE_LIVE_TABLES`）。</li>
       </ul>
     </SubSection>
