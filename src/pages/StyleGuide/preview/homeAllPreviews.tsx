@@ -18,6 +18,7 @@ import { HomeStocksSection, type PrintMode } from "@/components/lite/home/HomeSt
 import { HomeDeskSection } from "@/components/lite/home/HomeDeskSection";
 import { HomeMoreSection } from "@/components/lite/home/HomeMoreSection";
 import { HomeStage } from "@/components/lite/home/HomeStage";
+import { LiteAllStageSkeleton, LiteMobileStageSkeleton } from "@/components/lite/skeletons/LiteEventsSkeletons";
 import {
   COINS,
   HK_STOCK_SUBTYPE,
@@ -145,12 +146,27 @@ export const SPORTS_S3 = dedupe(LIVE_PLAIN.slice(0, 3));
 /** ④ nothing live — the biggest upcoming match takes the stage. */
 export const SPORTS_S4 = dedupe([]);
 
-const SportsDemo = ({ matches }: { matches: SportsMatch[] }) => {
+const SportsDemo = ({
+  matches,
+  remindedFixture,
+  remindGuestFixture,
+}: {
+  matches: SportsMatch[];
+  remindedFixture?: string[];
+  remindGuestFixture?: boolean;
+}) => {
   const isMobile = useIsMobile();
   return (
     <Pad>
       <div className={isMobile ? "hall hall-m" : "hall"}>
-        <HomeSportsSection matches={matches} isMobile={!!isMobile} onOpenAll={() => undefined} nowOverride={FROZEN_NOW} />
+        <HomeSportsSection
+          matches={matches}
+          isMobile={!!isMobile}
+          onOpenAll={() => undefined}
+          nowOverride={FROZEN_NOW}
+          remindedFixture={remindedFixture}
+          remindGuestFixture={remindGuestFixture}
+        />
       </div>
     </Pad>
   );
@@ -188,6 +204,33 @@ const CREST_FIX: Record<string, Partial<SportsMatch>> = {
 };
 const SPORTS_CRESTS = SPORTS_S4.map((m) => (CREST_FIX[m.id] ? { ...m, ...CREST_FIX[m.id] } : m));
 export const HaCrestsPreview = () => <SportsDemo matches={SPORTS_CRESTS} />;
+/**
+ * HA-21 · stage state ④ with a reminder (CPO 2026-11-09): the biggest match
+ * has a stream and kicks off within 48h → "☆ Remind me" (same store and rule
+ * as the Sports view rail, EV-43 / EV-45). Fixture = SPORTS_S4 with a stream
+ * on the stage match (26h out). The fixture keeps every tap local.
+ */
+const SPORTS_REMIND = SPORTS_S4.map((m) => (m.id === "ha-up-01" ? { ...m, streamUrl: STREAM_SRC } : m));
+export const HaRemindPreview = () => <SportsDemo matches={SPORTS_REMIND} remindedFixture={[]} />;
+export const HaRemindSetPreview = () => <SportsDemo matches={SPORTS_REMIND} remindedFixture={["ha-up-01"]} />;
+/** HA-21c · a guest taps "☆ Remind me": the standard sign-in opens (desktop dialog / phone sheet). */
+export const HaRemindGuestPreview = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const id = window.setTimeout(() => ref.current?.querySelector<HTMLButtonElement>("[data-remind]")?.click(), 400);
+    return () => {
+      window.clearTimeout(id);
+      useAuthFlowStore.getState().closePrompt();
+    };
+  }, []);
+  return (
+    <div ref={ref}>
+      <SportsDemo matches={SPORTS_REMIND} remindGuestFixture />
+      <AuthPromptHost previewStep="login" />
+    </div>
+  );
+};
+
 /** HA-15 · a guest pressed "Watch live": the standard sign-in opens over the home stage. */
 export const HaGuestPlayPreview = () => {
   useEffect(() => {
@@ -490,4 +533,15 @@ export const HaStagePreview = () => {
       />
     </Pad>
   );
+};
+
+/**
+ * HA-22 · first-load skeleton of the All view (R6 · CPO 2026-11-09): the same
+ * production skeleton LiteEventsPage shows while stageFirstLoad — all five
+ * sections (Sports · Crypto · Stocks · Editor's Desk · More), each block at
+ * its final size so nothing jumps when the data lands.
+ */
+export const HaSkeletonPreview = () => {
+  const isMobile = useIsMobile();
+  return <Pad>{isMobile ? <LiteMobileStageSkeleton /> : <LiteAllStageSkeleton />}</Pad>;
 };

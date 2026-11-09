@@ -18,11 +18,14 @@ import {
   type Timeframe,
   upOptionOf,
 } from "@/components/lite/intraday/intradayData";
-import { CY, DownButton, LM, MU, OR, SectionHead, UpButton, hhmm, mmss } from "./homeAllShell";
+import { CY, DownButton, LM, MU, OR, SectionHead, UpButton, hhmm, ht, mmss, rich, tradeLink } from "./homeAllShell";
+import { t as tr, useT } from "@/i18n";
+
+const upWord = () => tr("events.screen.simple.home.home_crypto_card.up");
+const downWord = () => tr("events.screen.simple.home.home_crypto_card.down");
 import { RoundCanvas } from "./RoundCanvas";
 import { roundSeries, type RoundSeries } from "./roundSeries";
 
-const EVERY: Record<Timeframe, string> = { "5m": "5 min", "15m": "15 min", "1h": "hour", "4h": "4 hours", "1d": "day" };
 const COIN_UI: Record<Coin, { sym: string; bg: string; code: string }> = {
   btc: { sym: "₿", bg: "#F7931A", code: "BTC" },
   eth: { sym: "Ξ", bg: "#627EEA", code: "ETH" },
@@ -68,7 +71,7 @@ const Last8 = ({ history, label, big, labelColor }: { history: ("up" | "down")[]
   const upWon = recent.filter((r) => r === "up").length;
   const lastR = recent[recent.length - 1];
   return (
-    <div className="row" style={{ marginTop: big ? 22 : 12, gap: big ? 14 : 10, flexWrap: "nowrap" }}>
+    <div className="row" style={{ marginTop: big ? 22 : 12, gap: big ? 14 : 10, rowGap: 6, flexWrap: big ? "nowrap" : "wrap" }}>
       <span className="lbl" style={{ fontSize: big ? 10 : 9.5, color: labelColor, whiteSpace: "nowrap" }}>
         {label}
       </span>
@@ -89,13 +92,19 @@ const Last8 = ({ history, label, big, labelColor }: { history: ("up" | "down")[]
       <span className="kv" style={{ fontSize: big ? 12.5 : 10.5, marginLeft: big ? 0 : "auto", whiteSpace: "nowrap" }}>
         {big ? (
           <>
-            Up won <b style={{ color: CY }}>{upWon}</b> · Down won <b style={{ color: LM }}>{recent.length - upWon}</b> · last round{" "}
-            <b style={{ color: lastR === "up" ? CY : LM }}>{lastR === "up" ? "Up" : "Down"}</b>
+            {rich(ht("crypto.history_long"), {
+              up: <b style={{ color: CY }}>{upWon}</b>,
+              down: <b style={{ color: LM }}>{recent.length - upWon}</b>,
+              last: <b style={{ color: lastR === "up" ? CY : LM }}>{lastR === "up" ? upWord() : downWord()}</b>,
+            })}
           </>
         ) : (
           <>
-            Up <b style={{ color: CY }}>{upWon}</b> · Down <b style={{ color: LM }}>{recent.length - upWon}</b> · last{" "}
-            <b style={{ color: lastR === "up" ? CY : LM }}>{lastR === "up" ? "Up" : "Down"}</b>
+            {rich(ht("crypto.history_short"), {
+              up: <b style={{ color: CY }}>{upWon}</b>,
+              down: <b style={{ color: LM }}>{recent.length - upWon}</b>,
+              last: <b style={{ color: lastR === "up" ? CY : LM }}>{lastR === "up" ? upWord() : downWord()}</b>,
+            })}
           </>
         )}
       </span>
@@ -105,6 +114,7 @@ const Last8 = ({ history, label, big, labelColor }: { history: ("up" | "down")[]
 
 export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, livePrices, isMobile, nowOverride }: HomeCryptoSectionProps) => {
   const navigate = useNavigate();
+  useT(); // re-render on language change / catalog arrival
   const now = useNow(nowOverride);
   const ev = (c: Coin) => currentFor.get(`${c}-${tf}`) ?? null;
   const btc = ev("btc");
@@ -125,7 +135,7 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
   const rem = Math.max(0, sBtc.end - now);
   const prog = Math.min(100, Math.max(0, ((now - sBtc.start) / (sBtc.end - sBtc.start)) * 100));
   const todayVol = [...currentFor.values()].reduce((a, e) => a + (e.volume || 0), 0);
-  const go = (e: QuickEvent) => () => navigate(`/trade?event=${e.id}`);
+  const go = (e: QuickEvent, side: "yes" | "no") => () => navigate(tradeLink(e.id, { side }));
 
   const numbers = (c: Coin) => {
     const e = ev(c);
@@ -147,12 +157,8 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
     </div>
   );
 
-  const eyebrow = `● Crypto · Up or Down · new round every ${EVERY[tf]}`;
-  const question = (
-    <>
-      Will the price <i>go up</i>?
-    </>
-  );
+  const eyebrow = `● ${ht(`crypto.eyebrow_${tf}`)}`;
+  const question = <>{rich(ht("crypto.question"))}</>;
 
   const chgLine = (big: boolean) => (
     <>
@@ -161,7 +167,9 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
         {(Math.abs(B.chg) * 100).toFixed(2)}%
       </span>
       <span className="kv" style={{ fontSize: big ? 11.5 : 10.5 }}>
-        {B.chg >= 0 ? "above" : "below"} the open · <b style={{ color: B.chg >= 0 ? CY : LM }}>{B.chg >= 0 ? "Up" : "Down"} wins</b> if it closed now
+        {rich(ht(B.chg >= 0 ? "crypto.above_open" : "crypto.below_open"), {
+          win: <b style={{ color: B.chg >= 0 ? CY : LM }}>{ht(B.chg >= 0 ? "crypto.up_wins" : "crypto.down_wins")}</b>,
+        })}
       </span>
     </>
   );
@@ -174,10 +182,10 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
       </span>
       <span className="row" style={{ justifyContent: "space-between", fontSize: big ? 11 : 10.5, color: MU }}>
         <span>
-          <b style={{ color: CY }}>{B.upc}%</b> of money on Up
+          {rich(ht("crypto.money_on_up"), { pct: <b style={{ color: CY }}>{B.upc}%</b> })}
         </span>
         <span>
-          <b style={{ color: LM }}>{100 - B.upc}%</b> on Down
+          {rich(ht("crypto.money_on_down"), { pct: <b style={{ color: LM }}>{100 - B.upc}%</b> })}
         </span>
       </span>
     </span>
@@ -205,15 +213,15 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
               {(Math.abs(n.chg) * 100).toFixed(2)}%
             </span>
             <span className="kv" style={{ fontSize: 10 }}>
-              closes {hhmm(n.s.end)}
+              {ht("crypto.closes_at", { time: hhmm(n.s.end) })}
             </span>
           </div>
           <div style={{ marginTop: 8 }}>
             <RoundCanvas series={n.s} tf={tf} height={64} nowOverride={nowOverride} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 10 }}>
-            <UpButton price={n.up} onClick={go(n.e)} style={{ padding: "7px 0", fontSize: 11.5, justifyContent: "center" }} />
-            <DownButton price={1 - n.up} onClick={go(n.e)} style={{ padding: "7px 0", fontSize: 11.5, justifyContent: "center" }} />
+            <UpButton price={n.up} onClick={go(n.e, "yes")} style={{ padding: "7px 0", fontSize: 11.5, justifyContent: "center" }} />
+            <DownButton price={1 - n.up} onClick={go(n.e, "no")} style={{ padding: "7px 0", fontSize: 11.5, justifyContent: "center" }} />
           </div>
         </div>
       );
@@ -223,7 +231,7 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
         <SectionHead eyebrow={eyebrow} eyebrowColor={OR} question={question} isMobile />
         <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 7 }}>
           <span className="eye" style={{ color: OR, fontSize: 10 }}>
-            This round closes in{" "}
+            {ht("crypto.closes_in")}{" "}
             <span className="m" style={{ fontSize: 24, letterSpacing: 0, marginLeft: 6, lineHeight: 1 }}>
               {mmss(rem)}
             </span>
@@ -243,10 +251,10 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
               BTC
             </span>
             <span className="kv" style={{ fontSize: 11.5 }}>
-              Round <b className="m">{hhmm(sBtc.start)} → {hhmm(sBtc.end)}</b>
+              {rich(ht("crypto.round"), { range: <b className="m">{hhmm(sBtc.start)} → {hhmm(sBtc.end)}</b> })}
             </span>
             <span className="kv" style={{ marginLeft: "auto", fontSize: 11.5 }}>
-              Today <b>{kUsd(todayVol)}</b>
+              {rich(ht("crypto.today"), { vol: <b>{kUsd(todayVol)}</b> })}
             </span>
           </div>
           <div className="row" style={{ gap: 12, marginTop: 8, alignItems: "baseline" }}>
@@ -258,10 +266,10 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
           <div style={{ marginTop: 6 }}>
             <RoundCanvas series={sBtc} tf={tf} big height={150} nowOverride={nowOverride} />
           </div>
-          <Last8 history={historyFor.get(`btc-${tf}`) ?? []} label={`BTC · last ${Math.min(8, (historyFor.get(`btc-${tf}`) ?? []).length)}`} big={false} labelColor="#DBE2EA" />
+          <Last8 history={historyFor.get(`btc-${tf}`) ?? []} label={ht("crypto.btc_last", { count: Math.min(8, (historyFor.get(`btc-${tf}`) ?? []).length) })} big={false} labelColor="#DBE2EA" />
           <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            <UpButton price={B.up} onClick={go(B.e)} style={{ padding: "12px 0", fontSize: 15, justifyContent: "center" }} />
-            <DownButton price={1 - B.up} onClick={go(B.e)} style={{ padding: "12px 0", fontSize: 15, justifyContent: "center" }} />
+            <UpButton price={B.up} onClick={go(B.e, "yes")} style={{ padding: "12px 0", fontSize: 15, justifyContent: "center" }} />
+            <DownButton price={1 - B.up} onClick={go(B.e, "no")} style={{ padding: "12px 0", fontSize: 15, justifyContent: "center" }} />
           </div>
           <div style={{ marginTop: 10 }}>{crowd(false)}</div>
         </div>
@@ -278,7 +286,7 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
     <div className="row" style={{ gap: 26, alignItems: "flex-end" }}>
       <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 7 }}>
         <span className="eye" style={{ color: OR, fontSize: 11 }}>
-          This round closes in{" "}
+          {ht("crypto.closes_in")}{" "}
           <span className="m" style={{ fontSize: 28, letterSpacing: 0, marginLeft: 8, lineHeight: 1 }}>
             {mmss(rem)}
           </span>
@@ -316,17 +324,17 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
             </span>
           </span>
           <span className="kv" style={{ fontSize: 11 }}>
-            closes {hhmm(n.s.end)}
+            {ht("crypto.closes_at", { time: hhmm(n.s.end) })}
           </span>
         </div>
         <RoundCanvas series={n.s} tf={tf} height={80} nowOverride={nowOverride} />
         <div style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto", gap: 10, alignItems: "center" }}>
-          <UpButton price={n.up} onClick={go(n.e)} />
+          <UpButton price={n.up} onClick={go(n.e, "yes")} />
           <span className="cbar" style={{ height: 5 }}>
             <i style={{ width: `${n.upc}%`, background: CY }} />
             <i style={{ flex: 1, background: LM }} />
           </span>
-          <DownButton price={1 - n.up} onClick={go(n.e)} />
+          <DownButton price={1 - n.up} onClick={go(n.e, "no")} />
         </div>
       </div>
     );
@@ -345,14 +353,14 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
               BTC
             </span>
             <span className="kv">
-              Round <b className="m">{hhmm(sBtc.start)} → {hhmm(sBtc.end)}</b>
+              {rich(ht("crypto.round"), { range: <b className="m">{hhmm(sBtc.start)} → {hhmm(sBtc.end)}</b> })}
             </span>
             <span className="kv" style={{ marginLeft: 4, display: "inline-flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: LM, boxShadow: `0 0 8px ${LM}` }} />
-              this round <b className="m">${Math.round(btc.volume).toLocaleString("en-US")}</b>
+              {rich(ht("crypto.this_round"), { vol: <b className="m">${Math.round(btc.volume).toLocaleString("en-US")}</b> })}
             </span>
             <span className="kv" style={{ marginLeft: "auto" }}>
-              Traded today <b>{kUsd(todayVol)}</b>
+              {rich(ht("crypto.traded_today"), { vol: <b>{kUsd(todayVol)}</b> })}
             </span>
           </div>
           <div className="row" style={{ gap: 18, marginTop: 10, alignItems: "baseline" }}>
@@ -365,11 +373,11 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
             <RoundCanvas series={sBtc} tf={tf} big height={206} nowOverride={nowOverride} />
           </div>
           <div style={{ marginTop: 26, display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto", gap: 14, alignItems: "center" }}>
-            <UpButton price={B.up} onClick={go(B.e)} style={{ padding: "12px 26px", fontSize: 15, boxShadow: "0 0 18px rgba(51,214,255,.12)" }} />
+            <UpButton price={B.up} onClick={go(B.e, "yes")} style={{ padding: "12px 26px", fontSize: 15, boxShadow: "0 0 18px rgba(51,214,255,.12)" }} />
             {crowd(true)}
-            <DownButton price={1 - B.up} onClick={go(B.e)} style={{ padding: "12px 26px", fontSize: 15, boxShadow: "0 0 18px rgba(207,255,74,.12)" }} />
+            <DownButton price={1 - B.up} onClick={go(B.e, "no")} style={{ padding: "12px 26px", fontSize: 15, boxShadow: "0 0 18px rgba(207,255,74,.12)" }} />
           </div>
-          <Last8 history={historyFor.get(`btc-${tf}`) ?? []} label={`Last ${Math.min(8, (historyFor.get(`btc-${tf}`) ?? []).length)} rounds`} big />
+          <Last8 history={historyFor.get(`btc-${tf}`) ?? []} label={ht("crypto.last_rounds", { count: Math.min(8, (historyFor.get(`btc-${tf}`) ?? []).length) })} big />
         </div>
         <div className="panel" style={{ gridColumn: "span 4", display: "flex", flexDirection: "column", paddingTop: 24, paddingBottom: 24 }}>
           {altRow("eth", 0)}

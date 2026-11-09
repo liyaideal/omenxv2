@@ -135,7 +135,8 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
   const coin = parsed?.coin ?? "btc";
   const tf: Timeframe = parsed?.tf ?? "15m";
 
-  const [side, setSide] = useState<Side>(params.get("side") === "down" ? "no" : "yes");
+  // `&side=down|no` from a Down price button (home G3) opens on Down.
+  const [side, setSide] = useState<Side>(["down", "no"].includes(params.get("side") || "") ? "no" : "yes");
   const [amount, setAmount] = useState("");
   const [boost, setBoost] = useState(1);
   const { getConfig, isLoading: boostLoading } = useCategoryBoostConfigs();

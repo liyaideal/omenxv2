@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Search, X, Megaphone } from "lucide-react";
+import { ArrowLeft, Search, X, Megaphone, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,25 @@ const StyleGuideIndex = () => {
   const actualIsMobile = useIsMobile();
   const [viewport, setViewport] = useState<ViewportSize>("auto");
   const [searchQuery, setSearchQuery] = useState("");
+  // Desktop: the section sidebar can be folded away so every frame gets the
+  // full page width (CPO 2026-11-09 — a squeezed frame reads as a layout bug).
+  // Remembered per browser.
+  const [navCollapsed, setNavCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("sg.navCollapsed") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const toggleNav = () =>
+    setNavCollapsed((v) => {
+      try {
+        localStorage.setItem("sg.navCollapsed", v ? "0" : "1");
+      } catch {
+        /* private mode: just this visit */
+      }
+      return !v;
+    });
   const [activeId, setActiveId] = useState(
     () => resolveSectionId(location.hash) ?? ALL_SECTIONS[0].id,
   );
@@ -155,6 +174,19 @@ const StyleGuideIndex = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
+            {!isMobile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleNav}
+                aria-pressed={navCollapsed}
+                aria-label={navCollapsed ? "Show sections" : "Hide sections"}
+                title={navCollapsed ? "Show sections" : "Hide sections"}
+                data-sg-nav-toggle=""
+              >
+                {navCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+              </Button>
+            )}
             <div>
               <h1 className={`font-semibold ${isMobile ? "text-lg" : "text-2xl"}`}>Style Guide</h1>
               <p className="text-sm text-muted-foreground">Design System Documentation</p>
@@ -253,6 +285,7 @@ const StyleGuideIndex = () => {
       {/* Grouped shell: sidebar (desktop) / stacked picker (mobile) */}
       <div className={isMobile ? "" : "mx-auto flex max-w-[1600px] gap-8 px-8 py-6"}>
         <nav
+          hidden={!isMobile && navCollapsed}
           className={
             isMobile
               ? "sticky top-[57px] z-40 -mx-0 border-b border-border bg-background/95 px-4 py-3 backdrop-blur"

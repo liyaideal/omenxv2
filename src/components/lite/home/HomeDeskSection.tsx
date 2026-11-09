@@ -14,17 +14,18 @@
 import { useNavigate } from "react-router-dom";
 import { pickHref, type EditorPick } from "@/components/lite/picks/editorialPicks";
 import { topCategoryForKey } from "@/lib/taxonomy";
-import { DownButton, LM, OddsButton, SectionHead, UpButton, hhmm } from "./homeAllShell";
+import { DownButton, LM, OddsButton, SectionHead, UpButton, hhmm, ht, rich, uiLocale } from "./homeAllShell";
+import { t, useT } from "@/i18n";
 
-const catLabel = (p: EditorPick) => topCategoryForKey(p.category)?.label ?? (p.category ? p.category[0].toUpperCase() + p.category.slice(1) : "Market");
+const catLabel = (p: EditorPick) => topCategoryForKey(p.category)?.label ?? (p.category ? p.category[0].toUpperCase() + p.category.slice(1) : t("events.screen.simple.featured_markets.featured_market_card.market"));
 const whenLabel = (d: Date | null, nowMs?: number): string => {
   if (!d) return "";
   const now = nowMs != null ? new Date(nowMs) : new Date();
   const sod = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
   const diff = (sod(d) - sod(now)) / 86_400_000;
-  if (diff === 0) return `settles ${hhmm(d)}`;
-  if (diff === 1) return `Tomorrow ${hhmm(d)}`;
-  return `settles ${d.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+  if (diff === 0) return ht("desk.settles_at", { time: hhmm(d) });
+  if (diff === 1) return ht("desk.tomorrow_at", { time: hhmm(d) });
+  return ht("desk.settles_at", { time: d.toLocaleDateString(uiLocale(), { month: "short", day: "numeric" }) });
 };
 const isRound = (p: EditorPick) => /^(up|down)$/i.test(p.yesLabel) || /^(up|down)$/i.test(p.noLabel);
 
@@ -43,7 +44,7 @@ const Buttons = ({ p, go }: { p: EditorPick; go: (href: string) => void }) => {
         <OddsButton label={p.yesLabel} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId))} />
         <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId))} />
         <button type="button" className="lnk" style={{ fontSize: 13 }} onClick={() => go(pickHref(p))}>
-          +{p.optionCount - 2} more
+          {ht("desk.more", { count: p.optionCount - 2 })}
         </button>
       </>
     );
@@ -51,8 +52,8 @@ const Buttons = ({ p, go }: { p: EditorPick; go: (href: string) => void }) => {
   if (/^yes$/i.test(p.yesLabel)) {
     return (
       <>
-        <UpButton label="Yes" price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId))} />
-        <DownButton label="No" price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId))} />
+        <UpButton label={t("common.yes")} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId))} />
+        <DownButton label={t("common.no")} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId))} />
       </>
     );
   }
@@ -66,14 +67,11 @@ const Buttons = ({ p, go }: { p: EditorPick; go: (href: string) => void }) => {
 
 export const HomeDeskSection = ({ picks, isMobile, nowOverride }: { picks: EditorPick[]; isMobile: boolean; nowOverride?: number }) => {
   const navigate = useNavigate();
+  useT(); // re-render on language change / catalog arrival
   if (picks.length === 0) return null;
   const go = (href: string) => navigate(href);
-  const eyebrow = `✦ Editor's Desk · ${picks.length} pick${picks.length === 1 ? "" : "s"}`;
-  const question = (
-    <>
-      What's worth <i>watching</i>?
-    </>
-  );
+  const eyebrow = ht("desk.eyebrow", { count: picks.length });
+  const question = <>{rich(ht("desk.question"))}</>;
 
   if (isMobile) {
     return (

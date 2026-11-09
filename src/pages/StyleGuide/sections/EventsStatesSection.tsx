@@ -460,7 +460,7 @@ const LOADING_CASES: SectionCase[] = [
         state: "首载",
         when: "hook loading === true && 无缓存数据",
         visual:
-          "All stage（intraday + sports）+ 目录骨架；桌面网格 / 移动列表两形态；色块只用 #171A1F / #15181C，与终态逐模块同尺寸（CLS≈0）",
+          "All 视图五段（Sports / Crypto / Stocks / Editor's Desk / More，2026-11-09 起，细节见 HA-22）+ 目录骨架；桌面网格 / 移动列表两形态；色块只用 #171A1F / #15181C，与终态逐模块同尺寸（CLS≈0）",
         source: "LiteAllStageSkeleton / LiteMarketGridSkeleton / LiteMarketListSkeleton",
       },
       {

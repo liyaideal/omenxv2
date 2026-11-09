@@ -17,6 +17,15 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-11-09 — 首页 All 视图终验四项（[文档](../delivery/home-all-v1.md) §2 S4 / G3 / R6 / R8）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| 1 | 状态④：有直播且 48h 内开赛 → Remind me / Reminder set（复用直播提醒），否则 Open match | ⬜ | S4；字典 HA-21a/b/c |
+| 2 | 价钮进交易页预选那一档 / 那一边；交易页读 `option` / `side` | ⬜ | G3 |
+| 3 | 首页五段 7 语，key 回写平台 i18n 表 | ⬜ | R8；`events.screen.simple.home_all.*` |
+| 4 | 首屏骨架按五段 | ⬜ | R6；字典 HA-22 |
+
 ## 2026-11-09 — Lovable 展示 omenx.com 真实事件 · 第 1 批（[文档](../delivery/mainnet-catalog-sync-v1.md)）
 
 | # | 项 | Status | Notes |

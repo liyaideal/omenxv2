@@ -10,10 +10,10 @@
 import { useEffect, useRef } from "react";
 import type { Timeframe } from "@/components/lite/intraday/intradayData";
 import { TICK_MS, type RoundSeries } from "./roundSeries";
-import { CY, LM, OR } from "./homeAllShell";
+import { CY, LM, OR, ht, uiLocale } from "./homeAllShell";
 
 const money = (v: number) => "$" + (v >= 10000 ? v.toLocaleString("en-US", { maximumFractionDigits: 0 }) : v >= 1000 ? v.toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-const hhmm = (ms: number) => new Date(ms).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false });
+const hhmm = (ms: number) => new Date(ms).toLocaleTimeString(uiLocale(), { hour: "2-digit", minute: "2-digit", hour12: false });
 
 export interface RoundCanvasProps {
   series: RoundSeries;
@@ -96,7 +96,8 @@ const draw = (cv: HTMLCanvasElement, s: RoundSeries, tf: Timeframe, big: boolean
     }
     ctx.fillStyle = "#DBE2EA";
     ctx.font = "700 10px 'Space Grotesk', sans-serif";
-    ctx.fillText("now", xn - 9, H - 4);
+    const nowTxt = ht("crypto.chart_now");
+    ctx.fillText(nowTxt, xn - ctx.measureText(nowTxt).width / 2, H - 4);
   }
   // close line once in the window
   const xe = X(s.end);
@@ -111,7 +112,8 @@ const draw = (cv: HTMLCanvasElement, s: RoundSeries, tf: Timeframe, big: boolean
     if (big) {
       ctx.fillStyle = OR;
       ctx.font = "700 10px 'Space Grotesk', sans-serif";
-      ctx.fillText("closes " + hhmm(s.end), Math.min(xe + 6, W - 74), TOP - 10);
+      const cl = ht("crypto.closes_at", { time: hhmm(s.end) });
+      ctx.fillText(cl, Math.min(xe + 6, W - ctx.measureText(cl).width - 4), TOP - 10);
     }
   }
   // open line
@@ -209,7 +211,7 @@ const draw = (cv: HTMLCanvasElement, s: RoundSeries, tf: Timeframe, big: boolean
   ctx.stroke();
   // OPEN label last, on a plate
   ctx.font = `500 ${big ? 10.5 : 9.5}px 'Space Grotesk', sans-serif`;
-  const olab = "OPEN " + money(s.open);
+  const olab = ht("crypto.chart_open", { price: money(s.open) });
   const ow = ctx.measureText(olab).width;
   ctx.fillStyle = "rgba(11,13,17,.85)";
   ctx.fillRect(0, yo - (big ? 16 : 14), ow + 8, big ? 14 : 12);

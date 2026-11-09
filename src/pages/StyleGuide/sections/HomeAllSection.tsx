@@ -1,5 +1,5 @@
 /**
- * 首页 All 视图 · 状态字典（HA-1 … HA-20 · 首页 All 改版 D2-S3 / M-*，2026-11-09 定稿）。
+ * 首页 All 视图 · 状态字典（HA-1 … HA-22 · 首页 All 改版 D2-S3 / M-*，2026-11-09 定稿）。
  *
  * 每个 case = 生产组件 + SectionFrame 双帧（desktop 1280 在上 / mobile 375 在下）；
  * 375 帧里组件自己走手机形态（M-* 板），不是桌面压扁。fixture 冻结在 FROZEN_NOW，
@@ -59,7 +59,8 @@ const SPORTS_CASES: SectionCase[] = [
     key: "home-ha5",
     label: "HA-5 · Sports 状态④：0 live",
     spec: [
-      { state: "舞台位 = 本周最大场", when: "live.length === 0", visual: "标签「Biggest this week · kicks off in 22 min」（灰）+ 对阵 + 开球时间 40px 白 + 两队价钮 +「☆ Remind me」", source: "Stage !live · upcoming by volume" },
+      { state: "舞台位 = 本周最大场", when: "live.length === 0", visual: "标签「Biggest this week · kicks off in 1d 2h」（灰）+ 对阵 + 开球时间 40px 白 + 两队价钮", source: "Stage !live · upcoming by volume" },
+      { state: "链接 · 没直播或超过 48h", when: "!m.streamUrl || kickoff − now > 48h", visual: "「Open match →」进交易页（本帧这场没有直播）；能设提醒的样子见 HA-21a / b / c", source: "Stage remind.can === false · S4" },
       { state: "眉行", when: "live.length === 0", visual: "「Sports · N matches this week · next kickoff in X」（无红点）；手机「Sports · N matches · kickoff in X」", source: "eyebrow" },
     ],
   },
@@ -94,6 +95,36 @@ const SPORTS_CASES: SectionCase[] = [
       { state: "没有队徽", when: "home_logo 为空", visual: "灰底 #1B2130 + 白字短码", source: "TeamBadge code · S1" },
       { state: "加载失败", when: "图片 onError", visual: "同「没有队徽」", source: "TeamBadge onError" },
       { state: "两队叠放", when: "列表行 / 表格行", visual: "第二枚 −5px 压在第一枚上，外圈 2px 底色描边", source: ".tc-pair · S1" },
+    ],
+  },
+];
+
+/* Stage state ④ with a reminder — its own iframe: HA-21c opens the fixed sign-in layer. */
+const REMIND_CASES: SectionCase[] = [
+  {
+    key: "home-ha21a",
+    label: "HA-21a · 状态④ · 能设提醒（☆ Remind me · S4）",
+    note: "同 HA-5，只给舞台上那场（Nottingham Forest vs Manchester City，26 小时后开赛）加了直播。fixture 下点击只在本帧切换，不写库。",
+    spec: [
+      { state: "能设提醒", when: "!live && m.streamUrl && kickoff > now && kickoff − now ≤ 48h", visual: "价钮下「☆ Remind me」（白，13.5 / 手机 13）+ Vol", source: "Stage remind.can · PREVIEW_WINDOW_MS" },
+      { state: "点击（已登录）", when: "signedIn", visual: "乐观切到「★ Reminder set」，写 stream_reminders 一行；失败回滚 + toast「Couldn't update the reminder」", source: "useStreamReminders.toggle（与 Sports 品类页 EV-43 同一个）" },
+    ],
+  },
+  {
+    key: "home-ha21b",
+    label: "HA-21b · 状态④ · 已设提醒（★ Reminder set）",
+    spec: [
+      { state: "已设", when: "reminders.has(m.id)", visual: "「★ Reminder set」橙 #FF8A3D，aria-pressed=true；再点取消、回到 HA-21a", source: "useStreamReminders.has" },
+      { state: "开赛", when: "kickoff ≤ now", visual: "这条提醒变成一条通知（Notifications → Updates，system.stream_live）；舞台位换成 live 态", source: "notify_stream_reminders() cron" },
+    ],
+  },
+  {
+    key: "home-ha21c",
+    label: "HA-21c · 状态④ · 游客点 Remind me → 站内登录框（桌面弹窗 / 手机抽屉）",
+    note: "挂载后点一下「☆ Remind me」（= 游客点击）。登录框是现有组件，一个字不改。",
+    spec: [
+      { state: "游客点击", when: "!user", visual: "openPrompt()：桌面 AuthDialog、手机 AuthSheet（底部抽屉）；本地不存", source: "useStreamReminders · AuthPromptHost" },
+      { state: "登录后", when: "signedIn", visual: "回到首页、仍是「☆ Remind me」，再点一次才设上（同 EV-45）", source: "useStreamReminders" },
     ],
   },
 ];
@@ -213,6 +244,19 @@ const MORE_CASES: SectionCase[] = [
   },
 ];
 
+const LOADING_CASES: SectionCase[] = [
+  {
+    key: "home-ha22",
+    label: "HA-22 · 首屏骨架（LiteAllStageSkeleton / LiteMobileStageSkeleton · R6）",
+    note: "生产页 stageFirstLoad 时就是这一块（上面还有行情条骨架，见 EV-24）。数据回来后每段各自换成真内容，没数据的段整段收起。",
+    spec: [
+      { state: "桌面", when: "stageFirstLoad && !isMobile", visual: "五段各按最终尺寸占位：Sports（段头 + 日历条位 / 左：舞台 + 对阵 + 两价钮 + 瓷砖 2×2 / 右表 10 行）→ Crypto（段头 + 钟 / BTC 主卡 + 图 / ETH·SOL 面板）→ Stocks（段头 + tab / 两列各 5 行）→ Editor's Desk（三列）→ More（3 行：封面 + 标题 / 档位区）；段间细线；色块只用 #171A1F / #15181C", source: "LiteAllStageSkeleton" },
+      { state: "手机", when: "stageFirstLoad && isMobile", visual: "同顺序单列：Sports 段头 + 日历条 + 舞台 + 对阵 + 两价钮 + 瓷砖 2×2 → Crypto 段头 + 钟 + 进度条 + 周期 tab + BTC 卡（价 / 图 150 / 两钮）→ Stocks 段头 + tab + 5 只（每只两行）→ Desk 三条竖叠 → More 2 条", source: "LiteMobileStageSkeleton" },
+      { state: "有缓存", when: "react-query 有缓存", visual: "不出骨架，直接渲染上次的数据再刷新", source: "stageFirstLoad 判定（EV-24）" },
+    ],
+  },
+];
+
 const STAGE_CASES: SectionCase[] = [
   {
     key: "home-ha14",
@@ -237,18 +281,20 @@ const Pair = ({ cases, desktopMin, mobileMin }: { cases: SectionCase[]; desktopM
 export const HOME_ALL_CASES: SectionCase[] = [
   ...HERO_CASES,
   ...SPORTS_CASES,
+  ...REMIND_CASES,
   ...CRYPTO_CASES,
   ...STOCKS_CASES,
   ...DESK_CASES,
   ...MORE_CASES,
+  ...LOADING_CASES,
   ...STAGE_CASES,
 ];
 
 export const HomeAllSection = () => (
   <SectionWrapper
     id="home-all"
-    title="首页 All 视图 · 状态字典（HA-1 … HA-20 + 规则台账 HA-R）"
-    description="首页 All 改版（2026-11-09 定稿）：Hero → chip 行 → Quick Play 横幅 → Sports → Crypto → Stocks → Editor's Desk → More markets。每个 case 双帧（desktop 1280 / mobile 375），375 帧是组件自己的手机形态；四栏表每行对着规则编号，规则原文在本节末 HA-R。chip 行 / Quick Play 横幅 / 行情 tape 见 Events 字典 EV-2 … EV-4 / Arcade 字典 / EV-33。"
+    title="首页 All 视图 · 状态字典（HA-1 … HA-22 + 规则台账 HA-R）"
+    description="首页 All 改版（2026-11-09 定稿）：Hero → chip 行 → Quick Play 横幅 → Sports → Crypto → Stocks → Editor's Desk → More markets。每个 case 双帧（desktop 1280 / mobile 375），375 帧是组件自己的手机形态；文案 7 语，单帧网址加 &lang=zh-CN（ja / ko / ru / vi / zh-TW）看各语言；四栏表每行对着规则编号，规则原文在本节末 HA-R。chip 行 / Quick Play 横幅 / 行情 tape 见 Events 字典 EV-2 … EV-4 / Arcade 字典 / EV-33。"
   >
     <div className="space-y-12">
       <SubSection title="① Hero（HA-1）">
@@ -256,6 +302,9 @@ export const HomeAllSection = () => (
       </SubSection>
       <SubSection title="② Sports 四态（HA-2 … HA-5）">
         <Pair cases={SPORTS_CASES} desktopMin={1100} mobileMin={1300} />
+      </SubSection>
+      <SubSection title="②b Sports 状态④ · Remind me（HA-21a / b / c）">
+        <Pair cases={REMIND_CASES} desktopMin={1100} mobileMin={1300} />
       </SubSection>
       <SubSection title="③ Crypto（HA-6 / HA-7）">
         <Pair cases={CRYPTO_CASES} desktopMin={700} mobileMin={900} />
@@ -269,7 +318,10 @@ export const HomeAllSection = () => (
       <SubSection title="⑥ More markets（HA-13）">
         <Pair cases={MORE_CASES} desktopMin={700} mobileMin={1000} />
       </SubSection>
-      <SubSection title="⑦ 整页（HA-14）">
+      <SubSection title="⑦ 首屏骨架（HA-22）">
+        <Pair cases={LOADING_CASES} desktopMin={2400} mobileMin={4000} />
+      </SubSection>
+      <SubSection title="⑧ 整页（HA-14）">
         <Pair cases={STAGE_CASES} desktopMin={2400} mobileMin={4800} />
       </SubSection>
       <SubSection title="HA-R · 规则台账（= 交付文档 §规则 · 代码注释同编号）">

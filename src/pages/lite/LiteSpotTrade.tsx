@@ -181,10 +181,10 @@ const LiteSpotTrade = () => {
   const [notFound, setNotFound] = useState(false);
   const [side, setSide] = useState<Side>("yes");
 
-  // Deep links may preselect a direction (`&side=up|down`).
+  // Deep links may preselect a direction (`&side=up|down|yes|no`, home G3).
   useEffect(() => {
-    if (sideParam === "up") setSide("yes");
-    else if (sideParam === "down") setSide("no");
+    if (sideParam === "up" || sideParam === "yes") setSide("yes");
+    else if (sideParam === "down" || sideParam === "no") setSide("no");
   }, [sideParam]);
 
   const [amount, setAmount] = useState("");

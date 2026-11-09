@@ -20,7 +20,8 @@ import {
 } from "@/components/lite/intraday/intradayData";
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import { formatMarketPrice, getStockSessionState, resolveStockMarket, type StockMarket } from "@/lib/usStockSessions";
-import { CY, DownButton, GREEN, OR, RED, SectionHead, UpButton, leftText } from "./homeAllShell";
+import { CY, DownButton, GREEN, OR, RED, SectionHead, UpButton, ht, leftText, rich, tradeLink } from "./homeAllShell";
+import { t as tr, useT } from "@/i18n";
 
 export type MarketKey = "us" | "hk" | "kr";
 const MARKETS: { key: MarketKey; label: string; subtype: string; extendedPrints: boolean }[] = [
@@ -121,6 +122,7 @@ export interface HomeStocksSectionProps {
 
 export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride, printModeOverride, initialMarket = "us" }: HomeStocksSectionProps) => {
   const navigate = useNavigate();
+  useT(); // re-render on language change / catalog arrival
   const [tick, setTick] = useState(0);
   useEffect(() => {
     if (nowOverride) return;
@@ -160,29 +162,25 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
   const settlingNow = !ahead.length && ends.length > 0;
   const status =
     session.phase === "live"
-      ? `Market open · closes in ${leftText(session.closeAt!.getTime() - now.getTime())}`
-      : `Market opens in ${leftText(session.nextOpenAt.getTime() - now.getTime())}`;
-  const statusLine = `${status}${settleAt ? ` · settles in ${leftText(settleAt - now.getTime())}` : settlingNow ? " · settling now" : ""}`;
+      ? ht("stocks.open_closes_in", { time: leftText(session.closeAt!.getTime() - now.getTime()) })
+      : ht("stocks.opens_in", { time: leftText(session.nextOpenAt.getTime() - now.getTime()) });
+  const statusLine = `${status}${settleAt ? ht("stocks.settles_in", { time: leftText(settleAt - now.getTime()) }) : settlingNow ? ht("stocks.settling_now") : ""}`;
   const live = prints.filter((p) => p.mode !== "none");
   const ups = rows.filter((r, i) => prints[i].mode !== "none" && prints[i].last > (r.base_price ?? 0)).length;
-  const go = (r: StockEventRow) => () => navigate(`/trade?event=${r.id}`);
+  const go = (r: StockEventRow, side: "yes" | "no") => () => navigate(tradeLink(r.id, { side }));
 
   const tabs = (
     <div className="row" style={{ gap: isMobile ? 18 : 22 }}>
       {available.map((m) => (
         <button key={m.key} type="button" className={`tab${m.key === cur.key ? " on" : ""}`} onClick={() => setSel(m.key)}>
-          {m.label}
+          {ht(`stocks.market_${m.key}`)}
           <i>{byMarket[m.key].length}</i>
         </button>
       ))}
     </div>
   );
-  const eyebrow = `Stocks · Daily close · ${total} markets today`;
-  const question = (
-    <>
-      Will it finish <i>higher</i> than it opened?
-    </>
-  );
+  const eyebrow = ht("stocks.eyebrow", { count: total });
+  const question = <>{rich(ht("stocks.question"))}</>;
 
   const row = (r: StockEventRow, i: number, hr: boolean) => {
     const ticker = deriveTickerFromEvent(r.id, r.name);
@@ -207,14 +205,14 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
               {priceTxt}
             </span>
             <span className={`m ${cls}`} style={{ display: "block", fontSize: 11 }}>
-              {p.mode === "none" ? <span style={{ color: "#98A1AD" }}>Base price</span> : pct(chg)}
+              {p.mode === "none" ? <span style={{ color: "#98A1AD" }}>{ht("stocks.base_price")}</span> : pct(chg)}
             </span>
           </span>
           <span className="l2">
             <Spark p={p} base={base} w={120} h={26} />
             <span className="row" style={{ gap: 6 }}>
-              <UpButton price={r.upPrice} onClick={go(r)} />
-              <DownButton price={r.downPrice} onClick={go(r)} />
+              <UpButton price={r.upPrice} onClick={go(r, "yes")} />
+              <DownButton price={r.downPrice} onClick={go(r, "no")} />
             </span>
           </span>
         </div>
@@ -230,11 +228,11 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
         <Spark p={p} base={base} w={96} h={28} />
         <span style={{ minWidth: 0 }}>
           <span className="p m">{priceTxt}</span>
-          <span className={`pc m ${cls}`}>{p.mode === "none" ? <span style={{ color: "#98A1AD" }}>Base price</span> : pct(chg)}</span>
+          <span className={`pc m ${cls}`}>{p.mode === "none" ? <span style={{ color: "#98A1AD" }}>{ht("stocks.base_price")}</span> : pct(chg)}</span>
         </span>
         <span className="row" style={{ gap: 8 }}>
-          <UpButton price={r.upPrice} onClick={go(r)} />
-          <DownButton price={r.downPrice} onClick={go(r)} />
+          <UpButton price={r.upPrice} onClick={go(r, "yes")} />
+          <DownButton price={r.downPrice} onClick={go(r, "no")} />
         </span>
       </div>
     );
@@ -245,12 +243,12 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
       <span className="kv" style={{ fontSize: isMobile ? 11.5 : 12.5 }}>
         {live.length > 0 ? (
           <>
-            <b style={{ color: GREEN }}>{ups}</b> of {live.length} {isMobile ? "above their base price" : "trading above their base price right now"}
+            {rich(ht(isMobile ? "stocks.above_base_short" : "stocks.above_base", { n: live.length }), { ups: <b style={{ color: GREEN }}>{ups}</b> })}
           </>
         ) : null}
       </span>
       <button type="button" className="lnk" style={{ fontSize: isMobile ? 13 : 13.5 }} onClick={onOpenAll}>
-        Show all {byMarket[cur.key].length} →
+        {tr("events.screen.simple.home.show_all", { count: byMarket[cur.key].length })}
       </button>
     </div>
   );

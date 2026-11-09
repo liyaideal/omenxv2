@@ -28,6 +28,8 @@ import { StreamPreview } from "@/components/lite/sports/StreamPreview";
 import { usePlayStream } from "@/hooks/usePlayStream";
 import { MatchScoreText } from "@/components/lite/sports/tennisScore";
 import { kickoffInShort } from "@/components/lite/sports/sportsClock";
+import { PREVIEW_WINDOW_MS } from "@/components/lite/sports/UpcomingStreams";
+import { useStreamReminders } from "@/hooks/useStreamReminders";
 import {
   CY,
   LM,
@@ -40,8 +42,13 @@ import {
   TeamBadge,
   cents,
   hhmm,
+  ht,
+  rich,
   shortVol,
+  tradeLink,
+  uiLocale,
 } from "./homeAllShell";
+import { t, useT } from "@/i18n";
 
 /* ------------------------------ helpers -------------------------------- */
 
@@ -50,31 +57,54 @@ const abbr = (m: SportsMatch, side: "home" | "away") =>
     ? m.homeAbbr || m.homeShort || shortName(m.home, { league: m.league }, [])
     : m.awayAbbr || m.awayShort || shortName(m.away, { league: m.league }, []);
 
-const priceOf = (m: SportsMatch, side: "home" | "away"): number => {
+/** The option a team's price button trades (R4: home = first option, away = last). */
+const optionOf = (m: SportsMatch, side: "home" | "away") => {
   const name = side === "home" ? m.home : m.away;
-  const o =
+  return (
     m.options.find((x) => x.label === name) ??
     m.options.find((x) => new RegExp(`^${side}$`, "i").test(x.label)) ??
-    m.options[side === "home" ? 0 : m.options.length - 1];
-  return o?.price ?? 0.5;
+    m.options[side === "home" ? 0 : m.options.length - 1]
+  );
 };
+const priceOf = (m: SportsMatch, side: "home" | "away"): number => optionOf(m, side)?.price ?? 0.5;
+
+/** A price pill inside a tile / row: picks that team (G3); the rest of the card opens the match. */
+const PricePill = ({ m, side, onOpen }: { m: SportsMatch; side: "home" | "away"; onOpen: (id: string, optionId?: string) => void }) => (
+  <span
+    className="tc-pill"
+    role="button"
+    tabIndex={0}
+    onClick={(e) => {
+      e.stopPropagation();
+      onOpen(m.id, optionOf(m, side)?.id);
+    }}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        e.stopPropagation();
+        onOpen(m.id, optionOf(m, side)?.id);
+      }
+    }}
+  >
+    {cents(priceOf(m, side))}
+  </span>
+);
 
 /** "Sat" / "Today" day word for a kickoff (viewer-local). */
 const dayWord = (d: Date | null): string => {
-  if (!d) return "TBD";
+  if (!d) return t("portfolio.tbd");
   const now = new Date();
   const sod = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
   const diff = (sod(d) - sod(now)) / 86_400_000;
-  if (diff === 0) return "Today";
-  if (diff === 1) return "Tomorrow";
-  return d.toLocaleDateString(undefined, { weekday: "short" });
+  if (diff === 0) return t("events.screen.simple.sports_view.sports_streams.today");
+  if (diff === 1) return t("events.screen.simple.sports_view.sports_streams.tomorrow");
+  return d.toLocaleDateString(uiLocale(), { weekday: "short" });
 };
 
 /** Rows and tiles always use the short weekday ("Sat"), the stage says Today / Tomorrow. */
-const dayShort = (d: Date | null): string => (d ? d.toLocaleDateString(undefined, { weekday: "short" }) : "TBD");
+const dayShort = (d: Date | null): string => (d ? d.toLocaleDateString(uiLocale(), { weekday: "short" }) : t("portfolio.tbd"));
 
 const liveClock = (m: SportsMatch): string =>
-  m.liveLabel || (m.minute != null ? `${m.minute}'` : m.phase || "Live");
+  m.liveLabel || (m.minute != null ? `${m.minute}'` : m.phase || ht("sports.live"));
 
 const LeagueLabel = ({ m, short }: { m: SportsMatch; short?: boolean }) => (
   <>
@@ -95,6 +125,7 @@ const Stage = ({
   onOpen,
   onPlay,
   now,
+  remind,
 }: {
   m: SportsMatch;
   live: boolean;
@@ -103,47 +134,53 @@ const Stage = ({
   streamIndex: number;
   onSwitchStream: (i: number) => void;
   isMobile: boolean;
-  onOpen: (id: string) => void;
+  onOpen: (id: string, optionId?: string) => void;
   /** Play button on the stream preview (R2 / R3). */
   onPlay: (id: string) => void;
   /** Same clock as the section (frozen in the style-guide), so the stage countdown never disagrees with the eyebrow. */
   now: number;
+  /**
+   * State ④ (CPO 2026-11-09): a real reminder when this match has a stream and
+   * kicks off within 48h (same rule and same store as the Sports view rail,
+   * EV-43 / EV-45 — a guest signs in first). Otherwise the link is "Open match →".
+   */
+  remind: { can: boolean; on: boolean; toggle: () => void };
 }) => {
   const hasVideo = live && !!m.streamUrl;
   const kickoffMs = m.kickoff ? Math.max(0, m.kickoff.getTime() - now) : 0;
   const label = live
     ? isMobile
-      ? `Live now${m.liveLabel ? ` · ${m.liveLabel}` : ""}`
-      : `Live now · ${(leagueCodeOf(m) || m.league).replace(/_/g, " ")}${m.liveLabel ? ` · ${m.liveLabel}` : ""}`
-    : `Biggest this week · kicks off in ${kickoffInShort(kickoffMs)}`;
+      ? `${ht("sports.live_now")}${m.liveLabel ? ` · ${m.liveLabel}` : ""}`
+      : `${ht("sports.live_now")} · ${(leagueCodeOf(m) || m.league).replace(/_/g, " ")}${m.liveLabel ? ` · ${m.liveLabel}` : ""}`
+    : ht("sports.biggest_kicks_off_in", { time: kickoffInShort(kickoffMs) });
   const badgeSize = isMobile ? 44 : 56;
 
   const rightLabel = live ? (
     streams.length > 1 ? (
-      <span className="row" style={{ gap: isMobile ? 6 : 8 }}>
+      <span className="row" style={{ gap: isMobile ? 6 : 8, flexShrink: 0 }}>
         <button
           type="button"
           className="sw"
-          aria-label="Previous stream"
+          aria-label={ht("sports.prev_stream")}
           onClick={() => onSwitchStream((streamIndex - 1 + streams.length) % streams.length)}
         >
           ‹
         </button>
-        <span className="m" style={{ fontSize: isMobile ? 11.5 : 12, color: MU }}>
-          Stream <b style={{ color: "#fff" }}>{streamIndex + 1}</b> / {streams.length}
+        <span className="m" style={{ fontSize: isMobile ? 11.5 : 12, color: MU, whiteSpace: "nowrap" }}>
+          {rich(ht("sports.stream_n", { n: streams.length }), { i: <b style={{ color: "#fff" }}>{streamIndex + 1}</b> })}
         </span>
         <button
           type="button"
           className="sw"
-          aria-label="Next stream"
+          aria-label={ht("sports.next_stream")}
           onClick={() => onSwitchStream((streamIndex + 1) % streams.length)}
         >
           ›
         </button>
       </span>
     ) : hasVideo && !isMobile ? (
-      <span className="tc-lbl2" style={{ color: OR }}>
-        ▶ Live stream
+      <span className="tc-lbl2" style={{ color: OR, whiteSpace: "nowrap", flexShrink: 0 }}>
+        ▶ {ht("sports.live_stream")}
       </span>
     ) : null
   ) : null;
@@ -154,9 +191,13 @@ const Stage = ({
         className="row"
         style={{ gap: 10, height: 28, justifyContent: "space-between", marginTop: isMobile ? 22 : 0 }}
       >
-        <span className="row" style={{ gap: 10 }}>
+        <span className="row" style={{ gap: 10, minWidth: 0 }}>
           {live && <span className="livedot" />}
-          <span className="tc-lbl2" style={{ color: live ? OR : MU }}>
+          <span
+            className="tc-lbl2"
+            style={{ color: live ? OR : MU, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}
+            title={label}
+          >
             {label}
           </span>
         </span>
@@ -235,15 +276,28 @@ const Stage = ({
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginTop: isMobile ? 16 : 20 }}>
-        <OddsButton label={abbr(m, "home")} price={priceOf(m, "home")} onClick={() => onOpen(m.id)} />
-        <OddsButton label={abbr(m, "away")} price={priceOf(m, "away")} onClick={() => onOpen(m.id)} />
+        <OddsButton label={abbr(m, "home")} price={priceOf(m, "home")} onClick={() => onOpen(m.id, optionOf(m, "home")?.id)} />
+        <OddsButton label={abbr(m, "away")} price={priceOf(m, "away")} onClick={() => onOpen(m.id, optionOf(m, "away")?.id)} />
       </div>
       <div className="row" style={{ gap: isMobile ? 14 : 16, marginTop: isMobile ? 12 : 16 }}>
-        <button type="button" className="lnk" style={{ fontSize: isMobile ? 13 : 13.5 }} onClick={() => onOpen(m.id)}>
-          {live ? "Open match →" : "☆ Remind me"}
-        </button>
+        {!live && remind.can ? (
+          <button
+            type="button"
+            className="lnk"
+            aria-pressed={remind.on}
+            data-remind=""
+            style={{ fontSize: isMobile ? 13 : 13.5, color: remind.on ? OR : undefined }}
+            onClick={remind.toggle}
+          >
+            {remind.on ? `★ ${t("events.screen.simple.sports_view.sports_streams.reminder_set")}` : `☆ ${t("events.screen.simple.sports_view.sports_streams.remind_me")}`}
+          </button>
+        ) : (
+          <button type="button" className="lnk" style={{ fontSize: isMobile ? 13 : 13.5 }} onClick={() => onOpen(m.id)}>
+            {ht("sports.open_match")}
+          </button>
+        )}
         <span className="kv">
-          Vol <b>{shortVol(m.volume)}</b>
+          {t("common.vol")} <b>{shortVol(m.volume)}</b>
         </span>
       </div>
     </div>
@@ -261,7 +315,7 @@ const Tile = ({
   m: SportsMatch;
   live: boolean;
   isMobile: boolean;
-  onOpen: (id: string) => void;
+  onOpen: (id: string, optionId?: string) => void;
 }) => {
   const stream = live && !!m.streamUrl;
   return (
@@ -298,7 +352,7 @@ const Tile = ({
             {stream && (
               <>
                 {" · "}
-                <span style={{ color: OR, fontWeight: 700 }}>▶ Stream</span>
+                <span style={{ color: OR, fontWeight: 700 }}>▶ {t("events.screen.simple.sports_view.sports_streams.stream_tag")}</span>
               </>
             )}
           </>
@@ -309,8 +363,8 @@ const Tile = ({
         )}
       </div>
       <div className="tc-bot">
-        <span className="tc-pill">{cents(priceOf(m, "home"))}</span>
-        <span className="tc-pill">{cents(priceOf(m, "away"))}</span>
+        <PricePill m={m} side="home" onOpen={onOpen} />
+        <PricePill m={m} side="away" onOpen={onOpen} />
       </div>
     </button>
   );
@@ -331,7 +385,7 @@ const TileGroup = ({
   items: SportsMatch[];
   liveSet: Set<string>;
   isMobile: boolean;
-  onOpen: (id: string) => void;
+  onOpen: (id: string, optionId?: string) => void;
   more?: string;
   onMore?: () => void;
 }) => (
@@ -386,7 +440,7 @@ const Row = ({
   big?: boolean;
   hr: boolean;
   isMobile: boolean;
-  onOpen: (id: string) => void;
+  onOpen: (id: string, optionId?: string) => void;
   /** Next-up rows share the column's leftover height so the panel ends flush with the left block. */
   stretch?: boolean;
 }) => (
@@ -429,7 +483,7 @@ const Row = ({
           </span>
           {big && (
             <span className="kv" style={{ marginLeft: 10, fontSize: 12.5 }}>
-              Vol{" "}
+              {t("common.vol")}{" "}
               <b className="m" style={{ color: LM, fontWeight: 700, fontSize: 13 }}>
                 {shortVol(m.volume)}
               </b>
@@ -442,14 +496,14 @@ const Row = ({
           {m.streamUrl && (
             <>
               {" · "}
-              <span style={{ color: OR, fontWeight: 700 }}>▶ Live stream</span>
+              <span style={{ color: OR, fontWeight: 700 }}>▶ {ht("sports.live_stream")}</span>
             </>
           )}
         </div>
       </span>
     )}
-    <span className="tc-pill">{cents(priceOf(m, "home"))}</span>
-    <span className="tc-pill">{cents(priceOf(m, "away"))}</span>
+    <PricePill m={m} side="home" onOpen={onOpen} />
+    <PricePill m={m} side="away" onOpen={onOpen} />
   </div>
 );
 
@@ -470,6 +524,10 @@ export interface HomeSportsSectionProps {
   nowOverride?: number;
   /** Rows the desktop "Next up" group shows (fills the column). */
   nextUpRows?: number;
+  /** Style-guide only: event ids that already have a reminder (no auth, no DB). */
+  remindedFixture?: string[];
+  /** Style-guide only: every Remind me tap opens sign-in, as for a guest. */
+  remindGuestFixture?: boolean;
 }
 
 export const HomeSportsSection = ({
@@ -478,8 +536,12 @@ export const HomeSportsSection = ({
   onOpenAll,
   nowOverride,
   nextUpRows = 8,
+  remindedFixture,
+  remindGuestFixture,
 }: HomeSportsSectionProps) => {
   const navigate = useNavigate();
+  useT(); // re-render on language change / catalog arrival
+  const reminders = useStreamReminders(remindedFixture, remindGuestFixture);
   const [tick, setTick] = useState(0);
   useEffect(() => {
     if (nowOverride != null) return;
@@ -534,12 +596,13 @@ export const HomeSportsSection = ({
   const nextKick = model.upcoming[0]?.kickoff ? model.upcoming[0].kickoff.getTime() - now : null;
   const eyebrow =
     liveCount > 0
-      ? `● Sports · ${total} matches this week · ${liveCount} live`
+      ? `● ${ht("sports.eyebrow_live", { count: total, live: liveCount })}`
       : isMobile
-        ? `Sports · ${total} matches${nextKick != null ? ` · kickoff in ${kickoffInShort(nextKick)}` : ""}`
-        : `Sports · ${total} matches this week${nextKick != null ? ` · next kickoff in ${kickoffInShort(nextKick)}` : ""}`;
+        ? `${ht("sports.eyebrow_short", { count: total })}${nextKick != null ? ht("sports.kickoff_in", { time: kickoffInShort(nextKick) }) : ""}`
+        : `${ht("sports.eyebrow_week", { count: total })}${nextKick != null ? ht("sports.next_kickoff_in", { time: kickoffInShort(nextKick) }) : ""}`;
 
-  const onOpen = (id: string) => navigate(`/trade?event=${id}`);
+  const onOpen = (id: string, optionId?: string) => navigate(tradeLink(id, { option: optionId }));
+  const question = <>{rich(ht("sports.question"))}</>;
   const playStream = usePlayStream();
 
   if (!model.stage) return null;
@@ -547,7 +610,13 @@ export const HomeSportsSection = ({
   const dayStrip = (
     <div className={isMobile ? "hscroll" : "row"} style={{ gap: 8, marginTop: isMobile ? 18 : 0 }}>
       {strip.map((b) => {
-        const w = b.label.split(" ")[0];
+        // Weekday in the viewer's language (same rule as the Sports view); ALL / TODAY from the catalog.
+        const w =
+          b.id === "all"
+            ? ht("sports.day_all")
+            : b.label === "TODAY"
+              ? ht("sports.day_today")
+              : new Date(Number(b.id)).toLocaleDateString(uiLocale(), { weekday: "short" }).toUpperCase();
         const dom = b.id === "all" ? b.count : new Date(Number(b.id)).getDate();
         return (
           <button
@@ -576,6 +645,15 @@ export const HomeSportsSection = ({
       onOpen={onOpen}
       onPlay={playStream}
       now={now}
+      remind={{
+        can:
+          !!model.stage.streamUrl &&
+          !!model.stage.kickoff &&
+          model.stage.kickoff.getTime() > now &&
+          model.stage.kickoff.getTime() - now <= PREVIEW_WINDOW_MS,
+        on: reminders.has(model.stage.id),
+        toggle: () => reminders.toggle(model.stage.id),
+      }}
     />
   );
 
@@ -583,13 +661,13 @@ export const HomeSportsSection = ({
     <>
       {model.alsoLive.length > 0 && (
         <TileGroup
-          label={`Also live · ${Math.max(liveCount - 1, model.alsoLive.length)}`}
+          label={ht("sports.also_live", { count: Math.max(liveCount - 1, model.alsoLive.length) })}
           color={OR}
           items={model.alsoLive}
           liveSet={model.liveSet}
           isMobile={isMobile}
           onOpen={onOpen}
-          more={liveCount - 1 > model.alsoLive.length ? `See all ${liveCount} live →` : undefined}
+          more={liveCount - 1 > model.alsoLive.length ? ht("sports.see_all_live", { count: liveCount }) : undefined}
           onMore={onOpenAll}
         />
       )}
@@ -598,8 +676,8 @@ export const HomeSportsSection = ({
           <TileGroup
             label={
               model.alsoLive.length
-                ? `Up next · ${model.upNext.map((m) => hhmm(m.kickoff)).join(" / ")}`
-                : "Up next"
+                ? ht("sports.up_next_times", { times: model.upNext.map((m) => hhmm(m.kickoff)).join(" / ") })
+                : ht("sports.up_next")
             }
             items={model.upNext}
             liveSet={model.liveSet}
@@ -613,7 +691,7 @@ export const HomeSportsSection = ({
 
   const table = (
     <div className="panel" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-      <Head label="Big this week · by volume" />
+      <Head label={ht("sports.big_this_week")} />
       <div style={{ display: "flex", flexDirection: "column" }}>
         {model.big.map((m, i) => (
           <Row key={m.id} m={m} big hr={i < model.big.length - 1} isMobile={isMobile} onOpen={onOpen} />
@@ -621,16 +699,16 @@ export const HomeSportsSection = ({
       </div>
       {!isMobile && model.next.length > 0 && (
         <>
-          <Head label="Next up" top={22} />
+          <Head label={ht("sports.next_up")} top={22} />
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
             {model.next.map((m, i) => (
               <Row key={m.id} m={m} hr={i < model.next.length - 1} isMobile={isMobile} onOpen={onOpen} stretch />
             ))}
           </div>
           <div style={{ fontSize: 13, color: MU, paddingTop: 4, flex: "none" }}>
-            +{model.remain} more this week ·{" "}
+            {ht("sports.more_this_week", { count: model.remain })} ·{" "}
             <button type="button" className="lnk" style={{ fontSize: 13, fontWeight: 400 }} onClick={onOpenAll}>
-              see all →
+              {ht("sports.see_all")}
             </button>
           </div>
         </>
@@ -641,15 +719,15 @@ export const HomeSportsSection = ({
   if (isMobile) {
     return (
       <section className="sec">
-        <SectionHead eyebrow={eyebrow} eyebrowColor={RED} question={<>Who wins <i>the match</i>?</>} isMobile />
+        <SectionHead eyebrow={eyebrow} eyebrowColor={RED} question={question} isMobile />
         {dayStrip}
         {stage}
         <div style={{ marginTop: 28 }}>{tiles}</div>
         <div style={{ marginTop: 28 }}>{table}</div>
         <div className="row" style={{ marginTop: 18, justifyContent: "space-between" }}>
-          <span className="kv">+{model.remain} more this week</span>
+          <span className="kv">{ht("sports.more_this_week", { count: model.remain })}</span>
           <button type="button" className="lnk" onClick={onOpenAll}>
-            All {total} matches →
+            {t("events.screen.simple.sports_view.sports_vertical.all_matches", { count: total })}
           </button>
         </div>
       </section>
@@ -658,7 +736,7 @@ export const HomeSportsSection = ({
 
   return (
     <section className="sec">
-      <SectionHead eyebrow={eyebrow} eyebrowColor={RED} question={<>Who wins <i>the match</i>?</>} right={dayStrip} />
+      <SectionHead eyebrow={eyebrow} eyebrowColor={RED} question={question} right={dayStrip} />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 20, marginTop: 44 }}>
         <div style={{ gridColumn: "span 5", display: "flex", flexDirection: "column", paddingRight: 28 }}>
           {stage}

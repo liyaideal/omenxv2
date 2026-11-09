@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-09 | [首页 All 视图终验四项](./2026-11-09-home-all-final4.md) | 状态④有直播且 48h 内开赛 → Remind me（与 Sports 品类页同一条提醒，HA-21a/b/c）；价钮进交易页预选那一边 / 那一档（`&option=` `&side=`，交易页真的读了）；首页五段 7 语（`events.screen.simple.home_all.*`）；首屏骨架按五段重画（HA-22）；style-guide 侧栏可收起 |
 | 2026-11-09 | [Lovable 展示 omenx.com 真实事件 · 第 1 批](../delivery/mainnet-catalog-sync-v1.md) | 赛程 / 两队 / 队徽 / 比分 / 比赛状态 / 直播截图 / 长期事件每 3 分钟从主网同步（`mn-*`），价格首次取主网、之后演示引擎动；演示引擎自编事件退役（`metadata.retired`，列表过 `isListed`），保留演示直播样板赛；Crest 支持真队徽 / 方块队徽（字典 EV-47）；股票日轮、加密轮为第 2 批 |
 | 2026-11-09 | [直播「点了才播」（home-all-v1 §2 S2 / S3）](../delivery/home-all-v1.md#s--sports-段) | 首页舞台 + Sports 品类页舞台不再拉流：画面 = 服务端 10 分钟一张的直播截图（→ 赛事封面 → 深色底）+ 橙色播放钮 `Watch live`；已登录点播放进交易页开播，游客先登录、登录后直接进交易页开播（含 Google 跳转）；交易页游客不拉流显示「Sign in to watch live」（LiveStage S10）；新字段 `metadata.stream_thumb_url / stream_thumb_at`；字典 HA-15、EV-38 / 39 改写、EV-46 作废、S10 |
 | 2026-11-06 | [Quick Play · combo 海报换设计师三张卡（quick-play-v1 §4.8）](../delivery/quick-play-v1.md#48-分享海报share-your-run与-combo-海报) | COMBO HUD 的 `⇪ SHARE` 海报按档位对应三张（×3–4 砖块 / ×5–7 奖杯 / ×8 起宝箱，CPO 批不随机）；弹层预览播片头 + 待机循环，保存的 PNG 是定格一帧（静态先上，不做 GIF）；分享数据加分钟数 / 面额行；分享弹层短屏幕可滚动；字典 AS-2 重做 + AS-2b / AS-3 combo / AS-4 combo；DESIGN §Addendum 2026-11-06 |

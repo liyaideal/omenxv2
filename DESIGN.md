@@ -2526,7 +2526,7 @@ CPO 2026-11-04 批（11 条）。作用域 = 所有体育比赛（`metadata.kick
 
 ## §Addendum 2026-11-09 · 首页 All 视图改版（LOCKED）
 
-CPO 2026-11-09 15:32 批（规则清单 H / S / C / K / E / M / G / MB，原文 `src/components/lite/home/homeAllRules.ts`，字典 Lite「Events 列表」首节 HA-1 … HA-20 + 台账 HA-R，交付 `docs/delivery/home-all-v1.md`）。作用域 = Lite 首页 `sector = all` 桌面 + 手机；品类视图 / Watchlist / Calendar / Boost 网格不变。
+CPO 2026-11-09 15:32 批（规则清单 H / S / C / K / E / M / G / MB，原文 `src/components/lite/home/homeAllRules.ts`，字典 Lite「Events 列表」首节 HA-1 … HA-22 + 台账 HA-R，交付 `docs/delivery/home-all-v1.md`）。作用域 = Lite 首页 `sector = all` 桌面 + 手机；品类视图 / Watchlist / Calendar / Boost 网格不变。
 
 1. **五段大字问句**：Sports → Crypto → Stocks → Editor's Desk → More；段 = 眉行（Space Grotesk 12 / .22em / 大写）+ 48px 问句（手机 34）+ 主块裸放 / 副块进面板（`#11141A` 圆角 16 内距 24 28，手机 18 16）；段间 `1px rgba(148,163,184,.14)` 细线。不写第三行说明。
 2. **颜色语义**：Up / Yes `#33D6FF`，Down / No `#CFFF4A`，直播 · 倒计时 `#FF8A3D`，股票涨 `#4ADE80` 跌 `#F87171`；价钮 = 描边胶囊（up 青 / dn 柠檬，Archivo 12.5 / 700，价 Space Grotesk tabular）。
@@ -2535,6 +2535,7 @@ CPO 2026-11-09 15:32 批（规则清单 H / S / C / K / E / M / G / MB，原文 
 5. **Boost 是筛选**：chip 行右组 ⚡ Boost / ☆ Watchlist / ▦ Calendar；左组只放品类。
 6. **首页不下单、不播放**：价钮 / 行 / 舞台位一律进交易页。舞台位（首页 + Sports 品类页）不拉流（2026-11-09「点了才播」）：`StreamPreview` = 静态图压暗（服务端 10 分钟截图 → 赛事封面 → 深色径向底）+ 左上橙底 LIVE + 中间橙色播放钮（桌面 64 / 手机 48，外圈 6px 橙 16% + 橙光）+ `Watch live`（Space Grotesk 700 15 / 13）；画面里不放队徽。点播放：已登录进交易页开播，游客先登录（`usePlayStream`）。交易页对游客 = `LiveStage` S10 卡：深色径向底 + LIVE + 标题 24 / 17 + 说明 14 / 12 + 柠檬 Sign in 钮 44 / 36 高。
 7. **手机 = 重排不是压扁**：Sports 不列 Next up、Stocks 前 5 两行式、BTC · last 8 紧贴图下、More 多档名字独占一行；任何名字不省略号截断。
+8. **（2026-11-09 终验批）价钮预选**：价钮进交易页带 `option` / `side`（`tradeLink()`），交易页进页读一次；行 / 瓷砖 / Open match 不预选。**状态④提醒链接**：`☆ Remind me`（`.lnk`，青）/ `★ Reminder set`（橙 `#FF8A3D`，`aria-pressed`），与 Sports 品类页 `RemindButton` 同一份数据（`useStreamReminders`），只在有直播且 48h 内开赛时替换 `Open match →`。**首屏骨架** = 五段按最终尺寸占位（`LiteAllStageSkeleton` / `LiteMobileStageSkeleton`，色块 `#171A1F` / `#15181C`，横滑位置超出就裁掉、不撑宽页面）。**多语言**：舞台标签与直播切换一行不折行（`nowrap`，左标签放不下用省略号、右侧切换器不收缩）；手机 Last 8 计数放不下时换到下一行右对齐（俄语等长语言）。
 
 ## §Addendum 2026-11-09b · 队徽三种画法扩到 Crest（主网事件同步）
 

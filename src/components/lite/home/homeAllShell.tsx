@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 // ============================================================
 // HOME · ALL view — shared shell for the five sections (首页 All 改版 D2-S3).
 // Mock = spec (canvas 2026-11-09): section head = eyebrow + question, no
@@ -6,7 +6,30 @@ import { useState } from "react";
 // every price button / row / stage opens the event's trade page (G3).
 // ============================================================
 import type { CSSProperties, ReactNode } from "react";
+import { getI18nLanguage, t } from "@/i18n";
 import "./home-all.css";
+
+/** i18n key prefix of the five home sections (Lovable 2026-11-09, events namespace). */
+export const HK = "events.screen.simple.home_all";
+/** Translate a home-section key (`ht("sports.up_next")`). */
+export const ht = (k: string, vars?: Record<string, string | number>) => t(`${HK}.${k}`, vars);
+/** Viewer language for dates / weekdays (same as the Sports view: weekday follows the user's language, 24h clock). */
+export const uiLocale = () => getI18nLanguage();
+
+/**
+ * Catalog text with markup → nodes. `*x*` = the italic half of a section
+ * question; `{{name}}` = a value the component renders itself (bold number,
+ * coloured word). Plain `{{vars}}` are interpolated by t() before this runs.
+ */
+export const rich = (raw: string, nodes: Record<string, ReactNode> = {}): ReactNode[] =>
+  raw
+    .split(/(\*[^*]+\*|\{\{\w+\}\})/)
+    .filter(Boolean)
+    .map((part, i) => {
+      if (part.length > 2 && part.startsWith("*") && part.endsWith("*")) return <i key={i}>{part.slice(1, -1)}</i>;
+      const m = /^\{\{(\w+)\}\}$/.exec(part);
+      return <Fragment key={i}>{m && m[1] in nodes ? nodes[m[1]] : part}</Fragment>;
+    });
 
 export const CY = "#33D6FF";
 export const LM = "#CFFF4A";
@@ -47,7 +70,7 @@ export const UpButton = ({
   price,
   onClick,
   style,
-  label = "Up",
+  label,
 }: {
   price: number;
   onClick?: (e: React.MouseEvent) => void;
@@ -55,7 +78,7 @@ export const UpButton = ({
   label?: string;
 }) => (
   <button type="button" className="up" style={style} onClick={onClick}>
-    {label} <b>{cents(price)}</b>
+    {label ?? t("events.screen.simple.home.home_crypto_card.up")} <b>{cents(price)}</b>
   </button>
 );
 
@@ -63,7 +86,7 @@ export const DownButton = ({
   price,
   onClick,
   style,
-  label = "Down",
+  label,
 }: {
   price: number;
   onClick?: (e: React.MouseEvent) => void;
@@ -71,7 +94,7 @@ export const DownButton = ({
   label?: string;
 }) => (
   <button type="button" className="dn" style={style} onClick={onClick}>
-    {label} <b>{cents(price)}</b>
+    {label ?? t("events.screen.simple.home.home_crypto_card.down")} <b>{cents(price)}</b>
   </button>
 );
 
@@ -213,7 +236,7 @@ export const shortVol = (n: number): string => {
 export const hhmm = (d: Date | number | null | undefined): string => {
   if (d == null) return "--:--";
   const dt = typeof d === "number" ? new Date(d) : d;
-  return dt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: false });
+  return dt.toLocaleTimeString(uiLocale(), { hour: "2-digit", minute: "2-digit", hour12: false });
 };
 
 /** "4h 12m" / "38m" / "00:42" style remaining-time text used by the eyebrows. */
@@ -224,6 +247,21 @@ export const leftText = (ms: number): string => {
   if (h >= 1) return `${h}h ${String(m).padStart(2, "0")}m`;
   if (m >= 1) return `${m}m`;
   return `${s}s`;
+};
+
+/**
+ * G3 (CPO 2026-11-09): a price button opens the trade page with that side
+ * already picked. `option` = the option id (a team, an outcome); `side` =
+ * yes / no (Up = yes, Down = no). The trade pages read both.
+ */
+export const tradeLink = (
+  eventId: string,
+  pick?: { option?: string | null; side?: "yes" | "no"; spot?: boolean },
+): string => {
+  const q = new URLSearchParams({ event: eventId });
+  if (pick?.option) q.set("option", pick.option);
+  if (pick?.side) q.set("side", pick.side);
+  return `${pick?.spot ? "/spot" : "/trade"}?${q.toString()}`;
 };
 
 /** Round clock: "02:44"; an hour or more → "1:31:12" (4h / 1D rounds — never "91:12"). */

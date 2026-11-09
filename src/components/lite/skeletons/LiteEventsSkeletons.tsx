@@ -239,10 +239,108 @@ export const LiteIntradayStageSkeleton = () => (
 );
 
 /** Desktop "All" first load — Sports §1 then Crypto §2 (the two sections above the fold). */
+const SEP = "1px solid rgba(148,163,184,0.1)";
+
+/** Desktop Stocks section (§3) — head + market tabs / status line, two columns of five rows. */
+export const LiteStocksStageSkeleton = () => (
+  <div style={{ padding: "56px 0", borderTop: SEP }}>
+    <SectionHeadSkeleton right={300} />
+    <div className="flex items-center" style={{ gap: 18, marginTop: 34 }}>
+      {[0, 1, 2].map((i) => (
+        <SkelBlock key={i} w={84} h={16} tone="secondary" />
+      ))}
+      <SkelBlock w={280} h={12} tone="secondary" />
+    </div>
+    <div className="grid grid-cols-2" style={{ gap: 44, marginTop: 22 }}>
+      {[0, 1].map((c) => (
+        <div key={c} className="flex flex-col">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="grid items-center" style={{ gridTemplateColumns: "26px 1fr 96px 72px 88px 88px", gap: 12, padding: "13px 0" }}>
+              <SkelBlock w={26} h={26} r={13} />
+              <div className="flex flex-col" style={{ gap: 6 }}>
+                <SkelBlock w="45%" h={13} />
+                <SkelBlock w="65%" h={10} tone="secondary" />
+              </div>
+              <SkelBlock h={28} r={4} tone="secondary" />
+              <SkelBlock h={14} />
+              <SkelBlock h={34} r={17} tone="secondary" />
+              <SkelBlock h={34} r={17} tone="secondary" />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+/** Desktop Editor's Desk (§4) — head, three columns: number, eyebrow, title, note, two buttons. */
+export const LiteDeskStageSkeleton = () => (
+  <div style={{ padding: "56px 0", borderTop: SEP }}>
+    <SectionHeadSkeleton />
+    <div className="grid grid-cols-3" style={{ gap: 36, marginTop: 40 }}>
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="flex flex-col" style={{ gap: 12 }}>
+          <div className="flex items-center" style={{ gap: 10 }}>
+            <SkelBlock w={30} h={26} r={6} />
+            <SkelBlock w={150} h={10} tone="secondary" />
+          </div>
+          <SkelBlock w="85%" h={18} />
+          <SkelBlock w="60%" h={18} />
+          <SkelBlock w="95%" h={11} tone="secondary" />
+          <SkelBlock w="75%" h={11} tone="secondary" />
+          <div className="flex" style={{ gap: 8, marginTop: 6 }}>
+            <SkelBlock w={96} h={34} r={17} tone="secondary" />
+            <SkelBlock w={96} h={34} r={17} tone="secondary" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+/** Desktop More (§5) — head, three event rows: cover + question | outcomes / chance + Yes / No. */
+export const LiteMoreStageSkeleton = () => (
+  <div style={{ padding: "56px 0", borderTop: SEP }}>
+    <SectionHeadSkeleton />
+    <div className="flex flex-col" style={{ marginTop: 32 }}>
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="grid items-center" style={{ gridTemplateColumns: "minmax(0,1fr) 520px", gap: 40, padding: "22px 0", borderTop: i ? SEP : undefined }}>
+          <div className="flex items-center" style={{ gap: 18 }}>
+            <SkelBlock w={120} h={72} r={10} tone="secondary" />
+            <div className="flex flex-col" style={{ gap: 8, flex: 1 }}>
+              <SkelBlock w={180} h={10} tone="secondary" />
+              <SkelBlock w="80%" h={18} />
+              <SkelBlock w={140} h={10} tone="secondary" />
+            </div>
+          </div>
+          <div className="flex flex-col" style={{ gap: 12 }}>
+            {[0, 1].map((k) => (
+              <div key={k} className="grid items-center" style={{ gridTemplateColumns: "136px 1fr 70px 70px", gap: 12 }}>
+                <SkelBlock h={13} />
+                <SkelBlock h={6} r={3} tone="secondary" />
+                <SkelBlock h={28} r={14} tone="secondary" />
+                <SkelBlock h={28} r={14} tone="secondary" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+/**
+ * Desktop "All" first load — the five sections in page order (CPO 2026-11-09:
+ * Sports · Crypto · Stocks · Editor's Desk · More). Shown only until the first
+ * data lands (R6); each block mirrors its section's final layout.
+ */
 export const LiteAllStageSkeleton = () => (
   <div className="animate-pulse">
     <LiteSportsStageSkeleton />
     <LiteIntradayStageSkeleton />
+    <LiteStocksStageSkeleton />
+    <LiteDeskStageSkeleton />
+    <LiteMoreStageSkeleton />
   </div>
 );
 
@@ -251,9 +349,10 @@ export const LiteMobileSportsSkeleton = () => (
   <div className="flex flex-col" style={{ padding: "36px 0", gap: 18 }}>
     <SkelBlock w={240} h={11} tone="secondary" />
     <SkelBlock w={300} h={34} r={8} />
-    <div className="flex" style={{ gap: 8 }}>
+    {/* the real day strip scrolls sideways — the placeholder is cut at the edge, never widens the page */}
+    <div className="flex overflow-hidden" style={{ gap: 8 }}>
       {Array.from({ length: 6 }).map((_, i) => (
-        <SkelBlock key={i} w={56} h={56} r={12} tone="secondary" />
+        <SkelBlock key={i} w={56} h={56} r={12} tone="secondary" style={{ flex: "none" }} />
       ))}
     </div>
     <SkelBlock w={200} h={11} tone="secondary" />
@@ -302,10 +401,83 @@ export const LiteMobileIntradaySkeleton = () => (
   </div>
 );
 
-/** Mobile "All" first load — Sports §1 then Crypto §2. */
+/** Mobile Stocks §3 — head, tabs, five two-line rows. */
+export const LiteMobileStocksSkeleton = () => (
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP }}>
+    <SkelBlock w={240} h={11} tone="secondary" />
+    <SkelBlock w={290} h={34} r={8} />
+    <div className="flex" style={{ gap: 16 }}>
+      {[0, 1, 2].map((i) => (
+        <SkelBlock key={i} w={64} h={14} tone="secondary" />
+      ))}
+    </div>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div key={i} className="flex flex-col" style={{ gap: 8, padding: "8px 0" }}>
+        <div className="flex items-center" style={{ gap: 10 }}>
+          <SkelBlock w={26} h={26} r={13} />
+          <SkelBlock w={140} h={13} />
+          <SkelBlock w={60} h={13} className="ml-auto" />
+        </div>
+        <div className="flex items-center" style={{ gap: 8 }}>
+          <SkelBlock w={120} h={26} r={4} tone="secondary" />
+          <SkelBlock w={78} h={32} r={16} tone="secondary" className="ml-auto" />
+          <SkelBlock w={78} h={32} r={16} tone="secondary" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/** Mobile Editor's Desk §4 — head, three stacked picks. */
+export const LiteMobileDeskSkeleton = () => (
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP }}>
+    <SkelBlock w={180} h={11} tone="secondary" />
+    <SkelBlock w={260} h={34} r={8} />
+    {[0, 1, 2].map((i) => (
+      <div key={i} className="flex flex-col" style={{ gap: 10, padding: "12px 0", borderTop: SEP }}>
+        <SkelBlock w={170} h={10} tone="secondary" />
+        <SkelBlock w="85%" h={16} />
+        <SkelBlock w="95%" h={10} tone="secondary" />
+        <div className="flex" style={{ gap: 8 }}>
+          <SkelBlock w={90} h={32} r={16} tone="secondary" />
+          <SkelBlock w={90} h={32} r={16} tone="secondary" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/** Mobile More §5 — head, two event rows (cover 96×58 + question, then buttons). */
+export const LiteMobileMoreSkeleton = () => (
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP }}>
+    <SkelBlock w={180} h={11} tone="secondary" />
+    <SkelBlock w={230} h={34} r={8} />
+    {[0, 1].map((i) => (
+      <div key={i} className="flex flex-col" style={{ gap: 12, padding: "12px 0", borderTop: SEP }}>
+        <div className="flex items-center" style={{ gap: 12 }}>
+          <SkelBlock w={96} h={58} r={8} tone="secondary" />
+          <div className="flex flex-col" style={{ gap: 7, flex: 1 }}>
+            <SkelBlock w="60%" h={10} tone="secondary" />
+            <SkelBlock w="90%" h={15} />
+          </div>
+        </div>
+        <div className="flex items-center" style={{ gap: 8 }}>
+          <SkelBlock w={90} h={30} r={6} />
+          <SkelBlock w={84} h={34} r={17} tone="secondary" className="ml-auto" />
+          <SkelBlock w={84} h={34} r={17} tone="secondary" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/** Mobile "All" first load — the five sections in page order (CPO 2026-11-09). */
 export const LiteMobileStageSkeleton = () => (
   <div className="animate-pulse">
     <LiteMobileSportsSkeleton />
     <LiteMobileIntradaySkeleton />
+    <LiteMobileStocksSkeleton />
+    <LiteMobileDeskSkeleton />
+    <LiteMobileMoreSkeleton />
   </div>
 );

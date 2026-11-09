@@ -8,7 +8,7 @@
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/`（桌面 + 手机）；Design 画布「规则稿 + 手机版（可批）」页（桌面 D2-S3 整页 / 手机 M-Full + M-* 分段板）是定稿原图
-- 什么时候变成什么样 → `/style-guide` → Lite → **Events 列表** 节点 → 顶部小节「首页 All 视图 · 状态字典（HA-1 … HA-20 + HA-R）」
+- 什么时候变成什么样 → `/style-guide` → Lite → **Events 列表** 节点 → 顶部小节「首页 All 视图 · 状态字典（HA-1 … HA-22 + HA-R）」
 - 规则编号（H / S / C / K / E / M / G / MB）→ 本文 §2 或字典 HA-R，和组件注释里的编号一致
 - 字段、接口 → 本文 §4 §5
 - 设计法则 → `DESIGN.md` §Addendum 2026-11-09 · 首页 All 视图
@@ -17,10 +17,11 @@
 ## 0.1 字典怎么看
 
 1. 打开 `/style-guide`，左栏 Lite 组点 **Events 列表**，第一个小节就是首页 All 视图。
-2. 七组样张：HA-1 Hero · HA-2…5 Sports 四态 · HA-6/7 Crypto · HA-8…10 Stocks 三种时刻 · HA-11/12 Editor's Desk · HA-13 More 四种事件 · HA-14 整页 · HA-15 游客点播放 · HA-16 队徽四种画法 · HA-17 日历条选中某天 · HA-18a/b/c Crypto 15m / 4h / 1D · HA-19 历史不足 8 轮 · HA-20 Desk 两条 pick + 普通二元。每组上面桌面 1280 帧、下面手机 375 帧；**手机帧是组件自己的手机形态**（和 M-* 画板一样），不是桌面压扁。
+2. 七组样张：HA-1 Hero · HA-2…5 Sports 四态 · HA-6/7 Crypto · HA-8…10 Stocks 三种时刻 · HA-11/12 Editor's Desk · HA-13 More 四种事件 · HA-14 整页 · HA-15 游客点播放 · HA-16 队徽四种画法 · HA-17 日历条选中某天 · HA-18a/b/c Crypto 15m / 4h / 1D · HA-19 历史不足 8 轮 · HA-20 Desk 两条 pick + 普通二元 · HA-21a/b/c 状态④能设提醒 / 已设 / 游客点了登录 · HA-22 首屏骨架。每组上面桌面 1280 帧、下面手机 375 帧；**手机帧是组件自己的手机形态**（和 M-* 画板一样），不是桌面压扁。
 3. 每张样张 = 编号 + 状态名 + iframe 里的生产组件；下面的表固定「状态 / 触发条件 / 视觉 / 数据来源」，触发条件就是判定表达式，数据来源栏写着对应的规则编号。
 4. 样张跑在冻结时钟上（`FROZEN_NOW`），倒计时不走、图表只画一帧；Stocks 三张用的是各自市场的冻结时刻（盘中 / 盘后 / 收盘无成交）。
-5. 单张查看：`/style-guide/preview?c=home-ha6`（key = `home-ha` + 编号）。
+5. 单张查看：`/style-guide/preview?c=home-ha6`（key = `home-ha` + 编号）；加 `&lang=zh-CN`（`zh-TW` / `ja` / `ko` / `ru` / `vi`）看该语言。
+6. 页头左上 ⇤ 按钮收起左侧目录，样张占满整宽（目录挤着时有的标签会被压成省略号，那不是规格）。
 
 只在字典里看得到的态：Sports 状态①（10 场 live、3 路直播切换）和状态③④、Stocks「收盘后没成交」（HA-10）、More 的互斥多档 + 长标题（HA-13）——演示库某一时刻通常只有其中一种。
 
@@ -68,6 +69,7 @@
 - **S1** 队标通用规则：所有队标都在同一个圆里。真队徽（透明底）contain 74% 不裁；数据源的纯色占位方块不放原图，改画同色圆徽 + 白色短码；完全没图或图加载失败 = 灰底 + 短码。两队重叠 −5px。队徽地址 / 方块颜色来自赛事数据（metadata.home_logo / home_tile，2026-11-09 起 Lovable 从主网同步）。（字典 HA-16；Sports 品类页同规则见 EV-47）
 - **S2** 舞台位不拉流（CPO 2026-11-09「点了才播」）：画面 = 一张静态图 + 橙色播放钮「Watch live」。点画面 = 播放：已登录 → 进该场交易页静音开播；游客 → 站内登录框（桌面弹窗 / 手机抽屉），登录成功后直接进该场交易页开播（含 Google 跳转回来），关掉登录框留在原页。比分、队名、价钮、Open match 照旧直接进交易页，不弹登录、不开播。Sports 品类页顶部舞台同此规则。交易页对游客不拉流，画面位放「Sign in to watch live」+ Sign in（登录后就地开播）。价钮 / Open match 进交易页之后按交易页自己的规则：已登录静音开播、游客显示「Sign in to watch live」（交易页 S10）；链接里的 &play=1 只是来源标记，交易页不读它。（字典 HA-15 / Sports 列表 EV-36 / 交易页 S10）
 - **S3** 静态图按顺序取：① 直播截图——服务端对每路正在直播的流每 10 分钟截一帧，同一时段所有用户看同一张（字段 metadata.stream_thumb_url / stream_thumb_at）；② 还没截到 / 截图失败 → 这场赛事的封面图（events.image_url）；③ 封面也没有 → 深色底。三档都压暗、左上橙底 LIVE、不放队徽（下方比分行已有两队）。任何一档图片加载失败（前端 onError）就按下一档兜底。stream_thumb_at 前端不读：直播断了由服务端清掉 stream_thumb_url。（字典 EV-38 封面兜底 / EV-39 深色兜底）
+- **S4** 舞台位状态④（没有比赛在打、本周最大一场上舞台）的链接（CPO 2026-11-09 批）：这场有直播、还没开赛、48 小时内开赛 →「☆ Remind me」，点了设提醒、变橙色「★ Reminder set」，再点取消；和 Sports 品类页直播预告排是同一条提醒（同一张表 stream_reminders，开赛时发一条通知，字典 EV-43 / EV-45）。游客点 → 站内登录框（桌面弹窗 / 手机抽屉），登录后不自动设，再点一次才设上。其他情况（没直播 / 超过 48 小时）→「Open match →」进交易页。（字典 HA-5 / HA-21a / HA-21b / HA-21c）
 
 ### C · Crypto 段
 - **C1** 眉行「● Crypto · Up or Down · new round every 5 min」，后半句跟周期 tab：15 min / hour / 4 hours / day。
@@ -103,7 +105,7 @@
 ### G · 全局
 - **G1** 所有段头 = 眉行（品类 · 形态 · 数量/状态）+ 48px 问句，第二行结束，不要第三行说明。主块裸放、副块进面板，裸放块之间靠留白分隔、不加分割线；段与段之间一根细线。
 - **G2** 颜色语义：Up / Yes 青 #33D6FF，Down / No 柠檬 #CFFF4A，直播与倒计时橙 #FF8A3D，股票涨跌绿红；全站规则性文案（赢的份额付 $1 等）不在首页任何段重复。
-- **G3** 首页所有价格钮 / 行 / 舞台位点击 = 进对应事件交易页；首页不下单、不播放。
+- **G3** 首页所有价格钮点击 = 进对应事件的交易页并预选那一边（CPO 2026-11-09 批）：Sports 价钮 = 那支队的选项；Crypto / Stocks 的 Up = Yes 边、Down = No 边；Editor's Desk 的钮 = 钮上那个选项；More 多档的 Yes / No = 那一档 + 那一边，二元 = 那一边。行、瓷砖、舞台位对阵、Open match → 只进交易页、不预选。链接写法 `/trade?event=<id>&option=<选项 id>&side=yes|no`（现货事件 `/spot?…`，快轮同样走 `/trade?…&side=yes|no`，旧写法 up / down 也认）；交易页进页时读一次，选中那一档、下单区切到那一边，之后用户自己改不会被拉回；找不到这一档就照常打开、不报错。首页不下单；播放规则见 S2。
 - **G4** 手机版按手机习惯重做，不平铺桌面（见 MB 组）。
 - **G5** 实装顺序：本清单批 → 手机版画板批 → 直写 Lovable（桌面 + 手机）→ style-guide 每模块每状态一帧 + 四栏表 + fixture 开关 → 交付文档 + 验收表 → 主网逐条验收 + 设计师视觉验收。
 
@@ -113,9 +115,9 @@
 - **R3** 舞台位有多路直播时，默认放成交额最大的一路（相同按开赛早者），‹ › 切换；同 Sports 品类页 EV-37。
 - **R4** Sports 价钮：左钮 = 第一个选项（主队）、右钮 = 最后一个选项（客队），钮上写短名；三项足球赛首页不放平局钮（品类页和交易页有）。
 - **R5** 倒计时写法：≥ 1 小时「9h 05m」，< 1 小时「22m」，< 1 分钟「45s」；超过 24 小时也写小时（「62h 05m」），不换算成天。More 的「closes in Xh」四舍五入、最少写 1h。
-- **R6** 加载与出错：首屏数据回来前显示列表骨架（字典 EV-24）；之后每段数据回来才出现，接口报错与没数据一样整段不出、不显示错误；BTC 当前没有轮次时 Crypto 整段不出；Last 8 不足 8 轮时有几根画几根，右侧计数按实际；五段都没有时首页只剩 Hero、chip 行、Quick Play 横幅。
+- **R6** 加载与出错：首屏数据回来前显示首页骨架——五段（Sports / Crypto / Stocks / Editor's Desk / More）各按最终尺寸占位，数据回来不跳（CPO 2026-11-09 批，字典 HA-22 / EV-24）；之后每段数据回来才出现，接口报错与没数据一样整段不出、不显示错误；BTC 当前没有轮次时 Crypto 整段不出；Last 8 不足 8 轮时有几根画几根，右侧计数按实际；五段都没有时首页只剩 Hero、chip 行、Quick Play 横幅。
 - **R7** 断点：宽度 < 768 用手机版（MB 组），≥ 768 用桌面版；桌面内容区最宽 1280（容器 max-w-7xl），窄于 1280 时各列按网格比例收缩，More 右侧档位区固定 520px 不收缩。
-- **R8** 文案语言：首页 Hero 有英文 / 简中 / 繁中（key 见 H3，其他语言回落英文），其余五段目前只有英文；Sports 品类页已是 7 语。
+- **R8** 文案语言（CPO 2026-11-09 批）：首页五段和 Sports 品类页一样 7 语（英 / 简中 / 繁中 / 日 / 韩 / 俄 / 越），key 前缀 events.screen.simple.home_all.*（Lovable 2026-11-09 新增，要回写平台 i18n 表；Yes / No / Up / Down / Vol / Remind me 等复用已有 key）。星期、日期跟用户语言，时间一律 24 小时制；倒计时单位 h / m / s 不翻（同 Sports 品类页）；赛事名、队名、联赛名、事件标题、品类名、运营推荐语是内容数据，不翻。Hero 见 H3（英 / 简中 / 繁中，其他语言回落英文）。字典单帧加 &lang=zh-CN 等可看各语言。
 
 ### MB · 手机版（390）
 - **MB1** Hero 按设计师手机稿（Figma 203-91044 / 203:91054）：居中两行 26px 标题 → 一句副标「Pick a topic, tap Yes or No.」→ 358×89 插画条（/assets/mobile/hero-band@3x.png，设计师稿整块导出：面板底 + 插画，3×，紧贴副标下方）；不放 LIVE MARKETS 标签。
@@ -124,7 +126,6 @@
 - **MB4** Crypto：钟 + 进度条整行、周期 tab 一行 → BTC 卡（价 48px、图 150 高、同 C4 画法）→「BTC · last 8」紧贴图表下方、在 Up / Down 钮之前 → 资金比例条 → ETH / SOL 两张半卡并排（图 64 高）。
 - **MB5** Stocks：市场 tab + 一行状态 → 只取前 5，每只两行（上：代码 + 全名 / 价 + 涨跌；下：走势图 120×26 + Up / Down 78px 钮）→ 底注「N of 5 above their base price · Show all N →」。
 - **MB6** Editor's Desk 三条竖叠（编号 + 眉行 / 标题 / 引言 / 钮）；More = 封面 + 标题一行，多档事件每档名字独占一行、下面 bar + Yes / No 58px 钮，二元事件 = 大数字 + 两钮整行。
-
 ## 3. 四态与判定（Sports）
 
 | 状态 | 判定 | 舞台位 | 瓷砖 | 右表 / 手机面板 |
@@ -132,7 +133,7 @@
 | ① 多场 live、多路直播 | `live.filter(streamUrl).length > 1` | 成交额最大的一路直播截图 + ‹ Stream i / N ›（R3）| Also live ≤ 4（▶ Stream 标）+ See all N live → | Big 3 + Next up 填满 / Big 3 |
 | ② 1 场 live 有直播 | `streams.length === 1` | 直播截图 + 播放钮（S2 / S3）| Up next 4 | 同上 |
 | ③ live 都没直播 | `live.length > 0 && streams.length === 0` | 无视频面，对阵 + 比分 | Also live N + Up next 补到 4 | 同上 |
-| ④ 0 live | `live.length === 0` | 本周最大场（成交额）+ 开球倒计时 + ☆ Remind me（见 §8 待定 1）| Up next 4 | 同上 |
+| ④ 0 live | `live.length === 0` | 本周最大场（成交额）+ 开球倒计时 + 有直播且 48h 内开赛 → ☆ Remind me，否则 Open match →（S4）| Up next 4 | 同上 |
 
 `live` = `liveAt(m, now)`（每秒重算）；`upcoming` 按开球升序；Big this week = 剩余池按成交额前 3；Next up = 剩余池按开球；日历条只筛右表。
 
@@ -173,7 +174,10 @@
 | 4 | Stocks 段 | US / Hong Kong tab + 一行状态；10 行两列；底注 | 美股盘中实线 / 盘后淡线；港股收盘后无图 + Base price |
 | 5 | Editor's Desk / More | 三列等高；More 一行一个事件，多档条 + 二元大数字 | picks 没配时整段消失；Quick Play 30s / 1m 轮不在 More 里 |
 | 6 | 手机 390 `/` | Hero 居中稿；Sports 单列无 Next up；Stocks 5 行两行式；BTC · last 8 在图下 | 没有省略号截断、没有横向滚动 |
-| 7 | `/style-guide` → Events 列表 → 首页 All 视图 | HA-1…20 桌面 + 375 两帧；HA-R 台账 | 四栏表每行能对到规则编号 |
+| 7 | `/style-guide` → Events 列表 → 首页 All 视图 | HA-1…22 桌面 + 375 两帧；HA-R 台账 | 四栏表每行能对到规则编号 |
+| 8 | 首页任一价钮（Sports 队 / Crypto Down / Stocks Down / More 某档 No） | 进交易页，下单区已是点的那一边、那一档 | 链接带 `&option=` / `&side=`（G3）；行 / 瓷砖 / Open match 不预选 |
+| 9 | 右上语言切到 简中 / 日 / 俄 | 五段眉行、问句、按钮、底注都换语言 | 星期跟语言、时间 24 小时；队名 / 事件名不翻（R8）；手机没有横向滚动 |
+| 10 | 首次打开（清缓存，慢网） | 五段骨架按最终尺寸占位，数据来了不跳 | HA-22 |
 
 ## 7. 代码坐标
 
@@ -182,15 +186,16 @@
 - 五段：`HomeSportsSection.tsx` · `HomeCryptoSection.tsx` + `RoundCanvas.tsx` + `roundSeries.ts` · `HomeStocksSection.tsx` · `HomeDeskSection.tsx` · `HomeMoreSection.tsx`；组合 `HomeStage.tsx`
 - 页面：`src/pages/lite/LiteEventsPage.tsx`（All 视图挂 `HomeStage`，长期事件传 `filtered`）；Hero `HomeHero.tsx`；chip 行 `LiteEventsHeader.tsx`
 - 字典：`src/pages/StyleGuide/sections/HomeAllSection.tsx` + `preview/homeAllPreviews.tsx`；台账 `components/HomeRulesLedger.tsx`
-- 骨架：`LiteEventsSkeletons.tsx` `LiteAllStageSkeleton`（首载骨架，字典 EV-24；画的还是改版前的两块形状，见 §8 待定 4）
+- 骨架：`LiteEventsSkeletons.tsx` `LiteAllStageSkeleton` / `LiteMobileStageSkeleton`（五段首载骨架，字典 HA-22 / EV-24）
+- 文案：`src/locales/<语言>.json` → `events` 命名空间 `screen.simple.home_all.*`（7 语，Lovable 2026-11-09 新增，要回写平台 i18n 表）；取词 `ht()` / 带粗体数字的句子 `rich()`（`homeAllShell.tsx`）
+- 交易页预选：`tradeLink()`（`homeAllShell.tsx`）生成链接；`LiteContractTrade.tsx` / `LiteSpotTrade.tsx` / `LiteQuickTrade.tsx` 进页读一次 `option` / `side`
 - 已删除：`HomeCryptoCard / HomeStocksCard / HomeSportsCard / HomeDeskCard`、目录板头 / 身份卡（`CatalogueHeaderRow / CatalogueIdentityCard / CatalogueMobileBanner`）
 
-## 8. 待 CPO 拍板（终验冷读 2026-11-09）
+## 8. 终验冷读拍板记录（2026-11-09，CPO「4件事都批了」）
 
-| # | 问题 | 现状 | 建议 |
+| # | 问题 | 定了什么 | 规则 / 字典 |
 |---|---|---|---|
-| 1 | 状态④舞台的「☆ Remind me」 | 现在点了只是进交易页，不设提醒；而且最大场常常没有直播，提醒（只对 48 小时内有直播的比赛开放）设不上 | 有直播且 48 小时内开赛 → 真提醒（同 EV-43 / EV-45，游客先登录）；没有直播 → 换成「Open match →」 |
-| 2 | 首页价钮进交易页要不要预选点的那一边 | Sports 品类页、Editor's Desk 预选；首页 Sports / Crypto / Stocks 不预选 | 全部预选（点 Up 进去就是 Up） |
-| 3 | 首页五段的多语言 | 只有英文（Hero 有英 / 简 / 繁） | 按 Sports 品类页做 7 语 |
-| 4 | 首屏骨架 | 还是改版前的两块形状（EV-24） | 按五段重画骨架，出 HA 帧 |
-
+| 1 | 状态④舞台的「☆ Remind me」 | 有直播且 48 小时内开赛 → 真提醒（与 Sports 品类页同一条，游客先登录）；否则「Open match →」 | S4 · HA-5 / HA-21a/b/c |
+| 2 | 首页价钮进交易页要不要预选 | 全部预选：点哪边进去就是哪边、哪一档 | G3 |
+| 3 | 首页五段多语言 | 7 语，同 Sports 品类页 | R8 |
+| 4 | 首屏骨架 | 按五段重画 | R6 · HA-22 / EV-24 |

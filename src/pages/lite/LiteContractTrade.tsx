@@ -655,6 +655,27 @@ const LiteContractTrade = () => {
     [event, selectedOptId, liveOptions],
   );
 
+  // G3 deep link (CPO 2026-11-09): a price button elsewhere opens this page on
+  // the side it showed. `&option=<id>` picks that team / outcome, `&side=`
+  // yes|no (or up|down) picks the side. Applied once per event, before the
+  // reader touches anything.
+  const deepPicked = useRef<string | null>(null);
+  useEffect(() => {
+    if (!event || deepPicked.current === event.id) return;
+    deepPicked.current = event.id;
+    const optParam = params.get("option");
+    const sp = (params.get("side") || "").toLowerCase();
+    const fromSide: Side | null = sp === "no" || sp === "down" ? "no" : sp === "yes" || sp === "up" ? "yes" : null;
+    const hit = optParam ? event.options.find((o) => o.id === optParam && o.final_price == null) : null;
+    if (isMulti) {
+      if (hit) setSelectedOptId(hit.id);
+      if (fromSide) setSide(fromSide);
+      return;
+    }
+    if (hit) setSide(fromSide ?? (noOpt && hit.id === noOpt.id ? "no" : "yes"));
+    else if (fromSide) setSide(fromSide);
+  }, [event, isMulti, noOpt, params]);
+
   // Every open leg on this event (multi events allow several at once).
   const multiHeld = useMemo(() => {
     if (!event) return [];

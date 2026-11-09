@@ -1363,7 +1363,9 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | `annWindowLocal(s, e)` | `10:00–12:00` / `Oct 16, 06:00 – 10:00` | 括号里的本地段；`viewerIsUtc()` 时省略 |
 | `parseMarkdown(src)` | Block[] | Markdown 子集（§delivery v2 3.4）；无 HTML 透传；`safeHref` 只放行 http(s) / `/` / mailto |
 
-## 首页 All 视图（2026-11-09 改版 · 字典 HA-1 … HA-20）
+## 首页 All 视图（2026-11-09 改版 · 字典 HA-1 … HA-22）
+
+文案 7 语（R8）：英文原文见下表，key = `events` 命名空间 `screen.simple.home_all.<段>.<名>`（如 `sports.biggest_kicks_off_in`、`crypto.eyebrow_4h`、`more.exclusive`）；`Yes` / `No` / `Up` / `Down` / `Vol` / `Remind me` / `Reminder set` / `Stream` / `Today` / `Tomorrow` / `Show all {N} →` / `All {N} matches →` / `Boost {n}×` / `TBD` 复用已有 key。问句里 `*…*` 标的是柠檬色斜体那半句，`{{x}}` 是组件自己渲染的数值（粗体数字、着色词）。
 
 | 位置 | 文案（英文原文，不翻译数字与符号） | 规则 |
 |---|---|---|
@@ -1371,7 +1373,7 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | Sports 眉行 | `● Sports · {N} matches this week · {n} live` · 0 live：`Sports · {N} matches this week · next kickoff in {X}` · 手机 0 live：`Sports · {N} matches · kickoff in {X}`（N / ALL 的口径见 R1）| S0 / R1 |
 | Sports 问句 | `Who wins the match?`（`the match` 柠檬）| G1 |
 | 舞台位标签 | `Live now · {联赛} · {节点}` · 0 live：`Biggest this week · kicks off in {X}` · 右：`▶ Live stream` / `Stream {i} / {N}` | S0 S3 |
-| 舞台位动作 | `Open match →` / `☆ Remind me` · `Vol ${x}` · 有直播：画面中央 `Watch live` | G3 / S2 |
+| 舞台位动作 | `Open match →` · 状态④有直播且 48h 内开赛：`☆ Remind me` → 已设 `★ Reminder set`（橙）· `Vol ${x}` · 有直播：画面中央 `Watch live` | S4 / S2 |
 | 瓷砖组标题 | `Also live · {n}` / `Up next` / `Up next · {HH:mm} / {HH:mm}` · `See all {n} live →` | S0 |
 | 右表 | `Big this week · by volume` / `Next up` · `+{n} more this week · see all →` · 手机 `All {N} matches →` | S0 / MB3 |
 | Crypto 眉行 | `● Crypto · Up or Down · new round every {5 min / 15 min / hour / 4 hours / day}` | C1 |
@@ -1388,4 +1390,5 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | Stocks 底注 | `{n} of {N} trading above their base price right now` · `Show all {N} →` · 手机 `{n} of 5 above their base price` | K6 / MB5 |
 | Editor's Desk | `✦ Editor's Desk · {N} picks` · `What's worth watching?` · 眉行 `{品类} · settles {HH:mm} / Tomorrow {HH:mm} / settles {Mon D}` · `+{n} more` | E1 E3 E4 |
 | More | `More markets · {N} open` · `Will it happen?` · `{品类} · {N} markets / Yes / No · Boost {n}× · closes in {X}h` · `Vol ${x} · settles {Mon D}` · `+{n} more outcomes →` · `Outcomes are mutually exclusive — exactly one pays $1.` · `{n}% chance of Yes` · `Yes {n}¢` / `No {n}¢` | M1–M5 |
+| 价钮链接（G3） | `/trade?event={id}&option={选项 id}&side=yes|no`（现货事件 `/spot?…`；`up` / `down` 也认）；行 / 瓷砖 / Open match 只带 `event` | G3 |
 | 倒计时写法 | `9h 05m` / `22m` / `45s`；超过 24 小时仍写小时（`62h 05m`）；More 眉行 `closes in {X}h` 四舍五入、最少 `1h` | R5 |
