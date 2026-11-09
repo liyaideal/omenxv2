@@ -94,7 +94,7 @@ const SPORTS_CASES: SectionCase[] = [
     spec: [
       { state: "比分串", when: "sport !== \"tennis\" && score 形如 `d-d` / `d–d` / `d:d`", visual: "`0 – 1`（U+2013 两侧空格）；解析不出回退原串；空值 `–`", source: "formatPlainScore" },
       { state: "phase = LIVE", when: "phase.toUpperCase() === \"LIVE\"", visual: "联赛行不追加任何词（LIVE 药丸已在）", source: "phaseLabel → null" },
-      { state: "phase = BREAK", when: "phase === \"BREAK\"", visual: "`IEM Cologne · BO3 · Break`", source: "phaseLabel" },
+      { state: "phase = BREAK", when: "phase === \"BREAK\"", visual: "`IEM Cologne · Break`", source: "phaseLabel" },
       { state: "phase = DECISION", when: "phase === \"DECISION\"", visual: "`UFC 321 · Decision`；格斗无比分串，中央位 `–`", source: "phaseLabel / formatPlainScore" },
       { state: "供应商人话", when: "其他字符串（`2nd half` / `3rd set`）", visual: "原样", source: "phaseLabel" },
     ],

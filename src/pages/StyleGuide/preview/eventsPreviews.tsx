@@ -756,7 +756,7 @@ const PHASE_FIXTURE: SportsMatch[] = [
   {
     ...match({
       id: "sg-sp-cs2-break",
-      league: "IEM Cologne · BO3",
+      league: "IEM Cologne",
       home: "Spirit",
       away: "MOUZ",
       homeAbbr: "SPIRIT",
@@ -1225,7 +1225,7 @@ const SL_T1 = sm({ id: "sg-sl-t1-gen", league: "LCK", home: "T1", away: "Gen.G",
   options: [opt("sg-sl-t1-h", "T1", 0.61), opt("sg-sl-t1-a", "Gen.G", 0.39)] }, -55);
 const SL_LIV = sm({ id: "sg-sl-liv-mci", league: "Premier League", home: "Liverpool", away: "Manchester City", homeAbbr: "LIV", awayAbbr: "MCI", awayShort: "Man City", sport: "soccer", minute: 24, phase: "1st half", score: "0-0", streamUrl: STREAM_SRC, volume: 3_100_000,
   options: [opt("sg-sl-liv-h", "Liverpool", 0.39), opt("sg-sl-liv-d", "Draw", 0.3), opt("sg-sl-liv-a", "Man City", 0.31)] }, -24);
-const SL_SPI = sm({ id: "sg-sl-spi-mouz", league: "IEM Cologne · BO3", home: "Spirit", away: "MOUZ", homeAbbr: "SPIRIT", awayAbbr: "MOUZ", sport: "esports", format: "h2h", liveLabel: "Map 2", score: "1-0", streamUrl: STREAM_SRC, volume: 482_000,
+const SL_SPI = sm({ id: "sg-sl-spi-mouz", league: "IEM Cologne", home: "Spirit", away: "MOUZ", homeAbbr: "SPIRIT", awayAbbr: "MOUZ", sport: "esports", format: "h2h", liveLabel: "Map 2", score: "1-0", streamUrl: STREAM_SRC, volume: 482_000,
   options: [opt("sg-sl-spi-h", "SPIRIT", 0.7), opt("sg-sl-spi-a", "MOUZ", 0.3)] }, -40);
 /* live, no stream */
 const SL_NFL = sm({ id: "sg-sl-nfl", league: "NFL", home: "Kansas City Chiefs", away: "Buffalo Bills", homeAbbr: "KC", awayAbbr: "BUF", homeShort: "Chiefs", awayShort: "Bills", sport: "american_football", format: "h2h", liveLabel: "Q3 8:42", score: "17-14", volume: 1_100_000,
@@ -1239,7 +1239,7 @@ const UP_MUN = sm({ id: "sg-up-mun-tot", league: "Premier League", home: "Manche
   options: [opt("sg-up-mun-h", "Man United", 0.41), opt("sg-up-mun-d", "Draw", 0.27), opt("sg-up-mun-a", "Tottenham", 0.32)] }, 22 * 60);
 const UP_HLE = sm({ id: "sg-up-hle-dk", league: "LCK", home: "Hanwha Life", away: "Dplus KIA", homeAbbr: "HLE", awayAbbr: "DK", homeShort: "HLE", awayShort: "DK", sport: "lol", format: "h2h", streamUrl: STREAM_SRC, volume: 900_000,
   options: [opt("sg-up-hle-h", "HLE", 0.64), opt("sg-up-hle-a", "DK", 0.36)] }, 31 * 60);
-const UP_NAVI = sm({ id: "sg-up-navi-faze", league: "IEM Cologne · BO3", home: "NAVI", away: "FaZe", homeAbbr: "NAVI", awayAbbr: "FAZE", sport: "esports", format: "h2h", streamUrl: STREAM_SRC, volume: 610_000,
+const UP_NAVI = sm({ id: "sg-up-navi-faze", league: "IEM Cologne", home: "NAVI", away: "FaZe", homeAbbr: "NAVI", awayAbbr: "FAZE", sport: "esports", format: "h2h", streamUrl: STREAM_SRC, volume: 610_000,
   options: [opt("sg-up-navi-h", "NAVI", 0.45), opt("sg-up-navi-a", "FaZe", 0.55)] }, 60 * 60);
 /* upcoming, no stream */
 const UP_JUV = sm({ id: "sg-up-juv-nap", league: "Serie A", home: "Juventus", away: "Napoli", homeAbbr: "JUV", awayAbbr: "NAP", sport: "soccer", volume: 1_700_000,

@@ -126,7 +126,7 @@ export const ALL_TYPES: Row[] = [
 
 /** Updates feed (v2, CPO V1–V5 / A1–A9 + 2026-11-04 stream_live): the six `system.*` types as alex sees them. */
 export const UPDATES_FEED: Row[] = [
-  mk("system.stream_live", { event_name: "Spirit vs MOUZ", event_id: "demo-live-cs2", home: "Spirit", away: "MOUZ", league: "IEM Cologne · BO3" }, 0.2, false, "/trade?event=demo-live-cs2"),
+  mk("system.stream_live", { event_name: "Spirit vs MOUZ", event_id: "demo-live-cs2", home: "Spirit", away: "MOUZ", league: "IEM Cologne" }, 0.2, false, "/trade?event=demo-live-cs2"),
   mk("system.watchlist_live", { event_name: "Los Angeles Dodgers vs New York Yankees", event_id: "demo-live-mlb" }, 0.75, false, "/trade?event=demo-live-mlb"),
   mk("system.maintenance", { kind: "maintenance", title: "Scheduled maintenance · Oct 15", summary: "Base deposits & withdrawals paused 02:00–04:00 UTC · trading unaffected" }, 1.5, false, "/announcements/0a000001-0000-4000-8000-000000000001"),
   mk("system.announcement", { kind: "announcement", title: "Crypto rounds now settle in under 2 minutes", summary: "Faster settlement for every crypto quick round from Oct 20" }, 3, false, "/announcements/0a000001-0000-4000-8000-000000000002"),
