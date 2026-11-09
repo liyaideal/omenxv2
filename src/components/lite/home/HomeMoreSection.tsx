@@ -82,7 +82,11 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
           <div className="lbl" style={{ fontSize: isMobile ? 9.5 : 10 }}>
             {meta}
           </div>
-          <div className="d" style={{ fontWeight: 700, fontSize: isMobile ? 16 : 20, color: "#fff", marginTop: isMobile ? 5 : 6, lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          <div
+            className="d"
+            // M2: desktop clamps at 2 lines (the column is wide); phone never cuts the title — it wraps.
+            style={isMobile ? { fontWeight: 700, fontSize: 16, color: "#fff", marginTop: 5, lineHeight: 1.25 } : { fontWeight: 700, fontSize: 20, color: "#fff", marginTop: 6, lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+          >
             {m.eventName}
           </div>
           <div className="kv" style={{ marginTop: isMobile ? 4 : 6, fontSize: isMobile ? 11.5 : 12.5 }}>
@@ -114,8 +118,9 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
               </div>
             </div>
           ) : (
-            <div key={c.id} style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto", gap: 14, alignItems: "center", padding: "6px 0" }}>
-              <span className="d" style={{ fontSize: 13, fontWeight: 700, color: "#DBE2EA", minWidth: 96, maxWidth: 200, whiteSpace: "nowrap" }}>
+            // Fixed label column so every event's bars start on the same x; long names wrap, never cut.
+            <div key={c.id} style={{ display: "grid", gridTemplateColumns: "136px minmax(0,1fr) auto", gap: 14, alignItems: "center", padding: "6px 0" }}>
+              <span className="d" style={{ fontSize: 13, fontWeight: 700, color: "#DBE2EA", lineHeight: 1.25 }}>
                 {c.displayLabel || c.optionLabel}
               </span>
               <Bar p={c.markPrice} />
@@ -147,15 +152,15 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
           <span className="m" style={{ fontSize: isMobile ? 30 : 36, fontWeight: 700, color: "#fff", lineHeight: 1, letterSpacing: "-.03em" }}>
             {Math.round(yesP * 100)}%
           </span>
-          <span className="kv" style={{ fontSize: 12 }}>
+          <span className="kv" style={{ fontSize: isMobile ? 11.5 : 12, whiteSpace: "nowrap" }}>
             chance of Yes
           </span>
         </span>
         <span className="row" style={{ gap: 8 }}>
-          <button type="button" className="up" style={{ width: isMobile ? 92 : 110, justifyContent: "center" }} onClick={go(m)}>
+          <button type="button" className="up" style={{ width: isMobile ? 84 : 110, justifyContent: "center" }} onClick={go(m)}>
             Yes <b>{cents(yesP)}</b>
           </button>
-          <button type="button" className="dn" style={{ width: isMobile ? 92 : 110, justifyContent: "center" }} onClick={go(m)}>
+          <button type="button" className="dn" style={{ width: isMobile ? 84 : 110, justifyContent: "center" }} onClick={go(m)}>
             No <b>{cents(1 - yesP)}</b>
           </button>
         </span>

@@ -84,6 +84,8 @@ const US_TZ = US_STOCK_MARKET.tz;
 export const NOW_US_LIVE = atMarketClock(US_TZ, 3, 11, 0);
 /** US settling: Wednesday 16:22 ET → 38:00 left of the 60-minute window. */
 export const NOW_US_SETTLING = atMarketClock(US_TZ, 3, 16, 22);
+/** HK after close, no prints: Wednesday 18:00 HKT (16:00 close, next open Thursday 09:30). */
+export const NOW_HK_AFTER_CLOSE = atMarketClock("Asia/Hong_Kong", 3, 18, 0);
 /** US pre-session: Sunday 14:00 ET → next open is Monday 09:30 (weekend rule). */
 export const NOW_US_PRESESSION = atMarketClock(US_TZ, 0, 14, 0);
 /** SP-17: close + 15 min ET → 45:00 left. */

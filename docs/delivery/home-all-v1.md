@@ -81,7 +81,7 @@
 
 ### K · Stocks 段
 - **K1** 眉行「Stocks · Daily close · N markets today」，问句「Will it finish higher than it opened?」。
-- **K2** 段头右侧：市场 tab 单行 US / Hong Kong / Korea（有数据才出，以后 CN 多一个），数量跟在名字后；下面一行状态：盘中「Market open · closes in X」、非盘中「Market opens in X」，后接「settles in Y」。
+- **K2** 段头右侧：市场 tab 单行 US / Hong Kong / Korea（有数据才出，以后 CN 多一个），数量跟在名字后；下面一行状态：盘中「Market open · closes in X」、非盘中「Market opens in X」，后接「settles in Y」（Y = 下一个还没到的结算时间）；这一轮结算时间已过、引擎还没滚到下一轮时写「settling now」，不写「settles in 0s」。
 - **K3** 清单：前 10，两列各 5，中间分隔线；每行 = 图标 26 · 代码 + 全名（不截断）· 走势小图 96×28 · 价格 + 相对 Base 涨跌 · Up / Down 88px。手机前 5、每只两行。
 - **K4** 走势三种时刻：① 盘中实线；② 收盘后还在成交（美股盘后 / 夜盘）同色淡一半；③ 收盘后没成交（港股 / 韩股）不画图，价格旁写「Base price」。基准虚线 = 上次官方收盘价 = 这轮 Base。≤ 48 点。
 - **K5** 涨 `#4ADE80` / 跌 `#F87171`，基准虚线橙。
@@ -124,6 +124,8 @@
 | ④ 0 live | `live.length === 0` | 本周最大场（成交额）+ 开球倒计时 + ☆ Remind me | Up next 4 | 同上 |
 
 `live` = `liveAt(m, now)`（每秒重算）；`upcoming` 按开球升序；Big this week = 剩余池按成交额前 3；Next up = 剩余池按开球；日历条只筛右表。
+
+「Next up 填满」= 让右表和左栏一样高，按舞台位形态定行数：有视频面 8 行（再出「See all N live」整行钮时 9 行）；有 live 但没视频面 5 行；0 live 4 行。手机不列 Next up（MB3）。舞台位直播画面只在这场**有直播源**时出现（桌面静音播 / 手机与播放失败时品牌舞台）；live 但没有直播源的场次没有画面块，直接对阵 + 比分（状态③）。
 
 ## 4. 字段来源（Lovable 蓝本）
 

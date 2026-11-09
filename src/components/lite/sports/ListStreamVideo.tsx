@@ -74,6 +74,7 @@ export const ListStreamVideo = ({
   onFail,
   compact,
   fixture,
+  preview,
 }: {
   src: string;
   onOpen: () => void;
@@ -82,6 +83,9 @@ export const ListStreamVideo = ({
   compact?: boolean;
   /** Style-guide only: freeze the player in one state, no HLS attached. Not passed in production. */
   fixture?: "loading" | "blocked" | "error";
+  /** Home page stage (rules S2 / S3 ②): a muted picture with no controls — no mute
+   *  button, no play button; the whole box opens the match. Not passed = Sports view, unchanged. */
+  preview?: boolean;
 }) => {
   const hls = useHlsVideo(src, !fixture);
   const { ref, muted, setMuted, play, pause } = hls;
@@ -157,6 +161,7 @@ export const ListStreamVideo = ({
       <div className="absolute flex items-center" style={{ left: compact ? 10 : 14, top: compact ? 10 : 14, gap: 8 }}>
         <LivePill label={t("common.live")} />
       </div>
+      {!preview && (
       <div className="absolute flex items-center" style={{ right: compact ? 10 : 14, bottom: compact ? 10 : 14, gap: 8 }}>
         <RoundBtn
           label={muted ? t(`${K}.unmute`) : t(`${K}.mute`)}
@@ -171,6 +176,7 @@ export const ListStreamVideo = ({
           </svg>
         </RoundBtn>
       </div>
+      )}
       {busy && (
         <span
           className="absolute"
@@ -187,7 +193,7 @@ export const ListStreamVideo = ({
           }}
         />
       )}
-      {(state === "blocked" || state === "paused") && (
+      {!preview && (state === "blocked" || state === "paused") && (
         <button
           type="button"
           aria-label={t(`${K}.play`)}

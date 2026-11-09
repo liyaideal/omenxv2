@@ -78,7 +78,7 @@ const liveClock = (m: SportsMatch): string =>
 const LeagueLabel = ({ m, short }: { m: SportsMatch; short?: boolean }) => (
   <>
     <SportIcon sport={sportCodeOf(m)} />
-    {short ? leagueCodeOf(m) || m.league : m.league}
+    {short ? (leagueCodeOf(m) || m.league).replace(/_/g, " ") : m.league}
   </>
 );
 
@@ -92,6 +92,7 @@ const Stage = ({
   onSwitchStream,
   isMobile,
   onOpen,
+  now,
 }: {
   m: SportsMatch;
   live: boolean;
@@ -101,14 +102,16 @@ const Stage = ({
   onSwitchStream: (i: number) => void;
   isMobile: boolean;
   onOpen: (id: string) => void;
+  /** Same clock as the section (frozen in the style-guide), so the stage countdown never disagrees with the eyebrow. */
+  now: number;
 }) => {
   const [dead, setDead] = useState<Record<string, boolean>>({});
   const hasVideo = live && !!m.streamUrl && !dead[m.id];
-  const kickoffMs = m.kickoff ? m.kickoff.getTime() - Date.now() : 0;
+  const kickoffMs = m.kickoff ? Math.max(0, m.kickoff.getTime() - now) : 0;
   const label = live
     ? isMobile
       ? `Live now${m.liveLabel ? ` · ${m.liveLabel}` : ""}`
-      : `Live now · ${leagueCodeOf(m) || m.league}${m.liveLabel ? ` · ${m.liveLabel}` : ""}`
+      : `Live now · ${(leagueCodeOf(m) || m.league).replace(/_/g, " ")}${m.liveLabel ? ` · ${m.liveLabel}` : ""}`
     : `Biggest this week · kicks off in ${kickoffInShort(kickoffMs)}`;
   const badgeSize = isMobile ? 44 : 56;
 
@@ -159,11 +162,13 @@ const Stage = ({
 
       {/* S2/S3: the picture is a PREVIEW that opens the match — no controls on
           the home page. Desktop: muted autoplay (tier ②) when the stream can
-          be embedded; mobile and no-stream: the brand stage (tier ③). */}
-      {live && (
+          be embedded; mobile, or a stream that failed: the brand stage (tier ③).
+          A live match with no stream at all gets no picture block (state ③ in D2-S3). */}
+      {live && !!m.streamUrl && (
         <div className="stage-vid" style={{ marginTop: isMobile ? 12 : 14 }}>
           {hasVideo && !isMobile ? (
             <ListStreamVideo
+              preview
               src={m.streamUrl as string}
               onOpen={() => onOpen(m.id)}
               onFail={() => setDead((d) => ({ ...d, [m.id]: true }))}
@@ -205,7 +210,7 @@ const Stage = ({
           <span className="tc-code" style={{ fontSize: isMobile ? 14 : 16 }}>
             {abbr(m, "home")}
           </span>
-          <span className="tc-el" style={{ fontSize: isMobile ? 11 : 11.5, color: MU, maxWidth: isMobile ? 110 : 150 }}>
+          <span style={{ fontSize: isMobile ? 11 : 11.5, color: MU, maxWidth: "100%", width: isMobile ? undefined : 150, textAlign: "center", lineHeight: 1.3 }}>
             {m.home}
           </span>
         </div>
@@ -244,7 +249,7 @@ const Stage = ({
           <span className="tc-code" style={{ fontSize: isMobile ? 14 : 16 }}>
             {abbr(m, "away")}
           </span>
-          <span className="tc-el" style={{ fontSize: isMobile ? 11 : 11.5, color: MU, maxWidth: isMobile ? 110 : 150 }}>
+          <span style={{ fontSize: isMobile ? 11 : 11.5, color: MU, maxWidth: "100%", width: isMobile ? undefined : 150, textAlign: "center", lineHeight: 1.3 }}>
             {m.away}
           </span>
         </div>
@@ -532,7 +537,13 @@ export const HomeSportsSection = ({
     const pool = matchesInBucket(upcoming, day).filter((m) => !used.has(m.id));
     const big = [...pool].sort(byVol).slice(0, 3);
     const bigSet = new Set(big.map((m) => m.id));
-    const next = pool.filter((m) => !bigSet.has(m.id)).slice(0, isMobile ? 0 : nextUpRows);
+    // Next up fills the table to the left column's height (D2-S3 states ①–④): a video stage is tall
+    // (8 rows, +1 when the "See all N live" button shows); a stage without video is short (5 with live
+    // tiles under it, 4 before kickoff). Otherwise the panel runs ~200px past the left column (looks broken).
+    const stageHasVideo = streams.length > 0;
+    const seeAll = live.length - 1 > alsoLive.length;
+    const fill = stageHasVideo ? nextUpRows + (seeAll ? 1 : 0) : live.length > 0 ? nextUpRows - 3 : nextUpRows - 4;
+    const next = pool.filter((m) => !bigSet.has(m.id)).slice(0, isMobile ? 0 : fill);
     const remain = Math.max(0, upcoming.length - upNext.length - big.length - next.length);
     return { live, liveSet, upcoming, streams, stage, alsoLive, upNext, big, next, remain };
   }, [matches, now, day, streamIndex, isMobile, nextUpRows]);
@@ -582,6 +593,7 @@ export const HomeSportsSection = ({
       onSwitchStream={setStreamIndex}
       isMobile={isMobile}
       onOpen={onOpen}
+      now={now}
     />
   );
 

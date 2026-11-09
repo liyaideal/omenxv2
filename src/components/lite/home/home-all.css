@@ -125,6 +125,8 @@
 .hall-m .panel{padding:18px 16px}
 .hall-m .lrow{grid-template-columns:40px minmax(0,1fr) 56px 56px;gap:6px;padding:11px 0}
 .hall-m .lrow .tc-pill{height:30px;padding:0 4px;font-size:12px}
+/* phone table meta (kickoff · league) must fit WORLDS / LALIGA without an ellipsis */
+.hall-m .lrow .tc-meta{letter-spacing:.05em;font-size:10px}
 .hall-m .tc-lg.pairsm{width:24px;height:24px}
 .hall-m .mstk{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px 10px;padding:12px 0;border-bottom:1px solid rgba(148,163,184,.12);align-items:center}
 .hall-m .mstk .l2{grid-column:2 / -1;display:flex;align-items:center;justify-content:space-between;gap:10px}

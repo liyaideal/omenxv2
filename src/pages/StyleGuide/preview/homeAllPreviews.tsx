@@ -31,7 +31,7 @@ import {
 import type { SportsMatch } from "@/components/lite/sports/sportsData";
 import type { EditorPick } from "@/components/lite/picks/editorialPicks";
 import type { EventRow, MarketChildRow } from "@/hooks/useMarketListData";
-import { NOW_US_LIVE, NOW_US_PRESESSION, NOW_US_SETTLING } from "./homeStagePreviews";
+import { NOW_HK_AFTER_CLOSE, NOW_US_LIVE, NOW_US_SETTLING } from "./homeStagePreviews";
 
 const MIN = 60_000;
 const HOUR = 3_600_000;
@@ -237,15 +237,15 @@ export const STOCK_ROWS: StockEventRow[] = [
   stock("us-aapl-daily", "Apple — higher than it opened?", 344.3, US_STOCK_SUBTYPE, 0.56, 15.9),
   stock("us-amzn-daily", "Amazon — higher than it opened?", 262.01, US_STOCK_SUBTYPE, 0.57, 15.9),
   stock("us-ibm-daily", "IBM — higher than it opened?", 247.28, US_STOCK_SUBTYPE, 0.59, 15.9),
-  stock("hk-0700-daily", "Tencent — higher than it opened?", 612.5, HK_STOCK_SUBTYPE, 0.52, 20),
-  stock("hk-9988-daily", "Alibaba — higher than it opened?", 154.2, HK_STOCK_SUBTYPE, 0.49, 20),
-  stock("hk-3690-daily", "Meituan — higher than it opened?", 98.65, HK_STOCK_SUBTYPE, 0.45, 20),
-  stock("hk-1810-daily", "Xiaomi — higher than it opened?", 41.3, HK_STOCK_SUBTYPE, 0.53, 20),
-  stock("hk-0005-daily", "HSBC — higher than it opened?", 112.9, HK_STOCK_SUBTYPE, 0.5, 20),
-  stock("hk-1211-daily", "BYD — higher than it opened?", 356.4, HK_STOCK_SUBTYPE, 0.47, 20),
-  stock("kr-005930-daily", "Samsung Electronics — higher than it opened?", 98_400, KR_STOCK_SUBTYPE, 0.51, 19),
-  stock("kr-000660-daily", "SK hynix — higher than it opened?", 412_000, KR_STOCK_SUBTYPE, 0.56, 19),
-  stock("kr-035420-daily", "NAVER — higher than it opened?", 218_500, KR_STOCK_SUBTYPE, 0.44, 19),
+  stock("hk-0700-updown-daily", "Tencent — higher than it opened?", 612.5, HK_STOCK_SUBTYPE, 0.52, 20),
+  stock("hk-9988-updown-daily", "Alibaba — higher than it opened?", 154.2, HK_STOCK_SUBTYPE, 0.49, 20),
+  stock("hk-3690-updown-daily", "Meituan — higher than it opened?", 98.65, HK_STOCK_SUBTYPE, 0.45, 20),
+  stock("hk-1810-updown-daily", "Xiaomi — higher than it opened?", 41.3, HK_STOCK_SUBTYPE, 0.53, 20),
+  stock("hk-0005-updown-daily", "HSBC — higher than it opened?", 112.9, HK_STOCK_SUBTYPE, 0.5, 20),
+  stock("hk-1211-updown-daily", "BYD — higher than it opened?", 356.4, HK_STOCK_SUBTYPE, 0.47, 20),
+  stock("kr-005930-updown-daily", "Samsung Electronics — higher than it opened?", 98_400, KR_STOCK_SUBTYPE, 0.51, 19),
+  stock("kr-000660-updown-daily", "SK hynix — higher than it opened?", 412_000, KR_STOCK_SUBTYPE, 0.56, 19),
+  stock("kr-035420-updown-daily", "NAVER — higher than it opened?", 218_500, KR_STOCK_SUBTYPE, 0.44, 19),
 ];
 /** The session fixtures run on the exchange calendar (NOW_US_*), so settle times hang off that clock. */
 export const stockRowsAt = (now: Date): StockEventRow[] =>
@@ -254,12 +254,12 @@ export const stockRowsAt = (now: Date): StockEventRow[] =>
     start_date: new Date(now.getTime() - 10 * HOUR).toISOString(),
     end_date: new Date(now.getTime() + Number(r.end_date) * HOUR).toISOString(),
   }));
-const StocksDemo = ({ mode, now }: { mode: PrintMode; now: Date }) => {
+const StocksDemo = ({ mode, now, market }: { mode: PrintMode; now: Date; market?: "us" | "hk" | "kr" }) => {
   const isMobile = useIsMobile();
   return (
     <Pad>
       <div className={isMobile ? "hall hall-m" : "hall"}>
-        <HomeStocksSection stockRows={stockRowsAt(now)} isMobile={!!isMobile} onOpenAll={() => undefined} nowOverride={now} printModeOverride={mode} />
+        <HomeStocksSection stockRows={stockRowsAt(now)} isMobile={!!isMobile} onOpenAll={() => undefined} nowOverride={now} printModeOverride={mode} initialMarket={market} />
       </div>
     </Pad>
   );
@@ -268,8 +268,8 @@ const StocksDemo = ({ mode, now }: { mode: PrintMode; now: Date }) => {
 export const HaStocksRegularPreview = () => <StocksDemo mode="regular" now={NOW_US_LIVE} />;
 /** K4 ② closed, still printing (US after-hours / overnight). */
 export const HaStocksExtendedPreview = () => <StocksDemo mode="extended" now={NOW_US_SETTLING} />;
-/** K4 ③ closed, no prints yet → no chart, "Base price". */
-export const HaStocksNonePreview = () => <StocksDemo mode="none" now={NOW_US_PRESESSION} />;
+/** K4 ③ closed, no prints yet → no chart, "Base price". HK after 16:00 (US never sits here — it has extended prints). */
+export const HaStocksNonePreview = () => <StocksDemo mode="none" now={NOW_HK_AFTER_CLOSE} market="hk" />;
 
 /* =========================== Editor's Desk =========================== */
 

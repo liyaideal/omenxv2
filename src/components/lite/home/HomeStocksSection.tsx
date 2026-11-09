@@ -22,7 +22,7 @@ import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader"
 import { formatMarketPrice, getStockSessionState, resolveStockMarket, type StockMarket } from "@/lib/usStockSessions";
 import { CY, DownButton, GREEN, OR, RED, SectionHead, UpButton, leftText } from "./homeAllShell";
 
-type MarketKey = "us" | "hk" | "kr";
+export type MarketKey = "us" | "hk" | "kr";
 const MARKETS: { key: MarketKey; label: string; subtype: string; extendedPrints: boolean }[] = [
   { key: "us", label: "US", subtype: US_STOCK_SUBTYPE, extendedPrints: true },
   { key: "hk", label: "Hong Kong", subtype: HK_STOCK_SUBTYPE, extendedPrints: false },
@@ -115,9 +115,11 @@ export interface HomeStocksSectionProps {
   nowOverride?: Date;
   /** Fixture: force the sparkline moment regardless of the clock. */
   printModeOverride?: PrintMode;
+  /** Fixture: which market tab starts selected (default US). Not passed in production. */
+  initialMarket?: MarketKey;
 }
 
-export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride, printModeOverride }: HomeStocksSectionProps) => {
+export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride, printModeOverride, initialMarket = "us" }: HomeStocksSectionProps) => {
   const navigate = useNavigate();
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -126,7 +128,7 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
     return () => clearInterval(t);
   }, [nowOverride]);
   const now = nowOverride ?? new Date(Date.now() + tick * 0);
-  const [sel, setSel] = useState<MarketKey>("us");
+  const [sel, setSel] = useState<MarketKey>(initialMarket);
 
   const byMarket = useMemo(() => {
     const m: Record<MarketKey, StockEventRow[]> = { us: [], hk: [], kr: [] };
@@ -149,15 +151,17 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
     return { ...p, mode: printModeOverride };
   });
   const total = available.reduce((a, m) => a + byMarket[m.key].length, 0);
-  const settleAt = rows.reduce<number | null>((a, r) => {
-    const t = r.end_date ? new Date(r.end_date).getTime() : null;
-    return t == null ? a : a == null ? t : Math.min(a, t);
-  }, null);
+  // K2: Y = the next settlement still ahead. A round whose settle time has passed but the engine
+  // hasn't rolled yet reads "settling now" — never "settles in 0s".
+  const ends = rows.map((r) => (r.end_date ? new Date(r.end_date).getTime() : null)).filter((t): t is number => t != null);
+  const ahead = ends.filter((t) => t > now.getTime());
+  const settleAt = ahead.length ? Math.min(...ahead) : null;
+  const settlingNow = !ahead.length && ends.length > 0;
   const status =
     session.phase === "live"
       ? `Market open · closes in ${leftText(session.closeAt!.getTime() - now.getTime())}`
       : `Market opens in ${leftText(session.nextOpenAt.getTime() - now.getTime())}`;
-  const statusLine = `${status}${settleAt ? ` · settles in ${leftText(settleAt - now.getTime())}` : ""}`;
+  const statusLine = `${status}${settleAt ? ` · settles in ${leftText(settleAt - now.getTime())}` : settlingNow ? " · settling now" : ""}`;
   const live = prints.filter((p) => p.mode !== "none");
   const ups = rows.filter((r, i) => prints[i].mode !== "none" && prints[i].last > (r.base_price ?? 0)).length;
   const go = (r: StockEventRow) => () => navigate(`/trade?event=${r.id}`);

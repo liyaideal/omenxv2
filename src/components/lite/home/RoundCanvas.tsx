@@ -236,7 +236,9 @@ export const RoundCanvas = ({ series, tf, big = false, height, nowOverride, clas
       const dt = Math.min(100, ts - (last || ts));
       last = ts;
       const s = seriesRef.current;
-      dispRef.current += (s.last - dispRef.current) * Math.min(1, dt / 420);
+      // Ease toward the latest print; a jump (new stream round, tab switch) snaps instead of drawing a vertical tail.
+      if (Math.abs(s.last - dispRef.current) > s.open * 0.002) dispRef.current = s.last;
+      else dispRef.current += (s.last - dispRef.current) * Math.min(1, dt / 420);
       draw(cv, s, tf, big, Date.now(), dispRef.current, (performance.now() % 1600) / 1600);
       raf = requestAnimationFrame(frame);
     };
