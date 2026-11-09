@@ -505,7 +505,10 @@ $a$      AND coalesce(metadata->>'market_type', 'winner') = 'winner'
       AND (coalesce(metadata->>'retired', '') <> 'true'
            OR (is_resolved = false AND EXISTS (
                  SELECT 1 FROM public.positions p JOIN public.event_options eo ON eo.id = p.option_id
-                  WHERE eo.event_id = events.id AND p.status = 'Open')))
+                  WHERE p.status = 'Open'
+                    AND (eo.event_id = events.id
+                         OR eo.event_id IN (SELECT s.id FROM public.events s
+                                             WHERE s.metadata->>'fixture_id' = events.id AND s.id <> events.id)))))
     ORDER BY end_date$a$);
   dst := replace(dst,
 $a$    PERFORM public.archive_sports_result(m.id);

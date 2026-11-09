@@ -45,7 +45,7 @@
 
 - 打上 `metadata.retired = true`：所有未结算的 `SPORTS_MATCH`（除 `demo-live-cs2`、`demo-prekick-cs2` 及其 game line）和全部 45 个长期事件。共 217 行。
 - 退役事件**不出现在任何列表**（首页、品类页、Insights、Resolved、相关市场、空投对冲池、编辑精选）；按 id / 名字仍然能打开（持仓、历史、交易页）。
-- 有人还持着仓的退役赛事照常结算（`roll_sports_matches` / `tick_live_*`），结算后**不再重排到下周**；没人持仓的就停在那里。
+- 有人还持着仓的退役赛事（含只持了它的让分 / 大小分盘）照常结算（`roll_sports_matches` / `tick_live_*`），结算后**不再重排到下周**；没人持仓的就停在那里。例外：`demo-live-wta` 是一直在打的演示网球赛，上面的演示仓不会结算。
 - 演示号新开的演示仓（`roll_demo_positions`）只开在主网同步来的事件上。
 - 影响：首页「编辑精选」三条都是退役长期事件 → 目前空着；More 段只剩 Anthropic 一条（主网就是这样）。
 
