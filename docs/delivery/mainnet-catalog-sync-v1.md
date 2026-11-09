@@ -29,7 +29,7 @@
 
 | 内容 | 从主网来 | 说明 |
 |---|---|---|
-| 体育赛程（跟主站首页 `/?tab=sports` 同一份：今天起 7 天） | ✅ 每 3 分钟 | `/pub/sports/matches`，必须带请求头 `X-Time-Zone`（不带返回 400）。主网 `/sports` 页用的 `/pub/sports/calendar/query` 会带出已过期的比赛，不用。主网不再列出的比赛 30 分钟后在 Lovable 隐藏 |
+| 体育赛程（跟主站首页 `/?tab=sports` 同一份：今天起 7 天） | ✅ 每 3 分钟 | `/pub/sports/matches`，必须带请求头 `X-Time-Zone`（不带返回 400）。（`www.omenx.com/sports` 独立站点已下线，不再使用。）主网不再列出的比赛 30 分钟后在 Lovable 隐藏 |
 | 两队名字、缩写、队徽、联赛、开赛时间 | ✅ | 改时间、改名会跟着变；**事件名首次进库后不再改**（下单、持仓按事件名找事件） |
 | 比分、比赛状态（未开赛 / 进行中 / 完场 / 取消）、状态文字（`Q3 5:12`、`HT`、`SUS`） | ✅ | 列表 live 位直接显示主网的状态文字 |
 | 直播 | 只同步「有没有直播」 | 主网公开接口没有播放地址；有直播的比赛在 Lovable 统一放演示动画流（CPO 2026-11-09：就用演示流），画面用演示流的静帧 |
@@ -64,19 +64,19 @@
 | `metadata.match_status` | `matchStatus` | NOT_STARTED → scheduled，LIVE → live，FINISHED → final，CANCELLED → cancelled，SUSPENDED → 开赛前 postponed / 开赛后 live |
 | `metadata.score` | `liveHomeScore-liveAwayScore`（按换边后的主客） | 只在 live / final 时写 |
 | `metadata.status_label` | `statusDetail` | 有值时列表 live 位直接显示它 |
-| `metadata.stream_thumb_url` | `livePosterUrl`（`isLiveStream` 为真时） | |
+| `metadata.stream_url` | `hasStream` 为真时 = 演示动画流 | 截图用演示流的静帧 |
 | 选项 | 二元：o1 = YES 队、o2 = NO 队；三项：o1 主、o2 `Draw`、o3 客；长期多档：每档一个选项 `m1…mN` | 选项 ↔ 主网 market 的对应存在 `metadata.mn_outcomes` |
 
 ## 4. 正式版要接的三处（研发看这里）
 
 1. **队徽（S1 规则扩到 Crest）**：真队徽（透明底）画在深色圆里、`contain` 74%；美国四大联赛的「队徽」其实是印着缩写的纯色方块（Polymarket 图库），按 S1 画成「方块颜色的圆 + 白字缩写」；没有图或加载失败 → 原来的代码徽。这些图没有 CORS 头，前端取不到颜色，**正式版请后端在队伍资料里直接给方块颜色**（Lovable 是一次性取色存进 `mn_logo_tiles`）。
-2. **直播截图**：主网 `/sports` 接口里已有 `livePosterUrl`，可以当「点了才播」要的 10 分钟快照（`metadata.stream_thumb_url`）；首页 sports 接口目前只有 `hasStream`，正式版接的时候要让两个接口都带上截图。
+2. **直播截图**：首页 sports 接口（`/pub/sports/matches`）目前只有 `hasStream`，没有截图地址；「点了才播」要的 10 分钟快照（`metadata.stream_thumb_url`）需要这个接口补上。
 3. **live 位文字**：有 `statusDetail` 就原样显示（`Q3 5:12` / `HT` / `63'`），没有再按运动自己推。
 
 ## 5. 发现的主网数据问题（报给研发 / 运营）
 
 - `E5C6EX3DH` Rayo Vallecano vs Athletic Club：10 月 10 日的比赛，`matchStatus = FINISHED`、`statusDetail = SUS`，但事件状态还是 TRADING，至今挂在赛程第一天。Lovable 照搬后显示为 In review。
-- 主站 `/sports` 页面在后台挂着时，`/pub/notification/v1/announcements/popups` 被反复请求（几分钟内 398 次），疑似轮询没节流。
+- `/pub/notification/v1/announcements/popups` 在页面挂后台时被反复请求（几分钟内 398 次，当时在已下线的 `/sports` 站点上观察到），疑似轮询没节流，首页是否同样有待确认。
 
 ## 6. Lovable 侧怎么跑（运维）
 
