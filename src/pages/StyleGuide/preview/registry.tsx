@@ -45,6 +45,7 @@ const insights = () => import("./insightsPreviews");
 const leaderboard = () => import("./leaderboardPreviews");
 const events = () => import("./eventsPreviews");
 const homeStage = () => import("./homeStagePreviews");
+const homeAll = () => import("./homeAllPreviews");
 const brandAssets = () => import("@/pages/StyleGuide/sections/BrandAssetsSection");
 const trade = () => import("./tradePreviews");
 
@@ -153,17 +154,9 @@ export const previewRegistry: Record<string, Loader> = {
   "sports-mini-c4": pick(sportsLive, "C4Preview"),
 
   /* -------- Events 列表（M1a 分区①–④）-------- */
-  "events-ev1": pick(homeStage, "Ev1Preview"),
   "events-ev2": pick(events, "Ev2Preview"),
   "events-ev3": pick(events, "Ev3Preview"),
   "events-ev4": pick(events, "Ev4Preview"),
-  "events-ev5": pick(homeStage, "Ev5Preview"),
-  "events-ev6": pick(homeStage, "Ev6Preview"),
-  "events-ev7": pick(homeStage, "Ev7Preview"),
-  "events-ev8": pick(homeStage, "Ev8Preview"),
-  "events-ev9": pick(homeStage, "Ev9Preview"),
-  "events-ev9e": pick(homeStage, "Ev9ePreview"),
-  "events-ev10": pick(homeStage, "Ev10Preview"),
   "events-ev9t": pick(events, "Ev9tPreview"),
   "events-ev9t2": pick(events, "Ev9t2Preview"),
   "events-ev36": pick(events, "Ev36Preview"),
@@ -200,15 +193,21 @@ export const previewRegistry: Record<string, Loader> = {
   "events-ev24": pick(homeStage, "Ev24Preview"),
   "events-ev25": pick(homeStage, "Ev25Preview"),
   "events-ev26": pick(events, "Ev26Preview"),
-  "events-ev27": pick(homeStage, "Ev27Preview"),
-  "events-ev28": pick(homeStage, "Ev28Preview"),
-  "events-ev29": pick(homeStage, "Ev29Preview"),
-  "events-ev30": pick(homeStage, "Ev30Preview"),
-  "events-ev31": pick(homeStage, "Ev31Preview"),
-  "events-ev32": pick(homeStage, "Ev32Preview"),
   "events-ev33": pick(homeStage, "Ev33Preview"),
-  "events-ev34": pick(homeStage, "Ev34Preview"),
-  "events-ev35": pick(homeStage, "Ev35Preview"),
+  "home-ha1": pick(homeAll, "HaHeroPreview"),
+  "home-ha2": pick(homeAll, "HaSports1Preview"),
+  "home-ha3": pick(homeAll, "HaSports2Preview"),
+  "home-ha4": pick(homeAll, "HaSports3Preview"),
+  "home-ha5": pick(homeAll, "HaSports4Preview"),
+  "home-ha6": pick(homeAll, "HaCrypto5mPreview"),
+  "home-ha7": pick(homeAll, "HaCrypto1hPreview"),
+  "home-ha8": pick(homeAll, "HaStocksRegularPreview"),
+  "home-ha9": pick(homeAll, "HaStocksExtendedPreview"),
+  "home-ha10": pick(homeAll, "HaStocksNonePreview"),
+  "home-ha11": pick(homeAll, "HaDeskPreview"),
+  "home-ha12": pick(homeAll, "HaDeskMultiPreview"),
+  "home-ha13": pick(homeAll, "HaMorePreview"),
+  "home-ha14": pick(homeAll, "HaStagePreview"),
 
   /* -------- Foundations · Brand assets -------- */
   "foundations-brand-assets": pick(brandAssets, "BrandAssetsPreview"),

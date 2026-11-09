@@ -47,7 +47,7 @@ const MICROLABEL: Record<string, string> = {
 
 // Literal-mapped category → image path. No string concatenation, so Tailwind
 // (and asset scanners) never see interpolated names.
-const CATEGORY_IMAGE: Record<string, string> = {
+export const CATEGORY_IMAGE: Record<string, string> = {
   stocks: "/card-bg/finance.jpg",
   finance: "/card-bg/finance.jpg",
   macro: "/card-bg/finance.jpg",

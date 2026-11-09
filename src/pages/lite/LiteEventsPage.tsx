@@ -46,7 +46,6 @@ import { MobileCategoryRow } from "@/components/lite/mobile/MobileCategoryRow";
 import { MobileIntradayModule } from "@/components/lite/mobile/MobileIntradayModule";
 import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule";
 import { useEditorPicks } from "@/components/lite/picks/editorialPicks";
-import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
 import { useSportsMatches } from "@/components/lite/sports/sportsData";
 import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
 import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
@@ -60,191 +59,6 @@ import {
 } from "@/lib/taxonomy";
 
 // Pill visual language lives in the shared CategoryPill module (v3 sizing).
-
-/**
- * Catalogue identity card (HP-1b) — the first cell of the "All" catalogue grid.
- * Non-interactive brand card; NOT a market, never counted in "n open".
- */
-export const CatalogueIdentityCard = ({ isMobile }: { isMobile: boolean }) => (
-  <div
-    aria-hidden
-    style={{
-      position: "relative",
-      background: "#131519",
-      border: "1px solid #1d2026",
-      borderRadius: 16,
-      overflow: "hidden",
-    }}
-  >
-    <img
-      src={isMobile ? "/assets/mobile/will-it-happen.png" : "/assets/desktop/will-it-happen.png"}
-      alt=""
-      style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        top: 0,
-        width: "100%",
-        objectFit: "cover",
-        pointerEvents: "none",
-      }}
-    />
-    <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.2)" }} />
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background:
-          "linear-gradient(to bottom, rgba(24,24,27,0.3) 0%, rgba(24,24,27,0.65) 50%, #18181b 100%)",
-      }}
-    />
-    <div
-      style={{
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-end",
-        height: "100%",
-        padding: "37px 16px 32px 18px",
-        boxSizing: "border-box",
-      }}
-    >
-      <div
-        className="font-display"
-        style={{
-          fontWeight: 700,
-          fontSize: 40,
-          lineHeight: "39px",
-          letterSpacing: "-0.52px",
-          color: "#fff",
-        }}
-      >
-        Will it
-        <br />
-        happen?
-      </div>
-      <div
-        className="font-sans"
-        style={{
-          fontSize: 13,
-          lineHeight: "19.5px",
-          color: "#9AA1AC",
-          marginTop: 16,
-          maxWidth: 279,
-        }}
-      >
-        {t("events.screen.simple.standard_event_grid.trade_real_world_outcomes")}
-        <br />
-        Winning shares pay <span style={{ color: "#fff" }}>$1</span>.
-      </div>
-    </div>
-  </div>
-);
-
-/**
- * HP-3 · mobile catalogue banner — absorbs the board head and the square
- * identity card into one 110-high full-width banner. Mobile only.
- */
-export const CatalogueMobileBanner = ({ openCount }: { openCount: number }) => (
-  <div
-    aria-hidden
-    style={{
-      position: "relative",
-      height: 110,
-      borderRadius: 16,
-      overflow: "hidden",
-      background: "#131519",
-      border: "1px solid #1d2026",
-    }}
-  >
-    <img
-      src="/assets/mobile/will-it-happen.png"
-      alt=""
-      style={{
-        position: "absolute",
-        right: 0,
-        top: 0,
-        height: "100%",
-        width: "62%",
-        objectFit: "cover",
-        objectPosition: "right center",
-        pointerEvents: "none",
-      }}
-    />
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background:
-          "linear-gradient(to right, #131519 0%, rgba(19,21,25,0.92) 46%, rgba(19,21,25,0.15) 100%)",
-      }}
-    />
-    <div
-      style={{
-        position: "relative",
-        height: "100%",
-        padding: "12px 14px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        maxWidth: 250,
-      }}
-    >
-      <div>
-        <div
-          className="font-display"
-          style={{
-            fontWeight: 700,
-            fontSize: 24,
-            lineHeight: "25px",
-            letterSpacing: "-0.4px",
-            color: "#fff",
-          }}
-        >
-          {t("events.screen.simple.standard_event_grid.will_it_happen")}
-        </div>
-        <div
-          className="font-sans"
-          style={{ fontSize: 11.5, lineHeight: "16px", color: "#9AA1AC", marginTop: 5 }}
-        >
-          Buy Yes or No on real-world outcomes. Winning shares pay{" "}
-          <span style={{ color: "#fff" }}>$1</span>.
-        </div>
-      </div>
-      <div className="font-mono" style={{ fontSize: 11, color: "#6B7280" }}>
-        {openCount} open
-      </div>
-    </div>
-  </div>
-);
-/**
- * Catalogue board head (HP-1b) — "ALL MARKETS ›" + live open count.
- * Extracted verbatim from the page body (SG-HP) so EV-34 can mount the
- * production element instead of hand-copied markup. Zero visual change.
- */
-export const CatalogueHeaderRow = ({ openCount }: { openCount: number }) => (
-  <div className="flex items-center" style={{ padding: "6px 2px 0" }}>
-    <span
-      className="font-display"
-      style={{
-        fontWeight: 700,
-        fontSize: 15,
-        letterSpacing: "0.1em",
-        textTransform: "uppercase",
-        color: "#fff",
-      }}
-    >
-      {t("events.screen.simple.standard_event_grid.all_markets")}
-    </span>
-    <span style={{ color: "#6B7280", marginLeft: 8, fontSize: 15 }}>›</span>
-    <span
-      className="font-mono"
-      style={{ marginLeft: "auto", color: "#6B7280", fontSize: 12 }}
-    >
-      {openCount} open
-    </span>
-  </div>
-);
 
 /** Shared card grid — used flat and inside Boost category groups. */
 const CardGrid = ({
@@ -296,6 +110,8 @@ const LiteEventsPage = () => {
           // Only the winner-result fixtures live in the Sports module — every
           // other sports-derived market belongs in the catalogue (HP-1 §3.6).
           (m.eventSubtype || "") !== SPORTS_SUBTYPE &&
+          // Quick Play rounds (30s / 1m) belong to the Quick Play banner, never to the catalogue.
+          (m.eventSubtype || "") !== "ARCADE_UPDOWN_SPOT" &&
           !INTRADAY_SUBTYPES.includes(
             (m.eventSubtype || "") as (typeof INTRADAY_SUBTYPES)[number],
           ),
@@ -374,6 +190,12 @@ const LiteEventsPage = () => {
     const cfg = getBoostConfig("sports");
     return cfg.enabled && cfg.maxBoost >= 2;
   }, [getBoostConfig]);
+
+  /** Boost ceiling for a category (null when Boost is off there) — the More rows' "Boost n×". */
+  const boostMaxFor = (category: string): number | null => {
+    const cfg = getBoostConfig(category);
+    return cfg.enabled && cfg.maxBoost >= 2 ? cfg.maxBoost : null;
+  };
 
   const filtered = useMemo(() => {
     if (isWatchlistView) {
@@ -617,14 +439,16 @@ const LiteEventsPage = () => {
             currentFor={currentFor}
             historyFor={historyFor}
             stockRows={stockRows}
-            stocksLoading={stocksLoading}
             matches={sportsMatches}
             picks={editorPicks}
+            events={filtered}
+            getBoostMax={boostMaxFor}
             tf={mobileTf}
             onSelectTf={setMobileTf}
-            tickSeconds={tickSeconds}
+            livePrices={livePrices}
             isMobile={false}
             onOpenSports={() => setSector("sports")}
+            onOpenFinance={() => setSector("finance")}
           />
         )}
 
@@ -693,14 +517,16 @@ const LiteEventsPage = () => {
             currentFor={currentFor}
             historyFor={historyFor}
             stockRows={stockRows}
-            stocksLoading={stocksLoading}
             matches={sportsMatches}
             picks={editorPicks}
+            events={filtered}
+            getBoostMax={boostMaxFor}
             tf={mobileTf}
             onSelectTf={setMobileTf}
-            tickSeconds={tickSeconds}
+            livePrices={livePrices}
             isMobile
             onOpenSports={() => setSector("sports")}
+            onOpenFinance={() => setSector("finance")}
           />
         )}
 
@@ -735,16 +561,10 @@ const LiteEventsPage = () => {
           </div>
         )}
 
-        {/* Card grid */}
+        {/* Card grid — the All view's long-dated events render inside HomeStage (§4 More markets);
+            the grid below serves the Watchlist / Boost / catalogue lenses. */}
         <div className="mt-6 flex flex-1 flex-col gap-6">
-        {!calendarOn &&
-          (isStageView || isMobileStage) &&
-          (isMobile ? (
-            <CatalogueMobileBanner openCount={filtered.length} />
-          ) : (
-            <CatalogueHeaderRow openCount={filtered.length} />
-          ))}
-        {calendarOn ? null : isCryptoView ||
+        {calendarOn || ((isStageView || isMobileStage) && !isWatchlistView && !eventsFirstLoad) ? null : isCryptoView ||
           isFinanceView ||
           isIntradayView ||
           isSportsView ||
@@ -810,11 +630,6 @@ const LiteEventsPage = () => {
             items={filtered}
             getBoostConfig={getBoostConfig}
             trendingCutoff={trendingCutoff}
-            leadingSlot={
-              !isMobile && (isStageView || isMobileStage) && !isWatchlistView ? (
-                <CatalogueIdentityCard isMobile={isMobile} />
-              ) : undefined
-            }
           />
         )}
         </div>

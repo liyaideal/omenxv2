@@ -2522,3 +2522,16 @@ CPO 2026-11-04 批（11 条）。作用域 = 所有体育比赛（`metadata.kick
 5. **比赛中（含已过预计结束）**：红点脉动 + `LIVE` + ` · ` + 比赛时钟（mono 白，记分牌同一个 `liveLabelFor` 值）；没有时钟只写 `● LIVE`。Lite 卡 11 / 600 白、`LIVE` 大写；Pro 页头沿用标题行原有的红点；手机 Pro 页头 `countdownUrgency="live"` = 红点脉动 + 白字；下拉 `● Live`。永不出现 `00:00` / `Ended`。
 6. **打完等结果**：Lite 卡 `Final ·` + 描边胶囊 `IN REVIEW`（10 / 大写 / `border-border`），muted；手机抽屉与 Pro 页头 `Final · In review`，不带红点；下拉 `Final`，行留到结算。
 7. **下拉列头不改**：仍叫 `Ends in`，体育行的值自带 `Starts` / `Live` / `Final`。
+
+
+## §Addendum 2026-11-09 · 首页 All 视图改版（LOCKED）
+
+CPO 2026-11-09 15:32 批（规则清单 H / S / C / K / E / M / G / MB，原文 `src/components/lite/home/homeAllRules.ts`，字典 Lite「Events 列表」首节 HA-1 … HA-14 + 台账 HA-R，交付 `docs/delivery/home-all-v1.md`）。作用域 = Lite 首页 `sector = all` 桌面 + 手机；品类视图 / Watchlist / Calendar / Boost 网格不变。
+
+1. **五段大字问句**：Sports → Crypto → Stocks → Editor's Desk → More；段 = 眉行（Space Grotesk 12 / .22em / 大写）+ 48px 问句（手机 34）+ 主块裸放 / 副块进面板（`#11141A` 圆角 16 内距 24 28，手机 18 16）；段间 `1px rgba(148,163,184,.14)` 细线。不写第三行说明。
+2. **颜色语义**：Up / Yes `#33D6FF`，Down / No `#CFFF4A`，直播 · 倒计时 `#FF8A3D`，股票涨 `#4ADE80` 跌 `#F87171`；价钮 = 描边胶囊（up 青 / dn 柠檬，Archivo 12.5 / 700，价 Space Grotesk tabular）。
+3. **队标圆徽**（`TeamBadge`）：同一个圆，真徽 contain 74%，占位方块 → 同色圆徽 + 短码，无图 → `#1B2130` + 短码；成对重叠 −5px 描边 2px 面板色。
+4. **Hero**：桌面 1440×260 底图 `/assets/desktop/hero-band@2x.png` 右对齐 `auto 100%` + 渐变；手机居中标题 + 插画条 `/assets/mobile/hero-band@2x.png`。
+5. **Boost 是筛选**：chip 行右组 ⚡ Boost / ☆ Watchlist / ▦ Calendar；左组只放品类。
+6. **首页不下单、不播放**：价钮 / 行 / 舞台位一律进交易页；舞台位视频是预览（桌面静音自动播、无控件；手机品牌舞台）。
+7. **手机 = 重排不是压扁**：Sports 不列 Next up、Stocks 前 5 两行式、BTC · last 8 紧贴图下、More 多档名字独占一行；任何名字不省略号截断。

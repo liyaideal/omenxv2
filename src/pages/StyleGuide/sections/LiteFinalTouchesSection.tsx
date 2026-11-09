@@ -99,6 +99,7 @@ const pick = (
   yesOptionId: `pick-${i}-yes`,
   noOptionId: `pick-${i}-no`,
   optionCount: 2,
+  endDate: null,
 });
 
 const PICKS: EditorPick[] = [

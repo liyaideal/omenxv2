@@ -17,6 +17,20 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-11-09 — 首页 All 视图改版（[文档](../delivery/home-all-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| 1 | Hero 横幅 + SEO 文案（H2 / H3 / MB1） | ⬜ | 资源 hero-band@2x 桌面 / 手机 |
+| 2 | chip 行 Boost 挪到右组（H4） | ⬜ | |
+| 3 | Sports 段四态 + 一张表 + 队标圆徽（S0–S3） | ⬜ | 直播缩略图源缺，先品牌舞台 |
+| 4 | Crypto 段 + canvas 图表（C1–C8） | ⬜ | 真平台接 underlyingTrendPoints |
+| 5 | Stocks 段 R-A 三种走势时刻（K1–K6） | ⬜ | 真平台接 bars?range=SINCE_CLOSE |
+| 6 | Editor's Desk E1（E1–E4） | ⬜ | featured-markets |
+| 7 | More 段 L4 / B1（M1–M5） | ⬜ | Quick Play 轮不进目录 |
+| 8 | 手机版（MB1–MB6） | ⬜ | |
+| 9 | 字典 HA-1…14 + HA-R | ⬜ | |
+
 ## 2026-11-06 — Quick Play · combo 海报（[文档](../delivery/quick-play-v1.md)）
 
 | 编号 | 项 | Lovable | 正式版 |

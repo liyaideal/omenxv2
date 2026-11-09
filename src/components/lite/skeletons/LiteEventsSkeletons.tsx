@@ -118,250 +118,194 @@ export const LiteMarketListSkeleton = ({ count = 4 }: { count?: number }) => (
 /* ---------------- Stage cards (desktop All view) ---------------- */
 
 /** Intraday stage card — header + 3-up coin tiles + "stocks closing today" rows. */
-export const LiteIntradayStageSkeleton = () => (
-  <div
-    className="flex flex-col animate-pulse"
-    style={{
-      background: "#131519",
-      border: "1px solid #1D2026",
-      borderRadius: 16,
-      padding: 14,
-      gap: 14,
-    }}
-    aria-busy="true"
-  >
+/* ---------------- Home · All view stage (首页 All 改版 D2-S3 / M-*, 2026-11-09) ----------------
+   Mirrors the first two sections the viewer sees on first load: Sports (section
+   head + day strip, left stage block, right table panel) and Crypto (head +
+   clock, BTC block, ETH / SOL panel). The sections below the fold render when
+   their own hooks land — no skeleton race. */
+
+const SectionHeadSkeleton = ({ right }: { right?: number }) => (
+  <div className="flex items-end justify-between" style={{ gap: 32 }}>
+    <div className="flex flex-col" style={{ gap: 14 }}>
+      <SkelBlock w={300} h={12} tone="secondary" />
+      <SkelBlock w={420} h={44} r={8} />
+    </div>
+    {right ? <SkelBlock w={right} h={56} r={12} tone="secondary" /> : null}
+  </div>
+);
+
+const TileSkeleton = () => (
+  <div className="flex flex-col" style={{ gap: 10, padding: "14px 14px 12px", background: BLOCK_2, borderRadius: 12 }}>
     <div className="flex items-center justify-between">
-      <div className="flex flex-col gap-[7px]">
-        <SkelBlock w={150} h={10} tone="secondary" />
-        <SkelBlock w={230} h={20} />
-      </div>
-      <SkelBlock w={210} h={38} r={10} tone="secondary" />
+      <SkelBlock w={30} h={30} r={15} />
+      <SkelBlock w={48} h={16} tone="secondary" />
+      <SkelBlock w={30} h={30} r={15} />
     </div>
-    {/* Coin tiles — grid-cols-3, mirrors CompactCoinTile */}
-    <div className="grid grid-cols-3 gap-[12px]">
-      {[0, 1, 2].map((i) => (
-        <div
-          key={i}
-          className="flex flex-col"
-          style={{
-            background: "#0F1114",
-            border: "1px solid #1D2026",
-            borderRadius: 14,
-            padding: 13,
-            gap: 10,
-          }}
-        >
-          <div className="flex items-start justify-between">
-            <span className="flex min-w-0 items-center" style={{ gap: 9 }}>
-              <SkelBlock w={34} h={34} r={999} tone="secondary" />
-              <span className="flex min-w-0 flex-col gap-[4px]">
-                <SkelBlock w={34} h={9} tone="secondary" />
-                <SkelBlock w={74} h={15} />
-              </span>
-            </span>
-            <span className="flex flex-col items-end gap-[4px]">
-              <SkelBlock w={34} h={9} tone="secondary" />
-              <SkelBlock w={48} h={14} />
-            </span>
-          </div>
-          <SkelBlock h={52} r={9} tone="secondary" />
-          <SkelBlock h={20} r={6} tone="secondary" />
-          <div className="grid grid-cols-2 gap-[7px]">
-            <SkelBlock h={42} r={10} tone="secondary" />
-            <SkelBlock h={42} r={10} tone="secondary" />
-          </div>
-        </div>
-      ))}
-    </div>
-    {/* Stocks closing today */}
-    <div className="flex flex-col gap-[9px]">
-      <div className="flex items-center justify-between">
-        <SkelBlock w={140} h={10} tone="secondary" />
-        <SkelBlock w={230} h={10} tone="secondary" />
-      </div>
-      {[0, 1].map((i) => (
-        <div
-          key={i}
-          className="box-border flex items-center gap-[13px]"
-          style={{
-            background: "#0F1114",
-            border: "1px solid #1D2026",
-            borderRadius: 14,
-            padding: "11px 14px",
-          }}
-        >
-          <span className="flex min-w-0 flex-1 items-center" style={{ gap: 12 }}>
-            <SkelBlock w={44} h={44} r={999} tone="secondary" />
-            <span className="flex min-w-0 flex-col gap-[5px]">
-              <SkelBlock w={62} h={14} />
-              <SkelBlock w={112} h={11} tone="secondary" />
-            </span>
-          </span>
-          <span
-            className="flex flex-none flex-col items-end gap-[5px]"
-            style={{ marginRight: 6 }}
-          >
-            <SkelBlock w={72} h={15} />
-            <SkelBlock w={44} h={11} tone="secondary" />
-          </span>
-          <SkelBlock w={92} h={44} r={11} tone="secondary" />
-          <SkelBlock w={92} h={44} r={11} tone="secondary" />
-        </div>
-      ))}
-    </div>
-    {/* Footer rail */}
-    <div
-      className="flex items-center justify-between"
-      style={{ borderTop: "1px solid #1D2026", paddingTop: 13 }}
-    >
-      <SkelBlock w={250} h={11} tone="secondary" />
-      <SkelBlock w={104} h={11} tone="secondary" />
+    <SkelBlock w="60%" h={10} tone="secondary" className="mx-auto" />
+    <div className="grid grid-cols-2" style={{ gap: 6 }}>
+      <SkelBlock h={30} r={15} />
+      <SkelBlock h={30} r={15} />
     </div>
   </div>
 );
 
-/** Sports stage card — header, hero fixture, list rows, footer. */
+const RowSkeleton = () => (
+  <div className="grid items-center" style={{ gridTemplateColumns: "52px 1fr 72px 72px", gap: 10, padding: "12px 0" }}>
+    <div className="flex">
+      <SkelBlock w={26} h={26} r={13} />
+      <SkelBlock w={26} h={26} r={13} style={{ marginLeft: -5 }} />
+    </div>
+    <div className="flex flex-col" style={{ gap: 6 }}>
+      <SkelBlock w="55%" h={14} />
+      <SkelBlock w="40%" h={10} tone="secondary" />
+    </div>
+    <SkelBlock h={34} r={17} tone="secondary" />
+    <SkelBlock h={34} r={17} tone="secondary" />
+  </div>
+);
+
+/** Desktop Sports section (§1) — head + day strip, 5/7 split: stage + tiles | table panel. */
 export const LiteSportsStageSkeleton = () => (
-  <div
-    className="flex flex-col animate-pulse"
-    style={{ background: "#131519", border: "1px solid #1D2026", borderRadius: 18 }}
-    aria-busy="true"
-  >
-    <div className="flex flex-col gap-[8px]" style={{ padding: "20px 18px 14px" }}>
-      <SkelBlock w={120} h={10} tone="secondary" />
-      <SkelBlock w={190} h={20} />
-    </div>
-    <div className="flex flex-col gap-[10px]" style={{ padding: "0 18px 9px" }}>
-      <SkelBlock h={64} r={12} tone="secondary" />
-      <div className="flex gap-[10px]">
-        <SkelBlock h={44} r={10} tone="secondary" />
-        <SkelBlock h={44} r={10} tone="secondary" />
-      </div>
-    </div>
-    {[0, 1, 2].map((i) => (
-      <div
-        key={i}
-        className="flex items-center justify-between"
-        style={{ padding: "13px 18px 14px", borderTop: "1px solid #16181D" }}
-      >
-        <div className="flex min-w-0 flex-1 flex-col gap-[6px]">
-          <SkelBlock w={150} h={13} />
-          <SkelBlock w={96} h={10} tone="secondary" />
+  <div style={{ padding: "56px 0" }}>
+    <SectionHeadSkeleton right={376} />
+    <div className="grid" style={{ gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 20, marginTop: 44 }}>
+      <div className="flex flex-col" style={{ gridColumn: "span 5", paddingRight: 28, gap: 14 }}>
+        <SkelBlock w={240} h={12} tone="secondary" />
+        <SkelBlock h={0} style={{ paddingTop: "56.25%", borderRadius: 12 }} />
+        <div className="grid items-center" style={{ gridTemplateColumns: "1fr auto 1fr", gap: 16, marginTop: 4 }}>
+          <SkelBlock w={56} h={56} r={28} className="mx-auto" />
+          <SkelBlock w={120} h={48} r={8} />
+          <SkelBlock w={56} h={56} r={28} className="mx-auto" />
         </div>
-        <SkelBlock w={64} h={26} r={8} tone="secondary" />
+        <div className="grid grid-cols-2" style={{ gap: 8 }}>
+          <SkelBlock h={38} r={19} tone="secondary" />
+          <SkelBlock h={38} r={19} tone="secondary" />
+        </div>
+        <div className="grid grid-cols-2" style={{ gap: 10, marginTop: 18 }}>
+          <TileSkeleton />
+          <TileSkeleton />
+          <TileSkeleton />
+          <TileSkeleton />
+        </div>
       </div>
-    ))}
-    <div style={{ padding: "12px 18px 14px", borderTop: "1px solid #1D2026" }}>
-      <SkelBlock w={130} h={12} tone="secondary" />
-    </div>
-  </div>
-);
-
-/** Desktop "All" stage — 62% intraday / 1fr sports, same grid as LiteAllStage. */
-export const LiteAllStageSkeleton = () => (
-  <div
-    className="grid items-stretch gap-[16px]"
-    style={{ gridTemplateColumns: "62% 1fr", marginTop: 20 }}
-  >
-    <LiteIntradayStageSkeleton />
-    <LiteSportsStageSkeleton />
-  </div>
-);
-
-/* ---------------- Mobile stage modules ---------------- */
-
-/** Mobile intraday module — opening copy, round dial, coin tiles. */
-export const LiteMobileIntradaySkeleton = () => (
-  <section className="flex flex-col animate-pulse" style={{ gap: 12 }} aria-busy="true">
-    <div className="flex flex-col" style={{ gap: 7 }}>
-      <SkelBlock w={168} h={10} tone="secondary" />
-      <SkelBlock w={240} h={22} />
-      <SkelBlock w="86%" h={12} tone="secondary" />
-    </div>
-    <div
-      className="flex items-center"
-      style={{
-        gap: 10,
-        background: "#131519",
-        border: "1px solid #1D2026",
-        borderRadius: 12,
-        padding: "8px 10px",
-      }}
-    >
-      <SkelBlock w={44} h={10} tone="secondary" />
-      <span className="flex flex-1" style={{ gap: 5 }}>
-        {[0, 1, 2, 3].map((i) => (
-          <SkelBlock key={i} w={58} h={44} r={9} tone="secondary" className="mr-[5px]" />
+      <div style={{ gridColumn: "span 7", background: BLOCK_2, borderRadius: 16, padding: "24px 28px" }}>
+        <SkelBlock w={160} h={10} tone="secondary" />
+        {Array.from({ length: 10 }).map((_, i) => (
+          <RowSkeleton key={i} />
         ))}
-      </span>
+      </div>
     </div>
-    {[0, 1].map((i) => (
-      <div
-        key={i}
-        className="flex flex-col"
-        style={{
-          background: "#131519",
-          border: "1px solid #1D2026",
-          borderRadius: 14,
-          padding: "13px 14px",
-          gap: 11,
-        }}
-      >
-        <div className="flex items-center" style={{ gap: 11 }}>
-          <SkelBlock w={32} h={32} r={999} tone="secondary" />
-          <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
-            <SkelBlock w={100} h={10} tone="secondary" />
-            <SkelBlock w={140} h={18} />
+  </div>
+);
+
+/** Desktop Crypto section (§2) — head + clock / tabs, BTC block 8 | ETH-SOL panel 4. */
+export const LiteIntradayStageSkeleton = () => (
+  <div style={{ padding: "56px 0", borderTop: "1px solid rgba(148,163,184,0.1)" }}>
+    <SectionHeadSkeleton right={420} />
+    <div className="grid" style={{ gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 20, marginTop: 40 }}>
+      <div className="flex flex-col" style={{ gridColumn: "span 8", paddingRight: 28, gap: 14 }}>
+        <div className="flex items-center" style={{ gap: 14 }}>
+          <SkelBlock w={34} h={34} r={17} />
+          <SkelBlock w={60} h={20} />
+          <SkelBlock w={160} h={12} tone="secondary" />
+        </div>
+        <SkelBlock w={360} h={76} r={10} />
+        <SkelBlock h={206} r={12} tone="secondary" />
+        <div className="grid items-center" style={{ gridTemplateColumns: "auto 1fr auto", gap: 14, marginTop: 12 }}>
+          <SkelBlock w={120} h={44} r={22} />
+          <SkelBlock h={8} r={4} tone="secondary" />
+          <SkelBlock w={120} h={44} r={22} />
+        </div>
+      </div>
+      <div className="flex flex-col" style={{ gridColumn: "span 4", background: BLOCK_2, borderRadius: 16, padding: "24px 28px", gap: 22 }}>
+        {[0, 1].map((k) => (
+          <div key={k} className="flex flex-col" style={{ gap: 14 }}>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <SkelBlock w={26} h={26} r={13} />
+              <SkelBlock w={44} h={14} />
+              <SkelBlock w={90} h={18} />
+            </div>
+            <SkelBlock h={80} r={8} />
+            <div className="grid items-center" style={{ gridTemplateColumns: "auto 1fr auto", gap: 10 }}>
+              <SkelBlock w={78} h={34} r={17} />
+              <SkelBlock h={5} r={3} tone="secondary" />
+              <SkelBlock w={78} h={34} r={17} />
+            </div>
           </div>
-          <SkelBlock w={58} h={22} tone="secondary" />
-        </div>
-        <SkelBlock h={84} r={9} tone="secondary" />
-        <SkelBlock w={150} h={12} tone="secondary" />
-        <div className="flex" style={{ gap: 8 }}>
-          <SkelBlock h={48} r={11} tone="secondary" />
-          <SkelBlock h={48} r={11} tone="secondary" />
-        </div>
+        ))}
       </div>
-    ))}
-  </section>
-);
-
-/** Mobile sports module — opening copy + fixture rows. */
-export const LiteMobileSportsSkeleton = () => (
-  <section className="flex flex-col animate-pulse" style={{ gap: 12 }} aria-busy="true">
-    <div className="flex flex-col" style={{ gap: 7 }}>
-      <SkelBlock w={140} h={10} tone="secondary" />
-      <SkelBlock w={210} h={22} />
     </div>
-    {[0, 1, 2].map((i) => (
-      <div
-        key={i}
-        className="flex flex-col"
-        style={{
-          background: "#131519",
-          border: "1px solid #1D2026",
-          borderRadius: 14,
-          padding: "13px 14px",
-          gap: 11,
-        }}
-      >
-        <div className="flex flex-col gap-[6px]">
-          <SkelBlock w={110} h={10} tone="secondary" />
-          <SkelBlock w="72%" h={15} />
-        </div>
-        <div className="flex" style={{ gap: 8 }}>
-          <SkelBlock h={44} r={10} tone="secondary" />
-          <SkelBlock h={44} r={10} tone="secondary" />
-        </div>
-      </div>
-    ))}
-  </section>
+  </div>
 );
 
-/** Mobile "All" stage — same 22px stack as LiteMobileAllStage. */
+/** Desktop "All" first load — Sports §1 then Crypto §2 (the two sections above the fold). */
+export const LiteAllStageSkeleton = () => (
+  <div className="animate-pulse">
+    <LiteSportsStageSkeleton />
+    <LiteIntradayStageSkeleton />
+  </div>
+);
+
+/** Mobile Sports §1 — head, day strip, brand stage, match-up, tiles 2×2. */
+export const LiteMobileSportsSkeleton = () => (
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 18 }}>
+    <SkelBlock w={240} h={11} tone="secondary" />
+    <SkelBlock w={300} h={34} r={8} />
+    <div className="flex" style={{ gap: 8 }}>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <SkelBlock key={i} w={56} h={56} r={12} tone="secondary" />
+      ))}
+    </div>
+    <SkelBlock w={200} h={11} tone="secondary" />
+    <SkelBlock h={0} style={{ paddingTop: "56.25%", borderRadius: 12 }} />
+    <div className="grid items-center" style={{ gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
+      <SkelBlock w={44} h={44} r={22} className="mx-auto" />
+      <SkelBlock w={100} h={40} r={8} />
+      <SkelBlock w={44} h={44} r={22} className="mx-auto" />
+    </div>
+    <div className="grid grid-cols-2" style={{ gap: 8 }}>
+      <SkelBlock h={38} r={19} tone="secondary" />
+      <SkelBlock h={38} r={19} tone="secondary" />
+    </div>
+    <div className="grid grid-cols-2" style={{ gap: 10, marginTop: 10 }}>
+      <TileSkeleton />
+      <TileSkeleton />
+      <TileSkeleton />
+      <TileSkeleton />
+    </div>
+  </div>
+);
+
+/** Mobile Crypto §2 — clock line, tabs, BTC card. */
+export const LiteMobileIntradaySkeleton = () => (
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: "1px solid rgba(148,163,184,0.1)" }}>
+    <SkelBlock w={260} h={11} tone="secondary" />
+    <SkelBlock w={280} h={34} r={8} />
+    <SkelBlock w={220} h={24} r={6} tone="secondary" />
+    <SkelBlock h={4} r={2} tone="secondary" />
+    <div className="flex" style={{ gap: 20 }}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <SkelBlock key={i} w={28} h={14} tone="secondary" />
+      ))}
+    </div>
+    <div className="flex items-center" style={{ gap: 10, marginTop: 8 }}>
+      <SkelBlock w={28} h={28} r={14} />
+      <SkelBlock w={48} h={18} />
+      <SkelBlock w={120} h={11} tone="secondary" />
+    </div>
+    <SkelBlock w={220} h={44} r={8} />
+    <SkelBlock h={150} r={12} tone="secondary" />
+    <div className="grid grid-cols-2" style={{ gap: 8 }}>
+      <SkelBlock h={44} r={22} />
+      <SkelBlock h={44} r={22} />
+    </div>
+  </div>
+);
+
+/** Mobile "All" first load — Sports §1 then Crypto §2. */
 export const LiteMobileStageSkeleton = () => (
-  <div className="flex flex-col" style={{ gap: 22, marginTop: 18 }}>
-    <LiteMobileIntradaySkeleton />
+  <div className="animate-pulse">
     <LiteMobileSportsSkeleton />
+    <LiteMobileIntradaySkeleton />
   </div>
 );

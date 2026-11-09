@@ -1347,3 +1347,28 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | `annWindowUtc(s, e)` | `Oct 15, 02:00–04:00 UTC` / `Oct 15, 22:00 – Oct 16, 02:00 UTC` / `Oct 15, 02:00 UTC` | 窗口卡 UTC 段 |
 | `annWindowLocal(s, e)` | `10:00–12:00` / `Oct 16, 06:00 – 10:00` | 括号里的本地段；`viewerIsUtc()` 时省略 |
 | `parseMarkdown(src)` | Block[] | Markdown 子集（§delivery v2 3.4）；无 HTML 透传；`safeHref` 只放行 http(s) / `/` / mailto |
+
+## 首页 All 视图（2026-11-09 改版 · 字典 HA-1 … HA-14）
+
+| 位置 | 文案（英文原文，不翻译数字与符号） | 规则 |
+|---|---|---|
+| Hero 标题 / 副标 | `Prediction markets,` / `with leverage.` · `Think you know what happens next? Pick a topic, tap Yes or No.`（手机 `Pick a topic, tap Yes or No.`）| H3 / MB1 · i18n `home_hero.heading_v2 / sub_v2 / sub_v2_mobile` |
+| Sports 眉行 | `● Sports · {N} matches this week · {n} live` · 0 live：`Sports · {N} matches this week · next kickoff in {X}` | S0 |
+| Sports 问句 | `Who wins the match?`（`the match` 柠檬）| G1 |
+| 舞台位标签 | `Live now · {联赛} · {节点}` · 0 live：`Biggest this week · kicks off in {X}` · 右：`▶ Live stream` / `Stream {i} / {N}` | S0 S3 |
+| 舞台位动作 | `Open match →` / `☆ Remind me` · `Vol ${x}` | G3 |
+| 瓷砖组标题 | `Also live · {n}` / `Up next` / `Up next · {HH:mm} / {HH:mm}` · `See all {n} live →` | S0 |
+| 右表 | `Big this week · by volume` / `Next up` · `+{n} more this week · see all →` · 手机 `All {N} matches →` | S0 / MB3 |
+| Crypto 眉行 | `● Crypto · Up or Down · new round every {5 min / 15 min / hour / 4 hours / day}` | C1 |
+| Crypto 问句 | `Will the price go up?`（`go up` 柠檬）| G1 |
+| 钟 | `This round closes in {MM:SS}` | C2 |
+| BTC 行 | `Round {HH:MM} → {HH:MM}` · `this round ${x}` · `Traded today ${x}k` · `{+$x · +x.xx%}` · `above the open · Up wins if it closed now` / `below the open · Down wins if it closed now` | C3 |
+| 图表标签 | `OPEN ${x}` · `closes {HH:MM}` · `now` | C4 |
+| 比例条 | `{n}% of money on Up` · `{n}% on Down` | C5 |
+| Last 8 | `Last {n} rounds` · `Up won {n} · Down won {n} · last round {Up/Down}` · 手机 `BTC · last {n}` · `Up {n} · Down {n} · last {Up/Down}` | C6 / MB4 |
+| Stocks 眉行 / 问句 | `Stocks · Daily close · {N} markets today` · `Will it finish higher than it opened?` | K1 |
+| Stocks 状态行 | `Market open · closes in {X} · settles in {Y}` / `Market opens in {X} · settles in {Y}` | K2 |
+| Stocks 行 | `{+x.xx%}` 或 `Base price`（收盘无成交）| K4 |
+| Stocks 底注 | `{n} of {N} trading above their base price right now` · `Show all {N} →` · 手机 `{n} of 5 above their base price` | K6 / MB5 |
+| Editor's Desk | `✦ Editor's Desk · {N} picks` · `What's worth watching?` · 眉行 `{品类} · settles {HH:mm} / Tomorrow {HH:mm} / settles {Mon D}` · `+{n} more` | E1 E3 E4 |
+| More | `More markets · {N} open` · `Will it happen?` · `{品类} · {N} markets / Yes / No · Boost {n}× · closes in {X}h` · `Vol ${x} · settles {Mon D}` · `+{n} more outcomes →` · `Outcomes are mutually exclusive — exactly one pays $1.` · `{n}% chance of Yes` · `Yes {n}¢` / `No {n}¢` | M1–M5 |

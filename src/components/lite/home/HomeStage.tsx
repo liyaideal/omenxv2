@@ -1,101 +1,77 @@
 // ============================================================
-// HOME STAGE (HP-1) — the "All" view body.
-// Desktop: 12-grid, span8 (crypto + stocks) | span4 (sports + desk),
-// both columns flush top and bottom (stocks stretches).
-// Mobile: single column — crypto → stocks → sports → desk.
+// HOME STAGE — the "All" view body (首页 All 改版 · D2-S3 定稿, 2026-11-09).
+// Five bare sections in reading order, hairlines between them (G1):
+//   §1 Sports · §2 Crypto · §3 Stocks · §3b Editor's Desk · §4 More markets
+// Desktop = the 1440 canvas (D2-S3); mobile = the 390 boards (M-*), one
+// column, redone for the phone rather than squeezed (G4). Each section
+// owns its states; the stage only orders them.
 // ============================================================
 import type { QuickEvent, StockEventRow, Timeframe } from "@/components/lite/intraday/intradayData";
 import type { SportsMatch } from "@/components/lite/sports/sportsData";
 import type { EditorPick } from "@/components/lite/picks/editorialPicks";
-import { HomeCryptoCard } from "./HomeCryptoCard";
-import { HomeStocksCard } from "./HomeStocksCard";
-import { HomeSportsCard } from "./HomeSportsCard";
-import { HomeDeskCard } from "./HomeDeskCard";
+import type { EventRow } from "@/hooks/useMarketListData";
+import { HomeSportsSection } from "./HomeSportsSection";
+import { HomeCryptoSection } from "./HomeCryptoSection";
+import { HomeStocksSection } from "./HomeStocksSection";
+import { HomeDeskSection } from "./HomeDeskSection";
+import { HomeMoreSection } from "./HomeMoreSection";
+import "./home-all.css";
 
 export interface HomeStageProps {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
   stockRows: StockEventRow[];
-  stocksLoading: boolean;
   matches: SportsMatch[];
   picks: EditorPick[];
+  /** Long-dated events (everything that is not a round or a fixture). */
+  events: EventRow[];
+  getBoostMax: (category: string) => number | null;
   tf: Timeframe;
   onSelectTf: (tf: Timeframe) => void;
-  tickSeconds: number;
+  livePrices?: Record<string, number | undefined>;
   isMobile: boolean;
   onOpenSports: () => void;
+  onOpenFinance: () => void;
+  /** Frozen clock for style-guide fixtures (ms); production leaves it unset. */
+  nowOverride?: number;
 }
+
+const Rule = () => <div className="secrule" />;
 
 export const HomeStage = ({
   currentFor,
   historyFor,
   stockRows,
-  stocksLoading,
   matches,
   picks,
+  events,
+  getBoostMax,
   tf,
   onSelectTf,
-  tickSeconds,
+  livePrices,
   isMobile,
   onOpenSports,
+  onOpenFinance,
+  nowOverride,
 }: HomeStageProps) => {
-  const crypto = (
-    <HomeCryptoCard
-      currentFor={currentFor}
-      historyFor={historyFor}
-      tf={tf}
-      onSelectTf={onSelectTf}
-      tickSeconds={tickSeconds}
-      isMobile={isMobile}
-    />
-  );
-  const stocks = (
-    <HomeStocksCard
-      stockRows={stockRows}
-      tickSeconds={tickSeconds}
-      isMobile={isMobile}
-      loading={stocksLoading}
-    />
-  );
-  const sports = (
-    <HomeSportsCard
-      matches={matches}
-      isMobile={isMobile}
-      extraRows={picks.length === 0 ? 2 : 0}
-      onOpenAll={onOpenSports}
-    />
-  );
-  const desk = <HomeDeskCard picks={picks} isMobile={isMobile} />;
-
-  if (isMobile) {
-    return (
-      <div className="flex flex-col" style={{ gap: 14, marginTop: 10 }}>
-        {crypto}
-        {stocks}
-        {sports}
-        {desk}
-      </div>
-    );
-  }
-
+  const blocks = [
+    matches.length > 0 ? <HomeSportsSection key="sports" matches={matches} isMobile={isMobile} onOpenAll={onOpenSports} nowOverride={nowOverride} /> : null,
+    currentFor.size > 0 ? (
+      <HomeCryptoSection key="crypto" currentFor={currentFor} historyFor={historyFor} tf={tf} onSelectTf={onSelectTf} livePrices={livePrices} isMobile={isMobile} nowOverride={nowOverride} />
+    ) : null,
+    stockRows.length > 0 ? <HomeStocksSection key="stocks" stockRows={stockRows} isMobile={isMobile} onOpenAll={onOpenFinance} nowOverride={nowOverride != null ? new Date(nowOverride) : undefined} /> : null,
+    picks.length > 0 ? <HomeDeskSection key="desk" picks={picks} isMobile={isMobile} nowOverride={nowOverride} /> : null,
+    events.length > 0 ? <HomeMoreSection key="more" events={events} getBoostMax={getBoostMax} isMobile={isMobile} nowOverride={nowOverride} /> : null,
+  ].filter(Boolean);
 
   return (
-    <div
-      className="grid items-stretch"
-      style={{
-        gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
-        gap: 24,
-        marginTop: 16,
-      }}
-    >
-      <div className="flex flex-col" style={{ gridColumn: "span 8" }}>
-        <div style={{ flex: "none" }}>{crypto}</div>
-        <div style={{ marginTop: 24, flex: 1, minHeight: 0 }}>{stocks}</div>
-      </div>
-      <div className="flex flex-col" style={{ gridColumn: "span 4", gap: 24 }}>
-        {sports}
-        {desk}
-      </div>
+    <div className={isMobile ? "hall hall-m" : "hall"}>
+      {blocks.map((b, i) => (
+        <div key={i}>
+          {i > 0 && <Rule />}
+          {b}
+        </div>
+      ))}
     </div>
   );
 };

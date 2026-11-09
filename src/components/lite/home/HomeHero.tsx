@@ -1,121 +1,101 @@
 // ============================================================
-// HOME HERO (HP-1 / HP-M)
-// Desktop: type left, lynx illustration bleeding off the right edge.
-// Mobile: illustration is a full-bleed band on top, type stacked under
-// it — the phone-native reading order.
+// HOME HERO (首页 All 改版 · H2 / H3, 2026-11-09)
+// Desktop: a 1440×260 full-width band — the designer's lynx-keyboard
+// illustration is the whole backdrop (2× PNG, right-aligned, full height;
+// Figma omenx_lite 140-69056), a left-light / right-dark gradient over it;
+// LIVE MARKETS pill, two-line 56px H1 (second line lime), 15px subline.
+// Mobile (Figma 203-91049): centred two-line 26px title, one subline, then
+// the 358×89 illustration strip; no pill.
+// Copy = the 10-26 SEO candidate (heading_v2 / sub_v2); the mobile subline
+// drops the question half (Liya 2026-11-09 15:25).
 // ============================================================
 import { t } from "@/i18n";
-import { useEffect, useState } from "react";
 
 const LIME = "#CFFF4A";
 
+/** "Prediction markets,<highlight>with leverage.</highlight>" → two lines. */
+const Heading = ({ size }: { size: number }) => {
+  const raw = t("events.screen.simple.home.home_hero.heading_v2");
+  const m = /^(.*?)<highlight>(.*?)<\/highlight>(.*)$/s.exec(raw);
+  const a = m ? m[1] : raw;
+  const b = m ? m[2] : "";
+  const c = m ? m[3] : "";
+  return (
+    <h1
+      className="font-display"
+      style={{ margin: 0, fontSize: size, fontWeight: 700, color: "#fff", lineHeight: size >= 40 ? 1.0 : 1.0, letterSpacing: "-.03em" }}
+    >
+      {a}
+      {b && (
+        <>
+          <br />
+          <span style={{ color: LIME }}>{b}</span>
+        </>
+      )}
+      {c}
+    </h1>
+  );
+};
+
 export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
-  const [narrow, setNarrow] = useState(false);
-
-  useEffect(() => {
-    const measure = () => setNarrow(window.innerWidth < 390);
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, []);
-
-  const background =
-    "radial-gradient(120% 160% at 30% 0%, #12141d 0%, #0a0c12 55%, #0a0a10 100%)";
-
   if (isMobile) {
-    // HP-3: centred type stack over a narrow lynx keyboard band (≈90px).
-    const bandHeight = narrow ? 78 : 90;
     return (
-      <div className="relative w-full overflow-hidden" style={{ background }}>
-        <div
-          className="relative flex flex-col items-center text-center"
-          style={{ padding: "16px 16px 14px" }}
-        >
-          <span
-            className="font-display inline-flex items-center"
-            style={{
-              background: LIME,
-              color: "#0B0D11",
-              borderRadius: 999,
-              padding: "5px 12px",
-              fontSize: 10.5,
-              fontWeight: 700,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-            }}
-          >
-            {t("events.screen.simple.home.home_hero.live_markets")}
-          </span>
-          <h1
-            className="font-display font-bold text-foreground"
-            style={{
-              fontSize: 27,
-              lineHeight: 1.14,
-              letterSpacing: "-0.02em",
-              marginTop: 12,
-            }}
-          >
-            What do you think <span style={{ color: LIME }}>happens next</span>?
-          </h1>
-          <p style={{ marginTop: 8, fontSize: 13, color: "#98A1AD" }}>
-            {t("events.screen.simple.home.home_hero.how_to_trade")}
-          </p>
-        </div>
-        <div className="relative w-full" style={{ height: bandHeight }}>
+      <div style={{ background: "#0B0D11", borderBottom: "1px solid rgba(148,163,184,.08)" }}>
+        <div style={{ padding: "16px 16px 0", textAlign: "center" }}>
+          <Heading size={26} />
+          <div style={{ marginTop: 8, fontSize: 14, color: "#98A1AD", lineHeight: 1.4 }}>
+            {t("events.screen.simple.home.home_hero.sub_v2_mobile")}
+          </div>
           <img
-            src="/assets/mobile/hero-lynx.png"
+            src="/assets/mobile/hero-band@2x.png"
             alt=""
             aria-hidden
-            className="pointer-events-none absolute inset-0 h-full w-full select-none"
-            style={{ objectFit: "cover", objectPosition: "center 55%" }}
+            style={{ display: "block", width: "100%", height: "auto", marginTop: 12, borderRadius: 12 }}
           />
         </div>
       </div>
     );
   }
 
-
   return (
-    <div className="relative w-full overflow-hidden" style={{ background }}>
-      <img
-        src="/assets/desktop/hero-lynx.png"
-        alt=""
-        aria-hidden
-        className="pointer-events-none absolute select-none"
-        style={{ right: -30, bottom: -34, width: 930 }}
-      />
+    <div
+      className="relative w-full overflow-hidden"
+      style={{
+        height: 260,
+        borderBottom: "1px solid rgba(148,163,184,.08)",
+        background: "#0B0D11 url(/assets/desktop/hero-band@2x.png) right center / auto 100% no-repeat",
+      }}
+    >
       <div
-        className="relative mx-auto w-full max-w-7xl"
-        style={{ padding: "20px 24px 24px" }}
-      >
+        aria-hidden
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(90deg, rgba(11,13,17,.55) 0%, rgba(11,13,17,.25) 45%, rgba(11,13,17,0) 65%, rgba(11,13,17,.35) 100%)" }}
+      />
+      <div className="relative mx-auto w-full max-w-7xl px-4 lg:px-6" style={{ paddingTop: 40 }}>
         <span
           className="font-display inline-flex items-center"
           style={{
+            gap: 6,
             background: LIME,
             color: "#0B0D11",
             borderRadius: 999,
-            padding: "6px 14px",
-            fontSize: 11,
+            padding: "4px 11px",
+            height: 21,
+            fontSize: 10.5,
             fontWeight: 700,
-            letterSpacing: "0.18em",
+            letterSpacing: ".16em",
             textTransform: "uppercase",
+            lineHeight: "13px",
           }}
         >
-          {t("events.screen.simple.home.home_hero.live_markets")}
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#0B0D11" }} />
+          {t("events.screen.simple.home.home_hero.live_markets").replace(/^●\s*/, "")}
         </span>
-        <h1
-          className="font-display font-bold text-foreground"
-          style={{
-            fontSize: 44,
-            lineHeight: 1.08,
-            letterSpacing: "-0.02em",
-            marginTop: 18,
-          }}
-        >
-          What do you think <span style={{ color: LIME }}>happens next</span>?
-        </h1>
-        <p style={{ marginTop: 10, fontSize: 14, color: "#98A1AD" }}>
-          {t("events.screen.simple.home.home_hero.how_to_trade")}
+        <div style={{ marginTop: 16 }}>
+          <Heading size={56} />
+        </div>
+        <p style={{ margin: "14px 0 0", fontSize: 15, color: "#DBE2EA", maxWidth: 520, lineHeight: 1.4 }}>
+          {t("events.screen.simple.home.home_hero.sub_v2")}
         </p>
       </div>
     </div>
@@ -123,4 +103,3 @@ export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
 };
 
 export default HomeHero;
-

@@ -74,19 +74,12 @@ export const LiteEventsFilterRow = ({
         onClick={() => onSelectSector(c.id)}
       />
     ))}
-    {/* Boost composes in place with every category view (Intraday,
-        Sports, Crypto, Finance) — only the calendar lens opts out. */}
-    {!calendarOn && (
-      <>
-        <span
-          aria-hidden
-          style={{ width: 1, height: 22, background: "#1D2026", margin: "0 5px" }}
-        />
-        <TraitChip kind="boost" active={boostOnly} onClick={onToggleBoost} />
-      </>
-    )}
-    {/* View lenses live at the right end of the category row. */}
+    {/* View switches live at the right end of the category row. Boost is a
+        FILTER, not a category — it sits with Watchlist / Calendar, never among
+        the topic pills (H4, Liya 2026-11-09). It composes in place with every
+        category view; only the calendar lens opts out. */}
     <div className="ml-auto flex shrink-0 items-center gap-2">
+      {!calendarOn && <TraitChip kind="boost" active={boostOnly} onClick={onToggleBoost} />}
       <WatchlistChip
         active={watchlistActive}
         count={watchlistCount}

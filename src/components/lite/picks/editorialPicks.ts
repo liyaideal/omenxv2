@@ -42,6 +42,8 @@ export interface EditorPick {
   noOptionId: string | null;
   /** Total outcome count — >2 marks a multi-market pick. */
   optionCount: number;
+  /** Settlement instant (home Editor's Desk eyebrow "Category · settles HH:mm"). */
+  endDate: Date | null;
 }
 
 interface RawEditorial {
@@ -57,6 +59,7 @@ interface RawRow {
   category: string | null;
   image_url: string | null;
   volume: string | number | null;
+  end_date?: string | null;
   product_lines: string[] | null;
   side_labels: unknown;
   metadata: unknown;
@@ -143,6 +146,7 @@ export const toEditorPick = (row: RawRow): EditorPick | null => {
     yesOptionId: yes?.id ?? null,
     noOptionId: no?.id ?? null,
     optionCount: opts.length,
+    endDate: row.end_date ? new Date(row.end_date) : null,
   };
 };
 
@@ -157,7 +161,7 @@ export const useEditorPicks = () => {
       const { data } = await supabase
         .from("events")
         .select(
-          "id, name, category, image_url, volume, product_lines, side_labels, metadata, event_options(id, label, price)",
+          "id, name, category, image_url, volume, end_date, product_lines, side_labels, metadata, event_options(id, label, price)",
         )
         .eq("is_resolved", false)
         .filter("metadata->editorial->>pick", "eq", "true");
