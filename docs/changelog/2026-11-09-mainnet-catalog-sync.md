@@ -8,4 +8,4 @@
 - **没动**：股票日轮、加密轮（第 2 批）、Quick Play、交易页记分牌。
 - **migration**：`supabase/migrations/20261109190000_mainnet_catalog_sync.sql`（已在 Lovable 库执行）。
 - **同日追加（CPO 2026-11-09 晚）**：体育改用主站首页 `/?tab=sports` 的同一份数据（`/pub/sports/matches` + 请求头 `X-Time-Zone`），主网不再列出的比赛 30 分钟后隐藏；封面请求改成首页同一个 `?page=1&pageSize=100&surface=STANDARD`；Editor's Desk 常驻首页 mock 的三条精选（BTC 当日收盘 / NVDA 今日收盘 / 本周最大体育盘，跟着各自当前一轮走）；More 段常驻 4 个演示长期事件（5 档互斥 / 4 档互斥 / 时间段 / 二元）；直播一律放演示动画流。migration `20261109200000_mainnet_sync_home_tab.sql`。
-
+- **终验补字典**：首页 TeamBadge 图加载失败退回灰底短码；新增 HA-16 首页队徽四种画法（桌面 + 375）；home-all-v1 补 S1b（眉行 N matches 含正在打、日历条 ALL 只算没开赛的）与队徽数据来源。

@@ -8,7 +8,7 @@
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/`（桌面 + 手机）；Design 画布「规则稿 + 手机版（可批）」页（桌面 D2-S3 整页 / 手机 M-Full + M-* 分段板）是定稿原图
-- 什么时候变成什么样 → `/style-guide` → Lite → **Events 列表** 节点 → 顶部小节「首页 All 视图 · 状态字典（HA-1 … HA-14 + HA-R）」
+- 什么时候变成什么样 → `/style-guide` → Lite → **Events 列表** 节点 → 顶部小节「首页 All 视图 · 状态字典（HA-1 … HA-16 + HA-R）」
 - 规则编号（H / S / C / K / E / M / G / MB）→ 本文 §2 或字典 HA-R，和组件注释里的编号一致
 - 字段、接口 → 本文 §4 §5
 - 设计法则 → `DESIGN.md` §Addendum 2026-11-09 · 首页 All 视图
@@ -17,7 +17,7 @@
 ## 0.1 字典怎么看
 
 1. 打开 `/style-guide`，左栏 Lite 组点 **Events 列表**，第一个小节就是首页 All 视图。
-2. 七组样张：HA-1 Hero · HA-2…5 Sports 四态 · HA-6/7 Crypto · HA-8…10 Stocks 三种时刻 · HA-11/12 Editor's Desk · HA-13 More 四种事件 · HA-14 整页。每组上面桌面 1280 帧、下面手机 375 帧；**手机帧是组件自己的手机形态**（和 M-* 画板一样），不是桌面压扁。
+2. 七组样张：HA-1 Hero · HA-2…5 Sports 四态 · HA-6/7 Crypto · HA-8…10 Stocks 三种时刻 · HA-11/12 Editor's Desk · HA-13 More 四种事件 · HA-14 整页 · HA-15 游客点播放 · HA-16 队徽四种画法。每组上面桌面 1280 帧、下面手机 375 帧；**手机帧是组件自己的手机形态**（和 M-* 画板一样），不是桌面压扁。
 3. 每张样张 = 编号 + 状态名 + iframe 里的生产组件；下面的表固定「状态 / 触发条件 / 视觉 / 数据来源」，触发条件就是判定表达式，数据来源栏写着对应的规则编号。
 4. 样张跑在冻结时钟上（`FROZEN_NOW`），倒计时不走、图表只画一帧；Stocks 三张用的是各自市场的冻结时刻（盘中 / 盘后 / 收盘无成交）。
 5. 单张查看：`/style-guide/preview?c=home-ha6`（key = `home-ha` + 编号）。
@@ -65,7 +65,8 @@
 
 ### S · Sports 段
 - **S0** 细则以「Sports 规则稿 v2」为准：左 Live 模块 + 右一张表（Big this week 3 行 + Next up 填满）、四态、T3 瓷砖、日历条、一场只出现一次（舞台位 > 瓷砖 > Big this week > Next up）、直播标记一律橙色。
-- **S1** 队标通用规则：所有队标都在同一个圆里（`TeamBadge`）。真队徽 contain 74% 不裁；数据源的纯色占位方块改画同色圆徽 + 白色短码；完全没图 = 灰底 + 短码。两队重叠 −5px。
+- **S1** 队标通用规则：所有队标都在同一个圆里（`TeamBadge`）。真队徽 contain 74% 不裁；数据源的纯色占位方块改画同色圆徽 + 白色短码；完全没图或图加载失败 = 灰底 + 短码。两队重叠 −5px。（字典 HA-16；Sports 品类页同规则见 EV-47）
+- **S1b** 段头数字：眉行「N matches this week」= 一周内所有还没结算的比赛（**含正在打的**）；日历条「ALL n」和各日数字 = **还没开赛的**（日历条只筛右表，正在打的在舞台和瓷砖里）。所以有比赛在打时两个数字不相等，差值 = 正在打的场数。
 - **S2** 舞台位不拉流（CPO 2026-11-09「点了才播」）：画面 = 一张静态图 + 橙色播放钮「Watch live」。点画面 = 播放：已登录 → 进该场交易页静音开播；游客 → 站内登录框（桌面弹窗 / 手机抽屉），登录成功后直接进该场交易页开播（含 Google 跳转回来），关掉登录框留在原页。比分、队名、价钮、Open match 照旧直接进交易页，不弹登录、不开播。Sports 品类页顶部舞台同此规则。交易页对游客不拉流，画面位放「Sign in to watch live」+ Sign in（登录后就地开播）。（字典 HA-15 / Sports 列表 EV-36 / 交易页 S10）
 - **S3** 静态图按顺序取：① 直播截图——服务端对每路正在直播的流每 10 分钟截一帧，同一时段所有用户看同一张（字段 metadata.stream_thumb_url / stream_thumb_at）；② 还没截到 / 截图失败 → 这场赛事的封面图（events.image_url）；③ 封面也没有 → 深色底。三档都压暗、左上橙底 LIVE、不放队徽（下方比分行已有两队）。（字典 EV-38 封面兜底 / EV-39 深色兜底）
 
@@ -150,7 +151,7 @@
 | Editor's Desk | `/pub/event/featured-markets`（`whyThis / imageUrl / category / event`） | ≤ 3，空则整段不出 |
 | 直播截图（S3 ①） | **要新增**：直播服务对每路正在直播的流每 10 分钟截一帧存 CDN，赛事数据给 `metadata.stream_thumb_url`（图片地址）+ `stream_thumb_at`（截图时间）；所有用户共用同一张，用户端不碰直播流 | Lovable 没有截图服务：演示比赛都用同一路演示直播，`public/assets/streams/demo-01…11.jpg` 是从这路直播里截好的静帧，前端按「现在落在哪个 10 分钟格」挑图，效果同主网（`streamPicture.ts`）。没截图用 `events.image_url` 封面，再没有用深色底 |
 | 直播只对已登录开放（S2 / R5） | 主网直播接口对游客不返回播放地址（或返回 401） | Lovable 前端判断：游客不请求流，交易页显示 Sign in to watch live |
-| 队徽（S1） | 真队徽 URL；占位方块需后端给 `tileColor` 或前端四角采样 | 蓝本数据没有图，全部是短码圆徽 |
+| 队徽（S1） | 队伍资料给真队徽 URL + 占位方块的颜色 `tileColor`（这些图没有 CORS 头，前端取不到颜色，必须后端给） | Lovable 2026-11-09 起从主网同步队徽（`metadata.home_logo`），方块颜色一次性取色存在 `mn_logo_tiles`（`metadata.home_tile`），见 `mainnet-catalog-sync-v1.md` |
 
 ## 6. 验收表（Liya / 测试）
 

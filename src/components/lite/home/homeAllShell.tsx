@@ -1,3 +1,4 @@
+import { useState } from "react";
 // ============================================================
 // HOME · ALL view — shared shell for the five sections (首页 All 改版 D2-S3).
 // Mock = spec (canvas 2026-11-09): section head = eyebrow + question, no
@@ -118,10 +119,12 @@ export const TeamBadge = ({
 }) => {
   const short = (code || "?").slice(0, 4).toUpperCase();
   const fontSize = size >= 44 ? 12 : size >= 30 ? 9.5 : 8.5;
-  if (logoUrl && !tileColor) {
+  // A crest that fails to load falls back to the grey badge + code (same as no image).
+  const [failed, setFailed] = useState(false);
+  if (logoUrl && !tileColor && !failed) {
     return (
       <span className={`tc-lg ${className ?? ""}`} style={{ width: size, height: size }}>
-        <img src={logoUrl} alt="" />
+        <img src={logoUrl} alt="" onError={() => setFailed(true)} />
       </span>
     );
   }

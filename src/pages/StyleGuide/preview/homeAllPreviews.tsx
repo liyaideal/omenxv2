@@ -159,6 +159,23 @@ export const HaSports1Preview = () => <SportsDemo matches={SPORTS_S1} />;
 export const HaSports2Preview = () => <SportsDemo matches={SPORTS_S2} />;
 export const HaSports3Preview = () => <SportsDemo matches={SPORTS_S3} />;
 export const HaSports4Preview = () => <SportsDemo matches={SPORTS_S4} />;
+/** HA-16 · team crests from the feed (CPO 2026-11-09): tile colour + code · real crest · none · load failure. */
+const PM = "https://polymarket-upload.s3.us-east-2.amazonaws.com/";
+const CREST_FIX: Record<string, Partial<SportsMatch>> = {
+  "ha-up-06": { homeLogo: `${PM}NBA+Team+Logos/CLE.png`, awayLogo: `${PM}NBA+Team+Logos/PHI.png`, homeTile: "#D23E7C", awayTile: "#1386D7" },
+  "ha-up-07": { homeLogo: `${PM}NBA+Team+Logos/MEM.png`, awayLogo: `${PM}NBA+Team+Logos/OKC.png`, homeTile: "#5E87DB", awayTile: "#0687D2" },
+  "ha-up-05": { homeLogo: `${PM}NBA+Team+Logos/ATL.png`, awayLogo: `${PM}NBA+Team+Logos/WAS.png`, homeTile: "#F65155", awayTile: "#4A7AB0" },
+  "ha-up-15": { homeLogo: `${PM}NBA+Team+Logos/CHA.png`, awayLogo: `${PM}NBA+Team+Logos/BOS.png`, homeTile: "#0F9BB2", awayTile: "#09A74B" },
+  "ha-up-02": { name: "Rayo Vallecano vs Athletic Club", home: "Rayo Vallecano", away: "Athletic Club", homeAbbr: "RAY", awayAbbr: "ATH",
+    homeLogo: `${PM}Rayo Vallecano de Madrid-507892483a.png`, awayLogo: `${PM}Athletic Club-80c6e1af51.png`,
+    options: [{ id: "ha-up-02-h", label: "Rayo Vallecano", price: 0.46 }, { id: "ha-up-02-a", label: "Athletic Club", price: 0.54 }] },
+  "ha-up-01": { name: "Czechia vs Spain", league: "UEFA Nations League", home: "Czechia", away: "Spain", homeAbbr: "CZE", awayAbbr: "ESP",
+    homeLogo: "https://static.omenx.com/sports/team/logo/20260618/45_czechia_1781774835419.png", awayLogo: "https://static.omenx.com/sports/team/logo/20260618/32_spain_1781774430348.png",
+    options: [{ id: "ha-up-01-h", label: "Czechia", price: 0.16 }, { id: "ha-up-01-a", label: "Spain", price: 0.84 }] },
+  "ha-up-03": { homeLogo: "/__missing__/ig.png", awayLogo: "/__missing__/gen.png" },
+};
+const SPORTS_CRESTS = SPORTS_S4.map((m) => (CREST_FIX[m.id] ? { ...m, ...CREST_FIX[m.id] } : m));
+export const HaCrestsPreview = () => <SportsDemo matches={SPORTS_CRESTS} />;
 /** HA-15 · a guest pressed "Watch live": the standard sign-in opens over the home stage. */
 export const HaGuestPlayPreview = () => {
   useEffect(() => {

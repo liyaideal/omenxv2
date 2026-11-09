@@ -210,6 +210,7 @@ export const previewRegistry: Record<string, Loader> = {
   "home-ha13": pick(homeAll, "HaMorePreview"),
   "home-ha14": pick(homeAll, "HaStagePreview"),
   "home-ha15": pick(homeAll, "HaGuestPlayPreview"),
+  "home-ha16": pick(homeAll, "HaCrestsPreview"),
 
   /* -------- Foundations · Brand assets -------- */
   "foundations-brand-assets": pick(brandAssets, "BrandAssetsPreview"),

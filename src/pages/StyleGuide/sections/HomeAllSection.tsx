@@ -74,6 +74,18 @@ const SPORTS_CASES: SectionCase[] = [
       { state: "已登录点播放", when: "storedSignedIn()", visual: "直接进 /trade?event=…&play=1（R2）", source: "usePlayStream" },
     ],
   },
+  {
+    key: "home-ha16",
+    label: "HA-16 · 队徽四种画法（TeamBadge · S1 · 队徽从 omenx.com 同步）",
+    note: "同 HA-4（没有比赛在打，最大的一场上舞台），只是给赛事加上数据源的队徽：NBA 四场是色块队徽，Rayo Vallecano vs Athletic Club 是真队徽，Czechia vs Spain 是国旗方图，IG vs Gen.G 指向加载不到的图，其余没有队徽。Sports 品类页 / 手机 Sports 模块的同一规则见 Events 字典 EV-47（Crest）。",
+    spec: [
+      { state: "色块队徽", when: "metadata.home_tile / away_tile 有值", visual: "圆形底色 = 方块颜色，白字短码（不放那张方块图）", source: "TeamBadge tileColor · S1" },
+      { state: "真队徽", when: "home_logo 有值且没有 tile", visual: "深色圆底 #1B2130，图 contain 74% 不裁；国旗方图同样处理", source: "TeamBadge logoUrl · S1" },
+      { state: "没有队徽", when: "home_logo 为空", visual: "灰底 #1B2130 + 白字短码", source: "TeamBadge code · S1" },
+      { state: "加载失败", when: "图片 onError", visual: "同「没有队徽」", source: "TeamBadge onError" },
+      { state: "两队叠放", when: "列表行 / 表格行", visual: "第二枚 −5px 压在第一枚上，外圈 2px 底色描边", source: ".tc-pair · S1" },
+    ],
+  },
 ];
 
 const CRYPTO_CASES: SectionCase[] = [
@@ -196,7 +208,7 @@ export const HOME_ALL_CASES: SectionCase[] = [
 export const HomeAllSection = () => (
   <SectionWrapper
     id="home-all"
-    title="首页 All 视图 · 状态字典（HA-1 … HA-14 + 规则台账 HA-R）"
+    title="首页 All 视图 · 状态字典（HA-1 … HA-16 + 规则台账 HA-R）"
     description="首页 All 改版（2026-11-09 定稿）：Hero → chip 行 → Quick Play 横幅 → Sports → Crypto → Stocks → Editor's Desk → More markets。每个 case 双帧（desktop 1280 / mobile 375），375 帧是组件自己的手机形态；四栏表每行对着规则编号，规则原文在本节末 HA-R。chip 行 / Quick Play 横幅 / 行情 tape 见 Events 字典 EV-2 … EV-4 / Arcade 字典 / EV-33。"
   >
     <div className="space-y-12">
