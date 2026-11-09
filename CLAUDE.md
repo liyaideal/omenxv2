@@ -34,7 +34,7 @@
 2. **全站只有两个交易页** `/trade`（合约）与 `/spot`（现货）。新品类/新功能只能在这两个骨架内增删模块，禁止新建交易页或新图表视觉。
 3. **多状态必进 `/style-guide`**（desktop + mobile 双端），且 preview 必须挂生产组件本体，不许手写外壳（「半活体」）。
 4. **演示数据只挂固定演示账号**（`alex_carter` 等，见 `.lovable/memory/features/demo-accounts-fixed-identities.md`）；产品页面禁止出现 demo 切换入口，演示一律放 `/style-guide`。
-5. **状态走库，内容走 mock。** 跨模块流转的状态（下单/持仓/流水/券/积分）落 Supabase；纯展示内容永远 mock，禁止入库。新增演示专用 Edge Function 用 `sim-` 前缀。
+5. **事件目录同步主网，价格和状态走演示引擎。**（CPO 2026-11-09 改）事件长什么样（标题、联赛、两队、队徽、开赛时间、比分、比赛状态、直播标记、封面、选项名）每 3 分钟从 www.omenx.com 同步进 `events`（`mn-*`，见 `docs/delivery/mainnet-catalog-sync-v1.md`）；价格、成交额、下单 / 持仓 / 流水 / 券 / 积分照旧由演示引擎落 Supabase。演示引擎自己编的事件已退役（`metadata.retired`），任何列表查询都要过 `isListed`。其他纯展示内容（行情形态、社区帖子等）仍然 mock。新增演示专用 Edge Function 用 `sim-` 前缀。
 6. **新表 / 新 Edge Function 上线同一轮**必须在 `docs/backend-boundary.md` 补一行标注 🟢/🟡/🔴。
 7. **交付文档三件套同轮完成**：`docs/changelog/YYYY-MM-DD-{slug}.md` + `INDEX.md` 顶部插行 + `STATUS.md` 顶部追加节。
 8. **Lite 面禁用交易黑话**与内部名（`.lovable/memory/design/lite-banned-words.md`）；图标用 Lucide，UI 里不出现 emoji。

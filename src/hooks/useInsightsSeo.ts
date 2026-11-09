@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { EventWithOptions } from "@/hooks/useActiveEvents";
 import { buildRows, type Activity, type MarketRow, type Mover, type PlatformStats } from "@/lib/insights";
+import { isListed } from "@/components/lite/sports/sportsData";
 
 export interface InsightsWindow { from: Date; to: Date }
 
@@ -43,8 +44,9 @@ export const useInsightsSeo = (win: InsightsWindow, opts: { sparklineIds?: (rows
             : Promise.resolve({ data: [], error: null }),
         ]);
         if (eventsRes.error) throw eventsRes.error;
-        const events = (eventsRes.data ?? []) as unknown as EventWithOptions[];
-        const resolved = ((resolvedRes as { data: unknown[] | null }).data ?? []) as unknown as EventWithOptions[];
+        // Retired demo rows (mainnet catalog sync, 2026-11-09) never reach a list.
+        const events = ((eventsRes.data ?? []) as unknown as EventWithOptions[]).filter(isListed);
+        const resolved = (((resolvedRes as { data: unknown[] | null }).data ?? []) as unknown as EventWithOptions[]).filter(isListed);
         const ids = [...events, ...resolved].map((e) => e.id);
         const optRes = ids.length ? await supabase.from("event_options").select("*").in("event_id", ids) : { data: [], error: null };
         if (optRes.error) throw optRes.error;

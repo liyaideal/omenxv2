@@ -188,7 +188,7 @@ const MobileLiveStreamStage = ({
         </div>
         <div className="flex items-center" style={{ gap: 10 }}>
           <span className="flex min-w-0 flex-1 items-center" style={{ gap: 8 }}>
-            <Crest abbr={m.homeAbbr} size={34} />
+            <Crest abbr={m.homeAbbr} logoUrl={m.homeLogo} tileColor={m.homeTile} size={34} />
             {/* Team names are identity — wrap to two lines on narrow screens, never ellipsis. */}
             <span className="line-clamp-2 min-w-0" style={{ fontSize: 14, lineHeight: 1.2, color: "#fff", fontWeight: 600 }}>
               {m.homeShort || m.home}
@@ -204,7 +204,7 @@ const MobileLiveStreamStage = ({
             <span className="line-clamp-2 min-w-0 text-right" style={{ fontSize: 14, lineHeight: 1.2, color: "#fff", fontWeight: 600 }}>
               {m.awayShort || m.away}
             </span>
-            <Crest abbr={m.awayAbbr} size={34} />
+            <Crest abbr={m.awayAbbr} logoUrl={m.awayLogo} tileColor={m.awayTile} size={34} />
           </span>
         </div>
         <div className="flex" style={{ gap: 7 }}>
@@ -349,7 +349,7 @@ const LiveMatchCard = ({ match }: { match: SportsMatch }) => {
           lines (never ellipsis). Cards whose names fit keep their height. */}
       <div className="flex items-center" style={{ gap: 8, minHeight: 30 }}>
         <span className="flex min-w-0 flex-1 items-center" style={{ gap: 6 }}>
-          <Crest abbr={match.homeAbbr} size={26} />
+          <Crest abbr={match.homeAbbr} logoUrl={match.homeLogo} tileColor={match.homeTile} size={26} />
           <span className="line-clamp-2 min-w-0" style={{ fontSize: 13, lineHeight: 1.2, color: "#fff", fontWeight: 600 }} title={match.home}>
             {match.homeShort || match.home}
           </span>
@@ -374,7 +374,7 @@ const LiveMatchCard = ({ match }: { match: SportsMatch }) => {
           <span className="line-clamp-2 min-w-0 text-right" style={{ fontSize: 13, lineHeight: 1.2, color: "#fff", fontWeight: 600 }} title={match.away}>
             {match.awayShort || match.away}
           </span>
-          <Crest abbr={match.awayAbbr} size={26} />
+          <Crest abbr={match.awayAbbr} logoUrl={match.awayLogo} tileColor={match.awayTile} size={26} />
         </span>
       </div>
 
@@ -439,8 +439,8 @@ const UpcomingMatchCard = ({ match }: { match: SportsMatch }) => {
           <span style={MICRO}>{isToday && hour >= 17 ? "Tonight" : day}</span>
         </span>
         <span className="flex items-center" style={{ flex: "none" }}>
-          <Crest abbr={match.homeAbbr} size={28} />
-          <Crest abbr={match.awayAbbr} size={28} overlap />
+          <Crest abbr={match.homeAbbr} logoUrl={match.homeLogo} tileColor={match.homeTile} size={28} />
+          <Crest abbr={match.awayAbbr} logoUrl={match.awayLogo} tileColor={match.awayTile} size={28} overlap />
         </span>
         <span className="flex min-w-0 flex-1 flex-col" style={{ gap: 2 }}>
           {/* Match name is identity — wraps to two lines on narrow screens, never ellipsis (CPO 2026-11-04). */}

@@ -65,14 +65,18 @@ const OutcomeButton = ({
 /** Stage-card crest: 30px, 9px monogram, -9px overlap, muted away side. */
 const TeamToken = ({
   abbr,
+  logoUrl,
+  tileColor,
   muted = false,
   overlap = false,
 }: {
   abbr: string;
+  logoUrl?: string | null;
+  tileColor?: string | null;
   muted?: boolean;
   overlap?: boolean;
 }) => (
-  <Crest abbr={abbr} size={30} fontSize={9} muted={muted} overlap={overlap} overlapPx={-9} />
+  <Crest abbr={abbr} logoUrl={logoUrl} tileColor={tileColor} size={30} fontSize={9} muted={muted} overlap={overlap} overlapPx={-9} />
 );
 
 const OutcomeGrid = ({
@@ -156,7 +160,7 @@ const LiveBlock = ({
     </div>
     <div className="flex items-center gap-[10px]">
       <span className="flex min-w-0 flex-1 items-center gap-[8px]">
-        <TeamToken abbr={match.homeAbbr} />
+        <TeamToken abbr={match.homeAbbr} logoUrl={match.homeLogo} tileColor={match.homeTile} />
         <span
           className="truncate"
           style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}
@@ -187,7 +191,7 @@ const LiveBlock = ({
         >
           {match.awayShort || match.away}
         </span>
-        <TeamToken abbr={match.awayAbbr} />
+        <TeamToken abbr={match.awayAbbr} logoUrl={match.awayLogo} tileColor={match.awayTile} />
       </span>
     </div>
     <OutcomeGrid match={match} onPick={onPick} />
@@ -234,8 +238,8 @@ const UpcomingRow = ({
           </span>
         </span>
         <span className="flex items-center">
-          <TeamToken abbr={match.homeAbbr} muted={match.format === "h2h"} />
-          <TeamToken abbr={match.awayAbbr} muted={match.format === "h2h"} overlap />
+          <TeamToken abbr={match.homeAbbr} logoUrl={match.homeLogo} tileColor={match.homeTile} muted={match.format === "h2h"} />
+          <TeamToken abbr={match.awayAbbr} logoUrl={match.awayLogo} tileColor={match.awayTile} muted={match.format === "h2h"} overlap />
         </span>
         <span className="flex min-w-0 flex-1 flex-col gap-[1px]">
           <span

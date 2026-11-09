@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
+import { isListed } from "@/components/lite/sports/sportsData";
 
 export interface InsightsData {
   events: EventWithOptions[];
@@ -41,7 +42,8 @@ export const useInsightsData = (): InsightsData => {
 
       if (eventsRes.error) throw eventsRes.error;
 
-      const eventsData = eventsRes.data || [];
+      // Retired demo rows (mainnet catalog sync, 2026-11-09) never reach a list.
+      const eventsData = (eventsRes.data || []).filter(isListed);
       const eventIds = eventsData.map((e) => e.id);
 
       // Fetch options

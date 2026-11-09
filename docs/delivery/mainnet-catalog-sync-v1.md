@@ -1,0 +1,86 @@
+# Lovable 展示 omenx.com 真实事件（主网事件目录同步）— 交付说明 v1（2026-11-09）
+
+> **通俗导读**：Lovable 原来的赛事、长期事件全是演示引擎自己编的（`sp-*`、`cs2-*`、`ufc-*`、45 个长期事件），和主站对不上，产品方案拿真实数据一看就走样。现在 Lovable 的数据库每 3 分钟从 www.omenx.com 拉一次公开目录，**事件长什么样**（标题、联赛、两队、队徽、开赛时间、比分、比赛状态、直播标记和直播截图、封面图、选项名）跟主站一致；**价格和成交额**不跟主站，第一次进库时拿主站的价当起点，之后照旧由演示引擎自己动（CPO 批 A）。演示直播样板赛（`demo-live-cs2` 在播 / `demo-prekick-cs2` 待开赛）留着，方便演示直播（CPO 批 B）。分两批（CPO 批 C）：**第 1 批 = 体育 + 长期事件（本文）**；第 2 批 = 股票日轮、加密轮的阵容对齐（未做）。
+>
+> 这件事主要是 Lovable 演示引擎的事，**正式版不需要实现同步**（正式版本来就是主网）。研发要看的只有 §4「正式版要接的三处」。
+
+## 0. 查什么去哪儿
+
+- 长什么样 → 生产页：`/events`（All 视图 Sports / More 段）、`/events?sector=sports`、`/trade?event=mn-<主网 eventId>`
+- 什么时候变成什么样 → `/style-guide` → Events 列表 → ⑥b 小节 `EV-47 队徽四种画法`
+- 字段名、文案、术语 → `docs/copy-dictionary.md` §Sports 列表「主网同步事件 / 退役事件 / 队徽」→ 本文；Lite 词 ↔ 交易词见 copy-dictionary 顶部「Lite 术语对照表」
+- 表、函数能不能参考 → `docs/backend-boundary.md` 2026-11-09 一节
+
+## 0.1 字典怎么看
+
+| 步 | 做什么 | 看到什么 |
+|---|---|---|
+| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 本次只动 **Events 列表** 一个节点 |
+| 2 | 本页目录点「⑥b Sports 品类页 · 直播与直播预告」 | EV-36 … EV-47 |
+| 3 | 小节顶部定位行 | 路由 `/events?sector=sports`、词典节、本文 |
+| 4 | 样张 `EV-47 · 队徽四种画法` | 桌面 = Sports 品类页列表（LiteSportsView），手机 375 = 手机 Sports 模块（MobileSportsModule），都是真组件 |
+| 5 | 样张下面的表 | 「状态 / 触发条件 / 视觉 / 数据来源」 |
+| 6 | 找编号 | 页头搜索框敲 `EV-47` |
+| 7 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=events-ev47` |
+
+只在字典可见的态：**队徽加载失败退回代码徽**（生产页上的队徽都能加载）。
+
+## 1. 同步什么、不同步什么
+
+| 内容 | 从主网来 | 说明 |
+|---|---|---|
+| 体育赛程（主网 7 天窗口内全部比赛） | ✅ 每 3 分钟 | `/pub/sports/calendar/query`（主网 11-09 上线的新接口；旧的 `/pub/sports/matches` 当天起返回 400） |
+| 两队名字、缩写、队徽、联赛、开赛时间 | ✅ | 改时间、改名会跟着变；**事件名首次进库后不再改**（下单、持仓按事件名找事件） |
+| 比分、比赛状态（未开赛 / 进行中 / 完场 / 取消）、状态文字（`Q3 5:12`、`HT`、`SUS`） | ✅ | 列表 live 位直接显示主网的状态文字 |
+| 直播 | 标记 + 截图 | 主网公开接口只有「有直播 + 截图地址 `livePosterUrl`」，没有播放地址；Lovable 用截图当 10 分钟快照，点播放放演示流 |
+| 长期事件（非体育、非系列轮次、非股票） | ✅ | `/pub/event/list`；主网目前只有 1 个：Anthropic 估值（4 档，每档各自 Yes / No） |
+| 封面图 | ✅ | `/pub/event/homepage`；体育统一用 `/card-bg/sports.jpg`（主网也是） |
+| 规则说明 | ✅ 一次 | `/pub/event/detail` 的 `summary` |
+| 结果 | ✅ | 完场 / 主网停止交易 / 从目录里消失时查 `/pub/event/detail` 的 `winningOutcome`，按主网结果结算；查不到结果就停在 In review |
+| 价格、成交额、成交流 | ❌ | 第一次进库用主网的价和累计成交额当起点，之后 `sim_price_tick` / `sim_market_activity_tick` 照旧 |
+| 股票日轮、加密轮 | ❌（第 2 批） | 现在还是演示引擎自己滚 |
+| Quick Play | ❌ | 不动 |
+
+## 2. 演示引擎自己的事件怎么处理（退役，不删）
+
+- 打上 `metadata.retired = true`：所有未结算的 `SPORTS_MATCH`（除 `demo-live-cs2`、`demo-prekick-cs2` 及其 game line）和全部 45 个长期事件。共 217 行。
+- 退役事件**不出现在任何列表**（首页、品类页、Insights、Resolved、相关市场、空投对冲池、编辑精选）；按 id / 名字仍然能打开（持仓、历史、交易页）。
+- 有人还持着仓的退役赛事照常结算（`roll_sports_matches` / `tick_live_*`），结算后**不再重排到下周**；没人持仓的就停在那里。
+- 演示号新开的演示仓（`roll_demo_positions`）只开在主网同步来的事件上。
+- 影响：首页「编辑精选」三条都是退役长期事件 → 目前空着；More 段只剩 Anthropic 一条（主网就是这样）。
+
+## 3. 字段映射（主网 → Lovable）
+
+| Lovable | 主网 | 备注 |
+|---|---|---|
+| `events.id` | `'mn-' || eventId` | |
+| `events.name` | `title` 去掉 `【NBA】` 这类前缀 | 撞名时加 ` · Nov 12` |
+| `metadata.home` / `away` | 标题里**先出现**的队 / 后出现的队 | 二元赛 = YES 那一边；三项赛 = 主队。比分跟着换边 |
+| `metadata.home_abbr` / `home_logo` | `homeTeam.shortCode` / `logoUrl`（没有用 `flagUrl`） | |
+| `metadata.home_tile` / `away_tile` | 美国四大联赛的方块队徽颜色 | 见 §4 ① |
+| `metadata.league` / `league_code` | `tournament.name` / `shortCode` | 新联赛进 `src/lib/taxonomy.ts`（本次加了 UEFA Nations League） |
+| `metadata.sport` | 由联赛代码推（NBA → basketball …；三项赛 → soccer） | `mn_sport_of` |
+| `metadata.match_status` | `matchStatus` | NOT_STARTED → scheduled，LIVE → live，FINISHED → final，CANCELLED → cancelled，SUSPENDED → 开赛前 postponed / 开赛后 live |
+| `metadata.score` | `liveHomeScore-liveAwayScore`（按换边后的主客） | 只在 live / final 时写 |
+| `metadata.status_label` | `statusDetail` | 有值时列表 live 位直接显示它 |
+| `metadata.stream_thumb_url` | `livePosterUrl`（`isLiveStream` 为真时） | |
+| 选项 | 二元：o1 = YES 队、o2 = NO 队；三项：o1 主、o2 `Draw`、o3 客；长期多档：每档一个选项 `m1…mN` | 选项 ↔ 主网 market 的对应存在 `metadata.mn_outcomes` |
+
+## 4. 正式版要接的三处（研发看这里）
+
+1. **队徽（S1 规则扩到 Crest）**：真队徽（透明底）画在深色圆里、`contain` 74%；美国四大联赛的「队徽」其实是印着缩写的纯色方块（Polymarket 图库），按 S1 画成「方块颜色的圆 + 白字缩写」；没有图或加载失败 → 原来的代码徽。这些图没有 CORS 头，前端取不到颜色，**正式版请后端在队伍资料里直接给方块颜色**（Lovable 是一次性取色存进 `mn_logo_tiles`）。
+2. **直播截图**：主网已有 `livePosterUrl`，就是「点了才播」要的 10 分钟快照（`metadata.stream_thumb_url`），首页 / Sports 舞台直接用它。
+3. **live 位文字**：有 `statusDetail` 就原样显示（`Q3 5:12` / `HT` / `63'`），没有再按运动自己推。
+
+## 5. 发现的主网数据问题（报给研发 / 运营）
+
+- `E5C6EX3DH` Rayo Vallecano vs Athletic Club：10 月 10 日的比赛，`matchStatus = FINISHED`、`statusDetail = SUS`，但事件状态还是 TRADING，至今挂在赛程第一天。Lovable 照搬后显示为 In review。
+- 主站 `/sports` 页面在后台挂着时，`/pub/notification/v1/announcements/popups` 被反复请求（几分钟内 398 次），疑似轮询没节流。
+
+## 6. Lovable 侧怎么跑（运维）
+
+- cron `mainnet-catalog-sync`，`*/3 * * * *`：先 `mn_sync_apply()` 处理上一轮的回包，再 `mn_sync_request()` 发这一轮的请求（pg_net 异步）。
+- 每轮结果写 `mn_sync_log.stats`（插入 / 更新 / 封面 / 结算 / 错误），保留 3 天。
+- 主网接口挂了：这一轮记 `http_*` 状态码，数据保持上一轮的样子；赛事过了预计结束 3 小时还没结果 → 前端按看门狗规则显示 In review。
+- 恢复某个退役事件：`update events set metadata = metadata - 'retired' where id = '…'`。
+- migration：`supabase/migrations/20261109190000_mainnet_catalog_sync.sql`。

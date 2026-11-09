@@ -36,7 +36,7 @@ data-model `parent: "LOL"` field that is never rendered as a third level.
 
 | Group | Leagues |
 |---|---|
-| Soccer | World Cup, UEFA Champions League (`UCL`), Premier League, LaLiga, Serie A, Bundesliga, Ligue 1, Chinese Super League, K League 1 |
+| Soccer | World Cup, UEFA Champions League (`UCL`), Premier League, LaLiga, Serie A, Bundesliga, Ligue 1, Chinese Super League, K League 1, UEFA Nations League (`UNL`, 2026-11-09 主网同步) |
 | Basketball | NBA |
 | Tennis | ATP, WTA |
 | UFC | UFC |

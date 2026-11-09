@@ -20,6 +20,7 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { isListed } from "@/components/lite/sports/sportsData";
 
 /** Max picks rendered, desktop and mobile alike. */
 export const MAX_PICKS = 3;
@@ -167,6 +168,8 @@ export const useEditorPicks = () => {
         .filter("metadata->editorial->>pick", "eq", "true");
       if (!alive) return;
       const list = ((data || []) as unknown as RawRow[])
+        // Retired demo rows (mainnet catalog sync, 2026-11-09) never reach a list.
+        .filter(isListed)
         .map(toEditorPick)
         .filter((p): p is EditorPick => p !== null)
         .sort((a, b) => a.rank - b.rank)

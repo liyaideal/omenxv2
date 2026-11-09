@@ -17,6 +17,15 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-11-09 — Lovable 展示 omenx.com 真实事件 · 第 1 批（[文档](../delivery/mainnet-catalog-sync-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| 1 | 队徽三种画法（方块色 + 缩写 / 真队徽 74% / 代码徽兜底），队伍资料带方块颜色 | ⬜ | 文档 §4 ①；字典 EV-47 |
+| 2 | 首页 / Sports 舞台直播截图用主网 `livePosterUrl` | ⬜ | 文档 §4 ② |
+| 3 | live 位优先显示 `statusDetail` | ⬜ | 文档 §4 ③ |
+| 4 | Lovable 同步本身 | ➖ | 演示引擎专用，正式版不需要 |
+
 ## 2026-11-09 — 直播「点了才播」（[文档 §2 S2 / S3](../delivery/home-all-v1.md)）
 
 | # | 项 | Status | Notes |

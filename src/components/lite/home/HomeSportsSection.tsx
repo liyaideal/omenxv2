@@ -185,7 +185,7 @@ const Stage = ({
         <div
           style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isMobile ? 6 : 8, minWidth: 0 }}
         >
-          <TeamBadge code={abbr(m, "home")} size={badgeSize} />
+          <TeamBadge code={abbr(m, "home")} logoUrl={m.homeLogo} tileColor={m.homeTile} size={badgeSize} />
           <span className="tc-code" style={{ fontSize: isMobile ? 14 : 16 }}>
             {abbr(m, "home")}
           </span>
@@ -224,7 +224,7 @@ const Stage = ({
         <div
           style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isMobile ? 6 : 8, minWidth: 0 }}
         >
-          <TeamBadge code={abbr(m, "away")} size={badgeSize} />
+          <TeamBadge code={abbr(m, "away")} logoUrl={m.awayLogo} tileColor={m.awayTile} size={badgeSize} />
           <span className="tc-code" style={{ fontSize: isMobile ? 14 : 16 }}>
             {abbr(m, "away")}
           </span>
@@ -268,7 +268,7 @@ const Tile = ({
     <button type="button" className={`tc-tile${live ? " live" : ""}`} onClick={() => onOpen(m.id)}>
       <div className="tc-top">
         <span className="tc-tm">
-          <TeamBadge code={abbr(m, "home")} size={30} />
+          <TeamBadge code={abbr(m, "home")} logoUrl={m.homeLogo} tileColor={m.homeTile} size={30} />
           <span className="tc-code">{abbr(m, "home")}</span>
         </span>
         {live ? (
@@ -279,7 +279,7 @@ const Tile = ({
           <span className="tc-sc t">{hhmm(m.kickoff)}</span>
         )}
         <span className="tc-tm">
-          <TeamBadge code={abbr(m, "away")} size={30} />
+          <TeamBadge code={abbr(m, "away")} logoUrl={m.awayLogo} tileColor={m.awayTile} size={30} />
           <span className="tc-code">{abbr(m, "away")}</span>
         </span>
       </div>
@@ -400,8 +400,8 @@ const Row = ({
     onKeyDown={(e) => e.key === "Enter" && onOpen(m.id)}
   >
     <span className="tc-pair">
-      <TeamBadge code={abbr(m, "home")} size={isMobile ? 24 : 26} />
-      <TeamBadge code={abbr(m, "away")} size={isMobile ? 24 : 26} />
+      <TeamBadge code={abbr(m, "home")} logoUrl={m.homeLogo} tileColor={m.homeTile} size={isMobile ? 24 : 26} />
+      <TeamBadge code={abbr(m, "away")} logoUrl={m.awayLogo} tileColor={m.awayTile} size={isMobile ? 24 : 26} />
     </span>
     {isMobile ? (
       <span style={{ minWidth: 0 }}>

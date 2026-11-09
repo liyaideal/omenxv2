@@ -118,6 +118,8 @@ export const SPORTS_GROUPS: SportGroup[] = [
       { code: "LIGUE_1", label: "Ligue 1", aliases: [/ligue 1/i] },
       { code: "CSL", label: "Chinese Super League", aliases: [/chinese super/i, /\bcsl\b/i] },
       { code: "K_LEAGUE_1", label: "K League 1", aliases: [/k ?league/i] },
+      // Mainnet catalog sync (2026-11-09): omenx.com lists Nations League fixtures.
+      { code: "UNL", label: "UEFA Nations League", aliases: [/nations league/i, /\bunl\b/i] },
     ],
   },
   { code: "BASKETBALL", label: "Basketball", leagues: [

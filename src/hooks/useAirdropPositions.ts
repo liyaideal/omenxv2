@@ -4,6 +4,7 @@ import { useUserProfile } from "./useUserProfile";
 import { useConnectedAccounts } from "./useConnectedAccounts";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { isListed } from "@/components/lite/sports/sportsData";
 
 export type AirdropSource = "matched" | "welcome_gift" | "voucher";
 
@@ -160,12 +161,13 @@ const repointMocksToLiveEvents = async (
 ): Promise<AirdropPosition[]> => {
   const { data: events } = await supabase
     .from("events")
-    .select("id, name, end_date, is_resolved, product_lines, event_options(id, label, price)")
+    .select("id, name, end_date, is_resolved, product_lines, metadata, event_options(id, label, price)")
     .eq("is_resolved", false)
     .gt("end_date", new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString())
     .contains("product_lines", ["futures"])
-    .limit(12);
-  const pool = (events ?? []).filter((e: any) => (e.event_options ?? []).length > 0);
+    .limit(40);
+  // Retired demo rows (mainnet catalog sync, 2026-11-09) are never a counter event.
+  const pool = (events ?? []).filter((e: any) => isListed(e) && (e.event_options ?? []).length > 0);
   if (pool.length === 0) return rows;
   const liveIds = new Set(pool.map((e: any) => e.id));
   let cursor = 0;

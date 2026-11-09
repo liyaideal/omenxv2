@@ -329,6 +329,18 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | `useStreamLineup(scoped, now)`（`streamLineup.ts`） | 拆出 `streamed`（舞台）/ `others`（Playing now）/ `isOnStream` / `markFailed`；桌面手机共用，保证两端同一个数 |
 | `chipLabel(m, label, i)` | 预告卡按钮名：首 = 主队缩写、末 = 客队缩写、中间沿用选项原文（足球为 `Draw`）。注意它不在 `UpcomingStreams.tsx`：`LiteSportsView.tsx` 与 `MobileSportsModule.tsx` 各有一份同名同义实现 |
 
+## 主网同步事件 · 退役事件 · 队徽（Lovable，2026-11-09）
+
+交付 `docs/delivery/mainnet-catalog-sync-v1.md`；字典 Events 列表 ⑥b EV-47；DESIGN §Addendum 2026-11-09b。
+
+| 词 | 一句定义 | 判定表达式 | 出处 |
+|---|---|---|---|
+| **主网同步事件** | Lovable 从 www.omenx.com 抄过来的事件：长什么样跟主站一样，价格由演示引擎自己动 | `events.id like 'mn-%'` 且 `metadata.source = 'mainnet'`；主网 id 在 `metadata.mainnet_id` | `mn_sync_*` |
+| **退役事件（retired）** | 演示引擎以前自己编的事件，不再出现在任何列表，但持仓、历史、交易页还能打开 | `metadata.retired = true`；前端列表 `isListed(e) === false` | `sportsData.ts isListed` |
+| **状态文字（status label）** | 赛况数据源自己写的进度文字，比赛进行中原样显示在 live 位 | `metadata.status_label`（主网 `statusDetail`），非空时优先于按运动推出来的分钟 / 节次 | `liveLabelFor()` |
+| **方块队徽（tile）** | 数据源给的「队徽」其实是印着缩写的纯色方块（NBA / NFL / NHL / MLB） | `metadata.home_tile` / `away_tile` 有值 → 画成同色圆 + 白字缩写 | `Crest tileColor` / `TeamBadge tileColor` |
+| **真队徽** | 透明底的队徽或国旗图 | `metadata.home_logo` 有值且没有 tile → 深色圆底、图 contain 74% | `Crest logoUrl` |
+
 ## Sports 交易时间（所有体育比赛，2026-11-04）
 
 规则与视觉：DESIGN §Addendum 2026-11-04b；字典 Lite「交易页」⑧ TR-29…29d、Pro「两终端共用」ES-D5 / ES-M2；交付 `docs/delivery/sports-match-clock-v1.md`。7 语 key：`events` 命名空间 `screen.simple.sports_clock.*`。

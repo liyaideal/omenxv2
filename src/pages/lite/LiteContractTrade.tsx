@@ -88,6 +88,7 @@ import {
   groupFixtureMarkets,
   groupSegmentedMarkets,
   isFixtureSibling,
+  isListed,
   NON_SIBLING_FILTER,
   lineWords,
   scoringNoun,
@@ -273,16 +274,16 @@ const useMoreMarkets = (category: string | null, currentId: string) => {
     (async () => {
       const { data } = await supabase
         .from("events")
-        .select("id, name, side_labels, options:event_options(id, label, price)")
+        .select("id, name, side_labels, metadata, options:event_options(id, label, price)")
         .eq("category", category)
         .eq("is_resolved", false)
         // Fixture line siblings live on their fixture board only.
         .or(NON_SIBLING_FILTER)
-        .limit(8);
+        .limit(40);
       if (!alive) return;
       setRows(
         (data || [])
-          .filter((e) => e.id !== currentId && !isFixtureSibling(e))
+          .filter((e) => e.id !== currentId && !isFixtureSibling(e) && isListed(e))
           .slice(0, 5)
           .map((e) => {
             const opts = (e.options || []) as { label: string; price: number }[];

@@ -1,4 +1,4 @@
-import { isFixtureSibling } from "@/components/lite/sports/sportsData";
+import { isFixtureSibling, isListed } from "@/components/lite/sports/sportsData";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
@@ -92,7 +92,8 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
         throw eventsError;
       }
 
-      const allRows = eventsData || [];
+      // Retired demo rows (mainnet catalog sync, 2026-11-09) never reach a list.
+      const allRows = (eventsData || []).filter(isListed);
       const visibleEvents = allRows.filter((e) => !isFixtureSibling(e));
       const siblingRows = allRows.filter((e) => isFixtureSibling(e));
 

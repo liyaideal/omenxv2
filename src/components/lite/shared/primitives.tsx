@@ -66,7 +66,14 @@ export const LivePulse = ({
 
 /* ---------------- Crest ---------------- */
 
-/** Team crest token. `muted` is the SportsStageCard away-side treatment. */
+/**
+ * Team crest token. `muted` is the SportsStageCard away-side treatment.
+ * `logoUrl` (synced from omenx.com, CPO 2026-11-09): the real crest, drawn
+ * `contain` at 74% inside the same circle — the home TeamBadge rule (S1).
+ * `tileColor`: the feed's logo is a flat colour tile with the code printed
+ * on it → a badge in that colour + the code (same S1 rule). A crest that
+ * fails to load falls back to the code.
+ */
 export const Crest = ({
   abbr,
   size = 34,
@@ -74,6 +81,8 @@ export const Crest = ({
   overlapPx = -10,
   muted = false,
   fontSize,
+  logoUrl,
+  tileColor,
 }: {
   abbr: string;
   size?: number;
@@ -81,7 +90,71 @@ export const Crest = ({
   overlapPx?: number;
   muted?: boolean;
   fontSize?: number;
-}) => (
+  logoUrl?: string | null;
+  tileColor?: string | null;
+}) =>
+  tileColor ? (
+    <span
+      className="font-display"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: 999,
+        background: tileColor,
+        border: "1px solid rgba(255,255,255,.08)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: 700,
+        fontSize: fontSize ?? (size >= 38 ? 10 : 9),
+        color: "#fff",
+        flex: "none",
+        marginLeft: overlap ? overlapPx : 0,
+        opacity: muted ? 0.72 : 1,
+      }}
+    >
+      {abbr}
+    </span>
+  ) : logoUrl ? (
+    <span
+      style={{
+        width: size,
+        height: size,
+        borderRadius: 999,
+        background: "#1B2130",
+        border: "1px solid rgba(255,255,255,.08)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        flex: "none",
+        marginLeft: overlap ? overlapPx : 0,
+        opacity: muted ? 0.72 : 1,
+      }}
+    >
+      <img
+        src={logoUrl}
+        alt={abbr}
+        loading="lazy"
+        draggable={false}
+        style={{ width: "74%", height: "74%", objectFit: "contain", display: "block" }}
+        onError={(ev) => {
+          const el = ev.currentTarget;
+          const box = el.parentElement;
+          el.remove();
+          if (box) {
+            box.textContent = abbr;
+            box.style.background = muted ? "#23262D" : CHALK;
+            box.style.color = muted ? CHALK_SOFT : "#0A0B0D";
+            box.style.fontWeight = "700";
+            box.style.fontSize = `${fontSize ?? (size >= 38 ? 10 : 9)}px`;
+            box.className = "font-display";
+            box.style.opacity = "1";
+          }
+        }}
+      />
+    </span>
+  ) : (
   <span
     className="font-display"
     style={{
@@ -102,7 +175,7 @@ export const Crest = ({
   >
     {abbr}
   </span>
-);
+  );
 
 /* ---------------- Last 8 ---------------- */
 

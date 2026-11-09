@@ -168,7 +168,7 @@
 
 ## 治理规则（即日生效）
 
-1. **状态走库，内容走 mock**：需要跨模块流转的状态（下单/持仓/流水/券/积分）必须落 Supabase；纯展示内容（行情形态、联赛资料、社区帖子）永远 mock。
+1. **事件目录同步主网，价格和状态走演示引擎**（2026-11-09 起，原「状态走库，内容走 mock」）：事件目录（赛程、比分、队徽、长期事件）从 www.omenx.com 同步；需要跨模块流转的状态（下单/持仓/流水/券/积分）必须落 Supabase；其余纯展示内容（行情形态、社区帖子）仍 mock。
 2. **单一演示引擎**：本仓库的 Supabase 是全部前端 Lovable（主站 / Sports / 未来 Pro / Lite）唯一的后端，其他前端项目不得自建数据库。
 3. **Schema 只在本项目变更**：其他前端项目只能调用现成的 RPC / Edge Function。
 4. **sim- 前缀**：新增演示专用函数一律 `sim-` 前缀命名。
@@ -341,3 +341,17 @@
 | `ensure_voucher_pool_today()` 整体重写 | 🔴 演示专用 | 为加 $2 档把建池函数重写了一遍，$10 / $25 / $50 档的日配额 1000 / 500 / 100 原样保留（这三档是注册送券用的，Quick Play 不碰）；正式版按自己的券池表加一档即可 |
 | `arcade_table_now().params` 现在把 `arcade_params` 整表（含风控阈值）回给所有人，`arcade_params` 对 anon 可读 | 🟡 B | 演示库为了方便；正式版只下发前端要用的几项（费率、筹码档、单账户上限、`quote_ttl_ms` / `tick_max_age_ms`、`combo_*`、`live`），风控阈值不出后端 |
 | `arcade_table_state.paused_reason` 新增值 `loss_hour`（60 分钟滚动亏损上限）；`arcade_place` 对应拒单文案（`20261105120000_arcade_loss_hour.sql`） | 🟡 B | 由风控引擎置位 / 清除；Lovable 没有风控引擎，只有字典 AR-68 / AR-69 能看到这一态 |
+
+## 2026-11-09 主网事件目录同步 · 第 1 批（append-only 补录）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `mn_sync_requests`、`mn_sync_log`（RLS 开、无策略） | 🔴 演示专用 | pg_net 请求号 ↔ 种类；每轮统计留 3 天 |
+| `mn_logo_tiles(url, color)` | 🟡 B | 方块队徽的颜色。**规则是需求**（方块队徽画成同色圆 + 缩写，S1）；正式版由队伍资料直接给颜色，不用这张表 |
+| `mn_sync_request()` / `mn_sync_apply()`；cron `mainnet-catalog-sync` `*/3` | 🔴 演示专用 | 拉主网公开接口写 Lovable 自己的事件表；正式版就是主网，不需要 |
+| `mn_apply_calendar` / `mn_apply_catalog` / `mn_apply_homepage` / `mn_apply_detail` / `mn_settle` / `mn_sport_of` / `mn_match_status` / `mn_unique_name` | 🔴 演示专用 | 字段映射见 `docs/delivery/mainnet-catalog-sync-v1.md` §3；其中「状态文字原样显示」「主网结果结算」两条语义 🟢 |
+| `events.metadata.retired` | 🔴 演示专用 | 演示引擎自编事件退役标记；列表一律过 `isListed`（`sportsData.ts`） |
+| `roll_sports_matches` / `tick_live_us_sports` 跳过 `metadata.source = 'mainnet'`；退役赛事只在有人持仓时结算、结算后不重排 | 🔴 演示专用 | |
+| `sim_price_tick`：跳过退役行、上限 100 → 400、`metadata.independent_options` 的多档事件逐档独立游走（不归一） | 🔴 演示专用 | 主网多档事件每档是独立的 Yes / No 盘，价格不是一组加起来为 1 的概率 |
+| `sim_market_activity_tick` 跳过退役行、随机抽 60 个；`roll_demo_positions` 新仓只开在未退役、主盘、`futures` 或 `contract` 的事件上 | 🔴 演示专用 | |
+

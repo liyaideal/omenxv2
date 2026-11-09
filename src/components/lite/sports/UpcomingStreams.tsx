@@ -143,14 +143,14 @@ export const StreamPoster = ({
         <PosterTag />
       </div>
       <div className="relative flex items-center" style={{ gap: 14 }}>
-        <Crest abbr={match.homeAbbr} size={40} />
+        <Crest abbr={match.homeAbbr} logoUrl={match.homeLogo} tileColor={match.homeTile} size={40} />
         <span
           className="font-display"
           style={{ fontSize: 11, color: "rgba(255,255,255,.45)", fontWeight: 700, letterSpacing: ".14em" }}
         >
           VS
         </span>
-        <Crest abbr={match.awayAbbr} size={40} />
+        <Crest abbr={match.awayAbbr} logoUrl={match.awayLogo} tileColor={match.awayTile} size={40} />
       </div>
       <div className="relative flex flex-col items-center" style={{ gap: 3 }}>
         <span

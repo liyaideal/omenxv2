@@ -47,11 +47,27 @@ export interface SportsMatch {
   thumbnailUrl?: string | null;
   /** events.image_url — the event cover, the preview's fallback when there is no snapshot. */
   coverUrl?: string | null;
+  /** metadata.home_logo / away_logo — team crests synced from omenx.com (CPO 2026-11-09). Absent ⇒ the code badge. */
+  homeLogo?: string | null;
+  awayLogo?: string | null;
+  /** metadata.home_tile / away_tile — the colour of a feed placeholder tile (NBA / NFL / NHL code squares). Set ⇒ draw a badge in that colour + the code, not the image (S1). */
+  homeTile?: string | null;
+  awayTile?: string | null;
   volume: number;
   options: SportsOption[];
 }
 
 interface RawMeta {
+  /** `mainnet` = synced from omenx.com by mn_sync_* (CPO 2026-11-09). */
+  source?: string | null;
+  /** Retired demo row: reachable by id / name (positions, history), never listed. */
+  retired?: boolean | null;
+  home_logo?: string | null;
+  away_logo?: string | null;
+  home_tile?: string | null;
+  away_tile?: string | null;
+  /** The feed's own live-status text (omenx.com `statusDetail`), shown as-is when present. */
+  status_label?: string | null;
   stream_thumb_url?: string | null;
   stream_thumb_at?: string | null;
   league?: string;
@@ -124,6 +140,15 @@ type PhaseInput = {
   isResolved?: boolean | null;
   lifecycle?: string | null;
 };
+
+/**
+ * Mainnet catalog sync (CPO 2026-11-09): the demo engine's own events are
+ * retired, not deleted — positions and history still open them by id / name,
+ * but no list, rail or picker shows them. Every list query runs its rows
+ * through this.
+ */
+export const isListed = (e: { metadata?: unknown } | null | undefined): boolean =>
+  fixtureMeta(e).retired !== true;
 
 /** True for sports fixtures (and their handicap / total / map siblings). */
 export const isSportsFixture = (e: { metadata?: unknown } | null | undefined) => !!fixtureMeta(e).kickoff_at;
@@ -275,6 +300,8 @@ export const shortName = (
 
 /** 列表卡 live 位：按运动形态选"分钟 / 节次钟 / 半局 + 局次"。 */
 export const liveLabelFor = (meta: FixtureMeta, minute: number | null): string | null => {
+  // Synced fixtures carry the feed's own text ("Q3 5:12", "HT", "63'") — show what omenx.com shows.
+  if (meta.status_label) return meta.status_label;
   const spec =
     (meta.segments_key ? SPORT_SEGMENTS[meta.segments_key] : undefined) ??
     SPORT_FALLBACK[(meta.sport || "").toLowerCase()];
@@ -437,6 +464,7 @@ export const useSportsMatches = () => {
         .order("start_date", { ascending: true });
       if (!alive) return;
       const list: SportsMatch[] = (data || [])
+        .filter(isListed)
         // Game-line siblings (handicap / total) belong to their fixture's
         // trade board, never to the match ledger.
         .filter((e) => {
@@ -486,6 +514,10 @@ export const useSportsMatches = () => {
            streamUrl: meta.stream_url ?? null,
            thumbnailUrl: meta.stream_thumb_url ?? null,
            coverUrl: (e as { image_url?: string | null }).image_url ?? null,
+           homeLogo: meta.home_logo ?? null,
+           awayLogo: meta.away_logo ?? null,
+           homeTile: meta.home_tile ?? null,
+           awayTile: meta.away_tile ?? null,
            volume: Number((e as { volume?: number | string | null }).volume ?? 0),
           options: opts,
         };

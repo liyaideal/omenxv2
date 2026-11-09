@@ -2535,3 +2535,13 @@ CPO 2026-11-09 15:32 批（规则清单 H / S / C / K / E / M / G / MB，原文 
 5. **Boost 是筛选**：chip 行右组 ⚡ Boost / ☆ Watchlist / ▦ Calendar；左组只放品类。
 6. **首页不下单、不播放**：价钮 / 行 / 舞台位一律进交易页。舞台位（首页 + Sports 品类页）不拉流（2026-11-09「点了才播」）：`StreamPreview` = 静态图压暗（服务端 10 分钟截图 → 赛事封面 → 深色径向底）+ 左上橙底 LIVE + 中间橙色播放钮（桌面 64 / 手机 48，外圈 6px 橙 16% + 橙光）+ `Watch live`（Space Grotesk 700 15 / 13）；画面里不放队徽。点播放：已登录进交易页开播，游客先登录（`usePlayStream`）。交易页对游客 = `LiveStage` S10 卡：深色径向底 + LIVE + 标题 24 / 17 + 说明 14 / 12 + 柠檬 Sign in 钮 44 / 36 高。
 7. **手机 = 重排不是压扁**：Sports 不列 Next up、Stocks 前 5 两行式、BTC · last 8 紧贴图下、More 多档名字独占一行；任何名字不省略号截断。
+
+## §Addendum 2026-11-09b · 队徽三种画法扩到 Crest（主网事件同步）
+
+- Sports 品类页、手机 Sports 模块、直播预告、舞台卡的队徽（`Crest`，`src/components/lite/shared/primitives.tsx`）沿用首页 S1 规则：
+  1. 方块队徽（`tileColor`）→ 圆形底色 = 方块颜色，白字缩写，字号与代码徽相同；
+  2. 真队徽 / 国旗（`logoUrl`）→ 深色圆底 `#1B2130` + 1px `rgba(255,255,255,.08)` 描边，图 `contain` 74% 居中；
+  3. 没有图 / 图加载失败 → 原来的代码徽（浅底黑字）。
+- 叠放、弱化规则不变：叠放 -10（舞台卡 -9）；`muted` 的图形徽整体 72% 不透明度。
+- 字典 EV-47（桌面 + 375）。交易页记分牌（LiveMatchboard）仍只写缩写，不在本次范围。
+

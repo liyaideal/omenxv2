@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { parseSideLabels } from "@/lib/eventUtils";
+import { isListed } from "@/components/lite/sports/sportsData";
 
 export interface ResolvedEventOption {
   id: string;
@@ -74,6 +75,8 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
       }
 
       if (!events) return [];
+      // Retired demo rows (mainnet catalog sync, 2026-11-09) never reach a list.
+      const listed = events.filter(isListed);
 
       // Trades subquery carries product_line so each resolved event's userPnl
       // sums ONLY trades from the same product line as the event
@@ -82,7 +85,7 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
       // cross-line PnL into the resolved spot card, and vice versa.
       let userTrades: { event_name: string; pnl: number | null; product_line: string | null }[] = [];
       if (user) {
-        const eventNames = events.map((e) => e.name);
+        const eventNames = listed.map((e) => e.name);
         const { data: trades } = await supabase
           .from("trades")
           .select("event_name, pnl, product_line")
@@ -92,7 +95,7 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
         userTrades = trades || [];
       }
 
-      return events.map((event) => {
+      return listed.map((event) => {
         const productLines = Array.isArray((event as any).product_lines)
           ? ((event as any).product_lines as string[])
           : ["futures"];

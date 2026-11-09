@@ -1252,6 +1252,24 @@ const PREVIEW_TWO = [SL_SPI, SL_NFL, UP_BAR, UP_BLG, UP_JUV];
 const PREVIEW_MANY = [SL_SPI, SL_NFL, UP_BAR, UP_BLG, UP_MUN, UP_HLE, UP_NAVI, UP_JUV];
 const PREVIEW_NO_LIVE_STREAM = [SL_NFL, UP_BAR, UP_BLG, UP_MUN, UP_JUV];
 
+/* EV-47 · team crests synced from omenx.com (CPO 2026-11-09). Logo URLs are the feed's own. */
+const PM = "https://polymarket-upload.s3.us-east-2.amazonaws.com/";
+const CR_TILE = sm({ id: "sg-cr-cle-cha", league: "NBA", home: "Cavaliers", away: "Hornets", homeAbbr: "CLE", awayAbbr: "CHA", sport: "basketball", format: "h2h", volume: 7_900,
+  homeLogo: `${PM}NBA+Team+Logos/CLE.png`, awayLogo: `${PM}NBA+Team+Logos/CHA.png`, homeTile: "#D23E7C", awayTile: "#0F9BB2",
+  options: [opt("sg-cr-cle-h", "Cavaliers", 0.76), opt("sg-cr-cle-a", "Hornets", 0.24)] }, 90);
+const CR_CREST = sm({ id: "sg-cr-ray-ath", league: "LaLiga", home: "Rayo Vallecano", away: "Athletic Club", homeAbbr: "RAY", awayAbbr: "AC", sport: "soccer", volume: 6_700,
+  homeLogo: `${PM}Rayo Vallecano de Madrid-507892483a.png`, awayLogo: `${PM}Athletic Club-80c6e1af51.png`,
+  options: [opt("sg-cr-ray-h", "Rayo Vallecano", 0.21), opt("sg-cr-ray-d", "Draw", 0.33), opt("sg-cr-ray-a", "Athletic Club", 0.46)] }, 150);
+const CR_FLAG = sm({ id: "sg-cr-cze-esp", league: "UEFA Nations League", home: "Czechia", away: "Spain", homeAbbr: "CZE", awayAbbr: "ESP", sport: "soccer", volume: 1_900,
+  homeLogo: "https://static.omenx.com/sports/team/logo/20260618/45_czechia_1781774835419.png", awayLogo: "https://static.omenx.com/sports/team/logo/20260618/32_spain_1781774430348.png",
+  options: [opt("sg-cr-cze-h", "Czechia", 0.06), opt("sg-cr-cze-d", "Draw", 0.1), opt("sg-cr-cze-a", "Spain", 0.84)] }, 210);
+const CR_NONE = sm({ id: "sg-cr-none", league: "NHL", home: "Rangers", away: "Oilers", homeAbbr: "NYR", awayAbbr: "EDM", sport: "hockey", format: "h2h", volume: 3_600,
+  options: [opt("sg-cr-none-h", "Rangers", 0.42), opt("sg-cr-none-a", "Oilers", 0.58)] }, 270);
+const CR_BROKEN = sm({ id: "sg-cr-broken", league: "NBA", home: "Pacers", away: "Mavericks", homeAbbr: "IND", awayAbbr: "DAL", sport: "basketball", format: "h2h", volume: 4_400,
+  homeLogo: "/__missing__/ind.png", awayLogo: "/__missing__/dal.png",
+  options: [opt("sg-cr-broken-h", "Pacers", 0.42), opt("sg-cr-broken-a", "Mavericks", 0.58)] }, 330);
+export const Ev47Preview = () => <Stage><StreamsDemo matches={[CR_TILE, CR_CREST, CR_FLAG, CR_NONE, CR_BROKEN]} /></Stage>;
+
 /** Click one production control after mount — opens the state the case documents. */
 const ClickAfterMount = ({ selector, children }: { selector: string; children: React.ReactNode }) => {
   const ref = useRef<HTMLDivElement>(null);

@@ -161,7 +161,7 @@ const LiveCard = ({
       </div>
       <div className="flex items-center" style={{ gap: 16 }}>
         <span className="flex min-w-0 flex-1 items-center" style={{ gap: 11 }}>
-          <Crest abbr={match.homeAbbr} size={38} />
+          <Crest abbr={match.homeAbbr} logoUrl={match.homeLogo} tileColor={match.homeTile} size={38} />
           <span
             className="truncate"
             style={{ fontSize: 17, color: "#fff", fontWeight: 600 }}
@@ -195,7 +195,7 @@ const LiveCard = ({
           >
             {match.awayShort || match.away}
           </span>
-          <Crest abbr={match.awayAbbr} size={38} />
+          <Crest abbr={match.awayAbbr} logoUrl={match.awayLogo} tileColor={match.awayTile} size={38} />
         </span>
       </div>
     </div>
@@ -282,7 +282,7 @@ const LiveStreamStage = ({
 
           <div className="grid items-center" style={{ gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
             <span className="flex min-w-0 flex-col items-center" style={{ gap: 9 }}>
-              <Crest abbr={m.homeAbbr} size={48} />
+              <Crest abbr={m.homeAbbr} logoUrl={m.homeLogo} tileColor={m.homeTile} size={48} />
               <span className="max-w-full truncate" style={{ fontSize: 15, color: "#fff", fontWeight: 600 }} title={m.home}>
                 {m.homeShort || m.home}
               </span>
@@ -294,7 +294,7 @@ const LiveStreamStage = ({
               <MatchScoreText sport={m.sport} score={m.score} base={46} tennisBase={30} />
             </span>
             <span className="flex min-w-0 flex-col items-center" style={{ gap: 9 }}>
-              <Crest abbr={m.awayAbbr} size={48} />
+              <Crest abbr={m.awayAbbr} logoUrl={m.awayLogo} tileColor={m.awayTile} size={48} />
               <span className="max-w-full truncate" style={{ fontSize: 15, color: "#fff", fontWeight: 600 }} title={m.away}>
                 {m.awayShort || m.away}
               </span>
@@ -647,8 +647,8 @@ const LedgerRow = ({
         </span>
       </span>
       <span className="flex flex-none items-center">
-        <Crest abbr={match.homeAbbr} />
-        <Crest abbr={match.awayAbbr} overlap />
+        <Crest abbr={match.homeAbbr} logoUrl={match.homeLogo} tileColor={match.homeTile} />
+        <Crest abbr={match.awayAbbr} logoUrl={match.awayLogo} tileColor={match.awayTile} overlap />
       </span>
       <span className="flex min-w-0 flex-1 flex-col" style={{ gap: 2 }}>
         <span

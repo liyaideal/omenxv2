@@ -673,6 +673,19 @@ const STREAM_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "events-ev47",
+    label: "EV-47 · 队徽四种画法（Crest · 队徽从 omenx.com 同步 · CPO 2026-11-09）",
+    note:
+      "Sports 品类页、手机 Sports 模块、直播预告、舞台卡的队徽都是 Crest；首页 All 视图的同一规则在 TeamBadge（HA 字典 S1）。队徽地址来自主网同步的 metadata.home_logo / away_logo；美国四大联赛（NBA / NFL / NHL / MLB）的「队徽」其实是印着队名缩写的纯色方块，同步时取出方块颜色写进 metadata.home_tile / away_tile。",
+    spec: [
+      { state: "色块队徽", when: "home_tile / away_tile 有值", visual: "圆形底色 = 方块颜色，白字缩写（字号同代码徽）；不放那张方块图（本帧 CLE / CHA）", source: "Crest tileColor · mn_logo_tiles" },
+      { state: "真队徽", when: "home_logo 有值且没有 tile", visual: "深色圆底 #1B2130，队徽图 contain 74% 居中（本帧 Rayo / Athletic；国家队旗方图同样 74% 居中：CZE / ESP）", source: "Crest logoUrl" },
+      { state: "没有队徽", when: "home_logo 为空", visual: "原来的代码徽：浅底黑字缩写（本帧 NYR / EDM，以及演示直播样板赛）", source: "Crest abbr" },
+      { state: "队徽加载失败", when: "图片 onError", visual: "退回代码徽（本帧 IND / DAL 指向不存在的图）", source: "Crest img onError" },
+      { state: "叠放 / 弱化", when: "overlap / muted", visual: "叠放照旧 -10（舞台卡 -9）；muted 的图形徽整体 72% 不透明度", source: "Crest overlap / muted" },
+    ],
+  },
+  {
     key: "events-ev40",
     label: "EV-40 · 预告排 · 1 场（横版宽卡铺满）",
     note: "预告 = 有直播、未开赛、48 小时内开赛（upcomingStreams）。不管有没有直播在播，预告都只用这排卡片，没有预告大卡。",
@@ -808,6 +821,9 @@ export const EventsStatesSection = () => (
             desktopMin={1200}
             mobileMin={1400}
           />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("events-ev47")} desktopMin={900} mobileMin={1100} />
         </div>
         {/* EV-45 opens a fixed sign-in layer — its own frame so it can't cover the cases above. */}
         <div className="mt-6">
