@@ -226,7 +226,11 @@ export const leftText = (ms: number): string => {
   return `${s}s`;
 };
 
+/** Round clock: "02:44"; an hour or more → "1:31:12" (4h / 1D rounds — never "91:12"). */
 export const mmss = (ms: number): string => {
   const s = Math.max(0, Math.floor(ms / 1000));
-  return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const h = Math.floor(s / 3600);
+  const mm = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 };

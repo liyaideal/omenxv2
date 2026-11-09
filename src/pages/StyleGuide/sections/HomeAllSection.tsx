@@ -1,5 +1,5 @@
 /**
- * 首页 All 视图 · 状态字典（HA-1 … HA-14 · 首页 All 改版 D2-S3 / M-*，2026-11-09 定稿）。
+ * 首页 All 视图 · 状态字典（HA-1 … HA-20 · 首页 All 改版 D2-S3 / M-*，2026-11-09 定稿）。
  *
  * 每个 case = 生产组件 + SectionFrame 双帧（desktop 1280 在上 / mobile 375 在下）；
  * 375 帧里组件自己走手机形态（M-* 板），不是桌面压扁。fixture 冻结在 FROZEN_NOW，
@@ -64,6 +64,16 @@ const SPORTS_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "home-ha17",
+    label: "HA-17 · Sports 日历条选中某一天（R1 / R2）",
+    note: "同 HA-5 的数据，挂载后点日历条第三格。只有右表跟着日期变；舞台位、瓷砖、眉行数字不变。",
+    spec: [
+      { state: "选中某天", when: "day !== 'all'", visual: "该格变选中态；右表 Big this week / Next up 只列这一天还没开赛的比赛", source: "HomeSportsSection day · buildDayStrip" },
+      { state: "数字", when: "始终", visual: "眉行 N = 这 7 天所有没结算的（含正在打）；ALL n 与各天数字 = 没开赛的；「+N more this week」= 全部没开赛 − 本段已展示，跟选哪天无关", source: "R1 / R2" },
+      { state: "再点 ALL", when: "点 ALL 格", visual: "回到全周", source: "setDay('all')" },
+    ],
+  },
+  {
     key: "home-ha15",
     label: "HA-15 · 游客点「Watch live」→ 站内登录框（桌面弹窗 / 手机抽屉）",
     note: "CPO 2026-11-09「点了才播」R3。登录框是现有组件，一个字不改；本帧挂载后直接打开它（等同游客点了播放）。登录成功后直接进这场交易页并开播（含 Google 跳转回来）；关掉登录框留在首页，什么都不发生。",
@@ -108,6 +118,26 @@ const CRYPTO_CASES: SectionCase[] = [
     spec: [
       { state: "tab = 1h", when: 'tf === "1h"', visual: "眉行后半句「new round every hour」；时间刻度每 10 分钟；密点按 3px 一桶平均", source: "C1 C4 · TICK_MS" },
     ],
+  },
+  {
+    key: "home-ha18a",
+    label: "HA-18a · Crypto 15m",
+    spec: [{ state: "tab = 15m", when: 'tf === "15m"', visual: "眉行「new round every 15 min」；刻度每 3 分钟；钟 = 本轮剩余", source: "C1 C2 C4" }],
+  },
+  {
+    key: "home-ha18b",
+    label: "HA-18b · Crypto 4h",
+    spec: [{ state: "tab = 4h", when: 'tf === "4h"', visual: "眉行「new round every 4 hours」；刻度每 1 小时；钟剩余 ≥ 1 小时写「H:MM:SS」（如「1:31:12」，不写「91:12」）", source: "C1 C2 C4" }],
+  },
+  {
+    key: "home-ha18c",
+    label: "HA-18c · Crypto 1D",
+    spec: [{ state: "tab = 1D", when: 'tf === "1d"', visual: "眉行「new round every day」；刻度每 3 小时", source: "C1 C2 C4" }],
+  },
+  {
+    key: "home-ha19",
+    label: "HA-19 · Crypto 历史不足 8 轮（R6）",
+    spec: [{ state: "只有 3 轮", when: "history.length < 8", visual: "Last 8 只画 3 根柱，右侧计数按实际（Up won n · Down won n）", source: "C6 · R6" }],
   },
 ];
 
@@ -155,6 +185,15 @@ const DESK_CASES: SectionCase[] = [
     label: "HA-12 · Editor's Desk · 多档 pick",
     spec: [
       { state: "多档", when: "optionCount > 2", visual: "两档胶囊 +「+N more」", source: "E4" },
+    ],
+  },
+  {
+    key: "home-ha20",
+    label: "HA-20 · Editor's Desk · 2 条 pick，其中一条普通二元（E2 / E4）",
+    spec: [
+      { state: "条数 < 3", when: "picks.length === 2", visual: "按实际条数排，列宽不变、不补空位；编号 01 / 02", source: "E2 E3" },
+      { state: "普通二元", when: "yesLabel === 'Yes'", visual: "「Yes n¢」/「No n¢」两钮", source: "E4" },
+      { state: "比赛", when: "metadata.kickoff_at", visual: "两队名 + 价；三项赛只放两队（平局在交易页买）", source: "E4 · toEditorPick" },
     ],
   },
 ];
@@ -208,7 +247,7 @@ export const HOME_ALL_CASES: SectionCase[] = [
 export const HomeAllSection = () => (
   <SectionWrapper
     id="home-all"
-    title="首页 All 视图 · 状态字典（HA-1 … HA-16 + 规则台账 HA-R）"
+    title="首页 All 视图 · 状态字典（HA-1 … HA-20 + 规则台账 HA-R）"
     description="首页 All 改版（2026-11-09 定稿）：Hero → chip 行 → Quick Play 横幅 → Sports → Crypto → Stocks → Editor's Desk → More markets。每个 case 双帧（desktop 1280 / mobile 375），375 帧是组件自己的手机形态；四栏表每行对着规则编号，规则原文在本节末 HA-R。chip 行 / Quick Play 横幅 / 行情 tape 见 Events 字典 EV-2 … EV-4 / Arcade 字典 / EV-33。"
   >
     <div className="space-y-12">

@@ -6,7 +6,7 @@
 // 打开画面都一样；canvas 图表在 nowOverride 下只画一帧、不跑动画。
 // 每个 preview 用 useIsMobile() 分支，375 帧里自动走手机形态（M-* 板）。
 // ============================================================
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AuthPromptHost } from "@/components/auth/AuthPromptHost";
 import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -159,6 +159,18 @@ export const HaSports1Preview = () => <SportsDemo matches={SPORTS_S1} />;
 export const HaSports2Preview = () => <SportsDemo matches={SPORTS_S2} />;
 export const HaSports3Preview = () => <SportsDemo matches={SPORTS_S3} />;
 export const HaSports4Preview = () => <SportsDemo matches={SPORTS_S4} />;
+/** HA-17 · a day picked on the date strip (third cell): only the right table follows the day (R1 / R2). */
+export const HaSportsDayPreview = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      const cells = ref.current?.querySelectorAll<HTMLButtonElement>(".daycell");
+      cells?.[2]?.click();
+    }, 400);
+    return () => window.clearTimeout(id);
+  }, []);
+  return <div ref={ref}><SportsDemo matches={SPORTS_S4} /></div>;
+};
 /** HA-16 · team crests from the feed (CPO 2026-11-09): tile colour + code · real crest · none · load failure. */
 const PM = "https://polymarket-upload.s3.us-east-2.amazonaws.com/";
 const CREST_FIX: Record<string, Partial<SportsMatch>> = {
@@ -243,6 +255,27 @@ const CryptoDemo = ({ initialTf }: { initialTf: Timeframe }) => {
 };
 export const HaCrypto5mPreview = () => <CryptoDemo initialTf="5m" />;
 export const HaCrypto1hPreview = () => <CryptoDemo initialTf="1h" />;
+/** HA-18 · the other three period tabs (eyebrow and clock follow the tab, C1 / C2). */
+export const HaCrypto15mPreview = () => <CryptoDemo initialTf="15m" />;
+export const HaCrypto4hPreview = () => <CryptoDemo initialTf="4h" />;
+export const HaCrypto1dPreview = () => <CryptoDemo initialTf="1d" />;
+/** HA-19 · fewer than 8 settled rounds: draw what there is, counts follow (R6). */
+const QUICK_SHORT = (() => {
+  const historyFor = new Map(QUICK.historyFor);
+  for (const k of [...historyFor.keys()]) historyFor.set(k, (historyFor.get(k) || []).slice(-3));
+  return { currentFor: QUICK.currentFor, historyFor };
+})();
+export const HaCryptoShortPreview = () => {
+  const isMobile = useIsMobile();
+  const [tf, setTf] = useState<Timeframe>("5m");
+  return (
+    <Pad>
+      <div className={isMobile ? "hall hall-m" : "hall"}>
+        <HomeCryptoSection currentFor={QUICK_SHORT.currentFor} historyFor={QUICK_SHORT.historyFor} tf={tf} onSelectTf={setTf} isMobile={!!isMobile} nowOverride={FROZEN_NOW} />
+      </div>
+    </Pad>
+  );
+};
 
 /* ============================== Stocks ============================== */
 
@@ -342,6 +375,15 @@ const DeskDemo = ({ picks }: { picks: EditorPick[] }) => {
 };
 export const HaDeskPreview = () => <DeskDemo picks={PICKS} />;
 export const HaDeskMultiPreview = () => <DeskDemo picks={PICKS_MULTI} />;
+/** HA-20 · two picks, one a plain Yes / No event (E2 / E4). */
+export const HaDeskTwoPreview = () => (
+  <DeskDemo
+    picks={[
+      pick({ id: "ha-pick-5", rank: 1, category: "macro", name: "Fed rate hike in 2026?", note: "The curve stopped pricing a hike after the jobs print. A dollar pays if they still do it.", yesPrice: 0.12, noPrice: 0.88, endDate: new Date(FROZEN_NOW + 50 * DAY) }),
+      PICKS[2],
+    ]}
+  />
+);
 
 /* ============================== More ============================== */
 

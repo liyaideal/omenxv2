@@ -389,7 +389,7 @@ const STAGE_CASES: SectionCase[] = [
   {
     key: "sports-stage-s10",
     label: "S10 · guest（未登录 · Sign in to watch live）",
-    note: "CPO 2026-11-09「点了才播」R5：直播只对已登录用户开放。游客在交易页看到这张卡，直播流不请求、不出迷你窗；点 Sign in 打开站内登录框（桌面弹窗 / 手机抽屉），登录后就地开播。比赛没开打时照旧走 S7 prekick。",
+    note: "CPO 2026-11-09「点了才播」R5：直播只对已登录用户开放。游客在交易页看到这张卡，直播流不请求、不出迷你窗；点 Sign in 打开站内登录框（桌面弹窗 / 手机抽屉），登录后就地开播。比赛没开打时照旧走 S6 prekick。",
     spec: [
       {
         state: "guest",

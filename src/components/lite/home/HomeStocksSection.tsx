@@ -143,7 +143,8 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
   if (!cur) return null;
   const market = resolveStockMarket(byMarket[cur.key][0]);
   const session = getStockSessionState(market, now);
-  const rows = byMarket[cur.key].slice(0, isMobile ? 5 : 10);
+  // K3: top 10 by this round's volume (mobile top 5); ties keep the feed order.
+  const rows = [...byMarket[cur.key]].sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0)).slice(0, isMobile ? 5 : 10);
   const prints = rows.map((r) => {
     const p = printsFor(r, market, cur.extendedPrints, now);
     if (!printModeOverride) return p;

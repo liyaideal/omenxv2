@@ -497,7 +497,8 @@ export const HomeSportsSection = ({
     const upcoming = matches
       .filter((m) => !liveSet.has(m.id) && m.kickoff && m.kickoff.getTime() > now)
       .sort((a, b) => (a.kickoff?.getTime() ?? 0) - (b.kickoff?.getTime() ?? 0));
-    const streams = live.filter((m) => !!m.streamUrl);
+    // Same order as the Sports view stage (EV-37): biggest volume first, then earlier kickoff.
+    const streams = live.filter((m) => !!m.streamUrl).sort((a, b) => b.volume - a.volume || (a.kickoff?.getTime() ?? 0) - (b.kickoff?.getTime() ?? 0));
     // Stage: streamed live > any live > biggest upcoming this week.
     const byVol = (a: SportsMatch, b: SportsMatch) => b.volume - a.volume;
     const stage =

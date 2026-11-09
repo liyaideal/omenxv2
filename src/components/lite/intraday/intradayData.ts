@@ -240,6 +240,8 @@ export interface StockEventRow {
   event_subtype: string | null;
   upPrice: number;
   downPrice: number;
+  /** This round's traded volume (home K3 orders the list by it). */
+  volume?: number;
 }
 
 export const useIntradayStocks = (enabled: boolean) => {
@@ -253,7 +255,7 @@ export const useIntradayStocks = (enabled: boolean) => {
       const { data } = await supabase
         .from("events")
         .select(
-          "id, name, base_price, start_date, end_date, freeze_time, event_subtype, event_options(id, label, price)",
+          "id, name, base_price, start_date, end_date, freeze_time, event_subtype, volume, event_options(id, label, price)",
         )
         .in("event_subtype", [US_STOCK_SUBTYPE, HK_STOCK_SUBTYPE, KR_STOCK_SUBTYPE])
         .eq("is_resolved", false)
@@ -273,6 +275,7 @@ export const useIntradayStocks = (enabled: boolean) => {
           event_subtype: e.event_subtype,
           upPrice: up ? Number(up.price) : 0.5,
           downPrice: down ? Number(down.price) : 0.5,
+          volume: Number((e as { volume?: string | number | null }).volume ?? 0) || 0,
         };
       });
       setRows(list);

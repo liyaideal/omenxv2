@@ -1810,7 +1810,7 @@ Don't：用 `new Date()` 本地偏移伪造 session 态；用 `Date.now()` 派�
 - `LiveMatchboard` 当前分段那一列的列头（`inset 0 2px 0 #FF8A3D`）与格子底色（`rgba(255,138,61,.07)`）
 - 分段盘口板分组头的 `LIVE` 注记药丸与其比分
 - `LiveStage` 舞台 / 迷你窗 / 全屏的 `LIVE` 药丸、加载与缓冲转圈的顶色、`blocked` 态的橙底播放键
-- `HomeSportsCard` 的 live 卡边框、`LIVE` 药丸与 `Watch live` 芯片
+- `HomeSportsCard`（2026-11-09 已删，首页改为 `HomeSportsSection`）的 live 卡边框、`LIVE` 药丸与 `Watch live` 芯片
 - 移动降级记分条底边的当前段进度轨
 
 **禁令**：这条轴**不表达任何金额、盈亏或选边**。橙色永远不许出现在下单按钮、价格芯片、持仓卡的盈亏数字、或任何 Yes/No 选边控件上；反过来，`--yes` 蓝与 `--no` volt 也不许用来表示「正在进行」。三条轴同屏时靠位置区分：橙在状态位（药丸、列头、注记），蓝/volt 在选边位（芯片、按钮），绿/红在金额位。
@@ -2489,7 +2489,7 @@ Quick Play 的视觉规范分四节逐轮叠加（10-19 → 10-28 → 11-02 → 
 
 ## §Addendum 2026-11-04 · Sports 列表直播与预告（LOCKED）
 
-CPO 2026-11-04 逐条批（直播样式 → 预告样式 → 去掉预告大卡）。作用域 = Sports 品类页（桌面 `LiteSportsView`、手机 `MobileSportsModule` 的品类页模式，即传了 `filters` 的那一种；首页 Sports 卡不在本节）顶部「正在打 / 即将开打」区；**下面的 day strip 与比赛列表一像素不动**（唯一例外：今天日期头的计数措辞，见第 15 条）。首页 Sports 模块（`HomeSportsCard`，`Watch live` / `Stream at kickoff` 芯片）不受本节影响。字典 Events 列表 ⑥b EV-36…EV-46；词典「Sports 列表 · 直播与预告」；交付 `docs/delivery/sports-list-streams-v1.md`。
+CPO 2026-11-04 逐条批（直播样式 → 预告样式 → 去掉预告大卡）。作用域 = Sports 品类页（桌面 `LiteSportsView`、手机 `MobileSportsModule` 的品类页模式，即传了 `filters` 的那一种；首页 Sports 卡不在本节）顶部「正在打 / 即将开打」区；**下面的 day strip 与比赛列表一像素不动**（唯一例外：今天日期头的计数措辞，见第 15 条）。首页 Sports 模块（`HomeSportsCard`，`Watch live` / `Stream at kickoff` 芯片）不受本节影响。字典 Events 列表 ⑥b EV-36…EV-47；词典「Sports 列表 · 直播与预告」；交付 `docs/delivery/sports-list-streams-v1.md`。**2026-11-09 起视频相关条目（第 5 条角标 / 静音钮 / 转圈 / 自动播放被拦、离屏暂停、撤出舞台）被「点了才播」取代：舞台只放直播截图 + 橙色播放钮，规则见首页交付 `home-all-v1.md` S2 / S3、字典 EV-38 / EV-39 / HA-15。**
 
 1. **页面优先级（自上而下）**：`Live on stream`（直播舞台）→ `Coming up on stream`（预告排）→ `Playing now`（正在打、没有直播）→ day strip + 列表。三段各自有区头、各数各的；某段为空整段不渲染。没有直播在播时预告排就是第一段——**没有「预告大卡 / 预告舞台」**。
 2. **直播 / 预告的判定只看数据**：直播 = 正在打（`isFixtureLive`）且 `metadata.stream_url` 非空；预告 = 未开赛、有 `stream_url`、开赛 ≤ 48 小时。前端不按联赛 / 运动判断谁有直播。
@@ -2526,7 +2526,7 @@ CPO 2026-11-04 批（11 条）。作用域 = 所有体育比赛（`metadata.kick
 
 ## §Addendum 2026-11-09 · 首页 All 视图改版（LOCKED）
 
-CPO 2026-11-09 15:32 批（规则清单 H / S / C / K / E / M / G / MB，原文 `src/components/lite/home/homeAllRules.ts`，字典 Lite「Events 列表」首节 HA-1 … HA-14 + 台账 HA-R，交付 `docs/delivery/home-all-v1.md`）。作用域 = Lite 首页 `sector = all` 桌面 + 手机；品类视图 / Watchlist / Calendar / Boost 网格不变。
+CPO 2026-11-09 15:32 批（规则清单 H / S / C / K / E / M / G / MB，原文 `src/components/lite/home/homeAllRules.ts`，字典 Lite「Events 列表」首节 HA-1 … HA-20 + 台账 HA-R，交付 `docs/delivery/home-all-v1.md`）。作用域 = Lite 首页 `sector = all` 桌面 + 手机；品类视图 / Watchlist / Calendar / Boost 网格不变。
 
 1. **五段大字问句**：Sports → Crypto → Stocks → Editor's Desk → More；段 = 眉行（Space Grotesk 12 / .22em / 大写）+ 48px 问句（手机 34）+ 主块裸放 / 副块进面板（`#11141A` 圆角 16 内距 24 28，手机 18 16）；段间 `1px rgba(148,163,184,.14)` 细线。不写第三行说明。
 2. **颜色语义**：Up / Yes `#33D6FF`，Down / No `#CFFF4A`，直播 · 倒计时 `#FF8A3D`，股票涨 `#4ADE80` 跌 `#F87171`；价钮 = 描边胶囊（up 青 / dn 柠檬，Archivo 12.5 / 700，价 Space Grotesk tabular）。
@@ -2538,7 +2538,7 @@ CPO 2026-11-09 15:32 批（规则清单 H / S / C / K / E / M / G / MB，原文 
 
 ## §Addendum 2026-11-09b · 队徽三种画法扩到 Crest（主网事件同步）
 
-- Sports 品类页、手机 Sports 模块、直播预告、舞台卡的队徽（`Crest`，`src/components/lite/shared/primitives.tsx`）沿用首页 S1 规则：
+- Sports 品类页、手机 Sports 模块、直播预告、舞台卡的队徽（`Crest`，`src/components/lite/shared/primitives.tsx`）沿用首页 S1 的**图形规则**（色块 / 真队徽两种画法相同）；**没有图时两个组件各保持原样**：首页 `TeamBadge` = 深灰底白字（HA-16），`Crest` = 浅底黑字（EV-47）——这是两处已批的不同视觉，不是同一组件：
   1. 方块队徽（`tileColor`）→ 圆形底色 = 方块颜色，白字缩写，字号与代码徽相同；
   2. 真队徽 / 国旗（`logoUrl`）→ 深色圆底 `#1B2130` + 1px `rgba(255,255,255,.08)` 描边，图 `contain` 74% 居中；
   3. 没有图 / 图加载失败 → 原来的代码徽（浅底黑字）。

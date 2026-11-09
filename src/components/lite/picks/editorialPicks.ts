@@ -114,11 +114,18 @@ export const toEditorPick = (row: RawRow): EditorPick | null => {
     return null;
   }
 
-  const opts = (row.event_options || []).map((o) => ({
+  let opts = (row.event_options || []).map((o) => ({
     id: o.id,
     label: o.label,
     price: Number(o.price),
   }));
+  // E4: a match pick shows the two teams (home = first option, away = last);
+  // a three-way match's Draw is traded on the match page, not on the pick.
+  const isMatch = !!(row.metadata as { kickoff_at?: string } | null)?.kickoff_at;
+  if (isMatch && opts.length > 2) {
+    const sorted = [...opts].sort((a, b) => a.id.localeCompare(b.id));
+    opts = [sorted[0], sorted[sorted.length - 1]];
+  }
   const sides = parseSides(row.side_labels);
   const alias = (sides?.yes || "").trim().toLowerCase();
   const norm = (s: string) => s.trim().toLowerCase();

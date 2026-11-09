@@ -7,6 +7,7 @@
 // button; what it does is the caller's (usePlayStream: signed in → trade page
 // plays; guest → sign in first).
 // ============================================================
+import { useState } from "react";
 import { t } from "@/i18n";
 import { streamPicture, type StreamPictureInput } from "./streamPicture";
 
@@ -32,11 +33,19 @@ export const StreamPreview = ({
   /** Style-guide only: force the fallback picture (no snapshot → cover; no cover → dark). Not passed in production. */
   fixture?: "cover" | "none";
 }) => {
-  const pic = fixture
+  // A still that fails to load steps down the same ladder: snapshot → cover → dark stage.
+  const [failed, setFailed] = useState<string[]>([]);
+  const first = fixture
     ? fixture === "cover"
       ? { kind: "cover" as const, src: match.coverUrl || "/card-bg/sports.jpg" }
       : { kind: "none" as const }
     : streamPicture(match, nowMs ?? Date.now());
+  const pic =
+    first.kind !== "none" && failed.includes(first.src)
+      ? first.kind === "thumb" && match.coverUrl && !failed.includes(match.coverUrl)
+        ? { kind: "cover" as const, src: match.coverUrl }
+        : { kind: "none" as const }
+      : first;
   const btn = compact ? 48 : 64;
   const label = t(`${K}.watch_live`);
   return (
@@ -65,6 +74,7 @@ export const StreamPreview = ({
           alt=""
           loading="lazy"
           draggable={false}
+          onError={() => setFailed((f) => (f.includes(pic.src) ? f : [...f, pic.src]))}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
         />
       )}

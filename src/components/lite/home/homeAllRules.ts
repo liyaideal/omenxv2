@@ -22,8 +22,8 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     status: "定稿 11-09",
     rules: [
       { id: "H1", text: "顶栏 / 行情条不动。行情条走真数据，跑马灯连续左移。" },
-      { id: "H2", text: "Hero = 1440×260 全宽横幅：设计师的猞猁键盘插画做整条底图（2× PNG，右对齐、撑满高度），上压左浅右深暗色渐变。" },
-      { id: "H3", text: "Hero 文案（10-26 SEO 轮候选）：H1 两行 56px「Prediction markets, / with leverage.」（第二行柠檬色），副标 15px「Think you know what happens next? Pick a topic, tap Yes or No.」，LIVE MARKETS 小标签。" },
+      { id: "H2", text: "Hero = 1440×260 全宽横幅：设计师的猞猁键盘插画做整条底图（/assets/desktop/hero-band@2x.png 2880×520，右对齐、撑满高度），上压左浅右深暗色渐变。" },
+      { id: "H3", text: "Hero 文案：H1 两行 56px「Prediction markets, / with leverage.」（第二行柠檬色），副标 15px「Think you know what happens next? Pick a topic, tap Yes or No.」，LIVE MARKETS 小标签。i18n key：home_hero.heading_v2 / sub_v2 / sub_v2_mobile。" },
       { id: "H4", text: "chip 行左边 = 品类：All / Intraday / Sports / Crypto / Finance…；右边 = 视图开关：⚡ Boost / ☆ Watchlist / ▦ Calendar。Boost 是筛选不是品类。" },
       { id: "H5", text: "Boost 行为不变（boostOnly）：点了换成只列能 Boost 事件的卡片网格、按品类分组，All 的排版不参与。" },
       { id: "H6", text: "Quick Play 横幅照生产组件（ArcadeEntryBanner，桌面 AB-1 / 手机 AB-2），不另画。" },
@@ -34,10 +34,10 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     title: "Sports 段",
     status: "定稿 11-07 · 补 11-09",
     rules: [
-      { id: "S0", text: "细则以「Sports 规则稿 v2」为准：左 Live 模块 + 右一张表（Big this week 3 行 + Next up 填满）、四态、T3 瓷砖、日历条、一场只出现一次（舞台位 > 瓷砖 > Big this week > Next up）、直播标记一律橙色。" },
-      { id: "S1", text: "队标通用规则：所有队标都在同一个圆里。真队徽（透明底）contain 74% 不裁；数据源的纯色占位方块不放原图，改画同色圆徽 + 白色短码；完全没图或图加载失败 = 灰底 + 短码。两队重叠 −5px。队徽地址 / 方块颜色来自赛事数据（metadata.home_logo / home_tile，2026-11-09 起 Lovable 从主网同步）。" },
-      { id: "S2", text: "舞台位不拉流（CPO 2026-11-09「点了才播」）：画面 = 一张静态图 + 橙色播放钮「Watch live」。点画面 = 播放：已登录 → 进该场交易页静音开播；游客 → 站内登录框（桌面弹窗 / 手机抽屉），登录成功后直接进该场交易页开播（含 Google 跳转回来），关掉登录框留在原页。比分、队名、价钮、Open match 照旧直接进交易页，不弹登录、不开播。Sports 品类页顶部舞台同此规则。交易页对游客不拉流，画面位放「Sign in to watch live」+ Sign in（登录后就地开播）。" },
-      { id: "S3", text: "静态图按顺序取：① 直播截图——服务端对每路正在直播的流每 10 分钟截一帧，同一时段所有用户看同一张（字段 metadata.stream_thumb_url / stream_thumb_at）；② 还没截到 / 截图失败 → 这场赛事的封面图（events.image_url）；③ 封面也没有 → 深色底。三档都压暗、左上橙底 LIVE、不放队徽（下方比分行已有两队）。" },
+      { id: "S0", text: "细则以「Sports 规则稿 v2」为准：左 Live 模块 + 右一张表（Big this week 3 行 + Next up 填满）、四态、T3 瓷砖、日历条、一场只出现一次（舞台位 > 瓷砖 > Big this week > Next up）、直播标记一律橙色。段头眉行用 Sports 段色红 #F87171（眉行是段名，不是直播标记）。" },
+      { id: "S1", text: "队标通用规则：所有队标都在同一个圆里。真队徽（透明底）contain 74% 不裁；数据源的纯色占位方块不放原图，改画同色圆徽 + 白色短码；完全没图或图加载失败 = 灰底 + 短码。两队重叠 −5px。队徽地址 / 方块颜色来自赛事数据（metadata.home_logo / home_tile，2026-11-09 起 Lovable 从主网同步）。（字典 HA-16；Sports 品类页同规则见 EV-47）" },
+      { id: "S2", text: "舞台位不拉流（CPO 2026-11-09「点了才播」）：画面 = 一张静态图 + 橙色播放钮「Watch live」。点画面 = 播放：已登录 → 进该场交易页静音开播；游客 → 站内登录框（桌面弹窗 / 手机抽屉），登录成功后直接进该场交易页开播（含 Google 跳转回来），关掉登录框留在原页。比分、队名、价钮、Open match 照旧直接进交易页，不弹登录、不开播。Sports 品类页顶部舞台同此规则。交易页对游客不拉流，画面位放「Sign in to watch live」+ Sign in（登录后就地开播）。价钮 / Open match 进交易页之后按交易页自己的规则：已登录静音开播、游客显示「Sign in to watch live」（交易页 S10）；链接里的 &play=1 只是来源标记，交易页不读它。（字典 HA-15 / Sports 列表 EV-36 / 交易页 S10）" },
+      { id: "S3", text: "静态图按顺序取：① 直播截图——服务端对每路正在直播的流每 10 分钟截一帧，同一时段所有用户看同一张（字段 metadata.stream_thumb_url / stream_thumb_at）；② 还没截到 / 截图失败 → 这场赛事的封面图（events.image_url）；③ 封面也没有 → 深色底。三档都压暗、左上橙底 LIVE、不放队徽（下方比分行已有两队）。任何一档图片加载失败（前端 onError）就按下一档兜底。stream_thumb_at 前端不读：直播断了由服务端清掉 stream_thumb_url。（字典 EV-38 封面兜底 / EV-39 深色兜底）" },
     ],
   },
   {
@@ -46,10 +46,10 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     status: "定稿 11-09",
     rules: [
       { id: "C1", text: "眉行「● Crypto · Up or Down · new round every 5 min」，后半句跟周期 tab：15 min / hour / 4 hours / day。" },
-      { id: "C2", text: "段头右侧：倒计时「This round closes in MM:SS」28px + 220px 进度条，竖线隔开周期 tab 5m / 15m / 1h / 4h / 1D。三个币共用这一个钟。" },
-      { id: "C3", text: "BTC 主卡（8 栏裸放）：₿ BTC · Round HH:MM → HH:MM · 本轮成交 · 右上 Traded today；价格 84px；涨跌行「+$x · +x.xx%」+「above/below the open · Up/Down wins if it closed now」。不展示 open 价、不展示单轮成交量明细。" },
+      { id: "C2", text: "段头右侧：倒计时「This round closes in MM:SS」（≥ 1 小时写「H:MM:SS」，如 4h / 1D 轮的「1:31:12」）28px + 220px 进度条，竖线隔开周期 tab 5m / 15m / 1h / 4h / 1D。三个币共用这一个钟。" },
+      { id: "C3", text: "BTC 主卡（8 栏裸放）：₿ BTC · Round HH:MM → HH:MM · 本轮成交 · 右上 Traded today；价格 84px；涨跌行「+$x · +x.xx%」+「above/below the open · Up/Down wins if it closed now」。不展示 open 价、不展示单轮成交量明细。「Traded today」= BTC 今天（UTC 0 点起）所有周期、所有轮次的成交额之和；「本轮成交」= 当前周期当前这一轮的成交额。" },
       { id: "C4", text: "BTC 图表 = V1 双色面 + 紧量程，动效借 Quick Play 舞台：canvas；时间窗 = 过去 72% 轮长 + 未来 28%，整条线随时间左移；NOW 竖虚线，未来区淡色；收盘线进入窗口才出现（橙，带 closes HH:MM）；开盘虚线横贯，OPEN $ 标签最上层带底色；高于开盘青色面、低于开盘柠檬面；开盘前历史画灰细线不算输赢；量程只看本轮；头点跟最新价缓动 + 呼吸环；密点按 3px 一桶平均；时间刻度 5m 每分钟 / 15m 3 分 / 1h 10 分 / 4h 1 小时 / 1D 3 小时。" },
-      { id: "C5", text: "Up / Down 大钮 + 资金比例条（Up 青 / Down 柠檬）+ 两头百分比。" },
+      { id: "C5", text: "Up / Down 大钮 + 资金比例条（Up 青 / Down 柠檬）+ 两头百分比。比例 = 本轮 Up / Down 两边下单金额的占比（正式版接资金数据；Lovable 没有资金池，用 Up 价格代替）。" },
       { id: "C6", text: "Last 8 rounds：8 根小柱按结果上色（Up 青 / Down 柠檬），最新一根描边；右侧「Up won N · Down won N · last round Up/Down」。不写上一轮涨跌金额。" },
       { id: "C7", text: "右栏面板 ETH / SOL 两半等高：币 + 价格 + 涨跌 + closes HH:MM；小图同 C4 画法缩小（80px 高，带 OPEN 标签）；Up / Down 小钮 + 细比例条。" },
       { id: "C8", text: "到点结算：当前轮结束 → Last 8 推入结果 → 新一轮 open = 上轮收盘价，钟和进度条重置。" },
@@ -61,11 +61,11 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     status: "定稿 11-09",
     rules: [
       { id: "K1", text: "眉行「Stocks · Daily close · N markets today」（N = 各市场可交易总数），问句「Will it finish higher than it opened?」。" },
-      { id: "K2", text: "段头右侧：市场 tab 单行 US / Hong Kong / Korea（以后加 CN 就多一个），数量跟在名字后；下面一行状态：盘中「Market open · closes in X」、非盘中「Market opens in X」，后接「settles in Y」（Y = 这一轮结算倒计时）；结算时间已过、下一轮还没开时写「settling now」，不写「settles in 0s」。" },
-      { id: "K3", text: "清单：按本轮成交量取前 10，两列各 5，中间一根分隔线；每行 = 图标 26 · 代码 + 全名（全名不截断）· 走势小图 96×28 · 价格 + 相对 Base 涨跌 · Up / Down 定宽 88px 钮。不展示每行成交量。手机只取前 5、每只两行。" },
+      { id: "K2", text: "段头右侧：市场 tab 单行 US / Hong Kong / Korea（有数据才出，以后加 CN 就多一个），数量跟在名字后；下面一行状态：盘中「Market open · closes in X」、非盘中「Market opens in X」，后接「settles in Y」（Y = 下一个还没到的结算时间）；这一轮结算时间已过、引擎还没滚到下一轮时写「settling now」，不写「settles in 0s」。默认选中 US；US 没有数据时选下一个有数据的市场。" },
+      { id: "K3", text: "清单：按本轮成交量取前 10（成交量相同按接口顺序），两列各 5，中间一根分隔线；每行 = 图标 26 · 代码 + 全名（全名不截断）· 走势小图 96×28 · 价格 + 相对 Base 涨跌 · Up / Down 定宽 88px 钮。不展示每行成交量。手机只取前 5、每只两行。" },
       { id: "K4", text: "走势小图三种时刻：① 盘中 = 自上次收盘以来的 1 分钟收盘价实线；② 收盘后还在成交（美股盘后 / 夜盘）= 同色淡一半细线，开盘后实线接上；③ 收盘后还没成交（港股 / 韩股 16:00 之后）= 不画图，价格旁写「Base price」（不是 at close）。基准虚线永远 = 上次官方收盘价 = 这轮 Base。连续相同价只留一个点，抽样 ≤ 48 点。" },
       { id: "K5", text: "小图颜色：涨 #4ADE80 / 跌 #F87171（股票沿用绿涨红跌），基准虚线橙。" },
-      { id: "K6", text: "底部：左「N of 10 trading above their base price right now」（没成交时不显示）；右「Show all N →」。不写数据来源、不重复结算时间。" },
+      { id: "K6", text: "底部：左「N of M trading above their base price right now」，M = 当前列出的行里已经有成交价的行数（一般是 10，手机 5）；一行都没成交时这句不显示；右「Show all N →」。不写数据来源、不重复结算时间。" },
     ],
   },
   {
@@ -76,7 +76,7 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
       { id: "E1", text: "独立一段，放 Stocks 与 More 之间；眉行「✦ Editor's Desk · N picks」（柠檬色），问句「What's worth watching?」；段头右侧不写署名 / 更新时间。" },
       { id: "E2", text: "数据 = 运营后台 featured-markets（≤ 3 个，每个带 whyThis）；没配时整段不出现（和线上一致）。" },
       { id: "E3", text: "三列等高、无分割线、靠 56px 间距和 01 / 02 / 03 大号灰字分开；每列 = 编号 + 眉行「品类 · 时间」、标题（≤ 2 行）、引号里的 whyThis（≤ 3 行，超出省略）、下单钮贴底对齐（统一 36px 高）。" },
-      { id: "E4", text: "下单钮跟事件类型走：涨跌轮 = Up / Down；比赛 = 两队名 + 价；多档 = 两档胶囊 + 「+N more」。" },
+      { id: "E4", text: "下单钮跟事件类型走：涨跌轮 = Up / Down；比赛 = 两队名 + 价；多档 = 两档胶囊 + 「+N more」。普通二元（Yes / No）= Yes n¢ / No n¢。三项足球赛的 pick 只放两队（主 = 第一个选项、客 = 最后一个），平局在交易页里买。" },
     ],
   },
   {
@@ -86,9 +86,9 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     rules: [
       { id: "M1", text: "眉行「More markets · N open」，问句「Will it happen?」48px（和其他段同号）；段头右侧不放列表入口、不写说明句。长期事件少，全部直接往下铺，一行一个事件。" },
       { id: "M2", text: "每行左 = 封面 120×72 + 眉行「品类 · N markets · Boost n×」+ 标题（≤ 2 行）+「Vol $x · settles 日期」；右 520px = 档位区。" },
-      { id: "M3", text: "多档事件：每个可交易 market 一条青 / 黄绿 Yes / No 比例条（青 = Yes 占比）+ Yes n¢ / No n¢ 定宽 66px 钮，最多露 4 条、其余「+N more outcomes →」；互斥型在 bar 下加一句「Outcomes are mutually exclusive — exactly one pays $1.」。" },
+      { id: "M3", text: "多档事件：每个可交易 market 一条青 / 黄绿 Yes / No 比例条（青 = Yes 占比）+ Yes n¢ / No n¢ 定宽 66px 钮，最多露 4 条、其余「+N more outcomes →」；互斥型在 bar 下加一句「Outcomes are mutually exclusive — exactly one pays $1.」。「互斥」由事件类型决定（多选一型），正式版看后端字段；Lovable 用各档价格之和≈1 判断。档位顺序 = 接口给的顺序，不重排。只有两档的事件按二元（M4）画。" },
       { id: "M4", text: "二元事件（B1）：不画条，右边大数字「34%」+「chance of Yes」+ Yes / No 两个 110px 钮。" },
-      { id: "M5", text: "临近结算的事件眉行写「closes in Xh」。" },
+      { id: "M5", text: "临近结算（< 48 小时）的事件眉行写「closes in Xh」。" },
     ],
   },
   {
@@ -104,11 +104,26 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     ],
   },
   {
+    code: "R",
+    title: "研发口径（2026-11-09 终验冷读补）",
+    status: "补 11-09",
+    rules: [
+      { id: "R1", text: "「this week」= 从查看者本地今天 0 点起 7 天。眉行「N matches this week」= 这 7 天内所有还没结算的比赛（含正在打的）；日历条「ALL n」和每天的数字 = 还没开赛的（日历条只筛右表）。有比赛在打时两个数不相等，差值 = 正在打的场数。" },
+      { id: "R2", text: "「+N more this week」= 所有还没开赛的场次 − 本段已经展示的场次，跟日历条当前选哪天无关。" },
+      { id: "R3", text: "舞台位有多路直播时，默认放成交额最大的一路（相同按开赛早者），‹ › 切换；同 Sports 品类页 EV-37。" },
+      { id: "R4", text: "Sports 价钮：左钮 = 第一个选项（主队）、右钮 = 最后一个选项（客队），钮上写短名；三项足球赛首页不放平局钮（品类页和交易页有）。" },
+      { id: "R5", text: "倒计时写法：≥ 1 小时「9h 05m」，< 1 小时「22m」，< 1 分钟「45s」；超过 24 小时也写小时（「62h 05m」），不换算成天。More 的「closes in Xh」四舍五入、最少写 1h。" },
+      { id: "R6", text: "加载与出错：首屏数据回来前显示列表骨架（字典 EV-24）；之后每段数据回来才出现，接口报错与没数据一样整段不出、不显示错误；BTC 当前没有轮次时 Crypto 整段不出；Last 8 不足 8 轮时有几根画几根，右侧计数按实际；五段都没有时首页只剩 Hero、chip 行、Quick Play 横幅。" },
+      { id: "R7", text: "断点：宽度 < 768 用手机版（MB 组），≥ 768 用桌面版；桌面内容区最宽 1280（容器 max-w-7xl），窄于 1280 时各列按网格比例收缩，More 右侧档位区固定 520px 不收缩。" },
+      { id: "R8", text: "文案语言：首页 Hero 有英文 / 简中 / 繁中（key 见 H3，其他语言回落英文），其余五段目前只有英文；Sports 品类页已是 7 语。" },
+    ],
+  },
+  {
     code: "MB",
     title: "手机版（390）",
     status: "批 11-09 15:32",
     rules: [
-      { id: "MB1", text: "Hero 按设计师手机稿（Figma 203-91049）：居中两行 26px 标题 → 一句副标「Pick a topic, tap Yes or No.」→ 358×89 插画条；不放 LIVE MARKETS 标签。" },
+      { id: "MB1", text: "Hero 按设计师手机稿（Figma 203-91044 / 203:91054）：居中两行 26px 标题 → 一句副标「Pick a topic, tap Yes or No.」→ 358×89 插画条（/assets/mobile/hero-band@3x.png，设计师稿整块导出：面板底 + 插画，3×，紧贴副标下方）；不放 LIVE MARKETS 标签。" },
       { id: "MB2", text: "品类 chip 一行横滑；Quick Play 用生产手机横幅 AB-2。" },
       { id: "MB3", text: "Sports：日历条横滑 → 舞台位（直播预览 / 对阵 + 比分 / 最大场倒计时）→ 2 列瓷砖 → 面板只留 Big this week 3 行 → 底部「+N more this week ｜ All N matches →」。不列 Next up。有直播标记的 live 瓷砖去掉联赛名，保住「▶ Stream」。" },
       { id: "MB4", text: "Crypto：钟 + 进度条整行、周期 tab 一行 → BTC 卡（价 48px、图 150 高、同 C4 画法）→「BTC · last 8」紧贴图表下方、在 Up / Down 钮之前 → 资金比例条 → ETH / SOL 两张半卡并排（图 64 高）。" },

@@ -617,7 +617,7 @@ const Ledger = () => (
 );
 
 
-/* ---------------- ⑥b Sports 品类页 · 直播与直播预告（EV-36 … EV-46 · CPO 2026-11-04）---------------- */
+/* ---------------- ⑥b Sports 品类页 · 直播与直播预告（EV-36 … EV-47 · CPO 2026-11-04）---------------- */
 
 const SRC_STREAMS = "DESIGN §Addendum 2026-11-04 · Sports 列表直播与预告";
 
@@ -790,7 +790,7 @@ const byKey = (...keys: string[]): SectionCase[] =>
 export const EventsStatesSection = () => (
   <SectionWrapper
     id="events-states"
-    title="Events 列表 · 状态字典（EV-2 … EV-45；首页 All 视图五段见「首页 All 视图」字典 HA-1 … HA-14）"
+    title="Events 列表 · 状态字典（EV-2 … EV-47；首页 All 视图五段见「首页 All 视图」字典 HA-1 … HA-20）"
     description="分区序 = 生产模块序：①行情 tape · ③筛选行 · ⑥b Sports 品类页直播与预告 · ⑥c 品类页比分与 live 位 · ⑧卡片网格 · ⑨Calendar · ⑩Watchlist · ⑪骨架与空态（Hero / Sports / Crypto / Stocks / Editor's Desk / More 五段 2026-11-09 起在「首页 All 视图」字典）。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
   >
     <div className="space-y-12">
@@ -809,7 +809,7 @@ export const EventsStatesSection = () => (
         />
       </SubSection>
 
-      <SubSection title="⑥b Sports 品类页 · 直播与直播预告（EV-36 … EV-46）">
+      <SubSection title="⑥b Sports 品类页 · 直播与直播预告（EV-36 … EV-47）">
         <Pair
           cases={byKey("events-ev36", "events-ev37", "events-ev37b", "events-ev38", "events-ev39")}
           desktopMin={1200}

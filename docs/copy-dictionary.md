@@ -283,14 +283,14 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 
 ## Sports 列表 · 直播与预告（Sports 品类页，2026-11-04）
 
-规则与视觉：DESIGN §Addendum 2026-11-04；字典 Events 列表 ⑥b EV-36…EV-46；交付 `docs/delivery/sports-list-streams-v1.md`。界面文案 7 语在 `src/locales/*.json` 的 `events` 命名空间 `screen.simple.sports_view.sports_streams.*`（Lovable 2026-11-04 新增，回写平台 i18n 表）。
+规则与视觉：DESIGN §Addendum 2026-11-04；字典 Events 列表 ⑥b EV-36…EV-47（EV-46 已作废）；交付 `docs/delivery/sports-list-streams-v1.md`。界面文案 7 语在 `src/locales/*.json` 的 `events` 命名空间 `screen.simple.sports_view.sports_streams.*`（Lovable 2026-11-04 新增，回写平台 i18n 表）。
 
 ### 概念
 
 | 词 | 一句定义 | 判定表达式 | 出处 |
 |---|---|---|---|
 | **直播（on stream）** | 正在打、并且我们有直播画面的比赛 | `liveAt(m, now) && metadata.stream_url` 非空，且本次访问播放器没有报 `error` / `forbidden` | `useStreamLineup()` `streamed` |
-| **Playing now** | 正在打、但不在舞台上的比赛（没直播，或直播放不了） | `liveAt(m, now) && !isOnStream(m)` | `useStreamLineup()` `others` |
+| **Playing now** | 正在打、但不在舞台上的比赛（没直播） | `liveAt(m, now) && !isOnStream(m)` | `useStreamLineup()` `others` |
 | **直播预告（stream preview）** | 还没开赛、会直播、48 小时内开赛的比赛 | `!live && stream_url && 0 < kickoff − now ≤ 48h`（`PREVIEW_WINDOW_MS`），按开赛时间升序（同时开赛按成交额降序），不设上限 | `upcomingStreams()` |
 | **kickoff** | 开赛时间 | `metadata.kickoff_at`，没有时回落 `events.start_date` | `sportsData` / `notify_stream_reminders()` |
 | **提醒（stream reminder）** | 用户在某场预告上点了 Remind me；开赛时变成一条通知 | `stream_reminders(user_id, event_id)` 一行；到点 = kickoff 已过且在 30 分钟内、未结算、仍有 `stream_url` | `useStreamReminders` / `notify_stream_reminders()` |
@@ -391,7 +391,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Watch** | `LiveMatchboard` 顶栏按钮，唤回被收起的舞台 |
 | **Watch live** | `StreamPreview` 播放钮下的字：首页舞台位、Sports 品类页舞台的直播画面（2026-11-09 起不拉流，点了才播）。key `events.screen.simple.sports_view.sports_streams.watch_live` |
 | **Sign in to watch live** / **Live streams are for signed-in users.** / **Sign in** | `LiveStage` S10 游客卡（交易页）。key `…sports_streams.sign_in_to_watch` / `sign_in_to_watch_sub` / `sign_in_cta` |
-| **Stream at kickoff** | `HomeSportsCard` 描边芯片，赛前有流；Sports 品类页列表行同款 |
+| **Stream at kickoff** | 赛前有流的描边芯片：Sports 品类页列表行；首页 Sports 段瓷砖（`HomeSportsSection`，旧 `HomeSportsCard` 已删） |
 | **Back to stage** | `LiveStage` 迷你窗回舞台 |
 | 比分分隔符 | en dash `–`（U+2013），Space Grotesk + `tabular-nums` |
 
@@ -1363,27 +1363,29 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | `annWindowLocal(s, e)` | `10:00–12:00` / `Oct 16, 06:00 – 10:00` | 括号里的本地段；`viewerIsUtc()` 时省略 |
 | `parseMarkdown(src)` | Block[] | Markdown 子集（§delivery v2 3.4）；无 HTML 透传；`safeHref` 只放行 http(s) / `/` / mailto |
 
-## 首页 All 视图（2026-11-09 改版 · 字典 HA-1 … HA-14）
+## 首页 All 视图（2026-11-09 改版 · 字典 HA-1 … HA-20）
 
 | 位置 | 文案（英文原文，不翻译数字与符号） | 规则 |
 |---|---|---|
-| Hero 标题 / 副标 | `Prediction markets,` / `with leverage.` · `Think you know what happens next? Pick a topic, tap Yes or No.`（手机 `Pick a topic, tap Yes or No.`）| H3 / MB1 · i18n `home_hero.heading_v2 / sub_v2 / sub_v2_mobile` |
-| Sports 眉行 | `● Sports · {N} matches this week · {n} live` · 0 live：`Sports · {N} matches this week · next kickoff in {X}` | S0 |
+| Hero 标题 / 副标 | `Prediction markets,` / `with leverage.` · `Think you know what happens next? Pick a topic, tap Yes or No.`（手机 `Pick a topic, tap Yes or No.`）· 桌面左上小标签 `LIVE MARKETS`（手机不放）| H3 / MB1 · i18n `home_hero.heading_v2 / sub_v2 / sub_v2_mobile` |
+| Sports 眉行 | `● Sports · {N} matches this week · {n} live` · 0 live：`Sports · {N} matches this week · next kickoff in {X}` · 手机 0 live：`Sports · {N} matches · kickoff in {X}`（N / ALL 的口径见 R1）| S0 / R1 |
 | Sports 问句 | `Who wins the match?`（`the match` 柠檬）| G1 |
 | 舞台位标签 | `Live now · {联赛} · {节点}` · 0 live：`Biggest this week · kicks off in {X}` · 右：`▶ Live stream` / `Stream {i} / {N}` | S0 S3 |
-| 舞台位动作 | `Open match →` / `☆ Remind me` · `Vol ${x}` | G3 |
+| 舞台位动作 | `Open match →` / `☆ Remind me` · `Vol ${x}` · 有直播：画面中央 `Watch live` | G3 / S2 |
 | 瓷砖组标题 | `Also live · {n}` / `Up next` / `Up next · {HH:mm} / {HH:mm}` · `See all {n} live →` | S0 |
 | 右表 | `Big this week · by volume` / `Next up` · `+{n} more this week · see all →` · 手机 `All {N} matches →` | S0 / MB3 |
 | Crypto 眉行 | `● Crypto · Up or Down · new round every {5 min / 15 min / hour / 4 hours / day}` | C1 |
 | Crypto 问句 | `Will the price go up?`（`go up` 柠檬）| G1 |
-| 钟 | `This round closes in {MM:SS}` | C2 |
+| 钟 | `This round closes in {MM:SS}`（≥ 1 小时 `{H:MM:SS}`）| C2 |
 | BTC 行 | `Round {HH:MM} → {HH:MM}` · `this round ${x}` · `Traded today ${x}k` · `{+$x · +x.xx%}` · `above the open · Up wins if it closed now` / `below the open · Down wins if it closed now` | C3 |
 | 图表标签 | `OPEN ${x}` · `closes {HH:MM}` · `now` | C4 |
 | 比例条 | `{n}% of money on Up` · `{n}% on Down` | C5 |
 | Last 8 | `Last {n} rounds` · `Up won {n} · Down won {n} · last round {Up/Down}` · 手机 `BTC · last {n}` · `Up {n} · Down {n} · last {Up/Down}` | C6 / MB4 |
 | Stocks 眉行 / 问句 | `Stocks · Daily close · {N} markets today` · `Will it finish higher than it opened?` | K1 |
-| Stocks 状态行 | `Market open · closes in {X} · settles in {Y}` / `Market opens in {X} · settles in {Y}` | K2 |
+| Stocks 状态行 | `Market open · closes in {X} · settles in {Y}` / `Market opens in {X} · settles in {Y}` · 这一轮已过结算时间、下一轮还没出来：`settles in {Y}` 换成 `settling now` | K2 |
+| Stocks 市场 tab | `US {n}` / `Hong Kong {n}` / `Korea {n}`（n = 该市场可交易数，没有数据的市场不出 tab）| K2 |
 | Stocks 行 | `{+x.xx%}` 或 `Base price`（收盘无成交）| K4 |
 | Stocks 底注 | `{n} of {N} trading above their base price right now` · `Show all {N} →` · 手机 `{n} of 5 above their base price` | K6 / MB5 |
 | Editor's Desk | `✦ Editor's Desk · {N} picks` · `What's worth watching?` · 眉行 `{品类} · settles {HH:mm} / Tomorrow {HH:mm} / settles {Mon D}` · `+{n} more` | E1 E3 E4 |
 | More | `More markets · {N} open` · `Will it happen?` · `{品类} · {N} markets / Yes / No · Boost {n}× · closes in {X}h` · `Vol ${x} · settles {Mon D}` · `+{n} more outcomes →` · `Outcomes are mutually exclusive — exactly one pays $1.` · `{n}% chance of Yes` · `Yes {n}¢` / `No {n}¢` | M1–M5 |
+| 倒计时写法 | `9h 05m` / `22m` / `45s`；超过 24 小时仍写小时（`62h 05m`）；More 眉行 `closes in {X}h` 四舍五入、最少 `1h` | R5 |
