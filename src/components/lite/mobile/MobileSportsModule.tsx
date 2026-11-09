@@ -26,7 +26,8 @@ import { EmptyState } from "@/components/states";
 import { CHALK_SOFT, Crest, DIR_DOWN, DIR_UP, LivePulse } from "@/components/lite/shared/primitives";
 import { MatchScoreText, isTennisTiebreakLive, phaseLabel } from "@/components/lite/sports/tennisScore";
 import { MobileStreamButton, PlayTriangle } from "@/components/lite/sports/streamChips";
-import { ListStreamVideo } from "@/components/lite/sports/ListStreamVideo";
+import { StreamPreview } from "@/components/lite/sports/StreamPreview";
+import { usePlayStream } from "@/hooks/usePlayStream";
 import {
   RemindButton,
   StreamPoster,
@@ -111,7 +112,7 @@ const MobileLiveStreamStage = ({
   onFail,
 }: {
   streams: SportsMatch[];
-  streamFixture?: "loading" | "blocked" | "error";
+  streamFixture?: "cover" | "none";
   /** The player can't play this match's stream — take it off the stage. */
   onFail: (id: string) => void;
 }) => {
@@ -119,6 +120,7 @@ const MobileLiveStreamStage = ({
   const [activeId, setActiveId] = useState(streams[0].id);
   const m = streams.find((x) => x.id === activeId) ?? streams[0];
   const open = () => navigate(`/trade?event=${encodeURIComponent(m.id)}`);
+  const playStream = usePlayStream();
   const pick = (optionId: string) => (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate(`/trade?event=${encodeURIComponent(m.id)}&option=${encodeURIComponent(optionId)}`);
@@ -133,7 +135,8 @@ const MobileLiveStreamStage = ({
         boxShadow: "0 14px 36px -22px rgba(255,138,61,.4)",
       }}
     >
-      <ListStreamVideo key={m.id} src={m.streamUrl as string} onOpen={open} onFail={() => onFail(m.id)} compact fixture={streamFixture} />
+      {/* CPO 2026-11-09「点了才播」: a still + play button, never the stream itself. */}
+      <StreamPreview key={m.id} match={m} onPlay={() => playStream(m.id)} compact fixture={streamFixture} />
       {streams.length > 1 && (
         <div
           className="flex items-center"
@@ -502,7 +505,7 @@ export const MobileSportsModule = ({
   /** Style-guide only — Remind me behaves as for a guest (opens sign-in). */
   remindGuestFixture?: boolean;
   /** Style-guide only — freeze the stage player (loading / autoplay blocked / stream failed). */
-  streamFixture?: "loading" | "blocked" | "error";
+  streamFixture?: "cover" | "none";
 }) => {
   const [sport, setSport] = useState<string>(ALL_OPTION);
   const [league, setLeague] = useState<string>(ALL_OPTION);
@@ -524,9 +527,8 @@ export const MobileSportsModule = ({
   // Category view: live matches split into the stage (playable stream) and
   // Playing now (the rest). The home module has no stage — all live is one list.
   const { live, streamed, others: playingNow, markFailed } = useStreamLineup(scoped, nowTick);
-  // Style-guide frames (frozen clock) keep their stage whatever the network
-  // does; only fixture "error" demonstrates a stream leaving the stage.
-  const onStreamFail = now == null || streamFixture === "error" ? markFailed : () => undefined;
+  // Style-guide frames (frozen clock) keep their stage whatever the network does.
+  const onStreamFail = now == null ? markFailed : () => undefined;
   const reminders = useStreamReminders(remindedFixture, remindGuestFixture);
   const previews = filters ? upcomingStreams(scoped, nowTick) : [];
   // Previews always live in the rail (CPO 2026-11-04: no preview stage).

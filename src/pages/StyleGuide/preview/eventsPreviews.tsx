@@ -1273,7 +1273,7 @@ const StreamsDemo = ({
   matches: SportsMatch[];
   reminded?: string[];
   guest?: boolean;
-  streamFixture?: "loading" | "blocked" | "error";
+  streamFixture?: "cover" | "none";
 }) => {
   const isMobile = useIsMobile();
   const fx = reminded ?? [];
@@ -1311,10 +1311,9 @@ export const Ev37bPreview = () => (
     </ClickAfterMount>
   </Stage>
 );
-export const Ev38Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="loading" /></Stage>;
-export const Ev39Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="blocked" /></Stage>;
+export const Ev38Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="cover" /></Stage>;
+export const Ev39Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="none" /></Stage>;
 /** The only stream fails → it leaves the stage; Spirit vs MOUZ drops into Playing now. */
-export const Ev46Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} streamFixture="error" /></Stage>;
 export const Ev40Preview = () => <Stage><StreamsDemo matches={PREVIEW_ONE} /></Stage>;
 export const Ev41Preview = () => <Stage><StreamsDemo matches={PREVIEW_TWO} /></Stage>;
 export const Ev42Preview = () => <Stage><StreamsDemo matches={PREVIEW_MANY} /></Stage>;

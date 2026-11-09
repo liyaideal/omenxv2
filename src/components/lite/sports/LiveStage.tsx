@@ -20,6 +20,8 @@ import { useHlsVideo } from "@/hooks/useHlsVideo";
 import { fixtureMeta, isFixtureLive } from "./sportsData";
 import { useMatchboardModel, type MatchboardEvent } from "./matchboardModel";
 import { setLiveStageState, useLiveStageState } from "./liveStageStore";
+import { useSignedIn } from "@/hooks/useSignedIn";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 
 
 const MONO = "'Space Grotesk', ui-monospace, SFMono-Regular, monospace";
@@ -48,7 +50,9 @@ export type StageFixture =
   | "prekick"
   | "error"
   | "forbidden"
-  | "finished";
+  | "finished"
+  /** CPO 2026-11-09 R5: a signed-out viewer — no stream, "Sign in to watch live". */
+  | "guest";
 
 const Pill = ({ small, tiny }: { small?: boolean; tiny?: boolean }) => (
   <span
@@ -364,6 +368,10 @@ export const LiveStage = ({
   noPrice?: number;
 }) => {
   const isMobile = useIsMobile();
+  // R5 (CPO 2026-11-09): live streams are for signed-in users. A guest gets the
+  // sign-in card in the picture's place and the stream is never requested.
+  const signedIn = useSignedIn();
+  const openPrompt = useAuthFlowStore((st) => st.openPrompt);
   const meta = fixtureMeta(event);
   const src = meta.stream_url || null;
   const now = Date.now();
@@ -457,7 +465,7 @@ export const LiveStage = ({
     };
   }, [isFullscreen]);
 
-  const hasSource = !!src && live;
+  const hasSource = !!src && live && signedIn;
   useEffect(() => {
     setLiveStageState({ fixtureId: event.id, hasSource, inlineVisible });
   }, [event.id, hasSource, inlineVisible]);
@@ -541,7 +549,7 @@ export const LiveStage = ({
   // The video only attaches while the stage is reachable and the match is in
   // play. A dismissed mini player with the stage off screen unmounts it.
   const wantVideo =
-    !fixture && !!src && live && !collapsed && !(dismissed && !inlineVisible);
+    !fixture && signedIn && !!src && live && !collapsed && !(dismissed && !inlineVisible);
   const { ref, state, muted, setMuted, play, pause } = useHlsVideo(src, wantVideo);
 
   const model = useMatchboardModel(event as unknown as MatchboardEvent);
@@ -555,6 +563,55 @@ export const LiveStage = ({
     return (
       <StageShell isMobile={isMobile}>
         <Fail title="Match finished" sub="Stage unmounts · matchboard stays" />
+      </StageShell>
+    );
+  }
+
+  if (fixture === "guest" || (!fixture && !signedIn && live)) {
+    return (
+      <StageShell isMobile={isMobile} dark>
+        <div style={{ position: "absolute", left: isMobile ? 10 : 16, top: isMobile ? 10 : 16, zIndex: 3 }}>
+          <Pill small={isMobile} />
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: isMobile ? 8 : 12,
+            textAlign: "center",
+            padding: "0 20px",
+            background: "radial-gradient(120% 95% at 50% 45%, #1A2130 0%, #0E1218 55%, #090B0F 100%)",
+          }}
+        >
+          <div style={{ fontFamily: MONO, fontWeight: 700, fontSize: isMobile ? 17 : 24, lineHeight: 1.2, color: "#fff", letterSpacing: "-.01em" }}>
+            {t("events.screen.simple.sports_view.sports_streams.sign_in_to_watch")}
+          </div>
+          <div style={{ fontSize: isMobile ? 12 : 14, color: "#98A1AD" }}>
+            {t("events.screen.simple.sports_view.sports_streams.sign_in_to_watch_sub")}
+          </div>
+          <button
+            type="button"
+            onClick={openPrompt}
+            style={{
+              marginTop: isMobile ? 4 : 8,
+              height: isMobile ? 36 : 44,
+              padding: isMobile ? "0 18px" : "0 26px",
+              borderRadius: 10,
+              border: 0,
+              background: "#CFFF4A",
+              color: "#0B0D11",
+              fontWeight: 700,
+              fontSize: isMobile ? 13 : 15,
+              cursor: "pointer",
+            }}
+          >
+            {t("events.screen.simple.sports_view.sports_streams.sign_in_cta")}
+          </button>
+        </div>
       </StageShell>
     );
   }

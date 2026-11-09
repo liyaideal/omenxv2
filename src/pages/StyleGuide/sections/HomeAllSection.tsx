@@ -29,7 +29,7 @@ const SPORTS_CASES: SectionCase[] = [
     label: "HA-2 · Sports 状态①：10 场 live、3 场有直播（HomeSportsSection）",
     note: "舞台位 = 第一条有直播的 live；右上「‹ Stream 1 / 3 ›」切直播源；瓷砖 = Also live 2×2（有直播的标 ▶ Stream）+「See all 10 live →」；右表 Big this week 3 + Next up 填满。",
     spec: [
-      { state: "舞台位 · 有直播", when: "live.some(m => m.streamUrl)", visual: "桌面：ListStreamVideo 静音自动播放、无控件（S3 ②）；手机：品牌舞台（深底 + 两徽 + 橙 LIVE 呼吸点，S3 ③）；整块点进交易页（S2）", source: "liveAt(m) · m.streamUrl" },
+      { state: "舞台位 · 有直播", when: "live.some(m => m.streamUrl)", visual: "桌面 + 手机：不拉流。画面 = 直播截图（服务端每 10 分钟一张，压暗）+ 左上橙底 LIVE + 中间橙色播放钮「Watch live」（桌面 64 / 手机 48）；没截图用赛事封面，封面也没有用深色底（S3）。点画面 = 播放（S2：已登录进交易页开播；游客先登录，见 HA-15）", source: "StreamPreview · streamPicture · usePlayStream" },
       { state: "直播切换", when: "streams.length > 1", visual: "标签行右侧 ‹ Stream i / N ›，切换只换舞台位，瓷砖不动", source: "HomeSportsSection streamIndex" },
       { state: "Also live 瓷砖", when: "live.length > 1", visual: "最多 4 块、橙色顶线、比分柠檬 20px、meta「● 节点 · 项目图标 联赛（· ▶ Stream）」；多于 4 场出「See all N live →」整行钮", source: "Tile live · S0" },
       { state: "手机 · 有直播标记的瓷砖", when: "isMobile && live && m.streamUrl", visual: "去掉联赛名，保住「▶ Stream」不被省略号吃掉", source: "MB3" },
@@ -40,7 +40,7 @@ const SPORTS_CASES: SectionCase[] = [
     label: "HA-3 · Sports 状态②：1 场 live 有直播（今晚）",
     note: "= D2-S3 整页里的 Sports 段；瓷砖 = Up next 4 块（最近开球）。手机：面板只留 Big this week 3 行 + 底部「+N more this week ｜ All N matches →」（MB3）。",
     spec: [
-      { state: "舞台位", when: "live.length === 1 && m.streamUrl", visual: "标签「● Live now · 联赛 · 节点」+ 右「▶ Live stream」；视频面 → 对阵（徽 56 / 短码 16 / 全名 11.5）→ 比分 56px 柠檬 → 两队价钮 → Open match → · Vol", source: "Stage live" },
+      { state: "舞台位", when: "live.length === 1 && m.streamUrl", visual: "标签「● Live now · 联赛 · 节点」+ 右「▶ Live stream」；直播截图 + 播放钮 → 对阵（徽 56 / 短码 16 / 全名 11.5）→ 比分 56px 柠檬 → 两队价钮 → Open match → · Vol", source: "Stage live" },
       { state: "Up next 瓷砖", when: "live.length === 1", visual: "4 块未开球：短码 + 开球 HH:mm + 「Sat · 项目图标 联赛短码」+ 两价胶囊", source: "Tile upcoming" },
       { state: "右表", when: "desktop", visual: "面板 Big this week（按量前 3，行内 Vol 柠檬）+ Next up（按开球，行数填满到与左块齐）+「+N more this week · see all →」；一场只出现一次", source: "S0 去重顺序" },
       { state: "日历条", when: "always", visual: "ALL(总数) + 有赛事的日子（星期 / 日号 / 场数），选中柠檬底；点日子只筛右表", source: "buildDayStrip · matchesInBucket" },
@@ -50,7 +50,7 @@ const SPORTS_CASES: SectionCase[] = [
     key: "home-ha4",
     label: "HA-4 · Sports 状态③：3 场 live 都没直播",
     spec: [
-      { state: "舞台位 · 无视频面", when: "live.length > 0 && !live.some(m => m.streamUrl)", visual: "没有视频面，直接对阵 + 比分；左栏形状靠瓷砖补齐", source: "Stage live !hasVideo" },
+      { state: "舞台位 · 无视频面", when: "live.length > 0 && !live.some(m => m.streamUrl)", visual: "没有画面块（没有直播源就没有截图），直接对阵 + 比分；左栏形状靠瓷砖补齐", source: "Stage live !m.streamUrl" },
       { state: "瓷砖混排", when: "alsoLive.length < 4", visual: "Also live N（橙顶线）+ Up next · HH:mm / HH:mm（补到 4 块）；live 和未开球不混在一组", source: "TileGroup ×2" },
       { state: "奇数块", when: "items.length % 2 === 1", visual: "最后一块横跨整行", source: "TileGroup gridColumn 1/-1" },
     ],
@@ -61,6 +61,17 @@ const SPORTS_CASES: SectionCase[] = [
     spec: [
       { state: "舞台位 = 本周最大场", when: "live.length === 0", visual: "标签「Biggest this week · kicks off in 22 min」（灰）+ 对阵 + 开球时间 40px 白 + 两队价钮 +「☆ Remind me」", source: "Stage !live · upcoming by volume" },
       { state: "眉行", when: "live.length === 0", visual: "「Sports · N matches this week · next kickoff in X」（无红点）；手机「Sports · N matches · kickoff in X」", source: "eyebrow" },
+    ],
+  },
+  {
+    key: "home-ha15",
+    label: "HA-15 · 游客点「Watch live」→ 站内登录框（桌面弹窗 / 手机抽屉）",
+    note: "CPO 2026-11-09「点了才播」R3。登录框是现有组件，一个字不改；本帧挂载后直接打开它（等同游客点了播放）。登录成功后直接进这场交易页并开播（含 Google 跳转回来）；关掉登录框留在首页，什么都不发生。",
+    spec: [
+      { state: "游客点播放", when: "!storedSignedIn()", visual: "目的地 /trade?event=…&play=1 暂存 sessionStorage「omenx.afterSignIn」→ openPrompt()：桌面 AuthDialog、手机 AuthSheet（底部抽屉）", source: "usePlayStream" },
+      { state: "登录成功", when: "signedIn && !promptOpen", visual: "取出暂存目的地并跳转；交易页静音开播（浏览器不允许新开的页面直接出声）", source: "AuthPromptHost · takeAfterSignIn" },
+      { state: "关掉登录框", when: "onOpenChange(false) && !storedSignedIn()", visual: "清掉暂存目的地，留在原页", source: "AuthPromptHost · setAfterSignIn(null)" },
+      { state: "已登录点播放", when: "storedSignedIn()", visual: "直接进 /trade?event=…&play=1（R2）", source: "usePlayStream" },
     ],
   },
 ];

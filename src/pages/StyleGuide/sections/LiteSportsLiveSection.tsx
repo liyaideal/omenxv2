@@ -386,6 +386,25 @@ const STAGE_CASES: SectionCase[] = [
       },
     ],
   },
+  {
+    key: "sports-stage-s10",
+    label: "S10 · guest（未登录 · Sign in to watch live）",
+    note: "CPO 2026-11-09「点了才播」R5：直播只对已登录用户开放。游客在交易页看到这张卡，直播流不请求、不出迷你窗；点 Sign in 打开站内登录框（桌面弹窗 / 手机抽屉），登录后就地开播。比赛没开打时照旧走 S7 prekick。",
+    spec: [
+      {
+        state: "guest",
+        when: "!signedIn && live（首帧读本地会话，已登录的人不会闪一下这张卡）",
+        visual: "深色径向底 + 左上橙底 LIVE；中间「Sign in to watch live」（桌面 24 / 手机 17）+「Live streams are for signed-in users.」+ 柠檬色 Sign in 钮（桌面 44 高 / 手机 36 高）；不放队徽（下方记分牌已有两队）",
+        source: "LiveStage · useSignedIn · openPrompt",
+      },
+      {
+        state: "登录后",
+        when: "signedIn 变 true",
+        visual: "这张卡换成直播画面，静音开播（同 S1）",
+        source: "useHlsVideo wantVideo",
+      },
+    ],
+  },
 ];
 
 const MINI_CASES: SectionCase[] = [
@@ -493,7 +512,7 @@ export const LiteSportsLiveSection = () => (
         <Pair cases={byKey(BOARD_CASES, "sports-live-b1", "sports-live-b2", "sports-live-t1", "sports-live-t2", "sports-live-t3", "sports-live-g1", "sports-live-nf1", "sports-live-nf2", "sports-live-bb1", "sports-live-bb2", "sports-live-hk1")} min={4400} />
       </SubSection>
 
-      <SubSection title="Ⓑ LiveStage（S1 … S9）">
+      <SubSection title="Ⓑ LiveStage（S1 … S10）">
         <Pair
           cases={byKey(
             STAGE_CASES,
@@ -506,6 +525,7 @@ export const LiteSportsLiveSection = () => (
             "sports-stage-s7",
             "sports-stage-s8",
             "sports-stage-s9",
+            "sports-stage-s10",
           )}
           min={2600}
         />

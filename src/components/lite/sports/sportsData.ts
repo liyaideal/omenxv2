@@ -43,11 +43,17 @@ export interface SportsMatch {
   awayShort?: string;
   /** metadata.stream_url — non-empty means the match has a watchable stream. */
   streamUrl?: string | null;
+  /** metadata.stream_thumb_url — the stream service's latest snapshot (one every 10 minutes, shared by all viewers). Lovable has none; see streamPicture.ts. */
+  thumbnailUrl?: string | null;
+  /** events.image_url — the event cover, the preview's fallback when there is no snapshot. */
+  coverUrl?: string | null;
   volume: number;
   options: SportsOption[];
 }
 
 interface RawMeta {
+  stream_thumb_url?: string | null;
+  stream_thumb_at?: string | null;
   league?: string;
   home?: string;
   away?: string;
@@ -424,7 +430,7 @@ export const useSportsMatches = () => {
       const { data } = await supabase
         .from("events")
         .select(
-          "id, name, start_date, end_date, volume, metadata, lifecycle_status, event_options(id, label, price)",
+          "id, name, start_date, end_date, volume, metadata, lifecycle_status, image_url, event_options(id, label, price)",
         )
         .eq("event_subtype", SPORTS_SUBTYPE)
         .eq("is_resolved", false)
@@ -478,6 +484,8 @@ export const useSportsMatches = () => {
            score: meta.score ?? null,
            sport: meta.sport ?? null,
            streamUrl: meta.stream_url ?? null,
+           thumbnailUrl: meta.stream_thumb_url ?? null,
+           coverUrl: (e as { image_url?: string | null }).image_url ?? null,
            volume: Number((e as { volume?: number | string | null }).volume ?? 0),
           options: opts,
         };

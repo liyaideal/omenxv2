@@ -377,7 +377,8 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **In review · result pending** | `LiveMatchboard.ReviewBadge` — FINISHED 态桌面右侧 |
 | **Scorecards sealed until the decision** | `LiveMatchboard` — MMA 专用，live / break 态 |
 | **Watch** | `LiveMatchboard` 顶栏按钮，唤回被收起的舞台 |
-| **Watch live** | `HomeSportsCard` 实心橙芯片，有流的 live 卡（仅首页；Sports 品类页的直播进舞台，见「Sports 列表 · 直播与预告」） |
+| **Watch live** | `StreamPreview` 播放钮下的字：首页舞台位、Sports 品类页舞台的直播画面（2026-11-09 起不拉流，点了才播）。key `events.screen.simple.sports_view.sports_streams.watch_live` |
+| **Sign in to watch live** / **Live streams are for signed-in users.** / **Sign in** | `LiveStage` S10 游客卡（交易页）。key `…sports_streams.sign_in_to_watch` / `sign_in_to_watch_sub` / `sign_in_cta` |
 | **Stream at kickoff** | `HomeSportsCard` 描边芯片，赛前有流；Sports 品类页列表行同款 |
 | **Back to stage** | `LiveStage` 迷你窗回舞台 |
 | 比分分隔符 | en dash `–`（U+2013），Space Grotesk + `tabular-nums` |
@@ -386,6 +387,8 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 
 | 概念 | 是什么 | 判定表达式 | 出处 |
 |---|---|---|---|
+| 直播截图（stream snapshot） | 服务端对一路正在直播的流每 10 分钟截的一帧，同一时段所有用户看同一张；首页 / Sports 品类页舞台只显示它，不拉流 | `metadata.stream_thumb_url` 有值；Lovable 用 `streamPicture()` 按 `floor(now / 10min)` 挑演示静帧 | `streamPicture.ts`、DESIGN §Addendum 2026-11-09 第 6 条 |
+| 点了才播 | 直播流只在用户点播放、且已登录后，在交易页拉取 | 播放：`storedSignedIn()` ? 跳 `/trade?event=&play=1` : 暂存目的地 + `openPrompt()` | `usePlayStream.ts`、`AuthPromptHost.tsx` |
 | **Series（赛列）** | 整场比赛这个层级的盘口 | `metadata.family === "main"` | `sportsData.groupSegmentedMarkets` |
 | **Segment（分段）** | CS2 的 map / MMA 的 round | `metadata.family === "seg" && metadata.segment_index === n` | `sportsData.groupSegmentedMarkets` |
 | **Current segment（当前段）** | 正在打的那一段 | `useMatchboardModel(event).idx` | `matchboardModel.buildModel` |

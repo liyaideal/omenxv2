@@ -24,7 +24,8 @@ import {
   type SportsMatch,
 } from "@/components/lite/sports/sportsData";
 import { leagueCodeOf, sportCodeOf } from "@/components/lite/sports/sportsFilters";
-import { ListStreamVideo } from "@/components/lite/sports/ListStreamVideo";
+import { StreamPreview } from "@/components/lite/sports/StreamPreview";
+import { usePlayStream } from "@/hooks/usePlayStream";
 import { MatchScoreText } from "@/components/lite/sports/tennisScore";
 import { kickoffInShort } from "@/components/lite/sports/sportsClock";
 import {
@@ -92,6 +93,7 @@ const Stage = ({
   onSwitchStream,
   isMobile,
   onOpen,
+  onPlay,
   now,
 }: {
   m: SportsMatch;
@@ -102,11 +104,12 @@ const Stage = ({
   onSwitchStream: (i: number) => void;
   isMobile: boolean;
   onOpen: (id: string) => void;
+  /** Play button on the stream preview (R2 / R3). */
+  onPlay: (id: string) => void;
   /** Same clock as the section (frozen in the style-guide), so the stage countdown never disagrees with the eyebrow. */
   now: number;
 }) => {
-  const [dead, setDead] = useState<Record<string, boolean>>({});
-  const hasVideo = live && !!m.streamUrl && !dead[m.id];
+  const hasVideo = live && !!m.streamUrl;
   const kickoffMs = m.kickoff ? Math.max(0, m.kickoff.getTime() - now) : 0;
   const label = live
     ? isMobile
@@ -160,37 +163,13 @@ const Stage = ({
         {rightLabel}
       </div>
 
-      {/* S2/S3: the picture is a PREVIEW that opens the match — no controls on
-          the home page. Desktop: muted autoplay (tier ②) when the stream can
-          be embedded; mobile, or a stream that failed: the brand stage (tier ③).
-          A live match with no stream at all gets no picture block (state ③ in D2-S3). */}
+      {/* S2/S3 (CPO 2026-11-09「点了才播」): the home page never pulls the stream.
+          The picture is a still — the 10-minute server snapshot, else the event
+          cover, else a dark stage — with a play button. Play: signed in → the
+          trade page plays; guest → sign in first, then the trade page plays. */}
       {live && !!m.streamUrl && (
         <div className="stage-vid" style={{ marginTop: isMobile ? 12 : 14 }}>
-          {hasVideo && !isMobile ? (
-            <ListStreamVideo
-              preview
-              src={m.streamUrl as string}
-              onOpen={() => onOpen(m.id)}
-              onFail={() => setDead((d) => ({ ...d, [m.id]: true }))}
-            />
-          ) : (
-            <button
-              type="button"
-              className="stage-brand"
-              style={{ width: "100%", border: 0, color: "inherit", cursor: "pointer" }}
-              onClick={() => onOpen(m.id)}
-              aria-label="Open match"
-            >
-              <TeamBadge code={abbr(m, "home")} size={isMobile ? 56 : 72} />
-              <span className="row" style={{ gap: 8 }}>
-                <span className="livedot" />
-                <span className="tc-lbl2" style={{ color: OR }}>
-                  Live
-                </span>
-              </span>
-              <TeamBadge code={abbr(m, "away")} size={isMobile ? 56 : 72} />
-            </button>
-          )}
+          <StreamPreview match={m} onPlay={() => onPlay(m.id)} compact={isMobile} nowMs={now} radius={12} />
         </div>
       )}
 
@@ -560,6 +539,7 @@ export const HomeSportsSection = ({
         : `Sports · ${total} matches this week${nextKick != null ? ` · next kickoff in ${kickoffInShort(nextKick)}` : ""}`;
 
   const onOpen = (id: string) => navigate(`/trade?event=${id}`);
+  const playStream = usePlayStream();
 
   if (!model.stage) return null;
 
@@ -593,6 +573,7 @@ export const HomeSportsSection = ({
       onSwitchStream={setStreamIndex}
       isMobile={isMobile}
       onOpen={onOpen}
+      onPlay={playStream}
       now={now}
     />
   );

@@ -6,7 +6,9 @@
 // 打开画面都一样；canvas 图表在 nowOverride 下只画一帧、不跑动画。
 // 每个 preview 用 useIsMobile() 分支，375 帧里自动走手机形态（M-* 板）。
 // ============================================================
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AuthPromptHost } from "@/components/auth/AuthPromptHost";
+import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { FROZEN_NOW } from "../frozenClock";
 import { HomeHero } from "@/components/lite/home/HomeHero";
@@ -157,6 +159,19 @@ export const HaSports1Preview = () => <SportsDemo matches={SPORTS_S1} />;
 export const HaSports2Preview = () => <SportsDemo matches={SPORTS_S2} />;
 export const HaSports3Preview = () => <SportsDemo matches={SPORTS_S3} />;
 export const HaSports4Preview = () => <SportsDemo matches={SPORTS_S4} />;
+/** HA-15 · a guest pressed "Watch live": the standard sign-in opens over the home stage. */
+export const HaGuestPlayPreview = () => {
+  useEffect(() => {
+    useAuthFlowStore.getState().openPrompt();
+    return () => useAuthFlowStore.getState().closePrompt();
+  }, []);
+  return (
+    <>
+      <SportsDemo matches={SPORTS_S2} />
+      <AuthPromptHost previewStep="login" />
+    </>
+  );
+};
 
 /* ============================== Crypto ============================== */
 

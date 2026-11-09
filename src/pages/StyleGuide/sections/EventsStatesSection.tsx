@@ -629,14 +629,13 @@ const STREAM_CASES: SectionCase[] = [
       "Sports 品类页顶部。页面优先级：Live on stream（本舞台）→ Coming up on stream（预告排）→ Playing now（正在打、没直播）→ 一般列表。只有一路直播时不出切换条。直播 = 正在打且 metadata.stream_url 非空；有没有直播源由数据决定，前端不判断联赛。",
     spec: [
       { state: "出现", when: "live.some(m => m.streamUrl)", visual: "区头 `● LIVE ON STREAM · n`（红点 LivePulse 6）+ 淡橙描边舞台；没有直播在播则整块不渲染", source: SRC_STREAMS },
-      { state: "桌面布局", when: "useIsMobile() === false", visual: "左 58% 视频 16:9（静音自动播放），右栏：联赛 · 段名 / 时钟、队徽 48 + 比分 46、下注按钮、`$x traded` + `Open match →`", source: "LiteSportsView · LiveStreamStage" },
-      { state: "手机布局", when: "useIsMobile() === true", visual: "视频满宽在上，下接联赛 / 时钟、队徽 34 + 比分 26、叠放下注按钮", source: "MobileSportsModule · MobileLiveStreamStage" },
-      { state: "视频角标", when: "始终", visual: "左上只写橙底 `● LIVE`，比赛时钟只在记分牌出现一次（一个数字一处渲染）；右下静音钮", source: "ListStreamVideo" },
-      { state: "静音", when: "localStorage omenx.lite.stage.muted", visual: "默认静音；与交易页直播画面共用同一记录", source: "useHlsVideo" },
-      { state: "点击", when: "点视频 / Open match / 下注按钮", visual: "视频与 Open match → /trade?event=；下注按钮 → /trade?event=&option=", source: "LiteSportsView open / pick" },
+      { state: "桌面布局", when: "useIsMobile() === false", visual: "左 58% 画面 16:9 = 直播截图（压暗）+ 橙色 64 播放钮 `Watch live`，不拉流（CPO 2026-11-09「点了才播」）；右栏：联赛 · 段名 / 时钟、队徽 48 + 比分 46、下注按钮、`$x traded` + `Open match →`", source: "LiteSportsView · LiveStreamStage · StreamPreview" },
+      { state: "手机布局", when: "useIsMobile() === true", visual: "画面满宽在上（播放钮 48），下接联赛 / 时钟、队徽 34 + 比分 26、叠放下注按钮", source: "MobileSportsModule · MobileLiveStreamStage · StreamPreview" },
+      { state: "画面", when: "始终", visual: "服务端每 10 分钟截一帧、同一时段所有人同一张（metadata.stream_thumb_url）；Lovable 没有截图服务，用演示直播的静帧按 10 分钟格轮换。左上橙底 `● LIVE`；比赛时钟只在记分牌出现一次", source: "streamPicture.ts" },
+      { state: "点播放", when: "点画面任意处", visual: "已登录 → /trade?event=&play=1，交易页静音开播；游客 → 站内登录框（桌面弹窗 / 手机抽屉），登录成功后直接进该场交易页开播；关掉登录框留在原页", source: "usePlayStream · AuthPromptHost" },
+      { state: "点其他地方", when: "Open match / 下注按钮", visual: "Open match → /trade?event=；下注按钮 → /trade?event=&option=（不弹登录、不开播）", source: "LiteSportsView open / pick" },
       { state: "不再单列", when: "isOnStream(m)", visual: "在舞台上的比赛不进下方 Playing now 卡片", source: "useStreamLineup streamed / others" },
       { state: "开赛那一秒", when: "liveAt(m, now) 每秒重算", visual: "比赛开赛即离开预告排、同一秒进舞台（舞台已有直播时进切换条）；时钟 / 比分在随后一次自动刷新补上，之前时钟位写 `LIVE`", source: "sportsData liveAt · useSportsMatches" },
-      { state: "离屏 / 后台", when: "视频滚出屏幕或页面切到后台", visual: "暂停，不耗流量；回到屏幕内 / 前台从直播最新处接着播", source: "ListStreamVideo IntersectionObserver · visibilitychange" },
       { state: "手机顶部芯片", when: "isMobile && filters", visual: "一段一枚、数字与区头一致：`● 1 on stream` `● 1 playing now` `3 this week`；某段为 0 不出那一枚，都为 0 写 `Nothing playing now`", source: "MobileSportsModule chips · useStreamLineup" },
       { state: "桌面列表今天日期头", when: "今天有正在打的比赛", visual: "`1 on stream · 1 playing now · 1 to come`：on stream = 舞台场数、playing now = Playing now 场数；没有直播时照旧 `n playing now · n to come`", source: "buildDayGroups isOnStream" },
     ],
@@ -661,16 +660,16 @@ const STREAM_CASES: SectionCase[] = [
   },
   {
     key: "events-ev38",
-    label: "EV-38 · 直播舞台 · 视频加载中（ListStreamVideo fixture=loading）",
+    label: "EV-38 · 直播舞台 · 还没有截图 → 赛事封面兜底（StreamPreview fixture=cover）",
     spec: [
-      { state: "加载 / 缓冲", when: 'state ∈ {"idle","loading","buffering"}', visual: "黑底中央 26px 白色转圈；`● LIVE` 与静音钮照常", source: "ListStreamVideo · useHlsVideo" },
+      { state: "没有截图", when: "!thumbnailUrl（直播刚开 / 截图失败）&& coverUrl", visual: "画面位放这场赛事的封面图（events.image_url）压暗 + 播放钮；本帧用 Sports 品类底图示意", source: "streamPicture.ts" },
     ],
   },
   {
     key: "events-ev39",
-    label: "EV-39 · 直播舞台 · 自动播放被拦（ListStreamVideo fixture=blocked）",
+    label: "EV-39 · 直播舞台 · 封面也没有 → 深色底 + 播放钮（StreamPreview fixture=none）",
     spec: [
-      { state: "被拦 / 暂停", when: 'state ∈ {"blocked","paused"}', visual: "中央 52px 橙色播放钮，点一下播放（从直播最新处接上）", source: "ListStreamVideo · useHlsVideo play()" },
+      { state: "没截图也没封面", when: "!thumbnailUrl && !coverUrl", visual: "深色径向底 + `● LIVE` + 橙色播放钮 `Watch live`，不放队徽（右栏 / 下方记分牌已有两队）", source: "streamPicture.ts" },
     ],
   },
   {
@@ -724,16 +723,6 @@ const STREAM_CASES: SectionCase[] = [
     label: "EV-44 · 没有直播在播 · 只有预告（预告排在最上）",
     spec: [
       { state: "无直播在播", when: "streamed.length === 0 && rail.length > 0", visual: "页面顶部直接是预告排（与有直播时同一排卡片），下接 Playing now 与列表；不出现直播舞台", source: SRC_STREAMS },
-    ],
-  },
-  {
-    key: "events-ev46",
-    label: "EV-46 · 直播舞台 · 这一路放不了 → 撤出舞台（ListStreamVideo fixture=error）",
-    note: "播放器报 error（断流）或 forbidden（地区限制）时，这一路本次访问内撤出舞台、换下一路；只剩这一路时舞台整段不渲染，比赛落进 Playing now。本帧原本唯一的直播 Spirit vs MOUZ 出错，所以页面从 Playing now 开始，手机芯片写 `2 playing now`。刷新页面会重新尝试。",
-    spec: [
-      { state: "这一路出错", when: 'state ∈ {"error","forbidden"}', visual: "立即撤出舞台；多路时舞台换到剩下成交额最高的一路，切换条少一枚", source: "ListStreamVideo onFail → useStreamLineup markFailed" },
-      { state: "全部出错", when: "streamed.length === 0", visual: "不出现 Live on stream 段；比赛按没直播处理，进 Playing now；手机芯片与日期头数字一起变", source: "useStreamLineup others" },
-      { state: "恢复", when: "刷新页面", visual: "重新尝试播放；同一次访问内不自动回到舞台", source: "useStreamLineup（页面内状态）" },
     ],
   },
   {
@@ -809,7 +798,7 @@ export const EventsStatesSection = () => (
 
       <SubSection title="⑥b Sports 品类页 · 直播与直播预告（EV-36 … EV-46）">
         <Pair
-          cases={byKey("events-ev36", "events-ev37", "events-ev37b", "events-ev38", "events-ev39", "events-ev46")}
+          cases={byKey("events-ev36", "events-ev37", "events-ev37b", "events-ev38", "events-ev39")}
           desktopMin={1200}
           mobileMin={1400}
         />

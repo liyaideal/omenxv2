@@ -148,6 +148,7 @@ export const previewRegistry: Record<string, Loader> = {
   "sports-stage-s7": pick(sportsLive, "S7Preview"),
   "sports-stage-s8": pick(sportsLive, "S8Preview"),
   "sports-stage-s9": pick(sportsLive, "S9Preview"),
+  "sports-stage-s10": pick(sportsLive, "S10Preview"),
   "sports-mini-c1": pick(sportsLive, "C1Preview"),
   "sports-mini-c2": pick(sportsLive, "C2Preview"),
   "sports-mini-c3": pick(sportsLive, "C3Preview"),
@@ -170,7 +171,6 @@ export const previewRegistry: Record<string, Loader> = {
   "events-ev43": pick(events, "Ev43Preview"),
   "events-ev44": pick(events, "Ev44Preview"),
   "events-ev45": pick(events, "Ev45Preview"),
-  "events-ev46": pick(events, "Ev46Preview"),
   "events-ev9b": pick(events, "Ev9bPreview"),
   "events-ev9u": pick(events, "Ev9uPreview"),
   "events-ev11": pick(events, "Ev11Preview"),
@@ -208,6 +208,7 @@ export const previewRegistry: Record<string, Loader> = {
   "home-ha12": pick(homeAll, "HaDeskMultiPreview"),
   "home-ha13": pick(homeAll, "HaMorePreview"),
   "home-ha14": pick(homeAll, "HaStagePreview"),
+  "home-ha15": pick(homeAll, "HaGuestPlayPreview"),
 
   /* -------- Foundations · Brand assets -------- */
   "foundations-brand-assets": pick(brandAssets, "BrandAssetsPreview"),

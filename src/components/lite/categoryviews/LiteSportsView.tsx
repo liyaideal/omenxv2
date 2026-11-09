@@ -33,7 +33,8 @@ import { DimensionPill, DimensionRow } from "./verticalChrome";
 import { EmptyState } from "@/components/states";
 import { CHALK, CHALK_SOFT, Crest, DIR_DOWN, DIR_UP, LivePulse } from "@/components/lite/shared/primitives";
 import { PlayTriangle, StreamAtKickoffChip } from "@/components/lite/sports/streamChips";
-import { ListStreamVideo } from "@/components/lite/sports/ListStreamVideo";
+import { StreamPreview } from "@/components/lite/sports/StreamPreview";
+import { usePlayStream } from "@/hooks/usePlayStream";
 import {
   RemindButton,
   StreamPoster,
@@ -238,7 +239,7 @@ const LiveStreamStage = ({
   onFail,
 }: {
   streams: SportsMatch[];
-  streamFixture?: "loading" | "blocked" | "error";
+  streamFixture?: "cover" | "none";
   onOpen: (id: string) => () => void;
   onPick: (id: string) => (optionId: string) => (e: React.MouseEvent) => void;
   /** The player can't play this match's stream — take it off the stage. */
@@ -246,6 +247,7 @@ const LiveStreamStage = ({
 }) => {
   const [activeId, setActiveId] = useState(streams[0].id);
   const m = streams.find((x) => x.id === activeId) ?? streams[0];
+  const playStream = usePlayStream();
   return (
     <div
       className="overflow-hidden"
@@ -258,7 +260,8 @@ const LiveStreamStage = ({
     >
       <div className="flex">
         <div style={{ flex: "0 0 58%" }}>
-          <ListStreamVideo key={m.id} src={m.streamUrl as string} onOpen={onOpen(m.id)} onFail={() => onFail(m.id)} fixture={streamFixture} />
+          {/* CPO 2026-11-09「点了才播」: a still + play button, never the stream itself. */}
+          <StreamPreview key={m.id} match={m} onPlay={() => playStream(m.id)} fixture={streamFixture} />
         </div>
         <div className="flex min-w-0 flex-1 flex-col justify-between" style={{ padding: "22px 24px 20px" }}>
           <div className="flex items-center justify-between" style={{ gap: 10 }}>
@@ -721,7 +724,7 @@ export const LiteSportsView = ({
   /** Style-guide only — Remind me behaves as for a guest (opens sign-in). */
   remindGuestFixture?: boolean;
   /** Style-guide only — freeze the stage player (loading / autoplay blocked / stream failed). */
-  streamFixture?: "loading" | "blocked" | "error";
+  streamFixture?: "cover" | "none";
 }) => {
   const navigate = useNavigate();
   const [bucket, setBucket] = useState("all");
@@ -752,9 +755,8 @@ export const LiteSportsView = ({
   const previews = useMemo(() => upcomingStreams(scoped, nowMs), [scoped, nowMs]);
   // Live + playable stream → the stage (busiest first); the rest keep LiveCard.
   const { streamed, others: playingNow, isOnStream, markFailed } = useStreamLineup(scoped, nowMs);
-  // Style-guide frames (frozen clock) keep their stage whatever the network
-  // does; only fixture "error" demonstrates a stream leaving the stage.
-  const onStreamFail = now == null || streamFixture === "error" ? markFailed : () => undefined;
+  // Style-guide frames (frozen clock) keep their stage whatever the network does.
+  const onStreamFail = now == null ? markFailed : () => undefined;
   const days: DayBucket[] = useMemo(
     () => buildDayStrip(scoped, clock),
     [scoped, clock],

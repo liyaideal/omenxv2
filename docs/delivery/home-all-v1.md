@@ -66,8 +66,8 @@
 ### S · Sports 段
 - **S0** 细则以「Sports 规则稿 v2」为准：左 Live 模块 + 右一张表（Big this week 3 行 + Next up 填满）、四态、T3 瓷砖、日历条、一场只出现一次（舞台位 > 瓷砖 > Big this week > Next up）、直播标记一律橙色。
 - **S1** 队标通用规则：所有队标都在同一个圆里（`TeamBadge`）。真队徽 contain 74% 不裁；数据源的纯色占位方块改画同色圆徽 + 白色短码；完全没图 = 灰底 + 短码。两队重叠 −5px。
-- **S2** 舞台位直播画面 = 预览，不是播放器：整块可点进该场交易页，首页不出播放控件。
-- **S3** 预览分三档：① 直播缩略图每 60 秒刷新 + LIVE 角标 + 当前节点（默认，需要缩略图源，见 §5）；② 源支持嵌入时桌面端静音自动播放、无控件（`ListStreamVideo`，手机不开）；③ 没画面 = 品牌舞台（深底 + 两队徽对阵 + 橙色 LIVE 呼吸点）。
+- **S2** 舞台位不拉流（CPO 2026-11-09「点了才播」）：画面 = 一张静态图 + 橙色播放钮「Watch live」。点画面 = 播放：已登录 → 进该场交易页静音开播；游客 → 站内登录框（桌面弹窗 / 手机抽屉），登录成功后直接进该场交易页开播（含 Google 跳转回来），关掉登录框留在原页。比分、队名、价钮、Open match 照旧直接进交易页，不弹登录、不开播。Sports 品类页顶部舞台同此规则。交易页对游客不拉流，画面位放「Sign in to watch live」+ Sign in（登录后就地开播）。（字典 HA-15 / Sports 列表 EV-36 / 交易页 S10）
+- **S3** 静态图按顺序取：① 直播截图——服务端对每路正在直播的流每 10 分钟截一帧，同一时段所有用户看同一张（字段 metadata.stream_thumb_url / stream_thumb_at）；② 还没截到 / 截图失败 → 这场赛事的封面图（events.image_url）；③ 封面也没有 → 深色底。三档都压暗、左上橙底 LIVE、不放队徽（下方比分行已有两队）。（字典 EV-38 封面兜底 / EV-39 深色兜底）
 
 ### C · Crypto 段
 - **C1** 眉行「● Crypto · Up or Down · new round every 5 min」，后半句跟周期 tab：15 min / hour / 4 hours / day。
@@ -148,7 +148,8 @@
 | 市场列表 / 结算时间 | `/pub/event/daily-close/rounds/current`（`availableTotal` / `currentSessionCloseAt`）| tab 数量 = `availableTotal` |
 | Traded today | 当前活轮 `volume` 之和 | 真平台取 `tradedTodayU` |
 | Editor's Desk | `/pub/event/featured-markets`（`whyThis / imageUrl / category / event`） | ≤ 3，空则整段不出 |
-| 直播缩略图（S3 ①） | **缺源**：需要直播服务每 60s 出一张缩略图 URL | 没有缩略图时落到 ③ 品牌舞台（现状）；桌面有可嵌入源时走 ② |
+| 直播截图（S3 ①） | **要新增**：直播服务对每路正在直播的流每 10 分钟截一帧存 CDN，赛事数据给 `metadata.stream_thumb_url`（图片地址）+ `stream_thumb_at`（截图时间）；所有用户共用同一张，用户端不碰直播流 | Lovable 没有截图服务：演示比赛都用同一路演示直播，`public/assets/streams/demo-01…11.jpg` 是从这路直播里截好的静帧，前端按「现在落在哪个 10 分钟格」挑图，效果同主网（`streamPicture.ts`）。没截图用 `events.image_url` 封面，再没有用深色底 |
+| 直播只对已登录开放（S2 / R5） | 主网直播接口对游客不返回播放地址（或返回 401） | Lovable 前端判断：游客不请求流，交易页显示 Sign in to watch live |
 | 队徽（S1） | 真队徽 URL；占位方块需后端给 `tileColor` 或前端四角采样 | 蓝本数据没有图，全部是短码圆徽 |
 
 ## 6. 验收表（Liya / 测试）

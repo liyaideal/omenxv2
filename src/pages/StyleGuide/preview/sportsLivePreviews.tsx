@@ -276,6 +276,8 @@ export const S6Preview = () => (
 export const S7Preview = stage("error");
 export const S8Preview = stage("forbidden");
 export const S9Preview = stage("finished");
+/** S10 · guest (CPO 2026-11-09 R5): no stream, "Sign in to watch live". */
+export const S10Preview = stage("guest");
 
 /* ---------------- C · mini player / fullscreen / Watch key ---------------- */
 
