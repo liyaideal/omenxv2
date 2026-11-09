@@ -40,17 +40,19 @@ const Heading = ({ size }: { size: number }) => {
 export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
   if (isMobile) {
     return (
-      <div style={{ background: "#0B0D11", borderBottom: "1px solid rgba(148,163,184,.08)" }}>
+      // Designer phone frame 203:91049: no divider under the band — the chip row follows directly.
+      <div style={{ background: "#0B0D11" }}>
         <div style={{ padding: "16px 16px 0", textAlign: "center" }}>
           <Heading size={26} />
           <div style={{ marginTop: 8, fontSize: 14, color: "#98A1AD", lineHeight: 1.4 }}>
             {t("events.screen.simple.home.home_hero.sub_v2_mobile")}
           </div>
           <img
-            src="/assets/mobile/hero-band@2x.png"
+            // Designer frame 203:91054 exported whole (panel + illustration, 3×) — it sits right under the sub line.
+            src="/assets/mobile/hero-band@3x.png"
             alt=""
             aria-hidden
-            style={{ display: "block", width: "100%", height: "auto", marginTop: 12, borderRadius: 12 }}
+            style={{ display: "block", width: "100%", height: "auto", marginTop: 4 }}
           />
         </div>
       </div>

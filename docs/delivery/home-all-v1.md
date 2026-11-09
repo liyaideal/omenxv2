@@ -107,7 +107,7 @@
 - **G4** 手机版按手机习惯重做（MB 组）。
 
 ### MB · 手机版（390）
-- **MB1** Hero 按设计师手机稿：居中两行 26px 标题 → 副标「Pick a topic, tap Yes or No.」→ 358×89 插画条（`/assets/mobile/hero-band@2x.png`）；无标签。
+- **MB1** Hero 按设计师手机稿：居中两行 26px 标题 → 副标「Pick a topic, tap Yes or No.」→ 358×89 插画条（`/assets/mobile/hero-band@3x.png`，设计师稿 203:91054 整块导出：面板底 + 插画，3×，紧贴副标下方）；无标签。
 - **MB2** 品类 chip 横滑；Quick Play 用 AB-2。
 - **MB3** Sports：日历条横滑 → 舞台位 → 2 列瓷砖 → 面板只留 Big this week 3 行 → 「+N more this week ｜ All N matches →」。不列 Next up。有直播标记的 live 瓷砖去掉联赛名。
 - **MB4** Crypto：钟 + 进度条整行 → tab → BTC 卡（价 48 / 图 150）→「BTC · last 8」紧贴图下、在 Up / Down 之前 → 比例条 → ETH / SOL 两张半卡。
