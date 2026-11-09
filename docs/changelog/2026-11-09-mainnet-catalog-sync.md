@@ -7,3 +7,5 @@
 - **文档**：`docs/delivery/mainnet-catalog-sync-v1.md`、CLAUDE.md 红线 5、`.lovable/memory/index.md`、`docs/backend-boundary.md`、copy-dictionary「主网同步事件 · 退役事件 · 队徽」、DESIGN §Addendum 2026-11-09b、`docs/taxonomy.md`。
 - **没动**：股票日轮、加密轮（第 2 批）、Quick Play、交易页记分牌。
 - **migration**：`supabase/migrations/20261109190000_mainnet_catalog_sync.sql`（已在 Lovable 库执行）。
+- **同日追加（CPO 2026-11-09 晚）**：体育改用主站首页 `/?tab=sports` 的同一份数据（`/pub/sports/matches` + 请求头 `X-Time-Zone`），主网不再列出的比赛 30 分钟后隐藏；封面请求改成首页同一个 `?page=1&pageSize=100&surface=STANDARD`；Editor's Desk 常驻首页 mock 的三条精选（BTC 当日收盘 / NVDA 今日收盘 / 本周最大体育盘，跟着各自当前一轮走）；More 段常驻 4 个演示长期事件（5 档互斥 / 4 档互斥 / 时间段 / 二元）；直播一律放演示动画流。migration `20261109200000_mainnet_sync_home_tab.sql`。
+

@@ -29,12 +29,12 @@
 
 | 内容 | 从主网来 | 说明 |
 |---|---|---|
-| 体育赛程（主网 7 天窗口内全部比赛） | ✅ 每 3 分钟 | `/pub/sports/calendar/query`（主网 11-09 上线的新接口；旧的 `/pub/sports/matches` 当天起返回 400） |
+| 体育赛程（跟主站首页 `/?tab=sports` 同一份：今天起 7 天） | ✅ 每 3 分钟 | `/pub/sports/matches`，必须带请求头 `X-Time-Zone`（不带返回 400）。主网 `/sports` 页用的 `/pub/sports/calendar/query` 会带出已过期的比赛，不用。主网不再列出的比赛 30 分钟后在 Lovable 隐藏 |
 | 两队名字、缩写、队徽、联赛、开赛时间 | ✅ | 改时间、改名会跟着变；**事件名首次进库后不再改**（下单、持仓按事件名找事件） |
 | 比分、比赛状态（未开赛 / 进行中 / 完场 / 取消）、状态文字（`Q3 5:12`、`HT`、`SUS`） | ✅ | 列表 live 位直接显示主网的状态文字 |
-| 直播 | 标记 + 截图 | 主网公开接口只有「有直播 + 截图地址 `livePosterUrl`」，没有播放地址；Lovable 用截图当 10 分钟快照，点播放放演示流 |
+| 直播 | 只同步「有没有直播」 | 主网公开接口没有播放地址；有直播的比赛在 Lovable 统一放演示动画流（CPO 2026-11-09：就用演示流），画面用演示流的静帧 |
 | 长期事件（非体育、非系列轮次、非股票） | ✅ | `/pub/event/list`；主网目前只有 1 个：Anthropic 估值（4 档，每档各自 Yes / No） |
-| 封面图 | ✅ | `/pub/event/homepage`；体育统一用 `/card-bg/sports.jpg`（主网也是） |
+| 封面图 | ✅ | `/pub/event/homepage?page=1&pageSize=100&surface=STANDARD`（主站首页同一个请求）；体育统一用 `/card-bg/sports.jpg`（主网也是） |
 | 规则说明 | ✅ 一次 | `/pub/event/detail` 的 `summary` |
 | 结果 | ✅ | 完场 / 主网停止交易 / 从目录里消失时查 `/pub/event/detail` 的 `winningOutcome`，按主网结果结算；查不到结果就停在 In review |
 | 价格、成交额、成交流 | ❌ | 第一次进库用主网的价和累计成交额当起点，之后 `sim_price_tick` / `sim_market_activity_tick` 照旧 |
@@ -47,7 +47,8 @@
 - 退役事件**不出现在任何列表**（首页、品类页、Insights、Resolved、相关市场、空投对冲池、编辑精选）；按 id / 名字仍然能打开（持仓、历史、交易页）。
 - 有人还持着仓的退役赛事（含只持了它的让分 / 大小分盘）照常结算（`roll_sports_matches` / `tick_live_*`），结算后**不再重排到下周**；没人持仓的就停在那里。例外：`demo-live-wta` 是一直在打的演示网球赛，上面的演示仓不会结算。
 - 演示号新开的演示仓（`roll_demo_positions`）只开在主网同步来的事件上。
-- 影响：首页「编辑精选」三条都是退役长期事件 → 目前空着；More 段只剩 Anthropic 一条（主网就是这样）。
+- **Editor's Desk 常驻三条**（CPO 2026-11-09）：用首页改版 mock 里那三条——BTC 当日收盘涨跌、NVDA 今天收得比开盘高吗、本周最大的体育盘（Bills vs Vikings 开着时就是它，之后换成成交额最大的 NFL / 体育比赛）。它们都是滚动的轮次，`mn_refresh_demo_picks()` 每 3 分钟把精选标记挪到各自当前那一轮；推荐语沿用 mock，去掉了会过期的价格数字。
+- **More 段常驻四条演示长期事件**（CPO 2026-11-09，和主网的 Anthropic 一起展示，同步不碰）：`best-ai-model-eoy-2026`（5 档互斥，露 4 档 + 「+1 more」）、`us-president-2028`（4 档互斥）、`gpt6-release-window-2026`（3 个时间段）、`fed-rate-hike-2026`（二元）。标记 `metadata.demo_pinned = true`。前三条 2026 年底到期，到期前要换。
 
 ## 3. 字段映射（主网 → Lovable）
 
@@ -69,7 +70,7 @@
 ## 4. 正式版要接的三处（研发看这里）
 
 1. **队徽（S1 规则扩到 Crest）**：真队徽（透明底）画在深色圆里、`contain` 74%；美国四大联赛的「队徽」其实是印着缩写的纯色方块（Polymarket 图库），按 S1 画成「方块颜色的圆 + 白字缩写」；没有图或加载失败 → 原来的代码徽。这些图没有 CORS 头，前端取不到颜色，**正式版请后端在队伍资料里直接给方块颜色**（Lovable 是一次性取色存进 `mn_logo_tiles`）。
-2. **直播截图**：主网已有 `livePosterUrl`，就是「点了才播」要的 10 分钟快照（`metadata.stream_thumb_url`），首页 / Sports 舞台直接用它。
+2. **直播截图**：主网 `/sports` 接口里已有 `livePosterUrl`，可以当「点了才播」要的 10 分钟快照（`metadata.stream_thumb_url`）；首页 sports 接口目前只有 `hasStream`，正式版接的时候要让两个接口都带上截图。
 3. **live 位文字**：有 `statusDetail` 就原样显示（`Q3 5:12` / `HT` / `63'`），没有再按运动自己推。
 
 ## 5. 发现的主网数据问题（报给研发 / 运营）
@@ -81,6 +82,6 @@
 
 - cron `mainnet-catalog-sync`，`*/3 * * * *`：先 `mn_sync_apply()` 处理上一轮的回包，再 `mn_sync_request()` 发这一轮的请求（pg_net 异步）。
 - 每轮结果写 `mn_sync_log.stats`（插入 / 更新 / 封面 / 结算 / 错误），保留 3 天。
-- 主网接口挂了：这一轮记 `http_*` 状态码，数据保持上一轮的样子；赛事过了预计结束 3 小时还没结果 → 前端按看门狗规则显示 In review。
+- 主网接口挂了：这一轮记 `http_*` 状态码（主站改接口时最先看到的就是这个），数据保持上一轮的样子；赛事过了预计结束 3 小时还没结果 → 前端按看门狗规则显示 In review。
 - 恢复某个退役事件：`update events set metadata = metadata - 'retired' where id = '…'`。
-- migration：`supabase/migrations/20261109190000_mainnet_catalog_sync.sql`。
+- migration：`supabase/migrations/20261109190000_mainnet_catalog_sync.sql`、`20261109200000_mainnet_sync_home_tab.sql`（换成首页 sports 接口、常驻精选与 More）。

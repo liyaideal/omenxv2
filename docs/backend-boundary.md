@@ -354,4 +354,7 @@
 | `roll_sports_matches` / `tick_live_us_sports` 跳过 `metadata.source = 'mainnet'`；退役赛事只在有人持仓时结算、结算后不重排 | 🔴 演示专用 | |
 | `sim_price_tick`：跳过退役行、上限 100 → 400、`metadata.independent_options` 的多档事件逐档独立游走（不归一） | 🔴 演示专用 | 主网多档事件每档是独立的 Yes / No 盘，价格不是一组加起来为 1 的概率 |
 | `sim_market_activity_tick` 跳过退役行、随机抽 60 个；`roll_demo_positions` 新仓只开在未退役、主盘、`futures` 或 `contract` 的事件上 | 🔴 演示专用 | |
+| `mn_matches_to_calendar()`；`mn_sync_request` 换成 `/pub/sports/matches` + 请求头 `X-Time-Zone`（主站首页 `/?tab=sports` 同一份）；主网不再列出的比赛 30 分钟后隐藏 | 🔴 演示专用 | `20261109200000_mainnet_sync_home_tab.sql` |
+| `mn_refresh_demo_picks()`：Editor's Desk 三条常驻演示精选跟着各自系列的当前一轮走 | 🔴 演示专用 | 正式版精选来自运营后台 `/pub/event/featured-markets` |
+| `events.metadata.demo_pinned`（More 段常驻的 4 个演示长期事件） | 🔴 演示专用 | |
 
