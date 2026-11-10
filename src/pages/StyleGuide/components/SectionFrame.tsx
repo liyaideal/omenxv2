@@ -27,6 +27,12 @@ export type SectionCase = {
   note?: string;
   /** trigger table — one row per visual state */
   spec?: SectionSpecRow[];
+  /**
+   * The case opens a fixed / portalled layer (sign-in dialog, drawer, sheet).
+   * In a stacked desktop iframe that layer would cover every other case of the
+   * section (CPO 2026-11-10: HA-15 hid HA-2 … HA-5), so it gets an iframe of its own.
+   */
+  isolate?: boolean;
 };
 
 /**
@@ -169,10 +175,26 @@ export const SectionFrame = ({
           ))}
         </div>
       ) : (
-        <PreviewFrame cases={cases} device={device} minHeight={minHeight} />
+        // Stacked: neighbouring cases share one iframe; an `isolate` case gets its own so its overlay covers only itself.
+        <div className="space-y-3">
+          {cases
+            .reduce<SectionCase[][]>((groups, c) => {
+              const last = groups[groups.length - 1];
+              if (c.isolate || !last || last[0].isolate) groups.push([c]);
+              else last.push(c);
+              return groups;
+            }, [])
+            .map((g) => (
+              <PreviewFrame key={g.map((c) => c.key).join(",")} cases={g} device={device} minHeight={g[0].isolate ? 900 : minHeight} />
+            ))}
+        </div>
       )}
       <div className="text-[10px] font-mono text-muted-foreground/70">
-        {row ? `${cases.length} iframes · 1 case each · side by side` : `1 iframe · ${cases.length} cases`} ·{" "}
+        {row
+          ? `${cases.length} iframes · 1 case each · side by side`
+          : cases.some((c) => c.isolate)
+            ? `${cases.filter((c) => c.isolate).length} case(s) with an overlay in their own iframe · the rest share one`
+            : `1 iframe · ${cases.length} cases`} ·{" "}
         {device === "mobile" ? "375px" : "100%"} · real breakpoint
       </div>
       <div className="space-y-5">

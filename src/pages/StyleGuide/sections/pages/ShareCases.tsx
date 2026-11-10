@@ -76,6 +76,7 @@ const POSTERS: SectionCase[] = [
 const HOSTS: SectionCase[] = [
   {
     key: "share-sh7",
+    isolate: true,
     label: "SH-7 · ShareModal 弹窗本体（内嵌 SH-3 卡）",
     note: "纯展示挂载：`isOpen` 固定 true、`onClose` 空函数、`isDataReady=false` 关掉出图副作用。ShareModal 用 createPortal 挂到 iframe 自身 document.body，双帧各自独立。",
     spec: [

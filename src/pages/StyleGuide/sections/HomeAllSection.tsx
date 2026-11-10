@@ -76,6 +76,7 @@ const SPORTS_CASES: SectionCase[] = [
   },
   {
     key: "home-ha15",
+    isolate: true,
     label: "HA-15 · 游客点「Watch live」→ 站内登录框（桌面弹窗 / 手机抽屉）",
     note: "CPO 2026-11-09「点了才播」R3。登录框是现有组件，一个字不改；本帧挂载后直接打开它（等同游客点了播放）。登录成功后直接进这场交易页并开播（含 Google 跳转回来）；关掉登录框留在首页，什么都不发生。",
     spec: [
@@ -99,7 +100,7 @@ const SPORTS_CASES: SectionCase[] = [
   },
 ];
 
-/* Stage state ④ with a reminder — its own iframe: HA-21c opens the fixed sign-in layer. */
+/* Stage state ④ with a reminder. HA-21c opens the fixed sign-in layer → `isolate` gives it its own iframe. */
 const REMIND_CASES: SectionCase[] = [
   {
     key: "home-ha21a",
@@ -120,6 +121,7 @@ const REMIND_CASES: SectionCase[] = [
   },
   {
     key: "home-ha21c",
+    isolate: true,
     label: "HA-21c · 状态④ · 游客点 Remind me → 站内登录框（桌面弹窗 / 手机抽屉）",
     note: "挂载后点一下「☆ Remind me」（= 游客点击）。登录框是现有组件，一个字不改。",
     spec: [
