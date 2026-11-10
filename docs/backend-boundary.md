@@ -358,3 +358,14 @@
 | `mn_refresh_demo_picks()`：Editor's Desk 三条常驻演示精选跟着各自系列的当前一轮走 | 🔴 演示专用 | 正式版精选来自运营后台 `/pub/event/featured-markets` |
 | `events.metadata.demo_pinned`（More 段常驻的 4 个演示长期事件） | 🔴 演示专用 | |
 
+
+## 2026-11-10 主网事件目录同步 · 第 2 批（股票日轮、加密轮）（append-only 补录）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `mn_apply_stock_rounds(jsonb)` / `mn_tick_stock_rounds()`；`mn_sync_apply` 调用两者；`mn_sync_request` 多拉目录第 2 页 | 🔴 演示专用 | 按主网目录开股票日轮、刷新盘中状态、到点结算（`20261110120000_mainnet_sync_batch2_rounds.sql`） |
+| cron `roll-daily-stock-events`、`roll-daily-hk-stock-events` 停用（函数保留不再调用） | 🔴 演示专用 | |
+| `mn_stock_names(code, short)`（RLS 开、无策略） | 🟡 B | 公司短名表。**短名本身是需求**（行里写 `AMD` 不写 `Advanced Micro Devices, Inc.`），正式版放进股票资料 |
+| `mn_walk_close(id, base)`、`mn_fnv1a`、`mn_u32_mul`；`settle_prior_stock_session` 改用 `mn_walk_close` | 🔴 演示专用 | 演示结算 = 首页小图走势线的最后一点；正式版按真实收盘价 |
+| `mn_stock_tz` / `mn_stock_open_at` | 🔴 演示专用 | 美 / 港 09:30、韩 09:00 当地开盘 |
+| `roll_crypto_quick_rounds`：1d / 4h 按美东切；同一币 × 周期只开一轮 | 🟢 A（切点规则） | 1d = 美东中午 12 点，4h = 美东 0/4/8/12/16/20 点，与主网一致 |

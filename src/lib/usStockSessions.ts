@@ -249,7 +249,11 @@ export const formatMarketPrice = (
   value: number,
   market: StockMarket,
   digits = 2,
-): string => `${market.currency}${value.toFixed(digits)}`;
+): string =>
+  // Won has no minor unit: whole won with thousands separators ("₩1,134,988"), as on omenx.com.
+  market.key === "kr"
+    ? `${market.currency}${Math.round(value).toLocaleString("en-US")}`
+    : `${market.currency}${value.toFixed(digits)}`;
 
 // Note: formatDualTimezone / formatBeijingTime removed per DESIGN.md §14 —
 // user-visible copy must not contain 北京/Beijing. Local time is shown only

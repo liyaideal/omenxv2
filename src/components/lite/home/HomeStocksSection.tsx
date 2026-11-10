@@ -18,7 +18,7 @@ import {
   US_STOCK_SUBTYPE,
   type StockEventRow,
 } from "@/components/lite/intraday/intradayData";
-import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
+import { deriveTickerFromEvent, stockCompanyName } from "@/components/SpotStatsHeader";
 import { formatMarketPrice, getStockSessionState, resolveStockMarket, type StockMarket } from "@/lib/usStockSessions";
 import { CY, DownButton, GREEN, OR, RED, SectionHead, UpButton, ht, leftText, rich, tradeLink } from "./homeAllShell";
 import { t as tr, useT } from "@/i18n";
@@ -184,8 +184,8 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
 
   const row = (r: StockEventRow, i: number, hr: boolean) => {
     const ticker = deriveTickerFromEvent(r.id, r.name);
-    // Full name never truncates (K3); unknown tickers fall back to the event name's subject ("Sandisk — higher…" → "Sandisk").
-    const name = STOCK_NAME[ticker] ?? r.name.split(" — ")[0] ?? ticker;
+    // Full name never truncates (K3); the short name rides in the event name ("Tencent (0700.HK) — …").
+    const name = stockCompanyName(ticker, r.name);
     const base = r.base_price ?? 0;
     const p = prints[i];
     const chg = base ? ((p.last - base) / base) * 100 : 0;

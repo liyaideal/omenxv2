@@ -88,6 +88,8 @@ export const useIndicativeLast = (basePrice: number | null, seedKey: string) => 
 };
 
 const money2 = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/** Won has no minor unit → whole won ("₩1,136,000"); everything else keeps cents. */
+const moneyIn = (cur: string, n: number) => (cur === "₩" ? Math.round(n).toLocaleString("en-US") : money2(n));
 
 /** Prior trading-day close instant: the event's close clock on the previous weekday. */
 export const priorCloseInstant = (endDate: Date | null, market: StockMarket): Date | null => {
@@ -171,7 +173,7 @@ export const deriveBusinessMeta = (
   let settleRule: string | null = null;
   const baseWord: EventBusinessMeta["baseWord"] = kind === "quick" ? "Open" : "Base";
   if (isPriceRef && basePrice != null) {
-    const px = `${cur}${money2(basePrice)}`;
+    const px = `${cur}${moneyIn(cur, basePrice)}`;
     if (kind === "quick") {
       timeClause = roundWindowClause(start, end);
       mobileClause = timeClause;
@@ -193,7 +195,7 @@ export const deriveBusinessMeta = (
   };
   const baseLine =
     isPriceRef && basePrice != null && timeClause
-      ? `${baseWord}: ${cur}${money2(basePrice)} · ${timeClause}`
+      ? `${baseWord}: ${cur}${moneyIn(cur, basePrice)} · ${timeClause}`
       : null;
 
   return {
@@ -268,6 +270,6 @@ export const useEventBusinessMeta = (
 
 /** Display helper shared by the desktop sublines: "Base $82,621.56" / "Open $82,621.56". */
 export const basePriceText = (m: EventBusinessMeta) =>
-  m.basePrice != null ? `${m.cur}${money2(m.basePrice)}` : "—";
+  m.basePrice != null ? `${m.cur}${moneyIn(m.cur, m.basePrice)}` : "—";
 
 export { formatLocalDate };

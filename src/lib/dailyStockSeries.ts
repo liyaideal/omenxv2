@@ -3,23 +3,8 @@
 // events like `us-hood-updown-20260724`. Shared by the Lite list badge
 // system and the Lite spot trade page's past-days strip.
 // ============================================================
-import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
+import { deriveTickerFromEvent, stockCompanyName } from "@/components/SpotStatsHeader";
 
-export const STOCK_COMPANY: Record<string, string> = {
-  NVDA: "NVIDIA",
-  TSLA: "Tesla",
-  AAPL: "Apple",
-  MSFT: "Microsoft",
-  GOOGL: "Alphabet",
-  META: "Meta Platforms",
-  AMZN: "Amazon",
-  "0700.HK": "Tencent",
-  "9988.HK": "Alibaba",
-  "3690.HK": "Meituan",
-  "1810.HK": "Xiaomi",
-  "1211.HK": "BYD",
-  "0005.HK": "HSBC",
-};
 
 /**
  * Daily up/down slugs look like `us-hood-updown-20260724`. The shared
@@ -27,7 +12,7 @@ export const STOCK_COMPANY: Record<string, string> = {
  * merge every stock into one series — so read the slug first and only fall
  * back to the shared derivation.
  */
-export const DAILY_STOCK_SLUG = /^(us|hk)-([a-z0-9]{1,5})-updown\b/i;
+export const DAILY_STOCK_SLUG = /^(us|hk|kr)-([a-z0-9]{1,6})-updown\b/i;
 
 export const isDailyStockEvent = (e: {
   id: string;
@@ -43,25 +28,18 @@ export const tickerOf = (e: { id: string; name: string }) => {
   const m = e.id.match(DAILY_STOCK_SLUG);
   if (m) {
     const code = m[2].toUpperCase();
-    return m[1].toLowerCase() === "hk" ? `${code}.HK` : code;
+    const mkt = m[1].toLowerCase();
+    return mkt === "hk" ? `${code}.HK` : mkt === "kr" ? `${code}.KR` : code;
   }
   return deriveTickerFromEvent(e.id, e.name);
 };
 
-/** Company name: lookup first, else the "Robinhood (HOOD) — …" name prefix. */
-export const companyOf = (
-  ticker: string,
-  e?: { name: string } | null,
-): string => {
-  if (STOCK_COMPANY[ticker]) return STOCK_COMPANY[ticker];
-  const m = e?.name.match(/^(.+?)\s*\(/);
-  if (m && m[1].trim()) return m[1].trim();
-  return ticker;
-};
+/** Company short name — rides in the event name ("Robinhood (HOOD) — …"), see stockCompanyName. */
+export const companyOf = (ticker: string, e?: { name: string } | null): string => stockCompanyName(ticker, e?.name);
 
 /** `us-hood-updown-20260724` → the slug prefix shared by every day. */
 export const seriesPrefixOf = (eventId: string): string | null => {
-  const m = eventId.match(/^((?:us|hk)-[a-z0-9]{1,5}-updown)-\d{8}$/i);
+  const m = eventId.match(/^((?:us|hk|kr)-[a-z0-9]{1,6}-updown)-\d{8}$/i);
   return m ? m[1] : null;
 };
 

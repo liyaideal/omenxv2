@@ -177,7 +177,7 @@ const krStock = (
   endMin: number,
 ): StockEventRow => ({
   id: `kr-${code}-updown-20260803`,
-  name: `${code}.KS — will it close higher today?`,
+  name: `${code}.KR — will it close higher today?`,
   base_price: base,
   start_date: iso(-180 * MIN),
   end_date: iso(endMin * MIN),

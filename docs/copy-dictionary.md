@@ -1189,7 +1189,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 
 | 概念 | 是什么 | 判定表达式 | 一句话类比 |
 |---|---|---|---|
-| **round / session** | 一个 Up-or-Down 市场：加密叫 round（5m / 15m / 1h / 4h / 1d），股票日盘叫 session | `event_subtype` ∈ CRYPTO_QUICK_UPDOWN_SPOT → round；US/HK_STOCK_DAILY_UPDOWN_SPOT → session | 一局 |
+| **round / session** | 一个 Up-or-Down 市场：加密叫 round（5m / 15m / 1h / 4h / 1d），股票日盘叫 session | `event_subtype` ∈ CRYPTO_QUICK_UPDOWN_SPOT → round；US/HK/KR_STOCK_DAILY_UPDOWN_SPOT → session | 一局 |
 | **the crowd** | 投注截止时价格高于 50¢ 的那一边 | `up_price >= 0.5 ? Up : Down` | 押得多的那边 |
 | **Crowd was right** | 人群那边最后赢了的比例 | `avg((up_price >= 0.5) == up_won)` 只算已结算 | 押对率 |
 | **Crowd leaned Up** | 今日/30 天里人群押 Up 的轮占比 | `avg(up_price >= 0.5)` | 看多的比例 |
@@ -1387,6 +1387,9 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | Stocks 状态行 | `Market open · closes in {X} · settles in {Y}` / `Market opens in {X} · settles in {Y}` · 这一轮已过结算时间、下一轮还没出来：`settles in {Y}` 换成 `settling now` | K2 |
 | Stocks 市场 tab | `US {n}` / `Hong Kong {n}` / `Korea {n}`（n = 该市场可交易数，没有数据的市场不出 tab）| K2 |
 | Stocks 行 | `{+x.xx%}` 或 `Base price`（收盘无成交）| K4 |
+| 股票事件名 | `{短名} ({代码}) — will close higher today?`：短名不是公司全称（`AMD`、`SK Hynix`、`Invesco QQQ`），代码港股 4 位 `0700.HK`、韩股 `000660.KR`、美股原样 | 主网同步第 2 批 §7 规则 7、8；行里的公司名从事件名取（`stockCompanyName`） |
+| 韩元价格 | `₩1,136,000`：不带小数、千分位；纵轴、`Price to beat`、Base 同样 | 主网同步第 2 批 §4 ④ |
+| 加密 1d / 4h 轮 | 1d = 美东中午 12 点到次日中午；4h = 美东 0 / 4 / 8 / 12 / 16 / 20 点切；页面上一律换成看的人本地时间 | 主网同步第 2 批 §7 规则 9 |
 | Stocks 底注 | `{n} of {N} trading above their base price right now` · `Show all {N} →` · 手机 `{n} of 5 above their base price` | K6 / MB5 |
 | Editor's Desk | `✦ Editor's Desk · {N} picks` · `What's worth watching?` · 眉行 `{品类} · settles {HH:mm} / Tomorrow {HH:mm} / settles {Mon D}` · `+{n} more` | E1 E3 E4 |
 | More | `More markets · {N} open` · `Will it happen?` · `{品类} · {N} markets / Yes / No · Boost {n}× · closes in {X}h` · `Vol ${x} · settles {Mon D}` · `+{n} more outcomes →` · `Outcomes are mutually exclusive — exactly one pays $1.` · `{n}% chance of Yes` · `Yes {n}¢` / `No {n}¢` | M1–M5 |

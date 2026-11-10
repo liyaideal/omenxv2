@@ -6,7 +6,7 @@
 // ============================================================
 import { t } from "@/i18n";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
-import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
+import { deriveTickerFromEvent, stockCompanyName } from "@/components/SpotStatsHeader";
 import { kickoffCell } from "@/components/lite/sports/sportsData";
 import { MatchScoreText } from "@/components/lite/sports/tennisScore";
 import {
@@ -730,7 +730,7 @@ export const SessionBlock = ({
       <span className="grid grid-cols-2" style={{ gap: 9 }}>
         {tiles.map((row) => {
           const ticker = deriveTickerFromEvent(row.id, row.name);
-          const company = STOCK_NAME[ticker] ?? ticker;
+          const company = stockCompanyName(ticker, row.name);
           return (
             <span
               key={row.id}

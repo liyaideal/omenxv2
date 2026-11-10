@@ -56,7 +56,7 @@ import {
   isPastFreeze,
   FREEZE_MINUTES_BEFORE_CLOSE,
 } from "@/lib/usStockSessions";
-import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
+import { deriveTickerFromEvent, stockCompanyName } from "@/components/SpotStatsHeader";
 import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import { SpotSessionBanner } from "@/components/lite/trade/SpotSessionBanner";
@@ -277,7 +277,7 @@ const LiteSpotTrade = () => {
 
   // Ticker + display
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "STOCK";
-  const company = STOCK_NAME[ticker] ?? ticker;
+  const company = stockCompanyName(ticker, event?.name);
 
   // Base + indicative "today's" price. DEMO-STATE synth around base_price.
   const basePrice = event?.base_price != null ? Number(event.base_price) : null;
@@ -648,7 +648,7 @@ const LiteSpotTrade = () => {
       rows={otherStocks.map((s) => ({
         key: s.id,
         ticker: s.ticker,
-        label: `${STOCK_NAME[s.ticker] ?? s.ticker} — close higher?`,
+        label: `${stockCompanyName(s.ticker, s.name)} — close higher?`,
         upPct: s.upPct,
         onClick: () => navigate(`/spot?event=${s.id}`),
       }))}

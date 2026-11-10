@@ -14,7 +14,7 @@ import {
   PctChange,
   PriceReadout,
 } from "@/components/lite/shared/primitives";
-import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
+import { deriveTickerFromEvent, stockCompanyName } from "@/components/SpotStatsHeader";
 import {
   formatMarketPrice,
   resolveStockMarket,
@@ -39,7 +39,7 @@ export const MobileTradingStockRow = ({
 }) => {
   const navigate = useNavigate();
   const ticker = deriveTickerFromEvent(row.id, row.name);
-  const company = STOCK_NAME[ticker] ?? ticker;
+  const company = stockCompanyName(ticker, row.name);
   const market = resolveStockMarket(row);
   const seed = seedFromId(row.id);
   const base = row.base_price;
@@ -146,7 +146,7 @@ export const MobileAsleepStockRow = ({
   nextOpen: string;
 }) => {
   const ticker = deriveTickerFromEvent(row.id, row.name);
-  const company = STOCK_NAME[ticker] ?? ticker;
+  const company = stockCompanyName(ticker, row.name);
   const market = resolveStockMarket(row);
 
   return (

@@ -179,8 +179,13 @@ export const LiteStockChart = ({
     tab === "stock" ? "#C9CED6" : isYesSide ? "hsl(var(--yes))" : "hsl(var(--no))";
   const baseline = tab === "stock" ? basePrice : null;
 
-  const yFmt = (v: number) =>
-    tab === "stock" ? `${currency}${v.toFixed(2)}` : `${Math.round(v)}¢`;
+  // Won has no minor unit → "₩1,136,000"; other markets keep cents.
+  const px = (v: number) =>
+    currency === "₩" ? `${currency}${Math.round(v).toLocaleString("en-US")}` : `${currency}${v.toFixed(2)}`;
+  const yFmt = (v: number) => (tab === "stock" ? px(v) : `${Math.round(v)}¢`);
+  // Axis gutter sized to the widest label (10px Space Grotesk ≈ 6.2px a glyph), so "HK$552.17" / "₩1,145,493" are never cut.
+  const yMax = series.reduce((m, d) => Math.max(m, Number((d as { v?: number }).v ?? 0)), basePrice ?? 0);
+  const yAxisW = Math.max(48, Math.ceil(yFmt(yMax).length * 6.2) + 6);
 
   return (
     <div className={cn("rounded-2xl border border-border bg-card", className)}>
@@ -248,7 +253,7 @@ export const LiteStockChart = ({
                 tick={{ fontSize: 10, fill: "#6B7280", fontFamily: "Space Grotesk" }}
                 tickLine={false}
                 axisLine={false}
-                width={48}
+                width={yAxisW}
                 tickFormatter={yFmt}
               />
               <Tooltip
@@ -271,7 +276,7 @@ export const LiteStockChart = ({
                   stroke="#6B7280"
                   strokeDasharray="4 4"
                   label={{
-                    value: `Price to beat ${currency}${baseline.toFixed(2)}`,
+                    value: `Price to beat ${px(baseline)}`,
                     position: "insideTopRight",
                     fill: "#9AA1AC",
                     fontSize: 10,

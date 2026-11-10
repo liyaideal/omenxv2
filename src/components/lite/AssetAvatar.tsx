@@ -86,7 +86,10 @@ export const AssetAvatar = ({
   }
 
   const logo = EQUITY_LOGO[key];
-  const monogram = key.replace(".HK", "").slice(0, 4);
+  // "0700.HK" → "0700"; "000660.KR" → "660" (KR codes are 6 digits, the leading zeros say nothing); "NVDA" → "NVDA".
+  const monogram = /\.KR$/.test(key)
+    ? key.split(".")[0].replace(/^0+(?=\d{3})/, "").slice(0, 4)
+    : key.replace(".HK", "").slice(0, 4);
 
   return (
     <span
