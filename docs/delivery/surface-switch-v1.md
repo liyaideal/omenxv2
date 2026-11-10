@@ -100,6 +100,7 @@
 - **派生口径**：`surface = hasSession === false ? "lite" : storedSurface`。会话未决时沿用 storedSurface，避免登录用户出现 Lite→Pro 闪烁；会话确认为空后立刻回落 Lite。
 - **localStorage 不清**：`omenx_surface` 在退出登录时保留，用户再次登录即恢复 Pro 偏好；`profiles.preferred_surface` 首次水合仍然优先。
 - **游客的 `setSurface` / `toggle` 均为 no-op。**
+- **看直播的那一页（2026-11-10，`home-all-v1.md` S5）**：`/trade?event=…&play=1` 由 `SurfaceWatchOverride`（路由里一层）把 surface 覆盖成 `lite`，不动 storedSurface；这一页选 Pro = `setSurface("pro")`（不管原来存的是什么，和平时在交易页切 Pro 一样写偏好）+ `navigate(replace)` 去掉 `play`。这是「切换只改渲染、不改路由」的唯一例外。
 - 路由无需改动：`/trade`、`/trade/order`、`/spot`、`/spot/order` 四条路由与桌面分叉全部读 `useSurface().surface`，代码中已无直接读 `omenx_surface` 的地方。
 - **Pro 登录门换件**：`ProBottomTabs`、`TradeOrder`、`SpotTradeOrder` 改用站点唯一的 `LiteAuthGate`（新增 `variant="panel"`：`bg-card` 无模糊、72px lynx、单行标题、Sign in / Create account 同排、总高 ≤ 220px）。此前"Pro 面保留 `AuthGateOverlay` 原样不动"的说法作废。`src/components/AuthGateOverlay.tsx` 因 `Wallet` / `PortfolioSettlements` / style-guide 仍在引用而保留，交易面已不再使用。
 - 状态字典：Pro — 交易终端 › 两终端共用 →「Surface switch · Lite / Pro」SS-1…SS-5，以及「③ 终端骨架」`pro-bottom-tabs-guest`（SP-I）。

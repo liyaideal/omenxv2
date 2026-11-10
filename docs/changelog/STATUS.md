@@ -35,6 +35,9 @@
 | 12 | More 标题桌面 3 行 | ⬜ | M2 |
 | 13 | Sports 品类页页头大数字 = ALL，有比赛在打写 `Upcoming this week · N live` | ⬜ | copy-dictionary · 字典 EV-36 |
 | 14 | `Tmrw` → `Tomorrow` | ⬜ | copy-dictionary · 全站规范 R3 |
+| 15 | Sports 小价钮带队伍短码（桌面一行，手机短码在上价格在下），定宽对齐 | ⬜ | R4 · DESIGN 11-10 第 3 / 5 条 |
+| 16 | 播放钮进交易页（`&play=1`）一律按 Lite 打开开播，存的 Pro 不改；这一页选 Pro 去掉 play 回 Pro | ⬜ | S5 · `trade-lite-pro-v1.md` §3 |
+| 17 | Pro 合约终端页头 `▶ Watch live`（在打 + 有直播源） | ⬜ | S5 · 字典 PW-1…6 · DESIGN 11-10 第 8 条 |
 
 ## 2026-11-10 — Lovable 展示 omenx.com 真实事件 · 第 2 批（[文档](../delivery/mainnet-catalog-sync-v1.md) §4 ④ / §7）
 

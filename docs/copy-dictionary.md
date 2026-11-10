@@ -1164,7 +1164,6 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | `Pro` | 交易页的专业终端看法，仅这三条路由存在 | `surface === "pro"` | 同上 |
 | `Trading view` | 页头分段控件的无障碍名，只出现在 `aria-label`，界面上不显示 | `aria-label="Trading view"` | 同上 |
 | `Switch to Pro view` / `Switch to Lite view` | 移动端贴底方钮的无障碍名，界面上只显示目的地标签 | `size === "dock"` | 同上 |
-
 | `▶ Watch live`（Pro 终端页头） | 比赛正在打且有直播源时，Pro 合约终端页头状态行末尾的橙色胶囊；点了进 Lite 交易页开播，存的 Pro 不改 | `sportsClock.phase === "live" && fixtureMeta(比赛).stream_url` | `src/components/pro/ProWatchLive.tsx` · key `sports_view.sports_streams.watch_live` · 字典 PW-1…6 |
 | 看直播的那一页 | `/trade?event=<比赛>&play=1`（播放钮 / Watch live 打开）：这一页一律 Lite，开关显示 Lite，选 Pro 去掉 `play` 回 Pro；不改存的偏好 | `isWatchLink(pathname, search)` | `SurfaceWatchOverride` · `home-all-v1.md` S5 |
 

@@ -423,11 +423,14 @@ function PerpTradingLayout({
         }
         countdownUrgency={sportsClock ? (sportsClock.phase === "live" ? "live" : "muted") : countdownUrgency}
         statsExtra={
-          <>
-            {scheduleTail}
-            {/* S5 (CPO 2026-11-10): live + stream → "▶ Watch live" opens the Lite page with the stream */}
-            <ProMobileWatchLive eventId={watchTarget} />
-          </>
+          // only when there is something to show — a non-null fragment would make the header grow an empty row
+          scheduleTail || watchTarget ? (
+            <>
+              {scheduleTail}
+              {/* S5 (CPO 2026-11-10): live + stream → "▶ Watch live" opens the Lite page with the stream */}
+              <ProMobileWatchLive eventId={watchTarget} />
+            </>
+          ) : undefined
         }
         eventInfo={
           eventInfo ??
