@@ -588,8 +588,15 @@ export const HomeSportsSection = ({
     const next = pool.filter((m) => !bigSet.has(m.id)).slice(0, isMobile ? 0 : fill);
     // R2: "+N more" = not-started matches not shown anywhere — the stage counts too when it hasn't kicked off (state ④).
     const stageUpcoming = stage && upcoming.some((m) => m.id === stage.id) ? 1 : 0;
-    const remain = Math.max(0, upcoming.length - stageUpcoming - upNext.length - big.length - next.length);
-    return { live, liveSet, upcoming, streams, stage, alsoLive, upNext, big, next, remain };
+    // R2: the count doesn't depend on the picked day — always measured against the whole-week table.
+    const poolAll = upcoming.filter((m) => !used.has(m.id));
+    const bigAll = [...poolAll].sort(byVol).slice(0, 3);
+    const bigAllSet = new Set(bigAll.map((m) => m.id));
+    const nextAll = poolAll.filter((m) => !bigAllSet.has(m.id)).slice(0, isMobile ? 0 : fill);
+    const remain = Math.max(0, upcoming.length - stageUpcoming - upNext.length - bigAll.length - nextAll.length);
+    // A picked day is "done" when every one of its remaining matches is already in the table.
+    const dayDone = pool.length <= big.length + next.length;
+    return { live, liveSet, upcoming, streams, stage, alsoLive, upNext, big, next, remain, dayDone };
   }, [matches, now, day, streamIndex, isMobile, nextUpRows]);
 
   const strip = useMemo(() => buildDayStrip(matches, now), [matches, now]);
@@ -699,7 +706,7 @@ export const HomeSportsSection = ({
       : `${new Date(Number(day)).toLocaleDateString(uiLocale(), { weekday: "short" })} ${new Date(Number(day)).getDate()}`; // "Fri 7", same order as the strip
   // CPO 2026-11-10: the strip calls today TODAY, so the panel says "today" too.
   const dayIsToday = day !== "all" && strip.some((b) => b.id === day && b.label === "TODAY");
-  const dayFooter = dayWord != null && model.next.length === 0 && (
+  const dayFooter = dayWord != null && model.dayDone && (
     <div style={{ fontSize: 13, color: MU, paddingTop: model.big.length ? 14 : 4 }}>
       {dayIsToday ? ht("sports.no_more_today") : ht("sports.no_more_on_day", { day: dayWord })} ·{" "}
       <button type="button" className="lnk" style={{ fontSize: 13, fontWeight: 400 }} onClick={onOpenAll}>
@@ -751,6 +758,7 @@ export const HomeSportsSection = ({
         {stage}
         <div style={{ marginTop: 28 }}>{tiles}</div>
         <div style={{ marginTop: 28 }}>{table}</div>
+        {dayFooter}
         <div className="row" style={{ marginTop: 18, justifyContent: "space-between" }}>
           <span className="kv">{ht("sports.more_this_week", { count: model.remain })}</span>
           <button type="button" className="lnk" onClick={onOpenAll}>

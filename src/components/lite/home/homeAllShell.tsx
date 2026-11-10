@@ -124,7 +124,7 @@ export const OddsButton = ({
 /* Team badge (S1): every crest sits in the same circle. A real crest   */
 /* (transparent PNG) is drawn `contain` at 74%; a feed placeholder tile */
 /* (flat colour square) is replaced by a badge in that colour + code;   */
-/* no image at all → grey badge + code. Pairs overlap by -5px.          */
+/* no image at all → grey badge + code. Pairs overlap by -1px (S1).     */
 /* ------------------------------------------------------------------ */
 export const TeamBadge = ({
   code,

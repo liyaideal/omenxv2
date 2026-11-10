@@ -41,8 +41,9 @@ const Buttons = ({ p, go }: { p: EditorPick; go: (href: string) => void }) => {
   if (p.optionCount > 2) {
     return (
       <>
+        {/* G3: each outcome pill buys YES on that outcome (side=no would open "No on B" on the multi trade page) */}
         <OddsButton label={p.yesLabel} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId, "yes"))} />
-        <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId, "no"))} />
+        <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId, "yes"))} />
         <button type="button" className="lnk" style={{ fontSize: 13 }} onClick={() => go(pickHref(p))}>
           {ht("desk.more", { count: p.optionCount - 2 })}
         </button>
@@ -57,10 +58,13 @@ const Buttons = ({ p, go }: { p: EditorPick; go: (href: string) => void }) => {
       </>
     );
   }
+  // Match: a two-option event's away side is its "no" side; a three-way match is multi-outcome on the
+  // trade page, so the away team is YES on the away option (side=no would open "No on away").
+  const awaySide = (p.totalOptions ?? 2) > 2 ? "yes" : "no";
   return (
     <>
       <OddsButton label={p.yesLabel} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId, "yes"))} />
-      <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId, "no"))} />
+      <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId, awaySide))} />
     </>
   );
 };

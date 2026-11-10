@@ -37,8 +37,6 @@ export interface HomeStageProps {
   nowOverride?: number;
 }
 
-const Rule = () => <div className="secrule" />;
-
 export const HomeStage = ({
   currentFor,
   historyFor,
@@ -68,9 +66,10 @@ export const HomeStage = ({
 
   return (
     <div className={isMobile ? "hall hall-m" : "hall"}>
+      {/* G1: a section can still render nothing (no stage / no round for this period), so the divider
+          is CSS on the block itself — it only shows between blocks that actually rendered. */}
       {blocks.map((b, i) => (
-        <div key={i}>
-          {i > 0 && <Rule />}
+        <div key={i} className="hblk">
           {b}
         </div>
       ))}

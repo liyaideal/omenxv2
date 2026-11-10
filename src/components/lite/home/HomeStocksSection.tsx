@@ -95,7 +95,7 @@ const Spark = ({ p, base, w, h }: { p: StockPrints; base: number; w: number; h: 
   const pad = Math.max((hi - lo) * 0.15, base * 0.0005);
   const Y = (v: number) => 2 + ((hi + pad - v) / (hi - lo + 2 * pad)) * (h - 4);
   const X = (i: number) => (i / Math.max(1, p.pts.length - 1)) * (w - 2) + 1;
-  const col = p.last >= base ? GREEN : RED;
+  const col = p.last > base ? GREEN : p.last < base ? RED : "#98A1AD"; // K5: exactly at base = grey, like the 0.00% beside it (a tie settles Down)
   const d = p.pts.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
   return (
     <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} style={{ display: "block" }}>

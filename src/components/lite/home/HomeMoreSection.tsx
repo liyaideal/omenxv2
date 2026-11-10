@@ -3,7 +3,7 @@
 // Eyebrow "More markets · N open" + "Will it happen?" (same 48px as the
 // other sections); no list entry, no explainer (M1). Long-dated events are
 // few, so they lay down one per row: cover 120×72 + "Category · N markets ·
-// Boost n×" + title (≤ 2 lines) + "Vol $x · settles date" on the left, a
+// Boost n×" + title (≤ 3 lines on desktop) + "Vol $x · settles date" on the left, a
 // 520px outcome area on the right (M2). Multi-outcome → one cyan / lime
 // Yes-No share bar per market + Yes n¢ / No n¢ 66px buttons, max 4 shown,
 // the rest "+N more outcomes →"; mutually exclusive sets carry one line
@@ -57,7 +57,7 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
     const multi = m.children.length > 2;
     const boost = getBoostMax(m.category);
     const msLeft = m.expiry ? m.expiry.getTime() - now : null;
-    const closesSoon = msLeft != null && msLeft < 48 * 3_600_000;
+    const closesSoon = msLeft != null && msLeft > 0 && msLeft < 48 * 3_600_000; // M5: an expired event never reads "closes in 1h"
     const meta = [
       m.categoryLabel,
       multi ? ht("more.markets", { count: m.children.length }) : ht("more.yes_no"),
@@ -111,10 +111,10 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
               <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 10, alignItems: "center", marginTop: 6 }}>
                 <Bar p={c.markPrice} />
                 <span className="row" style={{ gap: 5 }}>
-                  <button type="button" className="up yn" style={{ width: 58, padding: "4px 0", fontSize: 11 }} onClick={go(m, { option: c.id, side: "yes" })}>
+                  <button type="button" className="up yn" style={{ minWidth: 58, padding: "4px 8px", fontSize: 11 }} onClick={go(m, { option: c.id, side: "yes" })}>
                     {t("common.yes")} <b>{cents(c.markPrice)}</b>
                   </button>
-                  <button type="button" className="dn yn" style={{ width: 58, padding: "4px 0", fontSize: 11 }} onClick={go(m, { option: c.id, side: "no" })}>
+                  <button type="button" className="dn yn" style={{ minWidth: 58, padding: "4px 8px", fontSize: 11 }} onClick={go(m, { option: c.id, side: "no" })}>
                     {t("common.no")} <b>{cents(1 - c.markPrice)}</b>
                   </button>
                 </span>

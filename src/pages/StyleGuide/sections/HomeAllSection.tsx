@@ -74,7 +74,7 @@ const SPORTS_CASES: SectionCase[] = [
       { state: "数字", when: "始终", visual: "眉行 N = 这 7 天所有没结算的（含正在打）；ALL n 与各天数字 = 没开赛的；「+N more this week」= 全部没开赛 − 本段已展示，跟选哪天无关", source: "R1 / R2" },
       { state: "面板标题", when: "day !== 'all'", visual: "「Big on Fri 7 · by volume」——星期 + 日号，和日历条同顺序（#6 · 2026-11-10，原来仍写 Big this week）", source: "big_on_day · dayWord" },
       { state: "选的是今天", when: "日历条那格是 TODAY", visual: "标题「Big today · by volume」，排完「No more matches today」（CPO 2026-11-10，和日历条的 TODAY 一致）", source: "big_today · no_more_today" },
-      { state: "那天排完了", when: "day !== 'all' && model.next.length === 0", visual: "面板底一行灰字「No more matches on Fri 7 · see all →」，see all 进 Sports 品类页；只在桌面（手机没有右表）", source: "no_more_on_day · dayFooter" },
+      { state: "那天排完了", when: "day !== 'all' && model.dayDone（那天剩下的场次都已在 Big + Next up 里）", visual: "面板底一行灰字「No more matches on Fri 7 · see all →」，see all 进 Sports 品类页；手机同样显示（手机只有 Big 3 行）", source: "no_more_on_day · dayFooter" },
       { state: "再点 ALL", when: "点 ALL 格", visual: "回到全周", source: "setDay('all')" },
     ],
   },

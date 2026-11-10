@@ -43,6 +43,8 @@ export interface EditorPick {
   noOptionId: string | null;
   /** Total outcome count — >2 marks a multi-market pick. */
   optionCount: number;
+  /** Options on the event before trimming to two (a three-way match still has 3). The trade page treats > 2 as multi-outcome. */
+  totalOptions?: number;
   /** Settlement instant (home Editor's Desk eyebrow "Category · settles HH:mm"). */
   endDate: Date | null;
 }
@@ -159,6 +161,7 @@ export const toEditorPick = (row: RawRow): EditorPick | null => {
     yesOptionId: yes?.id ?? null,
     noOptionId: no?.id ?? null,
     optionCount: isMatch ? opts.length : outcomeCount,
+    totalOptions: outcomeCount,
     endDate: row.end_date ? new Date(row.end_date) : null,
   };
 };

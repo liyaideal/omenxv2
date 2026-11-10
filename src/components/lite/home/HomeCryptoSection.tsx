@@ -90,6 +90,8 @@ const Last8 = ({ history, label, big, labelColor }: { history: ("up" | "down")[]
           />
         ))}
       </span>
+      {/* C6 / R6: no settled round yet → no "last round" legend (it would say "last round Down") */}
+      {recent.length > 0 && (
       <span className="kv" style={{ fontSize: big ? 12.5 : 10.5, marginLeft: big ? 0 : "auto", whiteSpace: "nowrap" }}>
         {big ? (
           <>
@@ -109,6 +111,7 @@ const Last8 = ({ history, label, big, labelColor }: { history: ("up" | "down")[]
           </>
         )}
       </span>
+      )}
     </div>
   );
 };
