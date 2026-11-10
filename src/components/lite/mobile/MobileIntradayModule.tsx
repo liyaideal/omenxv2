@@ -32,7 +32,7 @@ import {
   resolveStockMarket,
   type StockMarket,
 } from "@/lib/usStockSessions";
-import { Last8Strip, LivePulse } from "@/components/lite/shared/primitives";
+import { FLAT_GREY, Last8Strip, LivePulse, fmtCryptoUsd } from "@/components/lite/shared/primitives";
 import { DirectionButton } from "@/components/lite/categoryviews/verticalBlocks";
 
 const MICRO: React.CSSProperties = {
@@ -124,7 +124,7 @@ export const MobileCoinCard = ({
               }}
             >
               {price != null
-                ? `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+                ? fmtCryptoUsd(price)
                 : "—"}
             </span>
             <span
@@ -132,10 +132,10 @@ export const MobileCoinCard = ({
                 fontSize: 11,
                 fontWeight: 700,
                 fontVariantNumeric: "tabular-nums",
-                color: pct >= 0 ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))",
+                color: Number(pct.toFixed(2)) === 0 ? FLAT_GREY : pct >= 0 ? "hsl(var(--trading-green))" : "hsl(var(--trading-red))",
               }}
             >
-              {pct >= 0 ? "+" : ""}
+              {Number(pct.toFixed(2)) > 0 ? "+" : ""}
               {pct.toFixed(2)}%
             </span>
           </span>

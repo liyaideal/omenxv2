@@ -63,7 +63,7 @@
 .hall .tc-lg img{width:74%;height:74%;object-fit:contain;display:block}
 .hall .tc-lg i{font-style:normal;font-family:'Space Grotesk',sans-serif;font-size:8.5px;font-weight:700;color:#fff;letter-spacing:-.02em}
 .hall .tc-pair{display:flex}
-.hall .tc-pair .tc-lg+.tc-lg{margin-left:-5px;box-shadow:0 0 0 2px #11141A}
+.hall .tc-pair .tc-lg+.tc-lg{margin-left:-1px;box-shadow:0 0 0 2px #11141A} /* was -5px: the second badge ate the first code's last letter (CLE→CLI) · 2026-11-10 */
 .hall .sic{display:inline-flex;width:12px;height:12px;vertical-align:-2px;margin-right:5px;color:#98A1AD}
 .hall .sic svg{width:12px;height:12px}
 .hall .tc-tile{background:#11141A;border-radius:12px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:10px;min-width:0;text-align:left;border:0;font-family:inherit;color:inherit}

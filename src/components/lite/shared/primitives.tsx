@@ -36,6 +36,20 @@ export const LIVE_RED = "#FF3B4E";
 export const pctColor = (pct: number) =>
   pct >= 0 ? "hsl(74 100% 65%)" : "hsl(0 100% 68%)";
 
+/** Flat (exactly 0 at the shown precision): grey, no sign — a tie settles Down (C3 / K5, CPO 2026-11-10). */
+export const FLAT_GREY = "#98A1AD";
+
+/**
+ * Crypto price text (CPO 2026-11-10, #11): ≥ $10,000 whole dollars, below that two decimals,
+ * thousands separators always — $74,063 / $3,308.91 / $51.12. Same rule as the home Crypto section.
+ */
+export const fmtCryptoUsd = (v: number) =>
+  "$" +
+  v.toLocaleString("en-US", {
+    minimumFractionDigits: v >= 10_000 ? 0 : 2,
+    maximumFractionDigits: v >= 10_000 ? 0 : 2,
+  });
+
 /* ---------------- Live pulse ---------------- */
 
 /**
@@ -311,17 +325,21 @@ export const PctChange = ({
   minus?: string;
   tabular?: boolean;
   className?: string;
-}) => (
-  <span
-    className={className}
-    style={{
-      fontSize: size,
-      fontWeight: weight,
-      fontVariantNumeric: tabular ? "tabular-nums" : undefined,
-      color: pctColor(value),
-    }}
-  >
-    {value >= 0 ? "+" : minus}
-    {Math.abs(value).toFixed(decimals)}%
-  </span>
-);
+}) => {
+  // judged at the shown precision, so "0.00%" is always the flat state
+  const shown = Number(value.toFixed(decimals));
+  return (
+    <span
+      className={className}
+      style={{
+        fontSize: size,
+        fontWeight: weight,
+        fontVariantNumeric: tabular ? "tabular-nums" : undefined,
+        color: shown === 0 ? FLAT_GREY : pctColor(value),
+      }}
+    >
+      {shown > 0 ? "+" : shown < 0 ? minus : ""}
+      {Math.abs(value).toFixed(decimals)}%
+    </span>
+  );
+};

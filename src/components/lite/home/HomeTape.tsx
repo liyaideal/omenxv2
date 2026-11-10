@@ -20,6 +20,10 @@ import {
 } from "@/components/lite/intraday/intradayData";
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import { formatMarketPrice, resolveStockMarket } from "@/lib/usStockSessions";
+import { FLAT_GREY, fmtCryptoUsd } from "@/components/lite/shared/primitives";
+
+/** 0.00% at the shown precision = flat: grey, no sign (C3 / K5). */
+const flat = (pct: number) => Number(pct.toFixed(2)) === 0;
 
 const UP_C = "#4ADE80";
 const DOWN_C = "#F87171";
@@ -64,10 +68,7 @@ export const buildTapeItems = (
     out.push({
       key: coin,
       symbol: COIN_META[coin].ticker,
-      price: `$${price.toLocaleString(undefined, {
-        minimumFractionDigits: price < 1000 ? 2 : 0,
-        maximumFractionDigits: price < 1000 ? 2 : 0,
-      })}`,
+      price: fmtCryptoUsd(price),
       pct: ((price - ev.base_price) / ev.base_price) * 100,
       href: `/spot?event=${encodeURIComponent(ev.id)}`,
     });
@@ -104,8 +105,8 @@ const TapeCell = ({ item, onClick }: { item: TapeItem; onClick: () => void }) =>
   >
     <span style={{ fontWeight: 700, color: "#F2F3F5" }}>{item.symbol}</span>
     <span style={{ color: "#C9CED6" }}>{item.price}</span>
-    <span style={{ color: item.pct < 0 ? DOWN_C : UP_C }}>
-      {item.pct < 0 ? "\u2212" : "+"}
+    <span style={{ color: flat(item.pct) ? FLAT_GREY : item.pct < 0 ? DOWN_C : UP_C }}>
+      {flat(item.pct) ? "" : item.pct < 0 ? "\u2212" : "+"}
       {Math.abs(item.pct).toFixed(2)}%
     </span>
   </button>

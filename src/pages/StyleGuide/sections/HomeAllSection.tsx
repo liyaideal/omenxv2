@@ -98,7 +98,7 @@ const SPORTS_CASES: SectionCase[] = [
       { state: "真队徽", when: "home_logo 有值且没有 tile", visual: "深色圆底 #1B2130，图 contain 74% 不裁；国旗方图同样处理", source: "TeamBadge logoUrl · S1" },
       { state: "没有队徽", when: "home_logo 为空", visual: "灰底 #1B2130 + 白字短码", source: "TeamBadge code · S1" },
       { state: "加载失败", when: "图片 onError", visual: "同「没有队徽」", source: "TeamBadge onError" },
-      { state: "两队叠放", when: "列表行 / 表格行", visual: "第二枚 −5px 压在第一枚上，外圈 2px 底色描边", source: ".tc-pair · S1" },
+      { state: "两队叠放", when: "列表行 / 表格行", visual: "第二枚 −1px 贴着第一枚，外圈 2px 底色描边；第一枚的短码不被盖住（2026-11-10，原来 −5px 盖掉末字母）", source: ".tc-pair · S1" },
     ],
   },
 ];

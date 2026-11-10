@@ -16,6 +16,7 @@ import {
   Last8Strip,
   PctChange,
   PriceReadout,
+  fmtCryptoUsd,
   pctColor as sharedPctColor,
 } from "@/components/lite/shared/primitives";
 import { deriveTickerFromEvent, stockCompanyName } from "@/components/SpotStatsHeader";
@@ -55,11 +56,8 @@ export const MICRO: React.CSSProperties = {
   fontWeight: 700,
 };
 
-export const fmtUsd = (v: number) =>
-  `$${v.toLocaleString(undefined, {
-    minimumFractionDigits: v < 1000 ? 2 : 0,
-    maximumFractionDigits: v < 1000 ? 2 : 0,
-  })}`;
+/** Crypto price text — the shared #11 rule (≥ $10,000 whole dollars, below that two decimals). */
+export const fmtUsd = (v: number) => fmtCryptoUsd(v);
 
 /** Re-exported so existing call sites keep one colour law. */
 export const pctColor = sharedPctColor;

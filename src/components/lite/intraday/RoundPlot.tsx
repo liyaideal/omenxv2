@@ -202,7 +202,8 @@ export const RoundOpenPill = ({
     }}
   >
     Round open {currency}
-    {value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+    {/* #11 (2026-11-10): ≥ 10,000 whole, below that two decimals, separators always */}
+    {value.toLocaleString("en-US", { minimumFractionDigits: value >= 10_000 ? 0 : 2, maximumFractionDigits: value >= 10_000 ? 0 : 2 })}
   </span>
 );
 
