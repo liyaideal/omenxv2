@@ -228,8 +228,8 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
             <RoundCanvas series={n.s} tf={tf} height={64} nowOverride={nowOverride} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 10 }}>
-            <UpButton price={n.up} onClick={go(n.e, "yes")} style={{ padding: "7px 0", fontSize: 11.5, justifyContent: "center" }} />
-            <DownButton price={1 - n.up} onClick={go(n.e, "no")} style={{ padding: "7px 0", fontSize: 11.5, justifyContent: "center" }} />
+            <UpButton price={n.up} onClick={go(n.e, "yes")} style={{ padding: "7px 6px", gap: 4, fontSize: 11.5, justifyContent: "center" }} />
+            <DownButton price={1 - n.up} onClick={go(n.e, "no")} style={{ padding: "7px 6px", gap: 4, fontSize: 11.5, justifyContent: "center" }} />
           </div>
         </div>
       );

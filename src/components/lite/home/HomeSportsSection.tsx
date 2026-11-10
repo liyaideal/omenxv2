@@ -230,7 +230,7 @@ const Stage = ({
           <span className="tc-code" style={{ fontSize: isMobile ? 14 : 16 }}>
             {abbr(m, "home")}
           </span>
-          <span style={{ fontSize: isMobile ? 11 : 11.5, color: MU, maxWidth: "100%", width: isMobile ? undefined : 150, textAlign: "center", lineHeight: 1.3 }}>
+          <span className="tc-team-full" style={{ fontSize: isMobile ? 11 : 11.5, color: MU, maxWidth: "100%", width: isMobile ? undefined : 150, textAlign: "center", lineHeight: 1.3 }}>
             {m.home}
           </span>
         </div>
@@ -269,7 +269,7 @@ const Stage = ({
           <span className="tc-code" style={{ fontSize: isMobile ? 14 : 16 }}>
             {abbr(m, "away")}
           </span>
-          <span style={{ fontSize: isMobile ? 11 : 11.5, color: MU, maxWidth: "100%", width: isMobile ? undefined : 150, textAlign: "center", lineHeight: 1.3 }}>
+          <span className="tc-team-full" style={{ fontSize: isMobile ? 11 : 11.5, color: MU, maxWidth: "100%", width: isMobile ? undefined : 150, textAlign: "center", lineHeight: 1.3 }}>
             {m.away}
           </span>
         </div>

@@ -90,6 +90,9 @@ const draw = (cv: HTMLCanvasElement, s: RoundSeries, tf: Timeframe, big: boolean
   ctx.stroke();
   ctx.setLineDash([]);
   if (big) {
+    // the "now" label is translated (сейчас / bây giờ …): keep tick labels clear of its real width
+    ctx.font = "700 10px 'Space Grotesk', sans-serif";
+    const nowW = ctx.measureText(ht("crypto.chart_now")).width;
     ctx.font = "500 10px 'Space Grotesk', sans-serif";
     ctx.fillStyle = "#6B7280";
     ctx.textBaseline = "alphabetic";
@@ -102,7 +105,9 @@ const draw = (cv: HTMLCanvasElement, s: RoundSeries, tf: Timeframe, big: boolean
       ctx.moveTo(x + 0.5, TOP);
       ctx.lineTo(x + 0.5, H - BOT);
       ctx.stroke();
-      if (Math.abs(x - xn) > 26) ctx.fillText(hhmm(w), x - 14, H - 4);
+      const tl = hhmm(w);
+      const tw = ctx.measureText(tl).width;
+      if (Math.abs(x - xn) > nowW / 2 + tw / 2 + 6) ctx.fillText(tl, x - tw / 2, H - 4);
     }
     ctx.fillStyle = "#DBE2EA";
     ctx.font = "700 10px 'Space Grotesk', sans-serif";

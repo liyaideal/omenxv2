@@ -72,6 +72,11 @@ let locked = false;
 /** Style-guide preview only: pin the language regardless of the viewer's preference. */
 export const lockI18nLanguage = (code: LanguageCode) => {
   locked = true;
+  try {
+    document.documentElement.lang = code; // lang-scoped CSS (e.g. ru / vi caps tracking) applies in &lang= frames too
+  } catch {
+    /* SSR / tests */
+  }
   if (code !== current) {
     current = code;
     ensureLoaded(code);

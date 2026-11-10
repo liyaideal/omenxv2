@@ -48,7 +48,7 @@
 .hall .panel{background:#11141A;border-radius:16px;padding:24px 28px}
 
 /* ---- Sports (S0–S3, Sports 规则稿 v2) ---- */
-.hall .daycell{display:flex;flex-direction:column;align-items:center;justify-content:center;width:56px;height:56px;border-radius:12px;background:transparent;color:#DBE2EA;border:1px solid rgba(148,163,184,.18);font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;padding:0;flex:none}
+.hall .daycell{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:56px;width:auto;height:56px;border-radius:12px;box-sizing:border-box;background:transparent;color:#DBE2EA;border:1px solid rgba(148,163,184,.18);font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;padding:0 6px;flex:none}
 .hall .daycell.on{background:#CFFF4A;color:#0B0D11;border:0}
 .hall .daycell .dc-top{font-size:10px;font-weight:700;letter-spacing:.14em;color:#98A1AD}
 .hall .daycell.on .dc-top{color:#0B0D11}
@@ -113,7 +113,7 @@
 .hall .mbar i{display:block;height:100%}
 .hall .mbar .y{background:#33D6FF;opacity:.85}
 .hall .mbar .n{background:#CFFF4A;opacity:.6;flex:1}
-.hall .yn{width:66px;justify-content:center;padding:6px 0;font-size:12px}
+.hall .yn{min-width:66px;width:auto;justify-content:center;padding:6px 10px;font-size:12px;box-sizing:border-box}
 
 /* ============================ MOBILE ============================ */
 .hall-m .sec{padding:36px 0}
@@ -130,7 +130,7 @@
 .hall-m .tc-lg.pairsm{width:24px;height:24px}
 .hall-m .mstk{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px 10px;padding:12px 0;border-bottom:1px solid rgba(148,163,184,.12);align-items:center}
 .hall-m .mstk .l2{grid-column:2 / -1;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.hall-m .mstk .up,.hall-m .mstk .dn{width:78px;padding:7px 0;font-size:12px;justify-content:center}
+.hall-m .mstk .up,.hall-m .mstk .dn{min-width:78px;padding:7px 10px;gap:4px;font-size:12px;justify-content:center;box-sizing:border-box}
 .hall-m .tc-tile .tc-sc{font-size:18px}
 .hall-m .tc-tile .tc-tm .tc-code{overflow:visible;text-overflow:clip}
 .hall-m .altcard{border:1px solid rgba(148,163,184,.14);border-radius:16px;background:#11141A;padding:14px 12px}
@@ -149,3 +149,13 @@
   .hall .morerow>:last-child{max-width:640px}
 }
 @media (min-width:1280px){.hall .stk2-l>.hr:last-child{border-bottom:0}}
+
+/* 7-language UI pass (2026-11-10): long Russian / Vietnamese caps and wide CJK labels.
+   Boxes above grow with their content (min-width, not width); here the all-caps labels
+   tighten their tracking in ru / vi only, so English keeps its look. */
+.hall-m .eye{text-wrap:balance}
+.hall .tc-team-full{text-wrap:balance}
+html:is([lang="ru"],[lang="vi"]) .hall .daycell .dc-top{letter-spacing:.06em}
+html:is([lang="ru"],[lang="vi"]) .hall .eye{letter-spacing:.12em}
+html:is([lang="ru"],[lang="vi"]) .hall-m .eye{letter-spacing:.08em}
+html:is([lang="ru"],[lang="vi"]) .hall-m .tc-meta{letter-spacing:.04em}
