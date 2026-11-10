@@ -174,7 +174,8 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
         {(Math.abs(B.chg) * 100).toFixed(2)}%
       </span>
       <span className="kv" style={{ fontSize: big ? 11.5 : 10.5 }}>
-        {rich(ht(flat ? "crypto.at_open" : upNow ? "crypto.above_open" : "crypto.below_open"), {
+        {/* CPO 2026-11-10: once the bell has rung the round has closed — drop "if it closed now" */}
+        {rich(ht(`${flat ? "crypto.at_open" : upNow ? "crypto.above_open" : "crypto.below_open"}${rem > 0 ? "" : "_closed"}`), {
           win: <b style={{ color: upNow ? CY : LM }}>{ht(upNow ? "crypto.up_wins" : "crypto.down_wins")}</b>,
         })}
       </span>
@@ -220,7 +221,7 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
               {(Math.abs(n.chg) * 100).toFixed(2)}%
             </span>
             <span className="kv" style={{ fontSize: 10 }}>
-              {ht("crypto.closes_at", { time: hhmm(n.s.end) })}
+              {rem > 0 ? ht("crypto.closes_at", { time: hhmm(n.s.end) }) : ht("crypto.settling")}
             </span>
           </div>
           <div style={{ marginTop: 8 }}>
@@ -331,7 +332,7 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
             </span>
           </span>
           <span className="kv" style={{ fontSize: 11 }}>
-            {ht("crypto.closes_at", { time: hhmm(n.s.end) })}
+            {rem > 0 ? ht("crypto.closes_at", { time: hhmm(n.s.end) }) : ht("crypto.settling")}
           </span>
         </div>
         <RoundCanvas series={n.s} tf={tf} height={80} nowOverride={nowOverride} />

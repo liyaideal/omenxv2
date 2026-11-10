@@ -61,6 +61,15 @@ const draw = (cv: HTMLCanvasElement, s: RoundSeries, tf: Timeframe, big: boolean
   const vals = vis.filter((p) => p[0] >= s.start).map((p) => p[1]).concat([s.open, disp]);
   let lo = Math.min(...vals);
   let hi = Math.max(...vals);
+  // C4 (CPO 2026-11-10): right after the open this round has almost no path, so a range "from this
+  // round only" squeezes the grey pre-open line into full-height streaks. For the first 15% of the
+  // round the grey line's range is blended in, fading to "this round only" by 15%.
+  const histVals = vis.filter((p) => p[0] < s.start).map((p) => p[1]);
+  const early = Math.max(0, Math.min(1, 1 - (now - s.start) / (dur * 0.15)));
+  if (early > 0 && histVals.length) {
+    lo = Math.min(lo, lo - (lo - Math.min(...histVals)) * early);
+    hi = Math.max(hi, hi + (Math.max(...histVals) - hi) * early);
+  }
   const pad = Math.max((hi - lo) * 0.22, s.open * 0.0004);
   lo -= pad;
   hi += pad;
@@ -135,13 +144,21 @@ const draw = (cv: HTMLCanvasElement, s: RoundSeries, tf: Timeframe, big: boolean
     ctx.rect(0, TOP - 8, W, H - BOT - TOP + 8);
     ctx.clip();
     ctx.beginPath();
-    pre.forEach((p, i) => {
+    // a grey point outside the range breaks the line instead of drawing a streak across the plot
+    const inBand = (v: number) => v >= lo && v <= hi;
+    let pen = false;
+    pre.forEach((p) => {
+      if (!inBand(p[1])) {
+        pen = false;
+        return;
+      }
       const x = X(p[0]);
       const y = Y(p[1]);
-      if (!i) ctx.moveTo(x, y);
+      if (!pen) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
+      pen = true;
     });
-    if (post.length) ctx.lineTo(X(post[0][0]), Y(post[0][1]));
+    if (pen && post.length) ctx.lineTo(X(post[0][0]), Y(post[0][1]));
     ctx.lineWidth = big ? 1.6 : 1.2;
     ctx.strokeStyle = "rgba(148,163,184,.45)";
     ctx.lineJoin = "round";

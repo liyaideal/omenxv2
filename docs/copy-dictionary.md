@@ -1379,10 +1379,10 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | 舞台位标签 | `Live now · {联赛} · {节点}` · 0 live：`Biggest this week · kicks off in {X}` · 右：`▶ Live stream` / `Stream {i} / {N}` | S0 S3 |
 | 舞台位动作 | `Open match →` · 状态④有直播且 48h 内开赛：`☆ Remind me` → 已设 `★ Reminder set`（橙）· `Vol ${x}` · 有直播：画面中央 `Watch live` | S4 / S2 |
 | 瓷砖组标题 | `Also live · {n}` / `Up next` / `Up next · {HH:mm} / {HH:mm}` · `See all {n} live →` | S0 |
-| 右表 | `Big this week · by volume` / `Next up` · `+{n} more this week · see all →` · 手机 `All {N} matches →` · 日历条选了某天：`Big on {Fri 7} · by volume`，那天排完：`No more matches on {Fri 7} · see all →`（key `sports.big_on_day` / `sports.no_more_on_day`） | S0 / MB3 / R2 |
+| 右表 | `Big this week · by volume` / `Next up` · `+{n} more this week · see all →` · 手机 `All {N} matches →` · 日历条选了某天：`Big on {Fri 7} · by volume`，那天排完：`No more matches on {Fri 7} · see all →`；选的是今天：`Big today · by volume` / `No more matches today`（key `sports.big_on_day` / `no_more_on_day` / `big_today` / `no_more_today`） | S0 / MB3 / R2 |
 | Crypto 眉行 | `● Crypto · Up or Down · new round every {5 min / 15 min / hour / 4 hours / day}` | C1 |
 | Crypto 问句 | `Will the price go up?`（`go up` 柠檬）| G1 |
-| 钟 | `This round closes in {MM:SS}`（≥ 1 小时 `{H:MM:SS}`）· 到点、下一轮还没到：前缀隐藏，写 `Settling…`（key `crypto.settling`）| C2 |
+| 钟 | `This round closes in {MM:SS}`（≥ 1 小时 `{H:MM:SS}`）· 到点、下一轮还没到：前缀隐藏，写 `Settling…`（key `crypto.settling`）；这几秒 BTC 副句写 `above / at / below the open · {Up/Down} wins`（不带 `if it closed now`，key `crypto.*_open_closed`），ETH / SOL 的 `closes {HH:MM}` 也写 `Settling…` | C2 |
 | BTC 行 | `Round {HH:MM} → {HH:MM}` · `this round ${x}` · `Traded today ${x}k` · `{+$x · +x.xx%}` · `above the open · Up wins if it closed now` / `below the open · Down wins if it closed now` · 平盘：灰色 `$0 · 0.00%` + `at the open · Down wins if it closed now`（key `crypto.at_open`）· 价格 ≥ $10,000 取整、以下两位小数、千分位 | C3 |
 | 图表标签 | `OPEN ${x}` · `closes {HH:MM}` · `now` | C4 |
 | 比例条 | `{n}% of money on Up` · `{n}% on Down` | C5 |

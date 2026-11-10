@@ -27,6 +27,12 @@
 - Editor's Desk 多选项精选「+N more」恢复（上一笔把选项总数算成了 2）。
 - Finance 选 Korea 照常列出股票轮。
 
+**验收后 CPO 再定的三条（2026-11-10 下午）**
+
+- 每轮刚开盘时图上灰线被拉成竖条：开盘后最初 15% 的时间，量程把窗口里开盘前的灰线也算进去，随时间平滑收回到只看本轮；超出量程的灰线断开不画。
+- Sports 日历条选的是今天：右表标题写 `Big today · by volume`，排完写 `No more matches today`（和日历条的 TODAY 一致）。
+- Settling 那几秒：BTC 副句去掉 `if it closed now`，ETH / SOL 小卡也写 `Settling…`。
+
 **没动什么**
 
 - 港股午休与节假日的时段判断不变。

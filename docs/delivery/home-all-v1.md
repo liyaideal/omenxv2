@@ -73,9 +73,9 @@
 
 ### C · Crypto 段
 - **C1** 眉行「● Crypto · Up or Down · new round every 5 min」，后半句跟周期 tab：15 min / hour / 4 hours / day。首页 Crypto 段进来默认 5m，周期单独记、切过后在首页内保持；Intraday 品类页不受影响、维持原样（桌面 5m、手机 15m）（2026-11-10 批，字典 HA-6）。
-- **C2** 段头右侧：倒计时「This round closes in MM:SS」（≥ 1 小时写「H:MM:SS」，如 4h / 1D 轮的「1:31:12」）28px + 220px 进度条，竖线隔开周期 tab 5m / 15m / 1h / 4h / 1D。三个币共用这一个钟。一轮已到点、下一轮还没进来的那几秒：前缀「This round closes in」隐藏，时间位写「Settling…」，不停在 00:00；下一轮到了自动恢复（2026-11-10 批，字典 HA-7c）。
+- **C2** 段头右侧：倒计时「This round closes in MM:SS」（≥ 1 小时写「H:MM:SS」，如 4h / 1D 轮的「1:31:12」）28px + 220px 进度条，竖线隔开周期 tab 5m / 15m / 1h / 4h / 1D。三个币共用这一个钟。一轮已到点、下一轮还没进来的那几秒：前缀「This round closes in」隐藏，时间位写「Settling…」，不停在 00:00；同时 BTC 副句去掉「if it closed now」（如「below the open · Down wins」），ETH / SOL 的「closes HH:MM」也写「Settling…」；下一轮到了自动恢复（2026-11-10 批，字典 HA-7c）。
 - **C3** BTC 主卡（8 栏裸放）：₿ BTC · Round HH:MM → HH:MM · 本轮成交 · 右上 Traded today；价格 84px；涨跌行「+$x · +x.xx%」+「above/below the open · Up/Down wins if it closed now」。不展示 open 价、不展示单轮成交量明细。「Traded today」= BTC 今天（UTC 0 点起）所有周期、所有轮次的成交额之和；「本轮成交」= 当前周期当前这一轮的成交额。平盘（现价正好等于开盘价）：后端规则是收盘 > 开盘才算 Up，所以平盘写灰色「$0 · 0.00%」不带符号 +「at the open · Down wins if it closed now」，ETH / SOL 的 0.00% 同样灰色无符号（2026-11-10 批，字典 HA-7b）。价格写法：≥ $10,000 取整（$74,063），以下两位小数（$2,137.09 / $86.97），一律千分位；图上 OPEN 标签同规则。
-- **C4** BTC 图表 = V1 双色面 + 紧量程，动效借 Quick Play 舞台：canvas；时间窗 = 过去 72% 轮长 + 未来 28%，整条线随时间左移；NOW 竖虚线，未来区淡色；收盘线进入窗口才出现（橙，带 closes HH:MM）；开盘虚线横贯，OPEN $ 标签最上层带底色；高于开盘青色面、低于开盘柠檬面；开盘前历史画灰细线不算输赢；量程只看本轮；头点跟最新价缓动 + 呼吸环；密点按 3px 一桶平均；时间刻度 5m 每分钟 / 15m 3 分 / 1h 10 分 / 4h 1 小时 / 1D 3 小时。
+- **C4** BTC 图表 = V1 双色面 + 紧量程，动效借 Quick Play 舞台：canvas；时间窗 = 过去 72% 轮长 + 未来 28%，整条线随时间左移；NOW 竖虚线，未来区淡色；收盘线进入窗口才出现（橙，带 closes HH:MM）；开盘虚线横贯，OPEN $ 标签最上层带底色；高于开盘青色面、低于开盘柠檬面；开盘前历史画灰细线不算输赢；量程只看本轮——但开盘后最初 15% 的时间里，本轮还几乎没有走势，量程把窗口里开盘前的灰线也算进去，随时间平滑收回到只看本轮；超出量程的灰线断开不画，不再拉成竖条（2026-11-10 批）；头点跟最新价缓动 + 呼吸环；密点按 3px 一桶平均；时间刻度 5m 每分钟 / 15m 3 分 / 1h 10 分 / 4h 1 小时 / 1D 3 小时。
 - **C5** Up / Down 大钮 + 资金比例条（Up 青 / Down 柠檬）+ 两头百分比。比例 = 本轮 Up / Down 两边下单金额的占比（正式版接资金数据；Lovable 没有资金池，用 Up 价格代替）。
 - **C6** Last 8 rounds：8 根小柱按结果上色（Up 青 / Down 柠檬），最新一根描边；右侧「Up won N · Down won N · last round Up/Down」。不写上一轮涨跌金额。
 - **C7** 右栏面板 ETH / SOL 两半等高：币 + 价格 + 涨跌 + closes HH:MM；小图同 C4 画法缩小（80px 高，带 OPEN 标签）；Up / Down 小钮 + 细比例条。
@@ -111,7 +111,7 @@
 
 ### R · 研发口径（2026-11-09 终验冷读补）
 - **R1** 「this week」= 从查看者本地今天 0 点起 7 天。眉行「N matches this week」= 这 7 天内所有还没结算的比赛（含正在打的）；日历条「ALL n」和每天的数字 = 还没开赛的（日历条只筛右表）。有比赛在打时两个数不相等，差值 = 正在打的场数。
-- **R2** 「+N more this week」= 所有还没开赛的场次 − 本段已经展示的场次，跟日历条当前选哪天无关。选了某一天：右表标题写「Big on Fri 7 · by volume」（星期 + 日号，同日历条顺序）；那天的比赛已经全部列出（Big 里放得下、Next up 没有剩的），面板底写「No more matches on Fri 7 · see all →」，see all 进 Sports 品类页（2026-11-10 批，字典 HA-17）。
+- **R2** 「+N more this week」= 所有还没开赛的场次 − 本段已经展示的场次，跟日历条当前选哪天无关。选了某一天：右表标题写「Big on Fri 7 · by volume」（星期 + 日号，同日历条顺序），选的是今天（日历条写 TODAY）则写「Big today · by volume」；那天的比赛已经全部列出（Big 里放得下、Next up 没有剩的），面板底写「No more matches on Fri 7 · see all →」（今天写「No more matches today」），see all 进 Sports 品类页（2026-11-10 批，字典 HA-17）。
 - **R3** 舞台位有多路直播时，默认放成交额最大的一路（相同按开赛早者），‹ › 切换；同 Sports 品类页 EV-37。
 - **R4** Sports 价钮：左钮 = 第一个选项（主队）、右钮 = 最后一个选项（客队），钮上写短名；三项足球赛首页不放平局钮（品类页和交易页有）。
 - **R5** 倒计时写法：≥ 1 小时「9h 05m」，< 1 小时「22m」，< 1 分钟「45s」；超过 24 小时也写小时（「62h 05m」），不换算成天——首页舞台标签「kicks off in」和眉行「next kickoff in」同样（2026-11-10 修：原来写「1d 2h」）。交易页和 Sports 品类页的开赛倒计时是另一套写法（`kickoffInShort`，见 copy-dictionary「Sports 交易时间」），本次不动。More 的「closes in Xh」四舍五入、最少写 1h。

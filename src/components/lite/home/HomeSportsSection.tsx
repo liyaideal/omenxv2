@@ -697,9 +697,11 @@ export const HomeSportsSection = ({
     day === "all"
       ? null
       : `${new Date(Number(day)).toLocaleDateString(uiLocale(), { weekday: "short" })} ${new Date(Number(day)).getDate()}`; // "Fri 7", same order as the strip
+  // CPO 2026-11-10: the strip calls today TODAY, so the panel says "today" too.
+  const dayIsToday = day !== "all" && strip.some((b) => b.id === day && b.label === "TODAY");
   const dayFooter = dayWord != null && model.next.length === 0 && (
     <div style={{ fontSize: 13, color: MU, paddingTop: model.big.length ? 14 : 4 }}>
-      {ht("sports.no_more_on_day", { day: dayWord })} ·{" "}
+      {dayIsToday ? ht("sports.no_more_today") : ht("sports.no_more_on_day", { day: dayWord })} ·{" "}
       <button type="button" className="lnk" style={{ fontSize: 13, fontWeight: 400 }} onClick={onOpenAll}>
         {ht("sports.see_all")}
       </button>
@@ -707,7 +709,15 @@ export const HomeSportsSection = ({
   );
   const table = (
     <div className="panel" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-      <Head label={dayWord != null ? ht("sports.big_on_day", { day: dayWord }) : ht("sports.big_this_week")} />
+      <Head
+        label={
+          dayWord == null
+            ? ht("sports.big_this_week")
+            : dayIsToday
+              ? ht("sports.big_today")
+              : ht("sports.big_on_day", { day: dayWord })
+        }
+      />
       <div style={{ display: "flex", flexDirection: "column" }}>
         {model.big.map((m, i) => (
           <Row key={m.id} m={m} big hr={i < model.big.length - 1} isMobile={isMobile} onOpen={onOpen} />
