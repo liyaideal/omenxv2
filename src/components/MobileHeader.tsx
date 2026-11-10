@@ -287,8 +287,9 @@ export const MobileHeader = ({
       {/* Row 2: Pro stats bar (trade surfaces only) */}
       {hasStats && (
         // Wraps only when the row is too wide (a long translated "Watch live", 2026-11-10): the clock stays on
-        // one line and the extras drop below it, instead of squeezing the clock into two lines.
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 pb-1.5 pt-1.5 border-t border-border/30">
+        // one line and the extras drop below it, instead of squeezing the clock into two lines. With the Pro
+        // "Watch live" pill the column gap is 10 (approved canvas); a wrapped pill stays centred.
+        <div className="flex flex-wrap items-center justify-center gap-x-4 has-[[data-pro-watch]]:gap-x-2.5 gap-y-1.5 pb-1.5 pt-1.5 border-t border-border/30">
           {displayTime && (
             <div className="flex items-center gap-1.5 whitespace-nowrap">
               <span

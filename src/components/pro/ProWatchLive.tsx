@@ -79,10 +79,11 @@ export const ProHeaderWatchLive = ({ eventId, onPlay }: { eventId: string | null
     </div>
   ) : null;
 
-/** Phone placement: in the header stats row after the clock (row gap 16 → 10 to the clock, as approved). */
+/** Phone placement: in the header stats row after the clock; the row's column gap drops to 10 while the
+ *  pill is there (MobileHeader `has-[[data-pro-watch]]`), so a wrapped pill stays centred. */
 export const ProMobileWatchLive = ({ eventId, onPlay }: { eventId: string | null; onPlay?: () => void }) =>
   eventId ? (
-    <span style={{ marginLeft: -6, display: "inline-flex" }}>
+    <span data-pro-watch="" style={{ display: "inline-flex" }}>
       <ProWatchLive eventId={eventId} onPlay={onPlay} />
     </span>
   ) : null;

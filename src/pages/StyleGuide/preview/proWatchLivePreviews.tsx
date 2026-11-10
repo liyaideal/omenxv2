@@ -5,6 +5,7 @@
  * 帧里点钮不跳页（onPlay 空操作），生产里点了进 `/trade?event=<比赛>&play=1`（Lite 交易页开播）。
  */
 import { MobileHeader } from "@/components/MobileHeader";
+import { useT } from "@/i18n";
 import { ProEventHeaderLead, ProMobileWatchLive } from "@/components/pro/ProWatchLive";
 import { sportsClockText, type SportsClock } from "@/components/lite/sports/sportsClock";
 
@@ -36,6 +37,7 @@ const Desk = ({ kind }: { kind: Kind }) => (
 );
 
 const Mob = ({ kind }: { kind: Kind }) => {
+  useT(); // the clock text is read once per render — re-render when the language catalog arrives
   const clock = clockOf(kind);
   return (
     <div>

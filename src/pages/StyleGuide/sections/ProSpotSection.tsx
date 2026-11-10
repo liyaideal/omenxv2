@@ -303,8 +303,9 @@ const MARKET_ROW_CASES: SectionCase[] = [
   },
 ];
 
-const WATCH_SPEC = (on: boolean) => [
-  { state: on ? "在打 + 有直播" : "不出", when: on ? 'sportsClock.phase === "live" && fixtureMeta(比赛).stream_url' : "还没开赛，或在打但没有直播源", visual: on ? "状态行末尾橙色胶囊「▶ Watch live」：高 22、圆角 999、1px #FF8A3D 45% 描边 + 10% 底、字 12 / 600 #FF8A3D、三角 10px；7 语用 sports_streams.watch_live" : "状态行照旧，没有胶囊", source: "ProWatchLive · proWatchLiveTarget · S5" },
+const WATCH_SPEC = (on: boolean) => on ? WATCH_ROWS : WATCH_ROWS.slice(0, 1).map((r) => ({ ...r, state: "不出", when: "还没开赛，或在打但没有直播源", visual: "状态行照旧，没有胶囊" }));
+const WATCH_ROWS = [
+  { state: "在打 + 有直播", when: 'sportsClock.phase === "live" && fixtureMeta(比赛).stream_url', visual: "状态行末尾橙色胶囊「▶ Watch live」：高 22、圆角 999、1px #FF8A3D 45% 描边 + 10% 底、字 12 / 600 #FF8A3D、三角 10px；7 语用 sports_streams.watch_live；手机放不下时整颗换到下一行居中", source: "ProWatchLive · proWatchLiveTarget · S5" },
   { state: "点击", when: "点胶囊", visual: "同所有播放钮（usePlayStream）：进 `/trade?event=<比赛>&play=1` → 这一页按 Lite 打开并开播，存的 Pro 不改；开关显示 Lite，选 Pro 去掉 play 回 Pro 终端", source: "usePlayStream · SurfaceWatchOverride · S2 / S5" },
 ];
 const WATCH_DESK_CASES: SectionCase[] = [
@@ -313,7 +314,7 @@ const WATCH_DESK_CASES: SectionCase[] = [
   { key: "pro-watch-desk-pre", label: "PW-3 · 桌面页头 · 还没开赛 → 不出", spec: WATCH_SPEC(false) },
 ];
 const WATCH_MOBILE_CASES: SectionCase[] = [
-  { key: "pro-watch-mob-stream", label: "PW-4 · 手机页头 · 在打 + 有直播 → ▶ Watch live", note: "页头第二行（时钟行）末尾，和时钟间距 10。", spec: WATCH_SPEC(true) },
+  { key: "pro-watch-mob-stream", label: "PW-4 · 手机页头 · 在打 + 有直播 → ▶ Watch live", note: "页头第二行（时钟行）末尾，和时钟间距 10；俄语等放不下时整颗换到下一行居中，时钟行不折。", spec: WATCH_SPEC(true) },
   { key: "pro-watch-mob-nostream", label: "PW-5 · 手机页头 · 在打但没有直播源 → 不出", spec: WATCH_SPEC(false) },
   { key: "pro-watch-mob-pre", label: "PW-6 · 手机页头 · 还没开赛 → 不出", spec: WATCH_SPEC(false) },
 ];
