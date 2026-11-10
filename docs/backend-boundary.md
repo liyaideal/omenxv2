@@ -370,3 +370,10 @@
 | `mn_stock_tz` / `mn_stock_open_at` | 🔴 演示专用 | 美 / 港 09:30、韩 09:00 当地开盘 |
 | `roll_crypto_quick_rounds`：1d / 4h 按美东切；同一币 × 周期只开一轮 | 🟢 A（切点规则） | 1d = 美东中午 12 点，4h = 美东 0/4/8/12/16/20 点，与主网一致 |
 | `mn_stock_names.icon_url / icon_at` + 公开只读策略；`mn_apply_daily_close` / `mn_note_stock_code` / `mn_mainnet_stock_code` / `mn_display_stock_code`；`mn_sync_request` 每轮取 12 只缺 logo 的股票（`/pub/event/daily-close/rounds/current?assetCode=`） | 🔴 演示专用 | 股票 logo 跟主网（`20261110130000_mainnet_stock_icons.sql`）；正式版直接用主网资产资料的 `iconUrl` |
+
+## 2026-11-10 首页交叉验收待批项（append-only 补录）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `mn_apply_stock_rounds` 事件名模板改 `— will it close higher today?`（只影响新开轮次） | 🔴 演示专用 | 正式版用主网自己的事件名（`20261110150000_stock_round_name_it.sql`） |
+| `sim_quick_round_volume_tick()` + cron `sim-quick-round-volume`（每分钟） | 🔴 演示专用 | 加密快轮开着时每分钟加一笔模拟成交额（5m $150–600 / 15m $100–400 / 1h $60–240 / 4h $40–160 / 1d $20–80 每分钟，ETH ×0.6、SOL ×0.35），首页「this round $x」不再常年 $0；正式版是真实成交额（`20261110160000_sim_quick_round_volume.sql`） |

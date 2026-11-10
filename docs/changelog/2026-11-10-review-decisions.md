@@ -33,6 +33,10 @@
 - Sports 日历条选的是今天：右表标题写 `Big today · by volume`，排完写 `No more matches today`（和日历条的 TODAY 一致）。
 - Settling 那几秒：BTC 副句去掉 `if it closed now`，ETH / SOL 小卡也写 `Settling…`。
 
+**演示数据（CPO 2026-11-10 下午）**
+
+- 首页 Crypto「this round $x」在 Lovable 上一直是 $0：演示引擎开的快轮成交额从 0 起、没人下单。新增每分钟一次的演示任务给开着的快轮加模拟成交额（只在 Lovable，正式版是真实成交）。见 `docs/backend-boundary.md`。
+
 **没动什么**
 
 - 港股午休与节假日的时段判断不变。
