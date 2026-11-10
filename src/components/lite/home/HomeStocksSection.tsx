@@ -119,9 +119,11 @@ export interface HomeStocksSectionProps {
   printModeOverride?: PrintMode;
   /** Fixture: which market tab starts selected (default US). Not passed in production. */
   initialMarket?: MarketKey;
+  /** Fixture: these rows end exactly at their base price (K5 flat state). Not passed in production. */
+  pinFlatIds?: string[];
 }
 
-export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride, printModeOverride, initialMarket = "us" }: HomeStocksSectionProps) => {
+export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride, printModeOverride, initialMarket = "us", pinFlatIds }: HomeStocksSectionProps) => {
   const navigate = useNavigate();
   useT(); // re-render on language change / catalog arrival
   const [tick, setTick] = useState(0);
@@ -149,7 +151,9 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
   // K3: top 10 by this round's volume (mobile top 5); ties keep the feed order.
   const rows = [...byMarket[cur.key]].sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0)).slice(0, isMobile ? 5 : 10);
   const prints = rows.map((r) => {
-    const p = printsFor(r, market, cur.extendedPrints, now);
+    const raw = printsFor(r, market, cur.extendedPrints, now);
+    const base = r.base_price ?? 0;
+    const p = pinFlatIds?.includes(r.id) && raw.pts.length ? { ...raw, pts: [...raw.pts.slice(0, -1), base], last: base } : raw;
     if (!printModeOverride) return p;
     if (printModeOverride === "none") return { mode: "none" as const, pts: [], last: r.base_price ?? 0 };
     return { ...p, mode: printModeOverride };

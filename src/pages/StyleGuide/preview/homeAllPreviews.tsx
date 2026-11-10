@@ -398,18 +398,19 @@ export const stockRowsAt = (now: Date): StockEventRow[] =>
     const close = s.phase === "live" && s.closeAt ? s.closeAt : new Date(s.nextOpenAt.getTime() + sessionMs);
     return { ...r, start_date: new Date(now.getTime() - 10 * HOUR).toISOString(), end_date: close.toISOString() };
   });
-const StocksDemo = ({ mode, now, market }: { mode: PrintMode; now: Date; market?: "us" | "hk" | "kr" }) => {
+const StocksDemo = ({ mode, now, market, flat }: { mode: PrintMode; now: Date; market?: "us" | "hk" | "kr"; flat?: string[] }) => {
   const isMobile = useIsMobile();
   return (
     <Pad>
       <div className={isMobile ? "hall hall-m" : "hall"}>
-        <HomeStocksSection stockRows={stockRowsAt(now)} isMobile={!!isMobile} onOpenAll={() => undefined} nowOverride={now} printModeOverride={mode} initialMarket={market} />
+        <HomeStocksSection stockRows={stockRowsAt(now)} isMobile={!!isMobile} onOpenAll={() => undefined} nowOverride={now} printModeOverride={mode} initialMarket={market} pinFlatIds={flat} />
       </div>
     </Pad>
   );
 };
 /** K4 ① regular session (US Wed 11:00 ET). */
-export const HaStocksRegularPreview = () => <StocksDemo mode="regular" now={NOW_US_LIVE} />;
+/** Strategy (MSTR) is pinned exactly at its base price so the flat state (grey 0.00%, grey line) is visible. */
+export const HaStocksRegularPreview = () => <StocksDemo mode="regular" now={NOW_US_LIVE} flat={["us-mstr-daily"]} />;
 /** K4 ② closed, still printing (US after-hours / overnight). */
 export const HaStocksExtendedPreview = () => <StocksDemo mode="extended" now={NOW_US_SETTLING} />;
 /** K4 ③ closed, no prints yet → no chart, "Base price". HK after 16:00 (US never sits here — it has extended prints). */

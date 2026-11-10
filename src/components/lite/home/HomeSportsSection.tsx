@@ -462,12 +462,13 @@ const Row = ({
     {isMobile ? (
       <span style={{ minWidth: 0 }}>
         {/* phone: codes + volume on line 1; an over-long code is cut, the volume never (2026-11-10) */}
-        <div className="tc-code" style={{ fontSize: 14, whiteSpace: "nowrap", display: "flex", alignItems: "baseline", minWidth: 0 }}>
+        {/* the volume drops to its own line rather than cut a team code (wide codes like MCF / RMC) */}
+        <div className="tc-code" style={{ fontSize: 14, whiteSpace: "nowrap", display: "flex", flexWrap: "wrap", alignItems: "baseline", columnGap: 6, minWidth: 0 }}>
           <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
             {abbr(m, "home")} <span style={{ color: "#6B7280", fontWeight: 500 }}>vs</span> {abbr(m, "away")}
           </span>
           {big && (
-            <b className="m" style={{ color: LM, fontWeight: 700, fontSize: 12, marginLeft: 6, flex: "none" }}>
+            <b className="m" style={{ color: LM, fontWeight: 700, fontSize: 12, flex: "none" }}>
               {shortVol(m.volume)}
             </b>
           )}
@@ -497,7 +498,8 @@ const Row = ({
         </div>
         <div className="tc-meta" style={{ marginTop: 4 }}>
           <LeagueLabel m={m} />
-          {!big && <> · {shortVol(m.volume)}</>}
+          {/* the meta line is uppercase; keep the volume's "k" as everywhere else ($21.3k, not $21.3K) */}
+          {!big && <> · <span style={{ textTransform: "none" }}>{shortVol(m.volume)}</span></>}
           {m.streamUrl && (
             <>
               {" · "}

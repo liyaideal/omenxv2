@@ -125,7 +125,7 @@
 .hall-m .hscroll{display:flex;gap:8px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none}
 .hall-m .hscroll::-webkit-scrollbar{display:none}
 .hall-m .panel{padding:18px 16px}
-.hall-m .lrow{grid-template-columns:40px minmax(0,1fr) 64px 64px;gap:6px;padding:11px 0}
+.hall-m .lrow{grid-template-columns:40px minmax(0,1fr) 56px 56px;gap:6px;padding:11px 0}
 .hall-m .lrow .tc-pill{height:30px;padding:0 6px;font-size:12px}
 /* phone table meta (kickoff · league) must fit WORLDS / LALIGA without an ellipsis */
 .hall-m .lrow .tc-meta{letter-spacing:.05em;font-size:10px}
@@ -165,3 +165,7 @@ html:is([lang="ru"],[lang="vi"]) .hall-m .tc-meta{letter-spacing:.04em}
 .hall .tc-pill{min-width:0}
 .hall .tc-pcode{color:#98A1AD;font-weight:600;font-size:11px;letter-spacing:.02em;margin-right:4px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hall .tc-pval{flex:none}
+/* Phone price pills stack the team code over the price (2026-11-10 cold read: at 375 a wide 3-letter code
+   like RMC / MCF did not fit "code + price" in one line and got cut). Code first, then price — same order. */
+.hall-m .tc-pill,.hall-m .lrow .tc-pill{flex-direction:column;justify-content:center;gap:1px;height:auto;min-height:40px;padding:4px 4px;line-height:1.1;border-radius:12px}
+.hall-m .tc-pcode{margin-right:0;font-size:10px;max-width:100%}
