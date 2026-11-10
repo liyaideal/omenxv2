@@ -76,9 +76,9 @@
 .hall .tc-tile .tc-sc{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#CFFF4A;font-variant-numeric:tabular-nums;white-space:nowrap}
 .hall .tc-tile .tc-sc.t{color:#DBE2EA;font-size:14px}
 .hall .tc-tile .tc-meta{text-align:center}
-.hall .tc-tile .tc-bot{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.hall .tc-tile .tc-bot{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .hall .tc-pill{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(148,163,184,.18);border-radius:999px;height:30px;padding:0 8px;font-size:12px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:#33D6FF;font-variant-numeric:tabular-nums;background:transparent}
-.hall .lrow{display:grid;grid-template-columns:52px minmax(0,1fr) minmax(72px,auto) minmax(72px,auto);align-items:center;gap:10px;padding:12px 0}
+.hall .lrow{display:grid;grid-template-columns:52px minmax(0,1fr) 80px 80px;align-items:center;gap:10px;padding:12px 0}
 .hall .lrow .tc-nm1{font-weight:700;font-size:15.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hall .lrow .tc-pill{height:34px}
 .hall .stage-vid{display:block;margin-top:14px;border-radius:12px;overflow:hidden;line-height:0;box-shadow:0 0 0 1px rgba(148,163,184,.12);position:relative;background:#0E1116}
@@ -125,8 +125,8 @@
 .hall-m .hscroll{display:flex;gap:8px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none}
 .hall-m .hscroll::-webkit-scrollbar{display:none}
 .hall-m .panel{padding:18px 16px}
-.hall-m .lrow{grid-template-columns:40px minmax(0,1fr) minmax(68px,auto) minmax(68px,auto);gap:6px;padding:11px 0}
-.hall-m .lrow .tc-pill{height:30px;padding:0 7px;font-size:12px}
+.hall-m .lrow{grid-template-columns:40px minmax(0,1fr) 64px 64px;gap:6px;padding:11px 0}
+.hall-m .lrow .tc-pill{height:30px;padding:0 6px;font-size:12px}
 /* phone table meta (kickoff · league) must fit WORLDS / LALIGA without an ellipsis */
 .hall-m .lrow .tc-meta{letter-spacing:.05em;font-size:10px}
 .hall-m .tc-lg.pairsm{width:24px;height:24px}
@@ -161,4 +161,7 @@ html:is([lang="ru"],[lang="vi"]) .hall .daycell .dc-top{letter-spacing:.06em}
 html:is([lang="ru"],[lang="vi"]) .hall .eye{letter-spacing:.12em}
 html:is([lang="ru"],[lang="vi"]) .hall-m .eye{letter-spacing:.08em}
 html:is([lang="ru"],[lang="vi"]) .hall-m .tc-meta{letter-spacing:.04em}
-.hall .tc-pcode{color:#98A1AD;font-weight:600;font-size:11px;letter-spacing:.02em;margin-right:5px}
+/* team code + price in a fixed-width pill (all rows line up): a long code is the part that gets cut, never the price */
+.hall .tc-pill{min-width:0}
+.hall .tc-pcode{color:#98A1AD;font-weight:600;font-size:11px;letter-spacing:.02em;margin-right:4px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hall .tc-pval{flex:none}

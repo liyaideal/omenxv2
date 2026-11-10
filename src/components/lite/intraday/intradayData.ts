@@ -245,6 +245,8 @@ export interface StockEventRow {
   base_price: number | null;
   start_date: string | null;
   end_date: string | null;
+  /** Official close + 15 min (sync §7 rule 3); home "settles in" and the spot page "Settles" both read it. */
+  expected_settlement_time?: string | null;
   freeze_time: string | null;
   event_subtype: string | null;
   upPrice: number;
@@ -264,7 +266,7 @@ export const useIntradayStocks = (enabled: boolean) => {
       const { data } = await supabase
         .from("events")
         .select(
-          "id, name, base_price, start_date, end_date, freeze_time, event_subtype, volume, event_options(id, label, price)",
+          "id, name, base_price, start_date, end_date, freeze_time, expected_settlement_time, event_subtype, volume, event_options(id, label, price)",
         )
         .in("event_subtype", [US_STOCK_SUBTYPE, HK_STOCK_SUBTYPE, KR_STOCK_SUBTYPE])
         .eq("is_resolved", false)
@@ -281,6 +283,7 @@ export const useIntradayStocks = (enabled: boolean) => {
           start_date: (e as { start_date?: string | null }).start_date ?? null,
           end_date: e.end_date,
           freeze_time: (e as { freeze_time?: string | null }).freeze_time ?? null,
+          expected_settlement_time: (e as { expected_settlement_time?: string | null }).expected_settlement_time ?? null,
           event_subtype: e.event_subtype,
           upPrice: up ? Number(up.price) : 0.5,
           downPrice: down ? Number(down.price) : 0.5,

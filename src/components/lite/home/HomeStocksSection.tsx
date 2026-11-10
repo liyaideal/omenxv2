@@ -157,10 +157,19 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
   const total = available.reduce((a, m) => a + byMarket[m.key].length, 0);
   // K2: Y = the next settlement still ahead. A round whose settle time has passed but the engine
   // hasn't rolled yet reads "settling now" — never "settles in 0s".
-  // K2 (CPO 2026-11-10): settles = the official close + 15 min (same as the spot page's "Settles" and sync §7 rule 3),
-  // so in session the line reads "closes in 5h 00m · settles in 5h 15m", not the same number twice.
+  // K2 (CPO 2026-11-10): settles = expected_settlement_time (official close + 15 min, sync §7 rule 3) — the same
+  // field the spot page's "Settles" reads; a row without it falls back to the close + 15 min.
+  // In session the line reads "closes in 5h 00m · settles in 5h 15m", not the same number twice.
   const SETTLE_AFTER_CLOSE_MS = 15 * 60_000;
-  const ends = rows.map((r) => (r.end_date ? new Date(r.end_date).getTime() + SETTLE_AFTER_CLOSE_MS : null)).filter((t): t is number => t != null);
+  const ends = rows
+    .map((r) =>
+      r.expected_settlement_time
+        ? new Date(r.expected_settlement_time).getTime()
+        : r.end_date
+          ? new Date(r.end_date).getTime() + SETTLE_AFTER_CLOSE_MS
+          : null,
+    )
+    .filter((t): t is number => t != null);
   const ahead = ends.filter((t) => t > now.getTime());
   const settleAt = ahead.length ? Math.min(...ahead) : null;
   const settlingNow = !ahead.length && ends.length > 0;

@@ -247,7 +247,11 @@ const LiteSpotTrade = () => {
   const freezeAt = event?.freeze_time ? new Date(event.freeze_time) : null;
   // CPO 2026-11-10: "Settles" = the official close + 15 min (events.expected_settlement_time, sync §7 rule 3),
   // the same moment the home Stocks card counts down to; falls back to the close when the field is empty.
-  const settleAt = event?.expected_settlement_time ? new Date(event.expected_settlement_time) : endDate;
+  const settleAt = event?.expected_settlement_time
+    ? new Date(event.expected_settlement_time)
+    : endDate
+      ? new Date(endDate.getTime() + 15 * 60_000) // same fallback as the home Stocks card
+      : null;
   const countdownTarget = freezeAt ?? endDate;
   const { text: countdown } = useTradeCountdown(countdownTarget);
   const market = resolveStockMarket(event);

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# stray screenshots from local QA scripts (run them from a scratch dir)
+/*.png

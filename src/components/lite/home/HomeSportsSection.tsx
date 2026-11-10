@@ -87,7 +87,7 @@ const PricePill = ({ m, side, onOpen }: { m: SportsMatch; side: "home" | "away";
   >
     {/* CPO 2026-11-10: a price alone doesn't say which team — the team's short code leads, muted (as on the stage) */}
     <span className="tc-pcode">{abbr(m, side)}</span>
-    {cents(priceOf(m, side))}
+    <span className="tc-pval">{cents(priceOf(m, side))}</span>
   </span>
 );
 
@@ -463,16 +463,20 @@ const Row = ({
       <span style={{ minWidth: 0 }}>
         <div className="tc-code" style={{ fontSize: 14, whiteSpace: "nowrap" }}>
           {abbr(m, "home")} <span style={{ color: "#6B7280", fontWeight: 500 }}>vs</span> {abbr(m, "away")}
-          {big && (
-            <b className="m" style={{ color: LM, fontWeight: 700, fontSize: 12, marginLeft: 6 }}>
-              {shortVol(m.volume)}
-            </b>
-          )}
         </div>
+        {/* phone: the volume moves to the meta line so the name keeps clear of the coded price pills (2026-11-10) */}
         <div className="tc-meta" style={{ marginTop: 3 }}>
           <span className="m" style={{ color: "#DBE2EA", fontWeight: 600 }}>
             {dayShort(m.kickoff)} {hhmm(m.kickoff)}
-          </span>{" "}
+          </span>
+          {big && (
+            <>
+              {" · "}
+              <b className="m" style={{ color: LM, fontWeight: 700 }}>
+                {shortVol(m.volume)}
+              </b>
+            </>
+          )}{" "}
           · <LeagueLabel m={m} short />
         </div>
       </span>

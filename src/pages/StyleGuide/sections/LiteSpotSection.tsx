@@ -188,7 +188,7 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
                 { key: "open", label: "Market opens", time: "09:30" },
                 { key: "now", label: "Trading", time: "now", now: true },
                 { key: "close", label: "Cash close", time: "16:00" },
-                { key: "settle", label: "Settles", time: "16:05" },
+                { key: "settle", label: "Settles", time: "16:15" },
               ]}
             />
           </div>
@@ -204,7 +204,7 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
                 { key: "open", label: "Market opens", time: "09:30" },
                 { key: "mid", label: "Trading", time: "closed" },
                 { key: "close", label: "Cash close", time: "16:00" },
-                { key: "settle", label: "Settled", time: "16:05" },
+                { key: "settle", label: "Settled", time: "16:15" },
               ]}
             />
           </div>
@@ -219,7 +219,7 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
                 { key: "open", label: "Market opens", time: "09:30" },
                 { key: "mid", label: "Trading", time: "closed" },
                 { key: "close", label: "Cash close", time: "16:00" },
-                { key: "settle", label: "In review", time: "16:05" },
+                { key: "settle", label: "In review", time: "16:15" },
               ]}
             />
             <InReviewCard sourceName="Nasdaq official close" holding />

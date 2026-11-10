@@ -146,7 +146,7 @@ const MARKET_CASES: SectionCase[] = [
     key: "spot-sp8",
     label: "SP-8 · HOW IT SETTLES · 时段时间轴（SpotSettlementRail）",
     note:
-      "五节点逐字：`Opened` → `Market open 09:30` → `Trading now` → `Closes 15:55` → `Settles 16:00`；右上角 `Trading now` + 脉冲蓝点。",
+      "五节点逐字：`Opened` → `Market open 09:30` → `Trading now` → `Closes 15:55` → `Settles 16:15`（收盘 + 15 分钟，CPO 2026-11-10）；右上角 `Trading now` + 脉冲蓝点。",
     spec: [
       { state: "交易中", when: "tradingNow === true", visual: "进度条填至 50%，NOW 节点 yes 实心 + 4px 光晕环，右上脉冲徽标", source: "SpotSettlementRail" },
       { state: "已封盘", when: "blocked === true", visual: "进度条 100%，`Trading now` 徽标消失", source: "blocked prop" },
