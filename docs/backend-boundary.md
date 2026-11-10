@@ -369,3 +369,4 @@
 | `mn_walk_close(id, base)`、`mn_fnv1a`、`mn_u32_mul`；`settle_prior_stock_session` 改用 `mn_walk_close` | 🔴 演示专用 | 演示结算 = 首页小图走势线的最后一点；正式版按真实收盘价 |
 | `mn_stock_tz` / `mn_stock_open_at` | 🔴 演示专用 | 美 / 港 09:30、韩 09:00 当地开盘 |
 | `roll_crypto_quick_rounds`：1d / 4h 按美东切；同一币 × 周期只开一轮 | 🟢 A（切点规则） | 1d = 美东中午 12 点，4h = 美东 0/4/8/12/16/20 点，与主网一致 |
+| `mn_stock_names.icon_url / icon_at` + 公开只读策略；`mn_apply_daily_close` / `mn_note_stock_code` / `mn_mainnet_stock_code` / `mn_display_stock_code`；`mn_sync_request` 每轮取 12 只缺 logo 的股票（`/pub/event/daily-close/rounds/current?assetCode=`） | 🔴 演示专用 | 股票 logo 跟主网（`20261110130000_mainnet_stock_icons.sql`）；正式版直接用主网资产资料的 `iconUrl` |

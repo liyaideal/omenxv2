@@ -1,10 +1,43 @@
 // ============================================================
 // Asset avatar token — ALWAYS a circle.
 // Crypto  → brand fill + glyph.
-// Equity  → white fill + static company logo (repo asset), with a
-//           ticker monogram fallback. No runtime logo APIs.
+// Equity  → omenx.com's own stock logo when the sync has one (a full round
+//           avatar, drawn full-bleed like mainnet — mainnet sync batch 2,
+//           CPO 2026-11-10), else white fill + static repo logo, else the
+//           ticker monogram.
 // ============================================================
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+/** Mainnet stock logos (`mn_stock_names.icon_url`), loaded once per page and shared. */
+let mainnetIcons: Record<string, string> | null = null;
+let mainnetIconsLoad: Promise<Record<string, string>> | null = null;
+const loadMainnetIcons = () => {
+  if (!mainnetIconsLoad) {
+    mainnetIconsLoad = (async () => {
+      try {
+        const { data } = await (supabase as any).from("mn_stock_names").select("code, icon_url").not("icon_url", "is", null);
+        mainnetIcons = Object.fromEntries(((data || []) as { code: string; icon_url: string }[]).map((r) => [r.code.toUpperCase(), r.icon_url]));
+      } catch {
+        mainnetIcons = {};
+      }
+      return mainnetIcons;
+    })();
+  }
+  return mainnetIconsLoad;
+};
+const useMainnetIcon = (key: string, enabled: boolean): string | null => {
+  const [icons, setIcons] = useState<Record<string, string> | null>(mainnetIcons);
+  useEffect(() => {
+    if (!enabled || icons) return;
+    let alive = true;
+    loadMainnetIcons().then((m) => alive && setIcons(m));
+    return () => {
+      alive = false;
+    };
+  }, [enabled, icons]);
+  return enabled ? icons?.[key] ?? null : null;
+};
 
 export type AssetAvatarSize = number;
 
@@ -52,6 +85,8 @@ export const AssetAvatar = ({
   const crypto = CRYPTO[key];
   const isCrypto = kind === "crypto" || (!kind && !!crypto);
   const [logoFailed, setLogoFailed] = useState(false);
+  const [remoteFailed, setRemoteFailed] = useState(false);
+  const remote = useMainnetIcon(key, !isCrypto);
 
   const base: React.CSSProperties = {
     width: size,
@@ -81,6 +116,14 @@ export const AssetAvatar = ({
         aria-label={key}
       >
         {crypto.glyph}
+      </span>
+    );
+  }
+
+  if (remote && !remoteFailed) {
+    return (
+      <span className={className} style={{ ...base, display: "inline-flex", background: "transparent" }} aria-label={key}>
+        <img src={remote} alt="" onError={() => setRemoteFailed(true)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </span>
     );
   }

@@ -74,7 +74,7 @@
 1. **队徽（S1 规则扩到 Crest）**：真队徽（透明底）画在深色圆里、`contain` 74%；美国四大联赛的「队徽」其实是印着缩写的纯色方块（Polymarket 图库），按 S1 画成「方块颜色的圆 + 白字缩写」；没有图或加载失败 → 原来的代码徽。这些图没有 CORS 头，前端取不到颜色，**正式版请后端在队伍资料里直接给方块颜色**（Lovable 是一次性取色存进 `mn_logo_tiles`）。
 2. **直播截图**：首页 sports 接口（`/pub/sports/matches`）目前只有 `hasStream`，没有截图地址；「点了才播」要的 10 分钟快照（`metadata.stream_thumb_url`）需要这个接口补上。
 3. **live 位文字**：有 `statusDetail` 就原样显示（`Q3 5:12` / `HT` / `63'`），没有再按运动自己推。
-4. **股票显示（第 2 批）**：港股代码补成 4 位（`0700.HK`）；韩股代码写 `000660.KR`；韩元价格不带小数、带千分位（`₩1,136,000`，图表纵轴、`Price to beat` 同样）；行里公司名用短名（`AMD`、`SK Hynix`，不是 `Advanced Micro Devices, Inc.` / `SKHynix`），短名表见 `mn_stock_names`，正式版请放进股票资料。
+4. **股票显示（第 2 批）**：头像用股票资料里的 logo（主网 `asset.iconUrl`，铺满圆形）；港股代码补成 4 位（`0700.HK`）；韩股代码写 `000660.KR`；韩元价格不带小数、带千分位（`₩1,136,000`，图表纵轴、`Price to beat` 同样）；行里公司名用短名（`AMD`、`SK Hynix`，不是 `Advanced Micro Devices, Inc.` / `SKHynix`），短名表见 `mn_stock_names`，正式版请放进股票资料。
 
 ## 5. 发现的主网数据问题（报给研发 / 运营）
 
@@ -105,6 +105,7 @@
 | 7 | 名字 `短名 (代码) — will close higher today?` | 短名表 `mn_stock_names`（如 `Advanced Micro Devices, Inc.` → `AMD`、`SKHynix` → `SK Hynix`）；没有短名的去掉 Inc. / Corporation 等后缀。前端公司名一律从事件名里取（`stockCompanyName`） |
 | 8 | 港股 4 位、韩股照主网 | `700.HK` → `0700.HK`；`000660.KR`（原来前端写 `.KS`，已改） |
 | 9 | 加密 1d / 4h 按美东切 | 1d = 美东中午 12 点到次日 12 点；4h = 美东 0 / 4 / 8 / 12 / 16 / 20 点；夏令时跟着变。切换当天，已开的那一轮按旧时间跑完，下一轮从新切点开（第一轮会短一些） |
+| 7b | 股票 logo 跟主网（同日补） | 主网交易目录里没有 logo，首页「daily close」接口有：`/pub/event/daily-close/rounds/current?assetCode=<代码>` → `asset.iconUrl`（96×96 圆形头像 SVG）。每轮同步取 12 只缺 logo 或超过一天的，存进 `mn_stock_names.icon_url`；前端头像优先用它、铺满圆（和主网一样），没有再用仓库自带 logo、再没有才是代码字。主网没有的（阿里 `9988.HK`、汇丰 `0005.HK`，旧阵容）保留仓库 logo |
 | 10 | 加密名字不变、只挂当前一轮 | `Bitcoin — up or down?`；每个币 × 周期同时只有一轮在交易 |
 
 **字段对应（主网 → Lovable，股票）**
@@ -122,5 +123,4 @@
 **已知差异（不在这批）**
 
 - Lovable 不同页面的「现在价」各自生成：首页小图、Finance 品类页、`/spot` 页头不是同一个数。结算跟首页小图走。要统一需要另开一轮。
-- 韩股、新增港股没有公司 logo，头像是代码字（韩股去掉前导 0，如 `660`）；logo 要设计给素材。
 - 主网韩股 / 港股盘子很薄，`lastTradePrice` 会出现 `Up 3¢ / 97¢`，Lovable 照搬起始价，之后由演示引擎慢慢动。
