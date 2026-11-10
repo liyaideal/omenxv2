@@ -87,7 +87,7 @@ const SPORTS_CASES: SectionCase[] = [
       { state: "游客点播放", when: "!storedSignedIn()", visual: "目的地 /trade?event=…&play=1 暂存 sessionStorage「omenx.afterSignIn」→ openPrompt()：桌面 AuthDialog、手机 AuthSheet（底部抽屉）", source: "usePlayStream" },
       { state: "登录成功", when: "signedIn && !promptOpen", visual: "取出暂存目的地并跳转；交易页静音开播（浏览器不允许新开的页面直接出声）", source: "AuthPromptHost · takeAfterSignIn" },
       { state: "关掉登录框", when: "onOpenChange(false) && !storedSignedIn()", visual: "清掉暂存目的地，留在原页", source: "AuthPromptHost · setAfterSignIn(null)" },
-      { state: "已登录点播放", when: "storedSignedIn()", visual: "直接进 /trade?event=…&play=1（S2）", source: "usePlayStream" },
+      { state: "已登录点播放", when: "storedSignedIn()", visual: "直接进 /trade?event=…&play=1（S2）；这一页不管存的是不是 Pro 都按 Lite 打开开播，存的 Pro 不改（S5）", source: "usePlayStream" },
     ],
   },
   {

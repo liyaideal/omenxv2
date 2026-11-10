@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEventBusinessMeta } from "@/hooks/useEventBusinessMeta";
 import { ScheduleInfo } from "@/components/pro/ScheduleInfo";
 import { sportsClockText, useSportsClock } from "@/components/lite/sports/sportsClock";
+import { ProMobileWatchLive, proWatchLiveTarget } from "@/components/pro/ProWatchLive";
 import { PriceRefEventInfo } from "@/components/pro/PriceRefEventInfo";
 
 
@@ -315,6 +316,7 @@ function PerpTradingLayout({
   const currentLine = selectedEvent ? fixtureMarkets?.byId.get(currentLineKey)?.line ?? null : null;
   // Sports: Starts in / LIVE · clock / Final · In review — never `Ends in` the estimated end (CPO 2026-11-04).
   const sportsClock = useSportsClock(selectedEvent);
+  const watchTarget = proWatchLiveTarget(fixtureMarkets?.fixture ?? selectedEvent, sportsClock?.phase);
   const orderBase = activeTab === "Charts" ? "/trade" : "/trade/order";
   useEffect(() => {
     if (!selectedEvent || !fixtureMarkets) return;
@@ -420,7 +422,13 @@ function PerpTradingLayout({
             : currentLine ? `${currentLine.caption} · ${countdownLabel ?? "Ends in"}` : countdownLabel
         }
         countdownUrgency={sportsClock ? (sportsClock.phase === "live" ? "live" : "muted") : countdownUrgency}
-        statsExtra={scheduleTail}
+        statsExtra={
+          <>
+            {scheduleTail}
+            {/* S5 (CPO 2026-11-10): live + stream → "▶ Watch live" opens the Lite page with the stream */}
+            <ProMobileWatchLive eventId={watchTarget} />
+          </>
+        }
         eventInfo={
           eventInfo ??
           (business.isPriceRef ? (

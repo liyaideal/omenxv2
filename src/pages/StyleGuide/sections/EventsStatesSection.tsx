@@ -632,7 +632,7 @@ const STREAM_CASES: SectionCase[] = [
       { state: "桌面布局", when: "useIsMobile() === false", visual: "左 58% 画面 16:9 = 直播截图（压暗）+ 橙色 64 播放钮 `Watch live`，不拉流（CPO 2026-11-09「点了才播」）；右栏：联赛 · 段名 / 时钟、队徽 48 + 比分 46、下注按钮、`$x traded` + `Open match →`", source: "LiteSportsView · LiveStreamStage · StreamPreview" },
       { state: "手机布局", when: "useIsMobile() === true", visual: "画面满宽在上（播放钮 48），下接联赛 / 时钟、队徽 34 + 比分 26、叠放下注按钮", source: "MobileSportsModule · MobileLiveStreamStage · StreamPreview" },
       { state: "画面", when: "始终", visual: "服务端每 10 分钟截一帧、同一时段所有人同一张（metadata.stream_thumb_url）；Lovable 没有截图服务，用演示直播的静帧按 10 分钟格轮换。左上橙底 `● LIVE`；比赛时钟只在记分牌出现一次", source: "streamPicture.ts" },
-      { state: "点播放", when: "点画面任意处", visual: "已登录 → /trade?event=&play=1，交易页静音开播；游客 → 站内登录框（桌面弹窗 / 手机抽屉），登录成功后直接进该场交易页开播；关掉登录框留在原页", source: "usePlayStream · AuthPromptHost" },
+      { state: "点播放", when: "点画面任意处", visual: "已登录 → /trade?event=&play=1，交易页静音开播（这一页一律按 Lite 打开，存的 Pro 不改 · 首页 S5）；游客 → 站内登录框（桌面弹窗 / 手机抽屉），登录成功后直接进该场交易页开播；关掉登录框留在原页", source: "usePlayStream · AuthPromptHost" },
       { state: "点其他地方", when: "Open match / 下注按钮", visual: "Open match → /trade?event=；下注按钮 → /trade?event=&option=（不弹登录、不开播）", source: "LiteSportsView open / pick" },
       { state: "不再单列", when: "isOnStream(m)", visual: "在舞台上的比赛不进下方 Playing now 卡片", source: "useStreamLineup streamed / others" },
       { state: "开赛那一秒", when: "liveAt(m, now) 每秒重算", visual: "比赛开赛即离开预告排、同一秒进舞台（舞台已有直播时进切换条）；时钟 / 比分在随后一次自动刷新补上，之前时钟位写 `LIVE`", source: "sportsData liveAt · useSportsMatches" },

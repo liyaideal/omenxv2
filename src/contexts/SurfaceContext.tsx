@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { markProVisited } from "@/lib/proHandoff";
 import { clearPortfolioReturnSurface } from "@/lib/portfolioReturn";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,6 +97,40 @@ export const SurfaceProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </SurfaceContext.Provider>
   );
+};
+
+/**
+ * Watch-live override (CPO 2026-11-10, S5). A play button (home / Sports view stage, mobile Sports
+ * module, Pro terminal "Watch live") opens `/trade?event=…&play=1`. Live streams exist only on the
+ * Lite trade page, so that one page renders Lite whatever the reader's saved view is — without
+ * changing the saved view:
+ * - the Lite / Pro switch reads Lite there; choosing Pro drops `play=1` and shows the Pro terminal
+ *   (saved view = Pro);
+ * - any other trade page, and this one without `play=1`, follows the saved view as before;
+ * - a reload keeps `play=1`, so it stays on the stream.
+ * Mounted inside the router (SurfaceProvider sits outside it and cannot read the URL).
+ */
+export const isWatchLink = (pathname: string, search: string) =>
+  pathname === "/trade" && new URLSearchParams(search).get("play") === "1";
+
+export const SurfaceWatchOverride = ({ children }: { children: ReactNode }) => {
+  const parent = useContext(SurfaceContext);
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
+  const active = !!parent && isWatchLink(pathname, search);
+  const value = useMemo<SurfaceContextValue | undefined>(() => {
+    if (!parent || !active) return parent;
+    const leave = (s: Surface) => {
+      if (s === "lite") return; // already showing Lite
+      clearPortfolioReturnSurface();
+      parent.setSurface("pro");
+      const q = new URLSearchParams(search);
+      q.delete("play");
+      navigate(`${pathname}?${q.toString()}`, { replace: true });
+    };
+    return { surface: "lite", setSurface: leave, toggle: () => leave("pro") };
+  }, [parent, active, search, pathname, navigate]);
+  return <SurfaceContext.Provider value={value}>{children}</SurfaceContext.Provider>;
 };
 
 export const useSurface = (): SurfaceContextValue => {

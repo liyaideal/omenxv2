@@ -303,6 +303,21 @@ const MARKET_ROW_CASES: SectionCase[] = [
   },
 ];
 
+const WATCH_SPEC = (on: boolean) => [
+  { state: on ? "在打 + 有直播" : "不出", when: on ? 'sportsClock.phase === "live" && fixtureMeta(比赛).stream_url' : "还没开赛，或在打但没有直播源", visual: on ? "状态行末尾橙色胶囊「▶ Watch live」：高 22、圆角 999、1px #FF8A3D 45% 描边 + 10% 底、字 12 / 600 #FF8A3D、三角 10px；7 语用 sports_streams.watch_live" : "状态行照旧，没有胶囊", source: "ProWatchLive · proWatchLiveTarget · S5" },
+  { state: "点击", when: "点胶囊", visual: "同所有播放钮（usePlayStream）：进 `/trade?event=<比赛>&play=1` → 这一页按 Lite 打开并开播，存的 Pro 不改；开关显示 Lite，选 Pro 去掉 play 回 Pro 终端", source: "usePlayStream · SurfaceWatchOverride · S2 / S5" },
+];
+const WATCH_DESK_CASES: SectionCase[] = [
+  { key: "pro-watch-desk-stream", label: "PW-1 · 桌面页头 · 在打 + 有直播 → ▶ Watch live", note: "胶囊在事件选择按钮之外（按钮里不能再套按钮），中线对齐状态行。", spec: WATCH_SPEC(true) },
+  { key: "pro-watch-desk-nostream", label: "PW-2 · 桌面页头 · 在打但没有直播源 → 不出", spec: WATCH_SPEC(false) },
+  { key: "pro-watch-desk-pre", label: "PW-3 · 桌面页头 · 还没开赛 → 不出", spec: WATCH_SPEC(false) },
+];
+const WATCH_MOBILE_CASES: SectionCase[] = [
+  { key: "pro-watch-mob-stream", label: "PW-4 · 手机页头 · 在打 + 有直播 → ▶ Watch live", note: "页头第二行（时钟行）末尾，和时钟间距 10。", spec: WATCH_SPEC(true) },
+  { key: "pro-watch-mob-nostream", label: "PW-5 · 手机页头 · 在打但没有直播源 → 不出", spec: WATCH_SPEC(false) },
+  { key: "pro-watch-mob-pre", label: "PW-6 · 手机页头 · 还没开赛 → 不出", spec: WATCH_SPEC(false) },
+];
+
 const MARKET_ROW_MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-market-row-mobile",
@@ -949,6 +964,15 @@ export const ProTradeTerminalPage = (_: Props) => (
       docs={["pro-trade-sell-v1", "pro-order-units-v1", "pro-sports-lines-v1", "pro-order-gate-v1", "risk-ratio-mm-v1"]}
       extra={<>页头的事件选择器、订单状态标、Lite / Pro 开关 → 「两终端共用」节点；Lite 侧下单面板的 <code className="font-mono">Pro ›</code> 入口 → Lite「交易页」TR-27 / SP-19。</>}
     />
+    <SectionWrapper
+      id="pro-watch-live"
+      title="⓪ 页头 · Watch live（PW-1 … PW-6 · S5，CPO 2026-11-10）"
+      description="Pro 终端没有直播画面，直播只在 Lite 交易页。比赛正在打而且有直播源时，页头状态行末尾出「▶ Watch live」，点了进 Lite 交易页开播（不改用户存的 Pro）。只在合约终端的赛事页；现货终端没有赛事。"
+    >
+      <SectionFrame cases={WATCH_DESK_CASES} device="desktop" minHeight={110} />
+      <SectionFrame cases={WATCH_MOBILE_CASES} device="mobile" minHeight={120} />
+    </SectionWrapper>
+
     <SectionWrapper
       id="pro-market-row"
       title="① 比赛市场行 · 桌面（SL-P · Winner / Handicap / Total · Map n）"

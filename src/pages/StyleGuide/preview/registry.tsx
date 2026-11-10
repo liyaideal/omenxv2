@@ -54,6 +54,7 @@ const proSpot = () => import("./proSpotPreviews");
 const proTrade = () => import("./proTradePreviews");
 const eventSelector = () => import("./eventSelectorPreviews");
 const marketRow = () => import("./marketRowPreviews");
+const proWatch = () => import("./proWatchLivePreviews");
 const share = () => import("./sharePreviews");
 const sportsLive = () => import("./sportsLivePreviews");
 const table = () => import("./tablePreviews");
@@ -478,6 +479,12 @@ export const previewRegistry: Record<string, Loader> = {
   "event-selector-drawer-sports": pick(eventSelector, "EventSelectorDrawerSports"),
 
   /* -------- SL-P · fixture market row (Pro terminal) -------- */
+  "pro-watch-desk-stream": pick(proWatch, "PwDeskStream"),
+  "pro-watch-desk-nostream": pick(proWatch, "PwDeskNoStream"),
+  "pro-watch-desk-pre": pick(proWatch, "PwDeskPre"),
+  "pro-watch-mob-stream": pick(proWatch, "PwMobStream"),
+  "pro-watch-mob-nostream": pick(proWatch, "PwMobNoStream"),
+  "pro-watch-mob-pre": pick(proWatch, "PwMobPre"),
   "pro-market-row-esports": pick(marketRow, "MarketRowEsports"),
   "pro-market-row-esports-open": pick(marketRow, "MarketRowEsportsOpen"),
   "pro-market-row-football": pick(marketRow, "MarketRowFootball"),

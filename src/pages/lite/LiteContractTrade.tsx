@@ -555,9 +555,11 @@ const LiteContractTrade = () => {
   useEffect(() => {
     if (!event || !meta.fixture_id) return;
     if (meta.market_type && meta.market_type !== "winner" && meta.fixture_id !== event.id) {
-      navigate(`/trade?event=${meta.fixture_id}&line=${event.id}`, { replace: true });
+      // keep the watch-live marker (S5) so a stream link that lands on a line market stays on Lite
+      const play = params.get("play") === "1" ? "&play=1" : "";
+      navigate(`/trade?event=${meta.fixture_id}&line=${event.id}${play}`, { replace: true });
     }
-  }, [event, meta.fixture_id, meta.market_type, navigate]);
+  }, [event, meta.fixture_id, meta.market_type, navigate, params]);
 
   const activeHandicap = useMemo(
     () =>

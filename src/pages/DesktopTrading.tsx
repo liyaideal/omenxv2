@@ -64,7 +64,8 @@ import { terminalPath, type ProductTab } from "@/lib/eventSelector";
 import { consumeOpenLimit } from "@/lib/proHandoff";
 import { buildFixtureMarkets, currentLineId, fixtureIdOf, fixtureLinePath, parseLineId } from "@/lib/fixtureMarkets";
 import { useContractGate } from "@/lib/contractGate";
-import { SportsClockLabel, useSportsClock } from "@/components/lite/sports/sportsClock";
+import { useSportsClock } from "@/components/lite/sports/sportsClock";
+import { ProEventHeaderLead, proWatchLiveTarget } from "@/components/pro/ProWatchLive";
 import { MarketLineRow } from "@/components/pro/MarketLineRow";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions, getBinaryOutcome } from "@/lib/eventUtils";
 import { useEventBusinessMeta, basePriceText } from "@/hooks/useEventBusinessMeta";
@@ -1062,42 +1063,17 @@ export default function DesktopTrading() {
         )}
         
         <div className="flex items-center gap-3 flex-1 min-w-0 relative">
-          {/* Event Dropdown Trigger */}
-          <button 
-            onClick={() => setEventDropdownOpen(!eventDropdownOpen)}
-            className="flex items-center gap-2 min-w-0 hover:bg-muted/30 rounded-lg p-1 transition-colors"
-            data-event-dropdown-trigger
-            aria-expanded={eventDropdownOpen}
-            aria-haspopup="listbox"
-          >
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-foreground truncate">
-                  {fixtureMarkets ? fixtureMarkets.fixture.name : selectedEvent.name}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${eventDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                {(!sportsClock || sportsClock.phase === "live") && (
-                  <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
-                )}
-                {currentLine && (
-                  <>
-                    <span className="text-foreground/80">{currentLine.caption}</span>
-                    <span>·</span>
-                  </>
-                )}
-                {sportsClock ? (
-                  <SportsClockLabel clock={sportsClock} variant="header" />
-                ) : (
-                  <>
-                    <span>{t("market.ends_in")}</span>
-                    <span className="text-trading-red font-mono font-medium">{countdown}</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </button>
+          {/* Event Dropdown Trigger + S5 "▶ Watch live" (CPO 2026-11-10: live + stream; opens the Lite page with
+              the stream, the saved view stays Pro) */}
+          <ProEventHeaderLead
+            name={fixtureMarkets ? fixtureMarkets.fixture.name : selectedEvent.name}
+            open={eventDropdownOpen}
+            onToggle={() => setEventDropdownOpen(!eventDropdownOpen)}
+            caption={currentLine?.caption}
+            sportsClock={sportsClock}
+            countdown={countdown}
+            watchEventId={proWatchLiveTarget(fixtureMarkets?.fixture ?? selectedEvent, sportsClock?.phase)}
+          />
           
           {/* Real-time Indicator Badge - Unified for all event types */}
           {(selectedEvent.tweetCount !== undefined || selectedEvent.currentPrice !== undefined || headerPriceText) && (

@@ -73,7 +73,7 @@ import { useT } from "./i18n";
 import { HELP_CENTER_URL, HELP_FAQ_URL, HELP_GUIDE_URL } from "./lib/site";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
-import { SurfaceProvider, useSurface } from "./contexts/SurfaceContext";
+import { SurfaceProvider, SurfaceWatchOverride, useSurface } from "./contexts/SurfaceContext";
 import { useOrderSimulation } from "./hooks/useOrderSimulation";
 
 const queryClient = new QueryClient();
@@ -216,6 +216,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <SurfaceWatchOverride>
           <AuthPromptHost />
           <ScrollToTop />
           <OrderSimulationRunner />
@@ -300,6 +301,7 @@ const App = () => (
             />
           </Routes>
           </LanguageKeyed>
+          </SurfaceWatchOverride>
         </BrowserRouter>
       </TooltipProvider>
       </SurfaceProvider>

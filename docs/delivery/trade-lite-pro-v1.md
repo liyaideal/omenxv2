@@ -122,6 +122,7 @@ Lite 是全站唯一外观；只有 `/trade` 与 `/spot` 两页按 `useSurface()
 - hover 说明（只描述另一面）：在 Lite `Pro: order book, limit orders, candlestick chart`；在 Pro `Lite: simple trading view`。
 - 无障碍：页头 `role="radiogroup"` + `aria-label="Trading view"`；方钮 `aria-label="Switch to Pro view" / "Switch to Lite view"`。
 - 记忆：localStorage `omenx_surface` + `profiles.preferred_surface`（尽力写入，首次水合优先）。切换只改渲染，网址不变。
+- **唯一例外：播放钮进来的那一页（CPO 2026-11-10，`home-all-v1.md` S5）**。直播只在 Lite 交易页。`/trade?event=<比赛>&play=1`（首页 / Sports 品类页舞台、手机 Sports 模块、Pro 终端「▶ Watch live」都开这个地址）这一页一律按 Lite 渲染并开播，**不改存的偏好**：开关显示 Lite，选 Pro 去掉 `play` 回 Pro 终端；同一场的价钮 / 比分 / Open match 照旧按偏好；在这一页刷新仍是 Lite。实现：`SurfaceWatchOverride`（`src/contexts/SurfaceContext.tsx`，挂在路由里一层，只覆盖这一种地址）。
 
 **Lite 下单卡 → Pro 入口（LimitOrderHint）**
 
@@ -160,6 +161,8 @@ Lite 是全站唯一外观；只有 `/trade` 与 `/spot` 两页按 `useSurface()
 ## 5. Pro 合约终端 /trade
 
 ### 5.1 页头与比赛市场行
+
+**▶ Watch live（CPO 2026-11-10，字典 PW-1 … PW-6）**：赛事页上比赛**正在打而且有直播源**时，页头状态行（`Match winner · LIVE · Map 2`）末尾出一颗橙色胶囊「▶ Watch live」——桌面在事件选择按钮之外、和状态行对齐，手机在页头第二行时钟之后。还没开赛、在打但没直播都不出。点了 = 所有播放钮的同一动作（`usePlayStream`）：进 `/trade?event=<比赛>&play=1`，按 Lite 打开并开播，存的 Pro 不改（见 §3 例外）。组件 `src/components/pro/ProWatchLive.tsx`（`ProEventHeaderLead` / `ProMobileWatchLive`）。现货终端没有赛事，不涉及。
 
 K 线（研发问题 #3 → Liya 09-24 定稿）：合约终端周期选择器右侧一个两段切换 `Last | Mark`，选哪个就画哪套蜡烛，一次一套、不叠线（Binance / Bybit 同型），默认 Last；手机 375 宽下切换独占周期行下面一行，图表容器 450 → 490px 保住蜡烛高度。现货终端没有 Mark。字典 CH-D1 / CH-D2 / CH-M1。
 
