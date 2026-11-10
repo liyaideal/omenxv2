@@ -7,11 +7,11 @@
 ## 0. 读者须知
 
 查什么去哪儿：
-- 长什么样 → 生产页 `/`（桌面 + 手机）；Design 画布「规则稿 + 手机版（可批）」页（桌面 D2-S3 整页 / 手机 M-Full + M-* 分段板）是定稿原图
+- 长什么样 → 生产页 `/`（桌面 + 手机）为准。Design 画布「规则稿 + 手机版（可批）」页是 2026-11-09 批准时的原图；11-10 验收后又改了一批（价钮带队伍短码、平盘灰色、价格写法等，见 §9），画布上没有，**和画布不一样的地方以生产页 + 字典 + §2 为准**
 - 什么时候变成什么样 → `/style-guide` → Lite → **Events 列表** 节点 → 顶部小节「首页 All 视图 · 状态字典（HA-1 … HA-22，含 HA-7b / HA-7c / HA-10b 等带字母的补充帧，+ HA-R）」
 - 规则编号（H / S / C / K / E / M / G / MB）→ 本文 §2 或字典 HA-R，和组件注释里的编号一致
 - 字段、接口 → 本文 §4 §5
-- 设计法则 → `DESIGN.md` §Addendum 2026-11-09 · 首页 All 视图
+- 设计法则 → `DESIGN.md` §Addendum 2026-11-09 · 首页 All 视图 + §Addendum 2026-11-10 · 首页 All 视图 · 验收后补
 提问前先按上面顺序查一遍；查不到再提，提问时写明"我查了 X 没有"。
 
 ## 0.1 字典怎么看
@@ -23,7 +23,7 @@
 5. 单张查看：`/style-guide/preview?c=home-ha6`（key = `home-ha` + 编号）；加 `&lang=zh-CN`（`zh-TW` / `ja` / `ko` / `ru` / `vi`）看该语言。
 6. 页头左上 ⇤ 按钮收起左侧目录，样张占满整宽（目录挤着时有的标签会被压成省略号，那不是规格）。
 
-只在字典里看得到的态：Sports 状态①（10 场 live、3 路直播切换）和状态③④、Stocks「收盘后没成交」（HA-10）、More 的互斥多档 + 长标题（HA-13）——演示库某一时刻通常只有其中一种。
+只在字典里看得到的态：Sports 状态①（10 场 live、3 路直播切换）和状态③④、Stocks「收盘后没成交」（HA-10）、More 的互斥多档 + 长标题（HA-13）——演示库某一时刻通常只有其中一种。Crypto 平盘（HA-7b，现价正好等于开盘价）和「Settling…」（HA-7c，一轮到点、下一轮还没进来的那几秒）在生产页上一闪而过，按字典看。
 
 ## 通俗导读
 
@@ -161,6 +161,9 @@
 | 市场列表 / 结算时间 | `/pub/event/daily-close/rounds/current`（`availableTotal` / `currentSessionCloseAt`）| tab 数量 = `availableTotal` |
 | Traded today | BTC 今天（UTC 0 点起）开始的所有周期、所有轮次的 `volume` 之和（`useQuickRounds().btcTodayVolume`，已结算的也算；Lovable 只回看最近 300 个已结算轮，深夜会少算一点） | 正式版取 `tradedTodayU`，**只算 BTC**（C3）；2026-11-10 前 Lovable 错算成三个币当前轮之和，已改 |
 | 资金比例条（C5） | 用 Up 价格代替 | 正式版要新增：本轮 Up / Down 两边下单金额（`upStakeU` / `downStakeU` 或同义字段），比例 = 一边 ÷ 两边之和 |
+| Stocks「settles in」/ 现货页「Settles」 | 结算时间读事件的 `expected_settlement_time`（= 官方收盘 + 15 分钟）；字段为空时按收盘时间 + 15 分钟算（K2，2026-11-10） | 首页和现货页读同一个字段、同一个兜底；正式版接口给的计划结算时间直接用 |
+| Crypto「this round $x」 | 本轮真实成交额 | Lovable 演示快轮没人下单，每分钟一次的演示任务 `sim_quick_round_volume_tick` 给开着的快轮加模拟成交额（见 `backend-boundary.md`），正式版不需要 |
+| 股票事件名 | 主网事件名 | Lovable 同步模板写 `Apple (AAPL) — will it close higher today?`（2026-11-10 起新开的轮次）；首页短名从事件名括号前取（K3） |
 | Editor's Desk | `/pub/event/featured-markets`（`whyThis / imageUrl / category / event`） | ≤ 3，空则整段不出 |
 | 直播截图（S3 ①） | **要新增**：直播服务对每路正在直播的流每 10 分钟截一帧存 CDN，赛事数据给 `metadata.stream_thumb_url`（图片地址）+ `stream_thumb_at`（截图时间）；所有用户共用同一张，用户端不碰直播流 | Lovable 没有截图服务：演示比赛都用同一路演示直播，`public/assets/streams/demo-01…11.jpg` 是从这路直播里截好的静帧，前端按「现在落在哪个 10 分钟格」挑图，效果同主网（`streamPicture.ts`）。没截图用 `events.image_url` 封面，再没有用深色底 |
 | 直播只对已登录开放（S2） | 主网直播接口对游客不返回播放地址（或返回 401） | Lovable 前端判断：游客不请求流，交易页显示 Sign in to watch live |
@@ -180,6 +183,8 @@
 | 8 | 首页任一价钮（Sports 队 / Crypto Down / Stocks Down / More 某档 No） | 进交易页，下单区已是点的那一边、那一档 | 链接带 `&option=` / `&side=`（G3）；行 / 瓷砖 / Open match 不预选 |
 | 9 | 右上语言切到 简中 / 日 / 俄 | 五段眉行、问句、按钮、底注都换语言 | 星期跟语言、时间 24 小时；队名 / 事件名不翻（R8）；手机没有横向滚动 |
 | 10 | 首次打开（清缓存，慢网） | 五段骨架按最终尺寸占位，数据来了不跳 | HA-22 |
+| 11 | Sports 右表 / 瓷砖的小价钮（桌面 + 手机，切俄语 / 越南语） | 先灰色队伍短码再价格，如 `MIA 61¢`；两颗钮上下对成一列 | 定宽桌面 80 / 手机 64 / 瓷砖两颗平分；短码太长只截短码、价格和成交额不截（R4） |
+| 12 | 现货页 `/spot?event=<美股日轮>`（Lite） | 时间轴 `Closes 15:55` → `Settles 16:15`（美东） | Settles = 收盘 + 15 分钟，和首页 Stocks「settles in」同一个数（K2） |
 
 ## 7. 代码坐标
 
@@ -201,3 +206,30 @@
 | 2 | 首页价钮进交易页要不要预选 | 全部预选：点哪边进去就是哪边、哪一档 | G3 |
 | 3 | 首页五段多语言 | 7 语，同 Sports 品类页 | R8 |
 | 4 | 首屏骨架 | 按五段重画 | R6 · HA-22 / EV-24 |
+
+## 9. 2026-11-10 验收后的改动（CPO 当天分三批定，生产页已上）
+
+画布上没有这些，按生产页和字典看。规则原文已同步进 §2（编号在括号里）。
+
+**看得见的变化**
+- 平盘（现价正好等于开盘价 / 基准价）：Crypto 主卡写灰色 `$0 · 0.00%` +「at the open · Down wins if it closed now」，ETH / SOL 和股票行的 `0.00%` 灰色、不带符号——后端规则一直是「收盘高于开盘才算 Up」（C3 / K5，字典 HA-7b）。
+- 一轮到点、下一轮还没进来时，钟写 `Settling…`，不停在 00:00；那几秒 BTC 副句去掉「if it closed now」，ETH / SOL 小卡也写 `Settling…`（C2，HA-7c）。
+- 每轮刚开盘那一刻图上的灰线不再被拉成竖条：开盘后最初 15% 的时间量程慢慢收回到只看本轮（C4）。
+- 价格写法：加密价 ≥ $10,000 取整、以下两位小数；股票价两位小数加千分位；韩元整数（C3）。首页、Crypto 品类页、Intraday、顶部行情条同一规则。
+- Sports 右表和瓷砖的小价钮先写队伍短码（灰）再写价格，如 `NOT 46¢`；钮定宽（桌面 80 / 手机 64 / 瓷砖两颗平分），短码太长只截短码（R4）。
+- Sports 开赛倒计时统一 `26h 00m` 写法；选了某一天：右表标题 `Big on Fri 7 · by volume`，排完写 `No more matches on Fri 7`；选的是今天就写 `Big today` / `No more matches today`（R5 / R2）。
+- Sports 眉行「N matches this week」= 正在打的 + 还没开赛的，已打完待结算的不算（R1 / MB3）。
+- Stocks「settles in」= 官方收盘 + 15 分钟；`Show all N →` 只在只数多于屏上行数时出现，点了进 Finance 并预选当前市场（K2 / K6）。
+- Editor's Desk 多选项精选显示价格最高的两个结果，胶囊买的是那一档 / 那支队的 Yes（E4）。
+- More 段标题桌面最多 3 行（M2）。
+- 7 种语言下按钮、日期格、价钮按内容变宽，俄语 / 越南语的全大写小标签收窄字距（R8）。
+
+**顺手改的（首页以外）**
+- 现货页（Lite）时间轴「Settles」改显示收盘 + 15 分钟，和首页 Stocks 一致。
+- Finance 选 Korea 照常列出股票轮；Finance、日历页、Intraday 舞台的股票行一律 `Up` / `Down`（原来写 `Not up`），两颗钮定宽 112px。
+- `Tmrw` 一律写 `Tomorrow`。
+
+**没动的**：结算逻辑、价格引擎、数据库选项名（库里仍是 `Not Up`，展示层改写成 Down）；港股午休与节假日按开盘处理。
+
+明细与每批的取舍见 `docs/changelog/2026-11-10-review-decisions.md`。
+
