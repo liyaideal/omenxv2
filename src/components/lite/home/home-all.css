@@ -94,11 +94,11 @@
 .hall .l8 i.last{outline:2px solid rgba(51,214,255,.35);outline-offset:1px}
 
 /* ---- Stocks (K1–K6) ---- */
-.hall .srow{display:grid;grid-template-columns:26px minmax(0,1fr) 96px auto auto;align-items:center;gap:12px;padding:13px 0}
+.hall .srow{display:grid;grid-template-columns:26px minmax(0,1fr) 96px 112px auto;align-items:center;gap:12px;padding:13px 0}
 .hall .srow .t{display:block;font-weight:700;color:#fff;font-size:14.5px;white-space:nowrap}
 .hall .srow .n{display:block;color:#98A1AD;font-size:11px;margin-top:1px;white-space:nowrap}
-.hall .srow .p{display:block;color:#fff;font-weight:600;font-size:14px;text-align:right}
-.hall .srow .pc{display:block;font-size:11px;margin-top:1px;text-align:right}
+.hall .srow .p{display:block;color:#fff;font-weight:600;font-size:14px;text-align:right;white-space:nowrap}
+.hall .srow .pc{display:block;font-size:11px;margin-top:1px;text-align:right;white-space:nowrap}
 .hall .srow .up,.hall .srow .dn{width:88px;justify-content:center;padding-left:0;padding-right:0}
 
 /* ---- Editor's Desk (E1–E4) ---- */

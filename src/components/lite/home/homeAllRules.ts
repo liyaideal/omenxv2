@@ -63,7 +63,7 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     rules: [
       { id: "K1", text: "眉行「Stocks · Daily close · N markets today」（N = 各市场可交易总数），问句「Will it finish higher than it opened?」。" },
       { id: "K2", text: "段头右侧：市场 tab 单行 US / Hong Kong / Korea（有数据才出，以后加 CN 就多一个），数量跟在名字后；下面一行状态：盘中「Market open · closes in X」、非盘中「Market opens in X」，后接「settles in Y」（Y = 下一个还没到的结算时间）；这一轮结算时间已过、引擎还没滚到下一轮时写「settling now」，不写「settles in 0s」。默认选中 US；US 没有数据时选下一个有数据的市场。" },
-      { id: "K3", text: "清单：按本轮成交量取前 10（成交量相同按接口顺序），两列各 5，中间一根分隔线；每行 = 图标 26 · 代码 + 全名（全名不截断）· 走势小图 96×28 · 价格 + 相对 Base 涨跌 · Up / Down 定宽 88px 钮。不展示每行成交量。手机只取前 5、每只两行。" },
+      { id: "K3", text: "清单：按本轮成交量取前 10（成交量相同按接口顺序），两列各 5，中间一根分隔线；每行 = 图标 26 · 代码 + 全名（全名不截断）· 走势小图 96×28 · 价格 + 相对 Base 涨跌（定宽 112px、右对齐，放得下最长的韩股价 ₩1000000.00；各行小图和价格因此上下对齐，不随价格位数左右漂）· Up / Down 定宽 88px 钮。不展示每行成交量。手机只取前 5、每只两行。" },
       { id: "K4", text: "走势小图三种时刻：① 盘中 = 自上次收盘以来的 1 分钟收盘价实线；② 收盘后还在成交（美股盘后 / 夜盘）= 同色淡一半细线，开盘后实线接上；③ 收盘后还没成交（港股 / 韩股 16:00 之后）= 不画图，价格旁写「Base price」（不是 at close）。基准虚线永远 = 上次官方收盘价 = 这轮 Base。连续相同价只留一个点，抽样 ≤ 48 点。" },
       { id: "K5", text: "小图颜色：涨 #4ADE80 / 跌 #F87171（股票沿用绿涨红跌），基准虚线橙。" },
       { id: "K6", text: "底部：左「N of M trading above their base price right now」，M = 当前列出的行里已经有成交价的行数（一般是 10，手机 5）；一行都没成交时这句不显示；右「Show all N →」。不写数据来源、不重复结算时间。" },
