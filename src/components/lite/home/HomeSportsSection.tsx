@@ -461,22 +461,21 @@ const Row = ({
     </span>
     {isMobile ? (
       <span style={{ minWidth: 0 }}>
-        <div className="tc-code" style={{ fontSize: 14, whiteSpace: "nowrap" }}>
-          {abbr(m, "home")} <span style={{ color: "#6B7280", fontWeight: 500 }}>vs</span> {abbr(m, "away")}
+        {/* phone: codes + volume on line 1; an over-long code is cut, the volume never (2026-11-10) */}
+        <div className="tc-code" style={{ fontSize: 14, whiteSpace: "nowrap", display: "flex", alignItems: "baseline", minWidth: 0 }}>
+          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
+            {abbr(m, "home")} <span style={{ color: "#6B7280", fontWeight: 500 }}>vs</span> {abbr(m, "away")}
+          </span>
+          {big && (
+            <b className="m" style={{ color: LM, fontWeight: 700, fontSize: 12, marginLeft: 6, flex: "none" }}>
+              {shortVol(m.volume)}
+            </b>
+          )}
         </div>
-        {/* phone: the volume moves to the meta line so the name keeps clear of the coded price pills (2026-11-10) */}
         <div className="tc-meta" style={{ marginTop: 3 }}>
           <span className="m" style={{ color: "#DBE2EA", fontWeight: 600 }}>
             {dayShort(m.kickoff)} {hhmm(m.kickoff)}
-          </span>
-          {big && (
-            <>
-              {" · "}
-              <b className="m" style={{ color: LM, fontWeight: 700 }}>
-                {shortVol(m.volume)}
-              </b>
-            </>
-          )}{" "}
+          </span>{" "}
           · <LeagueLabel m={m} short />
         </div>
       </span>

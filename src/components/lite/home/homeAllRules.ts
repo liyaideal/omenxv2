@@ -127,7 +127,7 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     rules: [
       { id: "MB1", text: "Hero 按设计师手机稿（Figma 203-91044 / 203:91054）：居中两行 26px 标题 → 一句副标「Pick a topic, tap Yes or No.」→ 358×89 插画条（/assets/mobile/hero-band@3x.png，设计师稿整块导出：面板底 + 插画，3×，紧贴副标下方）；不放 LIVE MARKETS 标签。" },
       { id: "MB2", text: "品类 chip 一行横滑；Quick Play 用生产手机横幅 AB-2。" },
-      { id: "MB3", text: "Sports：日历条横滑 → 舞台位（直播预览 / 对阵 + 比分 / 最大场倒计时）→ 2 列瓷砖 → 面板只留 Big this week 3 行 → 底部「+N more this week ｜ All N matches →」（这个 N = 眉行的 N：正在打的 + 还没开赛的，所以有比赛在打时比日历条 ALL 多出正在打的场数）。不列 Next up。手机行里成交额放在第二行（开赛时间之后），给带队伍短码的价钮让位（2026-11-10）。有直播标记的 live 瓷砖去掉联赛名，保住「▶ Stream」。" },
+      { id: "MB3", text: "Sports：日历条横滑 → 舞台位（直播预览 / 对阵 + 比分 / 最大场倒计时）→ 2 列瓷砖 → 面板只留 Big this week 3 行 → 底部「+N more this week ｜ All N matches →」（这个 N = 眉行的 N：正在打的 + 还没开赛的，所以有比赛在打时比日历条 ALL 多出正在打的场数）。不列 Next up。手机行第一行写两队短码 + 成交额，短码太长时只截短码、成交额不截（2026-11-10）。有直播标记的 live 瓷砖去掉联赛名，保住「▶ Stream」。" },
       { id: "MB4", text: "Crypto：钟 + 进度条整行、周期 tab 一行 → BTC 卡（价 48px、图 150 高、同 C4 画法）→「BTC · last 8」紧贴图表下方、在 Up / Down 钮之前 → 资金比例条 → ETH / SOL 两张半卡并排（图 64 高）。" },
       { id: "MB5", text: "Stocks：市场 tab + 一行状态 → 只取前 5，每只两行（上：代码 + 短名（同 K3）/ 价 + 涨跌；下：走势图 120×26 + Up / Down 78px 钮）→ 底注「N of 5 above their base price · Show all N →」。" },
       { id: "MB6", text: "Editor's Desk 三条竖叠（编号 + 眉行 / 标题 / 引言 / 钮）；More = 封面 + 标题一行，多档事件每档名字独占一行、下面 bar + Yes / No 58px 钮，二元事件 = 大数字 + 两钮整行。" },
