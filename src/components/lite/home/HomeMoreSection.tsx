@@ -87,7 +87,7 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
           </div>
           <div
             className="d"
-            // M2: desktop clamps at 2 lines (the column is wide); phone never cuts the title — it wraps.
+            // M2: desktop clamps at 3 lines (2026-11-10, was 2); phone never cuts the title — it wraps.
             style={isMobile ? { fontWeight: 700, fontSize: 16, color: "#fff", marginTop: 5, lineHeight: 1.25 } : { fontWeight: 700, fontSize: 20, color: "#fff", marginTop: 6, lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}
           >
             {m.eventName}

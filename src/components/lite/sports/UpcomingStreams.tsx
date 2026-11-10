@@ -68,7 +68,7 @@ export const streamCountdown = (kickoff: Date, now: number) => {
   return { lead: t(`${K}.starts`), value: `${day} ${time}`, soon: false };
 };
 
-/** Card meta row kickoff: `Today 12:55` · `Tmrw 10:15` · `Fri 19:15`. */
+/** Card meta row kickoff: `Today 12:55` · `Tomorrow 10:15` · `Fri 19:15`. */
 export const kickoffShort = (kickoff: Date, now: number = Date.now()) => {
   const n = new Date(now);
   const day0 = new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();

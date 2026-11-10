@@ -1120,7 +1120,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 
 ## Home (`/`, Lite)
 
-> **⚠ 本节是 2026-08 旧首页（lite-home-v1）的词条，All 视图已于 2026-11-09 改版，旧 Hero 句、`Stocks · Closing today`、`Last close`、`Unavailable`、`● Sports · Match winners` 等在 All 视图里已不用。现行首页文案以下方「首页 All 视图（2026-11-09 改版 · 字典 HA-1 … HA-22）」节和 `docs/delivery/home-all-v1.md` §2 为准；本节只留作其他页面（品类页、旧卡片）仍在用的词条参考。**
+> **⚠ 本节是 2026-08 旧首页（lite-home-v1）的词条，All 视图已于 2026-11-09 改版，旧 Hero 句、`Stocks · Closing today`、`Last close`、`Unavailable`、`● Sports · Match winners`、Stocks 卡的 `Show all {n} →` / `Show less` 展开器等在 All 视图里已不用（现行 `Show all {N} →` 是进 Finance 的链接，见首页 R 表 Stocks 底注）。现行首页文案以下方「首页 All 视图（2026-11-09 改版 · 字典 HA-1 … HA-22）」节和 `docs/delivery/home-all-v1.md` §2 为准；本节只留作其他页面（品类页、旧卡片）仍在用的词条参考。**
 
 首页 = `/` 与 `/events` 同一 `LiteEventsPage`。完整交付口径见 `docs/delivery/lite-home-v1.md`。
 股票三态四条词条已在上方「Stocks · 交易时段（ST-1）」节，本节不重复，引用即可。

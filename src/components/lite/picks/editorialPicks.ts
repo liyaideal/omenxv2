@@ -123,6 +123,7 @@ export const toEditorPick = (row: RawRow): EditorPick | null => {
   // E4: a match pick shows the two teams (home = first option, away = last);
   // a three-way match's Draw is traded on the match page, not on the pick.
   const isMatch = !!(row.metadata as { kickoff_at?: string } | null)?.kickoff_at;
+  const outcomeCount = opts.length; // before trimming to two: drives "+N more" (E4)
   if (isMatch && opts.length > 2) {
     const sorted = [...opts].sort((a, b) => a.id.localeCompare(b.id));
     opts = [sorted[0], sorted[sorted.length - 1]];
@@ -157,7 +158,7 @@ export const toEditorPick = (row: RawRow): EditorPick | null => {
     noPrice: no ? no.price : Math.max(0, Math.min(1, 1 - yesPrice)),
     yesOptionId: yes?.id ?? null,
     noOptionId: no?.id ?? null,
-    optionCount: opts.length,
+    optionCount: isMatch ? opts.length : outcomeCount,
     endDate: row.end_date ? new Date(row.end_date) : null,
   };
 };

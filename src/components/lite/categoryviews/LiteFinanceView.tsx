@@ -79,7 +79,8 @@ export const LiteFinanceView = ({
   const inRegion = (r: StockEventRow) =>
     region === "all" || resolveStockMarket(r).key === region;
   const engineOn =
-    !boostOnly && (cls === ENGINE_CLASS || cls === "all") && region !== "kr";
+    // Korea rounds are synced from mainnet since 2026-11-10 (batch 2), so the Korea region lists them too.
+    !boostOnly && (cls === ENGINE_CLASS || cls === "all");
   const trading = engineOn ? groups.trading.filter(inRegion) : [];
   const asleep = engineOn ? groups.asleep.filter((a) => inRegion(a.row)) : [];
   const shown = trading.length + asleep.length;

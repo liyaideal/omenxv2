@@ -201,7 +201,7 @@ const STOCKS_CASES: SectionCase[] = [
   {
     key: "home-ha8",
     label: "HA-8 · Stocks · 盘中（K4 ①，US Wed 11:00 ET）",
-    note: "fixture 19 只：US 10 / HK 6 / KR 3；桌面前 10 两列各 5，手机前 5 每只两行（K3 / MB5）。",
+    note: "fixture 20 只：US 10 / HK 6 / KR 4；桌面前 10 两列各 5，手机前 5 每只两行（K3 / MB5）。",
     spec: [
       { state: "段头", when: "stockRows.length > 0", visual: "眉行「Stocks · Daily close · N markets today」+ 问句；右：US 10 ｜ Hong Kong 6 ｜ Korea 3 单行 tab + 一行状态「Market open · closes in X · settles in Y」；settles = 官方收盘 + 15 分钟（与现货页 Settles、同步文档 §7 第 3 条一致），所以盘中两个数差 15 分钟", source: "K1 K2 · getStockSessionState · SETTLE_AFTER_CLOSE_MS" },
       { state: "平盘", when: "现价 === Base", visual: "涨跌位灰色「0.00%」不带 + 号（平盘结算 Down）", source: "K4 · 2026-11-10" },
