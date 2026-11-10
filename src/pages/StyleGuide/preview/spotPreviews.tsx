@@ -164,7 +164,7 @@ export const Sp8Preview = () => (
         { key: "mkt", label: "Market open", time: "09:30" },
         { key: "now", label: "Trading", time: "now", now: true },
         { key: "close", label: "Closes", time: "15:55" },
-        { key: "settle", label: "Settles", time: "16:00" },
+        { key: "settle", label: "Settles", time: "16:15" },
       ]}
     />
   </Frame>
@@ -182,7 +182,7 @@ export const Sp14Preview = () => (
         { key: "mkt", label: "Market open", time: "09:30" },
         { key: "mid", label: "Trading", time: "closed" },
         { key: "close", label: "Closed", time: "15:55" },
-        { key: "settle", label: "Settled", time: "16:00" },
+        { key: "settle", label: "Settled", time: "16:15" },
       ]}
     />
     <RoundTape
