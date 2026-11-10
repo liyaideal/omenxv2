@@ -134,3 +134,18 @@
 .hall-m .tc-tile .tc-sc{font-size:18px}
 .hall-m .tc-tile .tc-tm .tc-code{overflow:visible;text-overflow:clip}
 .hall-m .altcard{border:1px solid rgba(148,163,184,.14);border-radius:16px;background:#11141A;padding:14px 12px}
+
+/* ---- R7 mid widths (768–1279 is still desktop) ---- */
+.hall .stk2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:0}
+.hall .stk2-l{padding-right:40px}
+.hall .stk2-r{border-left:1px solid rgba(148,163,184,.14);padding-left:40px}
+.hall .morerow{display:grid;grid-template-columns:minmax(0,1fr) 520px;gap:48px;align-items:start;padding:22px 0}
+@media (max-width:1279px){
+  .hall .stk2{grid-template-columns:minmax(0,1fr)}
+  .hall .stk2-l{padding-right:0}
+  .hall .stk2-r{border-left:0;padding-left:0}
+  /* the 520px outcome area no longer fits beside the title: stack it under (desktop sizes kept) */
+  .hall .morerow{grid-template-columns:minmax(0,1fr);gap:16px}
+  .hall .morerow>:last-child{max-width:640px}
+}
+@media (min-width:1280px){.hall .stk2-l>.hr:last-child{border-bottom:0}}

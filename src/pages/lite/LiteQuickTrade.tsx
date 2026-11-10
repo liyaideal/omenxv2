@@ -87,17 +87,13 @@ type Side = "yes" | "no";
 
 
 
-const utcHHMM = (d: Date) =>
-  new Intl.DateTimeFormat("en-GB", {
-    timeZone: "UTC",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(d);
+// Viewer-local time, like every other surface (全站用户时间; the page used UTC — 2026-11-10 review).
+const localHHMM = (d: Date) =>
+  new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false }).format(d);
 
-// "AUG 6" / "Aug 6" — UTC, same axis convention as the round chart.
-const utcMonthDay = (d: Date) =>
-  new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(d);
+// "AUG 6" / "Aug 6" — viewer-local, same as the round chart.
+const localMonthDay = (d: Date) =>
+  new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(d);
 
 /**
  * TABLE gate (2026-10-09). Order form follows the round length: 5m/15m render
@@ -201,7 +197,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
   // Shared anonymised all-user activity feed (same hook as the stock spot page).
   const activity = useMarketActivityRows(event?.name || null, "Up", refetchTick);
 
-  // Time-anchored tape label + chip tooltips (UTC, same axis convention as the chart).
+  // Time-anchored tape label + chip tooltips (viewer-local, same as the chart).
   const startMs = event?.start_date ? new Date(event.start_date).getTime() : null;
   const endMs = event?.end_date ? new Date(event.end_date).getTime() : null;
   const tfMs = TF_SECONDS[tf] * 1000;
@@ -211,15 +207,15 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
     if (isDay) {
       return {
         micro: `Round #${roundNo}`,
-        value: startMs != null ? utcMonthDay(new Date(startMs)) : "—",
+        value: startMs != null ? localMonthDay(new Date(startMs)) : "—",
       };
     }
-    const dayPart = startMs != null ? utcMonthDay(new Date(startMs)).toUpperCase() : null;
+    const dayPart = startMs != null ? localMonthDay(new Date(startMs)).toUpperCase() : null;
     return {
       micro: dayPart ? `Round #${roundNo} · ${dayPart}` : `Round #${roundNo}`,
       value:
         startMs != null && endMs != null
-          ? `${utcHHMM(new Date(startMs))}–${utcHHMM(new Date(endMs))}`
+          ? `${localHHMM(new Date(startMs))}–${localHHMM(new Date(endMs))}`
           : "—",
     };
   }, [isDay, roundNo, startMs, endMs]);
@@ -229,8 +225,8 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
     (back: number) => {
       if (startMs == null) return `Round #${roundNo - back}`;
       const s = startMs - back * tfMs;
-      if (isDay) return utcMonthDay(new Date(s));
-      return `${utcHHMM(new Date(s))}–${utcHHMM(new Date(s + tfMs))}`;
+      if (isDay) return localMonthDay(new Date(s));
+      return `${localHHMM(new Date(s))}–${localHHMM(new Date(s + tfMs))}`;
     },
     [startMs, tfMs, isDay, roundNo],
   );
@@ -325,7 +321,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
     );
   }
 
-  const settlesAt = endDate ? utcHHMM(endDate) : "--:--";
+  const settlesAt = endDate ? localHHMM(endDate) : "--:--";
   const openText =
     base != null
       ? base.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -438,13 +434,13 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
     />
   );
 
-  const openedAt = event.start_date ? utcHHMM(new Date(event.start_date)) : "--:--";
+  const openedAt = event.start_date ? localHHMM(new Date(event.start_date)) : "--:--";
   const SettlementRail = (
     <SpotSettlementRail
       blocked={remaining <= 0}
       tradingNow={remaining > 0}
       nodes={[
-        { key: "opened", label: "Round opened", time: `${openedAt} UTC` },
+        { key: "opened", label: "Round opened", time: openedAt },
         {
           key: "now",
           label: remaining <= 0 ? "Closed" : "Trading NOW",

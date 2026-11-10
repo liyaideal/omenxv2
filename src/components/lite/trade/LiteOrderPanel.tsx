@@ -283,8 +283,9 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
         <div className={cn("grid grid-cols-5 gap-1.5", lowBalance && "pointer-events-none opacity-40")} aria-disabled={lowBalance || undefined}>
           {PRESETS.map((p) => {
             const active = amountNum === p;
+            // Same formula and format as "If you're right, you win" — the chip used to floor to whole dollars ("win $0" next to "$1.90").
             const winAt = sidePrice > 0
-              ? Math.floor(netWin(Math.floor((p - p * SPOT_FEE_RATE) / sidePrice) - p, p * SPOT_FEE_RATE))
+              ? netWin(Math.floor((p - p * SPOT_FEE_RATE) / sidePrice) - p, p * SPOT_FEE_RATE)
               : 0;
             return (
               <button
@@ -306,7 +307,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
                     active ? "text-[#0A0B0D]/70" : "text-muted-foreground",
                   )}
                 >
-                  win ${winAt}
+                  win {money(Math.max(0, winAt))}
                 </span>
               </button>
             );

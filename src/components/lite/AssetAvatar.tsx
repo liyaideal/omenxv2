@@ -122,7 +122,7 @@ export const AssetAvatar = ({
 
   if (remote && !remoteFailed) {
     return (
-      <span className={className} style={{ ...base, display: "inline-flex", background: "transparent" }} aria-label={key}>
+      <span className={className} style={{ ...base, display: "inline-flex", background: "#F2F3F5" }} aria-label={key}>
         <img src={remote} alt="" onError={() => setRemoteFailed(true)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </span>
     );

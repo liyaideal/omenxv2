@@ -411,7 +411,7 @@ const pick = (o: Partial<EditorPick> & Pick<EditorPick, "id" | "name" | "note" |
 export const PICKS: EditorPick[] = [
   pick({ id: "ha-pick-1", rank: 1, category: "crypto", name: "BTC — above $75,786 at the daily close?", note: "Opened the day $1,164 above where it trades now. Down is 82¢ — the crowd is leaning one way, which is usually when the other side pays.", yesLabel: "Up", noLabel: "Down", yesPrice: 0.18, noPrice: 0.82 }),
   pick({ id: "ha-pick-2", rank: 2, category: "stocks", name: "NVDA — higher than it opened?", note: "Down 4.4% in the overnight session after the export-rule headline. Up is 17¢: cheap if you think the cash session buys the dip.", yesLabel: "Up", noLabel: "Down", yesPrice: 0.17, noPrice: 0.83, endDate: new Date(FROZEN_NOW + 6 * HOUR) }),
-  pick({ id: "ha-pick-3", rank: 3, category: "sports", name: "Vikings vs Bills — who wins?", note: "Biggest sports book on the site this week. Bills opened at 58¢ and have drifted to 62¢ with the weather report.", yesLabel: "Bills", noLabel: "Vikings", yesPrice: 0.62, noPrice: 0.39, endDate: new Date(FROZEN_NOW + DAY + 2 * HOUR) }),
+  pick({ id: "ha-pick-3", rank: 3, category: "sports", name: "Bills vs Vikings — who wins?", note: "Biggest sports book on the site this week. Bills opened at 58¢ and have drifted to 62¢ with the weather report.", yesLabel: "Bills", noLabel: "Vikings", yesPrice: 0.62, noPrice: 0.39, endDate: new Date(FROZEN_NOW + DAY + 2 * HOUR) }),
 ];
 export const PICKS_MULTI: EditorPick[] = [
   PICKS[0],

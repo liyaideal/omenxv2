@@ -292,7 +292,8 @@ export const shortName = (
   if (isPersonSport(meta)) {
     const parts = f.split(/\s+/);
     if (parts.length >= 2 && !/^[A-Z]\.$/.test(parts[0])) {
-      return `${parts[0][0]}. ${parts.slice(1).join(" ")}`;
+      // nbsp after the initial: "T. / Prozorova" must never break after the dot (2026-11-10 review)
+      return `${parts[0][0]}.\u00a0${parts.slice(1).join(" ")}`;
     }
   }
   return f;

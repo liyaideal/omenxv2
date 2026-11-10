@@ -226,7 +226,16 @@ export const useQuickRounds = (enabled: boolean, refreshKey: number = 0) => {
     return map;
   }, [settled]);
 
-  return { live, currentFor, historyFor, loading };
+  /** C3 "Traded today" = BTC, every round length, every round that started since 00:00 UTC today (settled ones included). */
+  const btcTodayVolume = useMemo(() => {
+    const d = new Date();
+    const utc0 = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+    return [...live, ...settled]
+      .filter((e) => e.coin === "btc" && e.start_date && new Date(e.start_date).getTime() >= utc0)
+      .reduce((a, e) => a + (e.volume || 0), 0);
+  }, [live, settled]);
+
+  return { live, currentFor, historyFor, btcTodayVolume, loading };
 };
 
 // ---------------- Stocks closing today ----------------

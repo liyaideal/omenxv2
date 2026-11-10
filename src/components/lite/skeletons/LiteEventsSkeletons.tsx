@@ -90,7 +90,8 @@ export const LiteMobileEventCardSkeleton = () => (
         <SkelBlock w="55%" h={14} />
       </div>
     </div>
-    <div className="flex gap-2">
+    {/* two equal buttons: a grid, not a flex row of two 100%-wide blocks (that ran past the card edge) */}
+    <div className="grid grid-cols-2 gap-2">
       <SkelBlock h={44} r={10} tone="secondary" />
       <SkelBlock h={44} r={10} tone="secondary" />
     </div>
@@ -164,9 +165,19 @@ const RowSkeleton = () => (
   </div>
 );
 
+/**
+ * R6: each skeleton block holds its section's FINAL height so the page doesn't jump when data lands
+ * (measured 2026-11-10 from HA-3 / HA-6 / HA-8 / HA-11 / HA-13 — Sports with a live stream, More with
+ * three events; other Sports states differ by ±150px). Was ~200px short on Sports (cold-read finding).
+ */
+const SKEL_H = {
+  d: { sports: 1134, crypto: 709, stocks: 595, desk: 446, more: 780 },
+  m: { sports: 1329, crypto: 877, stocks: 810, desk: 767, more: 900 },
+} as const;
+
 /** Desktop Sports section (§1) — head + day strip, 5/7 split: stage + tiles | table panel. */
 export const LiteSportsStageSkeleton = () => (
-  <div style={{ padding: "56px 0" }}>
+  <div style={{ padding: "56px 0", minHeight: SKEL_H.d.sports }}>
     <SectionHeadSkeleton right={376} />
     <div className="grid" style={{ gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 20, marginTop: 44 }}>
       <div className="flex flex-col" style={{ gridColumn: "span 5", paddingRight: 28, gap: 14 }}>
@@ -200,7 +211,7 @@ export const LiteSportsStageSkeleton = () => (
 
 /** Desktop Crypto section (§2) — head + clock / tabs, BTC block 8 | ETH-SOL panel 4. */
 export const LiteIntradayStageSkeleton = () => (
-  <div style={{ padding: "56px 0", borderTop: "1px solid rgba(148,163,184,0.1)" }}>
+  <div style={{ padding: "56px 0", borderTop: "1px solid rgba(148,163,184,0.1)", minHeight: SKEL_H.d.crypto }}>
     <SectionHeadSkeleton right={420} />
     <div className="grid" style={{ gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 20, marginTop: 40 }}>
       <div className="flex flex-col" style={{ gridColumn: "span 8", paddingRight: 28, gap: 14 }}>
@@ -243,7 +254,7 @@ const SEP = "1px solid rgba(148,163,184,0.1)";
 
 /** Desktop Stocks section (§3) — head + market tabs / status line, two columns of five rows. */
 export const LiteStocksStageSkeleton = () => (
-  <div style={{ padding: "56px 0", borderTop: SEP }}>
+  <div style={{ padding: "56px 0", borderTop: SEP, minHeight: SKEL_H.d.stocks }}>
     <SectionHeadSkeleton right={300} />
     <div className="flex items-center" style={{ gap: 18, marginTop: 34 }}>
       {[0, 1, 2].map((i) => (
@@ -275,7 +286,7 @@ export const LiteStocksStageSkeleton = () => (
 
 /** Desktop Editor's Desk (§4) — head, three columns: number, eyebrow, title, note, two buttons. */
 export const LiteDeskStageSkeleton = () => (
-  <div style={{ padding: "56px 0", borderTop: SEP }}>
+  <div style={{ padding: "56px 0", borderTop: SEP, minHeight: SKEL_H.d.desk }}>
     <SectionHeadSkeleton />
     <div className="grid grid-cols-3" style={{ gap: 36, marginTop: 40 }}>
       {[0, 1, 2].map((i) => (
@@ -300,7 +311,7 @@ export const LiteDeskStageSkeleton = () => (
 
 /** Desktop More (§5) — head, three event rows: cover + question | outcomes / chance + Yes / No. */
 export const LiteMoreStageSkeleton = () => (
-  <div style={{ padding: "56px 0", borderTop: SEP }}>
+  <div style={{ padding: "56px 0", borderTop: SEP, minHeight: SKEL_H.d.more }}>
     <SectionHeadSkeleton />
     <div className="flex flex-col" style={{ marginTop: 32 }}>
       {[0, 1, 2].map((i) => (
@@ -346,7 +357,7 @@ export const LiteAllStageSkeleton = () => (
 
 /** Mobile Sports §1 — head, day strip, brand stage, match-up, tiles 2×2. */
 export const LiteMobileSportsSkeleton = () => (
-  <div className="flex flex-col" style={{ padding: "36px 0", gap: 18 }}>
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 18, minHeight: SKEL_H.m.sports }}>
     <SkelBlock w={240} h={11} tone="secondary" />
     <SkelBlock w={300} h={34} r={8} />
     {/* the real day strip scrolls sideways — the placeholder is cut at the edge, never widens the page */}
@@ -377,7 +388,7 @@ export const LiteMobileSportsSkeleton = () => (
 
 /** Mobile Crypto §2 — clock line, tabs, BTC card. */
 export const LiteMobileIntradaySkeleton = () => (
-  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: "1px solid rgba(148,163,184,0.1)" }}>
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: "1px solid rgba(148,163,184,0.1)", minHeight: SKEL_H.m.crypto }}>
     <SkelBlock w={260} h={11} tone="secondary" />
     <SkelBlock w={280} h={34} r={8} />
     <SkelBlock w={220} h={24} r={6} tone="secondary" />
@@ -403,7 +414,7 @@ export const LiteMobileIntradaySkeleton = () => (
 
 /** Mobile Stocks §3 — head, tabs, five two-line rows. */
 export const LiteMobileStocksSkeleton = () => (
-  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP }}>
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP, minHeight: SKEL_H.m.stocks }}>
     <SkelBlock w={240} h={11} tone="secondary" />
     <SkelBlock w={290} h={34} r={8} />
     <div className="flex" style={{ gap: 16 }}>
@@ -430,7 +441,7 @@ export const LiteMobileStocksSkeleton = () => (
 
 /** Mobile Editor's Desk §4 — head, three stacked picks. */
 export const LiteMobileDeskSkeleton = () => (
-  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP }}>
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP, minHeight: SKEL_H.m.desk }}>
     <SkelBlock w={180} h={11} tone="secondary" />
     <SkelBlock w={260} h={34} r={8} />
     {[0, 1, 2].map((i) => (
@@ -449,7 +460,7 @@ export const LiteMobileDeskSkeleton = () => (
 
 /** Mobile More §5 — head, two event rows (cover 96×58 + question, then buttons). */
 export const LiteMobileMoreSkeleton = () => (
-  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP }}>
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP, minHeight: SKEL_H.m.more }}>
     <SkelBlock w={180} h={11} tone="secondary" />
     <SkelBlock w={230} h={34} r={8} />
     {[0, 1].map((i) => (

@@ -165,7 +165,7 @@ const LiteEventsPage = () => {
   // The quote tape rides the same two streams, so they stay on in every view.
   const stageActive = true;
   const tickSeconds = useSecondTick();
-  const { currentFor, historyFor, loading: roundsLoading } = useQuickRounds(stageActive);
+  const { currentFor, historyFor, btcTodayVolume, loading: roundsLoading } = useQuickRounds(stageActive);
   const { rows: stockRows, loading: stocksLoading } = useIntradayStocks(stageActive);
   const { rows: sportsMatches, loading: sportsLoading } = useSportsMatches();
 
@@ -438,6 +438,7 @@ const LiteEventsPage = () => {
           <HomeStage
             currentFor={currentFor}
             historyFor={historyFor}
+            btcTodayVolume={btcTodayVolume}
             stockRows={stockRows}
             matches={sportsMatches}
             picks={editorPicks}
@@ -516,6 +517,7 @@ const LiteEventsPage = () => {
           <HomeStage
             currentFor={currentFor}
             historyFor={historyFor}
+            btcTodayVolume={btcTodayVolume}
             stockRows={stockRows}
             matches={sportsMatches}
             picks={editorPicks}

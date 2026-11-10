@@ -510,6 +510,8 @@ const match = (m: {
   format: m.options.length === 3 ? "1x2" : "h2h",
   kickoff: m.kickoff,
   endDate: new Date(m.kickoff.getTime() + 2 * 3_600_000),
+  // The sport word on calendar rows comes from here — without it NBA / NFL fixtures read "FOOTBALL" (2026-11-10 review).
+  sport: m.league === "NBA" ? "basketball" : m.league === "NFL" ? "american_football" : m.league === "MLB" ? "baseball" : "soccer",
   live: !!m.live,
   minute: m.live?.minute ?? null,
   phase: m.live?.phase ?? null,

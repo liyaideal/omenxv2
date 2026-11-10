@@ -20,6 +20,7 @@ import "./home-all.css";
 export interface HomeStageProps {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
+  btcTodayVolume?: number;
   stockRows: StockEventRow[];
   matches: SportsMatch[];
   picks: EditorPick[];
@@ -41,6 +42,7 @@ const Rule = () => <div className="secrule" />;
 export const HomeStage = ({
   currentFor,
   historyFor,
+  btcTodayVolume,
   stockRows,
   matches,
   picks,
@@ -57,7 +59,7 @@ export const HomeStage = ({
   const blocks = [
     matches.length > 0 ? <HomeSportsSection key="sports" matches={matches} isMobile={isMobile} onOpenAll={onOpenSports} nowOverride={nowOverride} /> : null,
     currentFor.size > 0 ? (
-      <HomeCryptoSection key="crypto" currentFor={currentFor} historyFor={historyFor} tf={tf} onSelectTf={onSelectTf} livePrices={livePrices} isMobile={isMobile} nowOverride={nowOverride} />
+      <HomeCryptoSection key="crypto" currentFor={currentFor} historyFor={historyFor} btcTodayVolume={btcTodayVolume} tf={tf} onSelectTf={onSelectTf} livePrices={livePrices} isMobile={isMobile} nowOverride={nowOverride} />
     ) : null,
     stockRows.length > 0 ? <HomeStocksSection key="stocks" stockRows={stockRows} isMobile={isMobile} onOpenAll={onOpenFinance} nowOverride={nowOverride != null ? new Date(nowOverride) : undefined} /> : null,
     picks.length > 0 ? <HomeDeskSection key="desk" picks={picks} isMobile={isMobile} nowOverride={nowOverride} /> : null,

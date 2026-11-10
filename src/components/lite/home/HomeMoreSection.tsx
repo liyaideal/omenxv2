@@ -179,7 +179,7 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
       );
     }
     return (
-      <div key={m.id} className={k < events.length - 1 ? "hr" : undefined} style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 520px", gap: 48, alignItems: "start", padding: "22px 0" }}>
+      <div key={m.id} className={`morerow${k < events.length - 1 ? " hr" : ""}`}>
         {left}
         {right}
       </div>

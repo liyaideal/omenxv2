@@ -322,10 +322,12 @@ export const SpotSideRailStocks = ({ rows }: { rows: SpotRailStockRow[] }) => (
               onClick={s.onClick}
               className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-muted/40"
             >
-              <span className="flex h-7 w-9 items-center justify-center rounded bg-muted/50 font-mono text-[10px] font-semibold">
-                {s.ticker}
+              {/* Same avatar as the home Stocks rows; the ticker is text — a 36px box could not hold "000660.KR" (2026-11-10 review). */}
+              <AssetAvatar symbol={s.ticker} kind="equity" size={28} />
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate font-mono text-[11px] font-semibold">{s.ticker}</span>
+                <span className="truncate text-xs text-muted-foreground">{s.label}</span>
               </span>
-              <span className="flex-1 truncate text-xs">{s.label}</span>
               <span className="font-mono text-xs font-semibold text-yes">{s.upPct}%</span>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>

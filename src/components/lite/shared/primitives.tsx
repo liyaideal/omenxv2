@@ -78,7 +78,7 @@ export const Crest = ({
   abbr,
   size = 34,
   overlap = false,
-  overlapPx = -10,
+  overlapPx = -4, // was -10: the second crest covered the first one's code (BA·PSG, NY·EDM — 2026-11-10 review)
   muted = false,
   fontSize,
   logoUrl,

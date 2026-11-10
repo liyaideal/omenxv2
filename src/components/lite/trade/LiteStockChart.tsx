@@ -16,6 +16,7 @@ import {
   Tooltip,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { formatLocalTime } from "@/lib/usStockSessions";
 
 type Tab = "stock" | "odds";
@@ -77,35 +78,18 @@ const synth = (
   return out;
 };
 
-// Fixed US regular-session marks (intraday ticks). The final close tick is
-// derived from the event end_date so it never hardcodes 16:00.
-const REGULAR_LABELS = [
-  "9:30",
-  "10:30",
-  "11:30",
-  "12:30",
-  "13:30",
-  "14:30",
-  "15:30",
-];
+// One timestamp per point, shown in the viewer's local time (全站用户时间). Before (2026-11-10 review):
+// 48 points shared 8 fixed US-hour labels, so the axis read "9:30, 9:30, 10:30 ×4 … 15:30, 14:30",
+// and quick rounds were labelled in UTC.
+const SESSION_MS = 6.5 * 3600_000; // US 09:30–16:00 · HK 09:30–16:00 · KR 09:00–15:30
 
-const buildPoints = (values: number[], labels: string[]): Point[] => {
-  if (values.length === 0) return [];
-  return values.map((v, i) => {
-    const labelIdx = Math.round((i / (values.length - 1)) * (labels.length - 1));
-    return { t: labels[labelIdx], v };
-  });
-};
+const buildPoints = (values: number[], times: Date[]): Point[] =>
+  values.map((v, i) => ({ t: times.length ? formatLocalTime(times[Math.min(i, times.length - 1)]) : "", v }));
 
-const utcHHMM = (d: Date) =>
-  `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
-
-/** Evenly spaced UTC ticks across an arbitrary round window. */
-const roundLabels = (start: Date, end: Date, ticks = 8): string[] => {
+/** `n` evenly spaced instants from `start` to `end`. */
+const spread = (start: Date, end: Date, n: number): Date[] => {
   const span = end.getTime() - start.getTime();
-  return Array.from({ length: ticks }, (_, i) =>
-    utcHHMM(new Date(start.getTime() + (span * i) / (ticks - 1))),
-  );
+  return Array.from({ length: n }, (_, i) => new Date(start.getTime() + (span * i) / Math.max(1, n - 1)));
 };
 
 export const LiteStockChart = ({
@@ -124,31 +108,21 @@ export const LiteStockChart = ({
   className,
 }: Props) => {
   const [tab, setTab] = useState<Tab>("stock");
+  const narrow = useIsMobile();
   const seed = ticker.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   // Side identity → MARKET axis. Only ever one of the two at a time.
   const isYesSide = side === "yes";
   const sideLabel = isYesSide ? upLabel : downLabel;
 
-  // Final close tick derives from the event end_date when available; otherwise
-  // falls back to the regular 16:00 session close only as a last resort.
-  const closeTick = useMemo(
-    () => (endDate ? formatLocalTime(new Date(endDate)) : "16:00"),
-    [endDate],
-  );
+  // Time of each of the 48 points: a quick round spans its own window; a stock day spans the
+  // session that ends at end_date (6.5 h). No end date → no time labels.
   const labels = useMemo(() => {
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      if (
-        !Number.isNaN(start.getTime()) &&
-        !Number.isNaN(end.getTime()) &&
-        end.getTime() > start.getTime()
-      ) {
-        return roundLabels(start, end);
-      }
-    }
-    return [...REGULAR_LABELS, closeTick];
-  }, [startDate, endDate, closeTick]);
+    const end = endDate ? new Date(endDate) : null;
+    if (!end || Number.isNaN(end.getTime())) return [] as Date[];
+    const start = startDate ? new Date(startDate) : null;
+    const quick = start && !Number.isNaN(start.getTime()) && end.getTime() > start.getTime();
+    return spread(quick ? start! : new Date(end.getTime() - SESSION_MS), end, 48);
+  }, [startDate, endDate]);
 
   const stockSeries = useMemo(() => {
     if (!basePrice || !currentPrice) return [];
@@ -243,7 +217,8 @@ export const LiteStockChart = ({
                 tick={{ fontSize: 10, fill: "#6B7280" }}
                 tickLine={false}
                 axisLine={false}
-                interval="preserveStartEnd"
+                interval={7}
+                minTickGap={24}
               />
               <YAxis
                 domain={[
@@ -275,12 +250,12 @@ export const LiteStockChart = ({
                   y={baseline}
                   stroke="#6B7280"
                   strokeDasharray="4 4"
-                  label={{
-                    value: `Price to beat ${px(baseline)}`,
-                    position: "insideTopRight",
-                    fill: "#9AA1AC",
-                    fontSize: 10,
-                  }}
+                  // Phone: the line alone — the label sat on the line and the walk; the header row already says "Price to beat".
+                  label={
+                    narrow
+                      ? undefined
+                      : { value: `Price to beat ${px(baseline)}`, position: "insideTopRight", fill: "#9AA1AC", fontSize: 10 }
+                  }
                 />
               )}
               <Line

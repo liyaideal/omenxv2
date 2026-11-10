@@ -43,6 +43,8 @@ const kUsd = (n: number) => (n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` 
 export interface HomeCryptoSectionProps {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
+  /** C3 "Traded today" (BTC, all lengths, since 00:00 UTC). Absent (style-guide fixtures) → the BTC rounds on screen. */
+  btcTodayVolume?: number;
   tf: Timeframe;
   onSelectTf: (tf: Timeframe) => void;
   /** Live prints from the Quick Play stream (tape) — anchor the chart head. */
@@ -112,7 +114,7 @@ const Last8 = ({ history, label, big, labelColor }: { history: ("up" | "down")[]
   );
 };
 
-export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, livePrices, isMobile, nowOverride }: HomeCryptoSectionProps) => {
+export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, onSelectTf, livePrices, isMobile, nowOverride }: HomeCryptoSectionProps) => {
   const navigate = useNavigate();
   useT(); // re-render on language change / catalog arrival
   const now = useNow(nowOverride);
@@ -134,7 +136,8 @@ export const HomeCryptoSection = ({ currentFor, historyFor, tf, onSelectTf, live
   const sBtc = series.btc;
   const rem = Math.max(0, sBtc.end - now);
   const prog = Math.min(100, Math.max(0, ((now - sBtc.start) / (sBtc.end - sBtc.start)) * 100));
-  const todayVol = [...currentFor.values()].reduce((a, e) => a + (e.volume || 0), 0);
+  // C3: BTC only (was every coin's current rounds — 2026-11-10 cold-read finding).
+  const todayVol = btcTodayVolume ?? [...currentFor.values()].filter((e) => e.coin === "btc").reduce((a, e) => a + (e.volume || 0), 0);
   const go = (e: QuickEvent, side: "yes" | "no") => () => navigate(tradeLink(e.id, { side }));
 
   const numbers = (c: Coin) => {

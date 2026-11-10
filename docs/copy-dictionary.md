@@ -979,7 +979,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | Canonical | 出现位置 / 规则 |
 |---|---|
 | **Next session** | 下一交易时段唯一用词。行尾标 `NEXT SESSION · opens {HH:MM}`；模块头 `Next session · US opens {HH:MM}` / `Next session · HK opens 09:30 HKT`；结算空窗按钮 `Next session in {mm:ss}`。禁用 `Pre-market` / `After hours` / `Tomorrow's session`，禁止外显内部状态名 `preSession`。 |
-| **Settled** | 结算空窗（收盘后 1 小时）模块头用词：`Settled · next session in {mm:ss}`。禁止外显 `Settling`。 |
+| **Settled** | 结算空窗（收盘后 1 小时）模块头用词：`Settled · next session in {mm:ss}`。禁止外显 `Settling`。**例外（2026-11-09 K2）**：首页 All 的 Stocks 状态行在「这一轮结算时间已过、下一轮还没出来」时写 `settling now`（小写，接在状态句后面），不算违反本条——本条管的是现货页 / 列表行的模块头。 |
 | **Closed ↑ / Closed ↓** | 仅结算空窗的结果徽章（客观结果色：↑ pulse、↓ volt，非盈亏语义）。`Closed` 不作它用。 |
 | **Last close {price}** | preSession 参照价前缀，整列 muted，且不显示涨跌%。禁用 `Prev close` / `Yesterday`。 |
 
@@ -1117,6 +1117,8 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **Couldn't load your settings** / Check your connection and try again. · Try again | 页面错误态 |
 
 ## Home (`/`, Lite)
+
+> **⚠ 本节是 2026-08 旧首页（lite-home-v1）的词条，All 视图已于 2026-11-09 改版，旧 Hero 句、`Stocks · Closing today`、`Last close`、`Unavailable`、`● Sports · Match winners` 等在 All 视图里已不用。现行首页文案以下方「首页 All 视图（2026-11-09 改版 · 字典 HA-1 … HA-22）」节和 `docs/delivery/home-all-v1.md` §2 为准；本节只留作其他页面（品类页、旧卡片）仍在用的词条参考。**
 
 首页 = `/` 与 `/events` 同一 `LiteEventsPage`。完整交付口径见 `docs/delivery/lite-home-v1.md`。
 股票三态四条词条已在上方「Stocks · 交易时段（ST-1）」节，本节不重复，引用即可。

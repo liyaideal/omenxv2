@@ -283,9 +283,10 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
           </div>
         }
       />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", columnGap: 0, marginTop: 28 }}>
-        <div style={{ paddingRight: 40 }}>{left.map((r, i) => row(r, i, i < left.length - 1))}</div>
-        <div style={{ borderLeft: "1px solid rgba(148,163,184,.14)", paddingLeft: 40 }}>
+      {/* R7: 1280+ two columns of five; 768–1279 (still desktop) one column of ten — two columns don't fit there. */}
+      <div className="stk2" style={{ marginTop: 28 }}>
+        <div className="stk2-l">{left.map((r, i) => row(r, i, i < left.length - 1 || right.length > 0))}</div>
+        <div className="stk2-r">
           {right.map((r, i) => row(r, i + 5, i < right.length - 1))}
         </div>
       </div>

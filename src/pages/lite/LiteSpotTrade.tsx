@@ -734,12 +734,19 @@ const LiteSpotTrade = () => {
     micro: isOpenNow ? `TODAY · ${sessionDate}` : `NEXT ROUND · ${sessionDate}`,
     value: `${formatLocalTime(sessionOpenAt)}–${formatLocalTime(sessionCloseAt)}`,
   };
+  // Same moment as "Closes in" (trading stops at the freeze, 5 min before the bell) — the badge used to count to the
+  // bell, so the page showed two different "time left" numbers for one round (2026-11-10 review).
+  const tapeTradingEndsAt =
+    tapeSession.closeAt &&
+    (todayEventId === event.id && countdownTarget
+      ? countdownTarget
+      : new Date(tapeSession.closeAt.getTime() - FREEZE_MINUTES_BEFORE_CLOSE * 60_000));
   const tapeSlot: TapeCurrentSlot =
-    isOpenNow && tapeSession.closeAt
+    isOpenNow && tapeSession.closeAt && tapeTradingEndsAt
       ? {
           kind: "countdown",
-          text: formatClockCountdown(tapeSession.closeAt.getTime() - Date.now()),
-          tooltip: `Today's round · closes at ${formatLocalStamp(tapeSession.closeAt)}`,
+          text: formatClockCountdown(tapeTradingEndsAt.getTime() - Date.now()),
+          tooltip: `Today's round · trading ends at ${formatLocalStamp(tapeTradingEndsAt)}`,
           onClick:
             todayEventId === event.id
               ? undefined

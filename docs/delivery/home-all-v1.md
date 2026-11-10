@@ -85,7 +85,7 @@
 - **K1** 眉行「Stocks · Daily close · N markets today」（N = 各市场可交易总数），问句「Will it finish higher than it opened?」。
 - **K2** 段头右侧：市场 tab 单行 US / Hong Kong / Korea（有数据才出，以后加 CN 就多一个），数量跟在名字后；下面一行状态：盘中「Market open · closes in X」、非盘中「Market opens in X」，后接「settles in Y」（Y = 下一个还没到的结算时间）；这一轮结算时间已过、引擎还没滚到下一轮时写「settling now」，不写「settles in 0s」。默认选中 US；US 没有数据时选下一个有数据的市场。
 - **K3** 清单：按本轮成交量取前 10（成交量相同按接口顺序），两列各 5，中间一根分隔线；每行 = 图标 26 · 代码 + 短名（不截断，太长折成两行，如 Samsung Electro-Mechanics）· 走势小图 96×28 · 价格 + 相对 Base 涨跌（定宽 112px、右对齐，放得下最长的韩股价 ₩1,134,988——韩元不带小数；各行小图和价格因此上下对齐，不随价格位数左右漂）· Up / Down 定宽 88px 钮。不展示每行成交量。手机只取前 5、每只两行。
-- **K4** 走势小图三种时刻：① 盘中 = 自上次收盘以来的 1 分钟收盘价实线；② 收盘后还在成交（美股盘后 / 夜盘）= 同色淡一半细线，开盘后实线接上；③ 收盘后还没成交（港股 / 韩股 16:00 之后）= 不画图，价格旁写「Base price」（不是 at close）。基准虚线永远 = 上次官方收盘价 = 这轮 Base。连续相同价只留一个点，抽样 ≤ 48 点。
+- **K4** 走势小图三种时刻：① 盘中 = 从今天开盘起的 1 分钟收盘价实线（盘前那段不画）；② 收盘后还在成交（美股盘后 / 夜盘）= 同色淡一半细线，从这次收盘起画；③ 收盘后还没成交（港股 16:00 / 韩股 15:30 之后）= 不画走势线，只有基准虚线 + 末端空心点，价格 = Base，旁边写「Base price」（不是 at close）。基准虚线永远 = 上次官方收盘价 = 这轮 Base。连续相同价只留一个点，抽样 ≤ 48 点。
 - **K5** 小图颜色：涨 #4ADE80 / 跌 #F87171（股票沿用绿涨红跌），基准虚线橙。
 - **K6** 底部：左「N of M trading above their base price right now」，M = 当前列出的行里已经有成交价的行数（一般是 10，手机 5）；一行都没成交时这句不显示；右「Show all N →」。不写数据来源、不重复结算时间。
 
@@ -116,15 +116,16 @@
 - **R4** Sports 价钮：左钮 = 第一个选项（主队）、右钮 = 最后一个选项（客队），钮上写短名；三项足球赛首页不放平局钮（品类页和交易页有）。
 - **R5** 倒计时写法：≥ 1 小时「9h 05m」，< 1 小时「22m」，< 1 分钟「45s」；超过 24 小时也写小时（「62h 05m」），不换算成天。More 的「closes in Xh」四舍五入、最少写 1h。
 - **R6** 加载与出错：首屏数据回来前显示首页骨架——五段（Sports / Crypto / Stocks / Editor's Desk / More）各按最终尺寸占位，数据回来不跳（CPO 2026-11-09 批，字典 HA-22 / EV-24）；之后每段数据回来才出现，接口报错与没数据一样整段不出、不显示错误；BTC 当前没有轮次时 Crypto 整段不出；Last 8 不足 8 轮时有几根画几根，右侧计数按实际；五段都没有时首页只剩 Hero、chip 行、Quick Play 横幅。
-- **R7** 断点：宽度 < 768 用手机版（MB 组），≥ 768 用桌面版；桌面内容区最宽 1280（容器 max-w-7xl），窄于 1280 时各列按网格比例收缩，More 右侧档位区固定 520px 不收缩。
+- **R7** 断点：宽度 < 768 用手机版（MB 组），≥ 768 用桌面版；桌面内容区最宽 1280（容器 max-w-7xl）。768–1279 仍是桌面版，但两处换排法（2026-11-10 交叉验收）：Stocks 两列 → 一列 10 行；More 每行的档位区挪到标题下面（不再并排，最宽 640）。其余各列按网格比例收缩。
 - **R8** 文案语言（CPO 2026-11-09 批）：首页五段和 Sports 品类页一样 7 语（英 / 简中 / 繁中 / 日 / 韩 / 俄 / 越），key 前缀 events.screen.simple.home_all.*（Lovable 2026-11-09 新增，要回写平台 i18n 表；Yes / No / Up / Down / Vol / Remind me 等复用已有 key）。星期、日期跟用户语言，时间一律 24 小时制；倒计时单位 h / m / s 不翻（同 Sports 品类页）；赛事名、队名、联赛名、事件标题、品类名、运营推荐语是内容数据，不翻。Hero 见 H3（英 / 简中 / 繁中，其他语言回落英文）。字典单帧加 &lang=zh-CN 等可看各语言。
+- **R9** 常年只写在代码里的小规则（2026-11-10 冷读补成文）：① 舞台左上标签太长时只缩联赛名，比赛时钟（MAP 1 · 12:04 / Q3 5:12）永远显示；② 瓷砖区既有「Also live」又补了未开赛的，未开赛那部分小标题写「Up next · HH:mm / HH:mm」（各自开赛时间）；③ 瓷砖一律写星期几（TUE），舞台写 Today / Tomorrow；④ 手机舞台标签不带联赛名；手机 Crypto 右上写「Today $2.2M」、不写「this round」；⑤ Last 8 的柱高是固定装饰（14/9/18/6/12/20/8/15），只有颜色表示涨跌，不是数据。
 
 ### MB · 手机版（390）
 - **MB1** Hero 按设计师手机稿（Figma 203-91044 / 203:91054）：居中两行 26px 标题 → 一句副标「Pick a topic, tap Yes or No.」→ 358×89 插画条（/assets/mobile/hero-band@3x.png，设计师稿整块导出：面板底 + 插画，3×，紧贴副标下方）；不放 LIVE MARKETS 标签。
 - **MB2** 品类 chip 一行横滑；Quick Play 用生产手机横幅 AB-2。
 - **MB3** Sports：日历条横滑 → 舞台位（直播预览 / 对阵 + 比分 / 最大场倒计时）→ 2 列瓷砖 → 面板只留 Big this week 3 行 → 底部「+N more this week ｜ All N matches →」。不列 Next up。有直播标记的 live 瓷砖去掉联赛名，保住「▶ Stream」。
 - **MB4** Crypto：钟 + 进度条整行、周期 tab 一行 → BTC 卡（价 48px、图 150 高、同 C4 画法）→「BTC · last 8」紧贴图表下方、在 Up / Down 钮之前 → 资金比例条 → ETH / SOL 两张半卡并排（图 64 高）。
-- **MB5** Stocks：市场 tab + 一行状态 → 只取前 5，每只两行（上：代码 + 全名 / 价 + 涨跌；下：走势图 120×26 + Up / Down 78px 钮）→ 底注「N of 5 above their base price · Show all N →」。
+- **MB5** Stocks：市场 tab + 一行状态 → 只取前 5，每只两行（上：代码 + 短名（同 K3）/ 价 + 涨跌；下：走势图 120×26 + Up / Down 78px 钮）→ 底注「N of 5 above their base price · Show all N →」。
 - **MB6** Editor's Desk 三条竖叠（编号 + 眉行 / 标题 / 引言 / 钮）；More = 封面 + 标题一行，多档事件每档名字独占一行、下面 bar + Yes / No 58px 钮，二元事件 = 大数字 + 两钮整行。
 ## 3. 四态与判定（Sports）
 
@@ -143,7 +144,7 @@
 
 | 段 | hook / 表 | 字段 |
 |---|---|---|
-| Sports | `useSportsMatches()` → `events` + `metadata` | `kickoff_at / live / score / liveLabel / stream_url / volume / options[].price / home_abbr / away_abbr` |
+| Sports | `useSportsMatches()` → `events` + `metadata` | `kickoff_at / live / score / liveLabel / stream_url / volume / options[].price / home_abbr / away_abbr`；队徽 `home_logo / away_logo / home_tile / away_tile`（S1）；live 位文字 `status_label`；直播截图 `stream_thumb_url / stream_thumb_at`（S3） |
 | Crypto | `useQuickRounds()`（`CRYPTO_QUICK_UPDOWN_SPOT`） | `base_price`（open）/ `start_date` / `end_date` / `volume` / `event_options[].price`；`historyFor` = 已结算轮 `is_winner` |
 | Crypto 现价 | `useArcadeLivePrices()`（Quick Play 流） | 用来把图表头锚到行情条同一个数 |
 | Stocks | `useIntradayStocks()`（US / HK / KR 日轮） | `base_price` / `end_date` / `event_subtype` / `upPrice` / `downPrice`；盘别 `getStockSessionState(market, now)` |
@@ -158,7 +159,8 @@
 | Crypto 价格路径 `roundSeries()`（按事件 id 播种的随机游走） | `/pub/event/crypto/rounds/current?interval=5m…1d` 的 `underlyingTrendPoints`（5s）+ `underlying.open / current` + `recentResults` | 画法 `RoundCanvas` 不变；5m 接口一币两轮（当前 + 下一轮），取 `startTime` 最早的一轮 |
 | Stocks 走势 `printsFor()`（确定性游走）| `/pub/event/underlying/bars?assetCode=X&range=SINCE_CLOSE`（1 分钟收盘价） | 有 bars → 实线 / 淡线；bars 为空 → 「Base price」；美股盘后有 bars、港韩收盘后没有 |
 | 市场列表 / 结算时间 | `/pub/event/daily-close/rounds/current`（`availableTotal` / `currentSessionCloseAt`）| tab 数量 = `availableTotal` |
-| Traded today | 当前活轮 `volume` 之和 | 正式版取 `tradedTodayU`，口径见 C3：BTC 今天（UTC 0 点起）所有周期、所有轮次成交额之和 |
+| Traded today | BTC 今天（UTC 0 点起）开始的所有周期、所有轮次的 `volume` 之和（`useQuickRounds().btcTodayVolume`，已结算的也算；Lovable 只回看最近 300 个已结算轮，深夜会少算一点） | 正式版取 `tradedTodayU`，**只算 BTC**（C3）；2026-11-10 前 Lovable 错算成三个币当前轮之和，已改 |
+| 资金比例条（C5） | 用 Up 价格代替 | 正式版要新增：本轮 Up / Down 两边下单金额（`upStakeU` / `downStakeU` 或同义字段），比例 = 一边 ÷ 两边之和 |
 | Editor's Desk | `/pub/event/featured-markets`（`whyThis / imageUrl / category / event`） | ≤ 3，空则整段不出 |
 | 直播截图（S3 ①） | **要新增**：直播服务对每路正在直播的流每 10 分钟截一帧存 CDN，赛事数据给 `metadata.stream_thumb_url`（图片地址）+ `stream_thumb_at`（截图时间）；所有用户共用同一张，用户端不碰直播流 | Lovable 没有截图服务：演示比赛都用同一路演示直播，`public/assets/streams/demo-01…11.jpg` 是从这路直播里截好的静帧，前端按「现在落在哪个 10 分钟格」挑图，效果同主网（`streamPicture.ts`）。没截图用 `events.image_url` 封面，再没有用深色底 |
 | 直播只对已登录开放（S2） | 主网直播接口对游客不返回播放地址（或返回 401） | Lovable 前端判断：游客不请求流，交易页显示 Sign in to watch live |
@@ -171,7 +173,7 @@
 | 1 | `/` 桌面 1440 | Hero 整条横幅 + 两行标题；chip 行 Boost 在右边三个开关里 | 底图不糊、文案与 H3 一致、Boost 点开仍是网格 |
 | 2 | `/` 往下 Sports 段 | 左舞台位 + 2×2 瓷砖，右面板 Big 3 + Next up；日历条在段头右 | 一场不重复；有直播时舞台位是截图 + 播放钮、首页不拉流；点播放进交易页开播（游客先登录） |
 | 3 | Crypto 段 | 段头右钟 + 5 个 tab；BTC 84px 价、canvas 图在动；ETH / SOL 面板 | 切 tab 眉行文案变；OPEN 标签压在线上；Last 8 柱色 |
-| 4 | Stocks 段 | US / Hong Kong tab + 一行状态；10 行两列；底注 | 美股盘中实线 / 盘后淡线；港股收盘后无图 + Base price |
+| 4 | Stocks 段 | US / Hong Kong / Korea tab + 一行状态；1280 以上 10 行两列，768–1279 一列 10 行；底注 | 美股盘中实线 / 盘后淡线；港股收盘后无图 + Base price |
 | 5 | Editor's Desk / More | 三列等高；More 一行一个事件，多档条 + 二元大数字 | picks 没配时整段消失；Quick Play 30s / 1m 轮不在 More 里 |
 | 6 | 手机 390 `/` | Hero 居中稿；Sports 单列无 Next up；Stocks 5 行两行式；BTC · last 8 在图下 | 没有省略号截断、没有横向滚动 |
 | 7 | `/style-guide` → Events 列表 → 首页 All 视图 | HA-1…22 桌面 + 375 两帧；HA-R 台账 | 四栏表每行能对到规则编号 |
