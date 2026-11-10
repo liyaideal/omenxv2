@@ -12,7 +12,8 @@ import type { Timeframe } from "@/components/lite/intraday/intradayData";
 import { TICK_MS, type RoundSeries } from "./roundSeries";
 import { CY, LM, OR, ht, uiLocale } from "./homeAllShell";
 
-const money = (v: number) => "$" + (v >= 10000 ? v.toLocaleString("en-US", { maximumFractionDigits: 0 }) : v >= 1000 ? v.toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+// #11 (CPO 2026-11-10): same rule as the price text — ≥ $10,000 whole dollars, below that two decimals.
+const money = (v: number) => "$" + (v >= 10000 ? v.toLocaleString("en-US", { maximumFractionDigits: 0 }) : v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const hhmm = (ms: number) => new Date(ms).toLocaleTimeString(uiLocale(), { hour: "2-digit", minute: "2-digit", hour12: false });
 
 export interface RoundCanvasProps {

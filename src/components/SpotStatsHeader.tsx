@@ -38,7 +38,7 @@ export const STOCK_NAME: Record<string, string> = {
 
 /**
  * Company short name for a stock round. Synced rounds carry it in the event
- * name — "Tencent (0700.HK) — will close higher today?" (mainnet sync batch 2,
+ * name — "Tencent (0700.HK) — will it close higher today?" (mainnet sync batch 2,
  * CPO 2026-11-10) — so the name is the single source; STOCK_NAME is only the
  * fallback for older ids, then the part before " — ", then the ticker itself.
  */

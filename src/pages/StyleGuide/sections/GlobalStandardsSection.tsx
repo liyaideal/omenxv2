@@ -127,7 +127,7 @@ export const GlobalStandardsSection = (_: { isMobile: boolean }) => (
 
       <SubSection
         title="5. 时间口径（全站）"
-        description="R1 — 凡展示给用户的钟点一律用户本地时间渲染（toLocaleTimeString(undefined)），不带任何时区标（ET / HKT / CET / BST / KST 一律从时间标注里消失）。R2 — 场所语义保留名词（“New York opens …”“HK close”“US session open”），说明结算驱动方，但其后的钟点必须换算成本地。R3 — 日词（Fri / Sat / Today / Tmrw）必须从换算后的本地时间戳重新推导，严禁照抄场所日期。例外：倒计时与时长（round 剩余 mm:ss、72h hold window）不涉及时区，一律不动。数据库与结算逻辑仍全程 UTC 时间戳，本规则只约束展示层。"
+        description="R1 — 凡展示给用户的钟点一律用户本地时间渲染（toLocaleTimeString(undefined)），不带任何时区标（ET / HKT / CET / BST / KST 一律从时间标注里消失）。R2 — 场所语义保留名词（“New York opens …”“HK close”“US session open”），说明结算驱动方，但其后的钟点必须换算成本地。R3 — 日词（Fri / Sat / Today / Tomorrow，不写自编缩写 Tmrw · 2026-11-10）必须从换算后的本地时间戳重新推导，严禁照抄场所日期。例外：倒计时与时长（round 剩余 mm:ss、72h hold window）不涉及时区，一律不动。数据库与结算逻辑仍全程 UTC 时间戳，本规则只约束展示层。"
       >
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-border p-4">

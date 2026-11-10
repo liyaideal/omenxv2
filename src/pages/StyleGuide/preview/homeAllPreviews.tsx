@@ -253,7 +253,8 @@ const COIN_FIXTURE: Record<Coin, { base: number; up: number; hist: string }> = {
   eth: { base: 2_128.7, up: 0.52, hist: "duuduudd" },
   sol: { base: 86.49, up: 0.53, hist: "udduuddu" },
 };
-const quickFixture = () => {
+/** `progress` = how far into each round the frozen clock sits (0 = the opening tick → price = open; 1 = the bell). */
+const quickFixture = (progress = 0.62) => {
   const currentFor = new Map<string, QuickEvent>();
   const historyFor = new Map<string, ("up" | "down")[]>();
   for (const coin of COINS) {
@@ -261,7 +262,7 @@ const quickFixture = () => {
     for (const { id: tf } of TIMEFRAMES) {
       const key = `${coin}-${tf}`;
       const dur = TF_SECONDS[tf] * 1000;
-      const start = FROZEN_NOW - Math.floor(dur * 0.62);
+      const start = FROZEN_NOW - Math.floor(dur * progress);
       const end = start + dur;
       currentFor.set(key, {
         id: `crypto-${coin}-updown-${tf}-ha`,
@@ -304,6 +305,32 @@ export const HaCrypto15mPreview = () => <CryptoDemo initialTf="15m" />;
 export const HaCrypto4hPreview = () => <CryptoDemo initialTf="4h" />;
 export const HaCrypto1dPreview = () => <CryptoDemo initialTf="1d" />;
 /** HA-19 · fewer than 8 settled rounds: draw what there is, counts follow (R6). */
+/** C3 tie: the opening tick — price exactly at the open → grey, "at the open · Down wins". */
+const QUICK_TIE = quickFixture(0);
+export const HaCryptoTiePreview = () => {
+  const isMobile = useIsMobile();
+  const [tf, setTf] = useState<Timeframe>("5m");
+  return (
+    <Pad>
+      <div className={isMobile ? "hall hall-m" : "hall"}>
+        <HomeCryptoSection currentFor={QUICK_TIE.currentFor} historyFor={QUICK_TIE.historyFor} tf={tf} onSelectTf={setTf} isMobile={!!isMobile} nowOverride={FROZEN_NOW} />
+      </div>
+    </Pad>
+  );
+};
+/** #8: the bell has rung, the next round hasn't arrived yet → the clock reads "Settling…". */
+const QUICK_BELL = quickFixture(1);
+export const HaCryptoSettlingPreview = () => {
+  const isMobile = useIsMobile();
+  const [tf, setTf] = useState<Timeframe>("5m");
+  return (
+    <Pad>
+      <div className={isMobile ? "hall hall-m" : "hall"}>
+        <HomeCryptoSection currentFor={QUICK_BELL.currentFor} historyFor={QUICK_BELL.historyFor} tf={tf} onSelectTf={setTf} isMobile={!!isMobile} nowOverride={FROZEN_NOW} />
+      </div>
+    </Pad>
+  );
+};
 const QUICK_SHORT = (() => {
   const historyFor = new Map(QUICK.historyFor);
   for (const k of [...historyFor.keys()]) historyFor.set(k, (historyFor.get(k) || []).slice(-3));
@@ -415,7 +442,7 @@ export const PICKS: EditorPick[] = [
 ];
 export const PICKS_MULTI: EditorPick[] = [
   PICKS[0],
-  pick({ id: "ha-pick-4", rank: 2, category: "politics", name: "Which party controls the US House after the 2026 midterms?", note: "Generic ballot has moved four points since the shutdown; the market hasn't.", yesLabel: "Democrats", noLabel: "Republicans", yesPrice: 0.37, noPrice: 0.61, optionCount: 3, endDate: new Date(FROZEN_NOW + 30 * DAY) }),
+  pick({ id: "ha-pick-4", rank: 2, category: "politics", name: "Which party controls the US House after the 2026 midterms?", note: "Generic ballot has moved four points since the shutdown; the market hasn't.", yesLabel: "Republicans", noLabel: "Democrats", yesPrice: 0.61, noPrice: 0.37, optionCount: 3, /* E4: the two most likely outcomes, highest first */ endDate: new Date(FROZEN_NOW + 30 * DAY) }),
   PICKS[2],
 ];
 const DeskDemo = ({ picks }: { picks: EditorPick[] }) => {

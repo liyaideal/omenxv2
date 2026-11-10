@@ -17,6 +17,25 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-11-10 — 首页 / Sports / Finance · 交叉验收待批项（[changelog](./2026-11-10-review-decisions.md) · [文档](../delivery/home-all-v1.md) C1 C2 C3 K2 K5 K6 E4 M2 R2 R5）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| 1 | 股票 settles in = 官方收盘 + 15 分钟 | ⬜ | K2 |
+| 2 | 平盘：加密 / 股票灰色无符号，加密写 at the open · Down wins | ⬜ | C3 / K5 · 字典 HA-7b |
+| 3 | 开赛倒计时 `26h 00m`（不写 `1d 2h`） | ⬜ | R5 |
+| 4 | 首页 Crypto 默认 5m、Intraday 默认 15m | ⬜ | C1 |
+| 5 | Sports 选某天：`Big on {day}` + `No more matches on {day} · see all →` | ⬜ | R2 · 字典 HA-17 |
+| 6 | 到点到下一轮之间写 `Settling…` | ⬜ | C2 · 字典 HA-7c |
+| 7 | Stocks Show all 按需出现、点了预选市场 | ⬜ | K6 |
+| 8 | Editor's Desk 多选项取价格最高两档 | ⬜ | E4 |
+| 9 | 价格写法 ≥ $10,000 取整、以下两位小数、千分位 | ⬜ | C3 / K5 |
+| 10 | 股票事件名 `— will it close higher today?` | ➖ | 事件名来自同步模板，正式版用主网自己的事件名 |
+| 11 | 股票行 Up / Down（不写 Not up），Finance 钮定宽 112 | ⬜ | copy-dictionary |
+| 12 | More 标题桌面 3 行 | ⬜ | M2 |
+| 13 | Sports 品类页页头大数字 = ALL，有比赛在打写 `Upcoming this week · N live` | ⬜ | copy-dictionary · 字典 EV-36 |
+| 14 | `Tmrw` → `Tomorrow` | ⬜ | copy-dictionary · 全站规范 R3 |
+
 ## 2026-11-10 — Lovable 展示 omenx.com 真实事件 · 第 2 批（[文档](../delivery/mainnet-catalog-sync-v1.md) §4 ④ / §7）
 
 | # | 项 | Status | Notes |

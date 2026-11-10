@@ -486,7 +486,7 @@ const StockStageRow = ({
       {(["up", "down"] as const).map((tone) => (
         <DirectionButton
           key={tone}
-          label={tone === "up" ? "Up" : "Not up"}
+          label={tone === "up" ? t("events.screen.simple.home.home_crypto_card.up") : t("events.screen.simple.home.home_crypto_card.down")} // #13: Up / Down everywhere
           price={tone === "up" ? row.upPrice : row.downPrice}
           tone={tone}
           layout="centered"

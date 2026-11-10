@@ -31,13 +31,12 @@ const COIN_UI: Record<Coin, { sym: string; bg: string; code: string }> = {
   eth: { sym: "Ξ", bg: "#627EEA", code: "ETH" },
   sol: { sym: "S", bg: "#9945FF", code: "SOL" },
 };
+// #11 (CPO 2026-11-10): ≥ $10,000 whole dollars; below that two decimals — thousands separators always ($74,643 / $3,464.52 / $51.38).
 const money = (v: number) =>
   "$" +
   (v >= 10000
     ? v.toLocaleString("en-US", { maximumFractionDigits: 0 })
-    : v >= 1000
-      ? v.toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 })
-      : v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    : v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const kUsd = (n: number) => (n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : `$${Math.round(n / 1000)}k`);
 
 export interface HomeCryptoSectionProps {
@@ -134,6 +133,7 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
 
   if (!btc || !series.btc) return null;
   const sBtc = series.btc;
+  // #8 (CPO 2026-11-10): between a round's end and the next round arriving the clock reads "Settling…", not 00:00.
   const rem = Math.max(0, sBtc.end - now);
   const prog = Math.min(100, Math.max(0, ((now - sBtc.start) / (sBtc.end - sBtc.start)) * 100));
   // C3: BTC only (was every coin's current rounds — 2026-11-10 cold-read finding).
@@ -163,15 +163,19 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
   const eyebrow = `● ${ht(`crypto.eyebrow_${tf}`)}`;
   const question = <>{rich(ht("crypto.question"))}</>;
 
+  // C3 / C8 (CPO 2026-11-10): exactly at the open is a tie and a tie settles Down (backend `cls > base → Up`),
+  // so it reads grey "$0 · 0.00% · at the open · Down wins" — never green "+0.00% above the open · Up wins".
+  const flat = B.s.last === B.s.open;
+  const upNow = !flat && B.chg > 0;
   const chgLine = (big: boolean) => (
     <>
-      <span className={`m ${B.chg >= 0 ? "g" : "r"}`} style={{ fontSize: big ? 18 : 14, fontWeight: 600 }}>
-        {B.chg >= 0 ? "+" : "−"}${Math.abs(B.s.last - B.s.open).toLocaleString("en-US", { maximumFractionDigits: 0 })} · {B.chg >= 0 ? "+" : "−"}
+      <span className={`m ${flat ? "" : upNow ? "g" : "r"}`} style={{ fontSize: big ? 18 : 14, fontWeight: 600, color: flat ? "#98A1AD" : undefined }}>
+        {flat ? "" : upNow ? "+" : "−"}${Math.abs(B.s.last - B.s.open).toLocaleString("en-US", { maximumFractionDigits: 0 })} · {flat ? "" : upNow ? "+" : "−"}
         {(Math.abs(B.chg) * 100).toFixed(2)}%
       </span>
       <span className="kv" style={{ fontSize: big ? 11.5 : 10.5 }}>
-        {rich(ht(B.chg >= 0 ? "crypto.above_open" : "crypto.below_open"), {
-          win: <b style={{ color: B.chg >= 0 ? CY : LM }}>{ht(B.chg >= 0 ? "crypto.up_wins" : "crypto.down_wins")}</b>,
+        {rich(ht(flat ? "crypto.at_open" : upNow ? "crypto.above_open" : "crypto.below_open"), {
+          win: <b style={{ color: upNow ? CY : LM }}>{ht(upNow ? "crypto.up_wins" : "crypto.down_wins")}</b>,
         })}
       </span>
     </>
@@ -211,8 +215,8 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
             </span>
           </div>
           <div className="row" style={{ justifyContent: "space-between", marginTop: 2 }}>
-            <span className={`m ${n.chg >= 0 ? "g" : "r"}`} style={{ fontSize: 10.5 }}>
-              {n.chg >= 0 ? "+" : "−"}
+            <span className={`m ${n.chg > 0 ? "g" : n.chg < 0 ? "r" : ""}`} style={{ fontSize: 10.5, color: n.chg === 0 ? "#98A1AD" : undefined }}>
+              {n.chg > 0 ? "+" : n.chg < 0 ? "−" : ""}
               {(Math.abs(n.chg) * 100).toFixed(2)}%
             </span>
             <span className="kv" style={{ fontSize: 10 }}>
@@ -234,9 +238,9 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
         <SectionHead eyebrow={eyebrow} eyebrowColor={OR} question={question} isMobile />
         <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 7 }}>
           <span className="eye" style={{ color: OR, fontSize: 10 }}>
-            {ht("crypto.closes_in")}{" "}
+            {rem > 0 ? <>{ht("crypto.closes_in")} </> : null}
             <span className="m" style={{ fontSize: 24, letterSpacing: 0, marginLeft: 6, lineHeight: 1 }}>
-              {mmss(rem)}
+              {rem > 0 ? mmss(rem) : ht("crypto.settling")}
             </span>
           </span>
           <span className="cprog">
@@ -289,9 +293,9 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
     <div className="row" style={{ gap: 26, alignItems: "flex-end" }}>
       <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 7 }}>
         <span className="eye" style={{ color: OR, fontSize: 11 }}>
-          {ht("crypto.closes_in")}{" "}
+          {rem > 0 ? <>{ht("crypto.closes_in")} </> : null}
           <span className="m" style={{ fontSize: 28, letterSpacing: 0, marginLeft: 8, lineHeight: 1 }}>
-            {mmss(rem)}
+            {rem > 0 ? mmss(rem) : ht("crypto.settling")}
           </span>
         </span>
         <span className="cprog" style={{ width: 220 }}>
@@ -321,8 +325,8 @@ export const HomeCryptoSection = ({ currentFor, historyFor, btcTodayVolume, tf, 
             <span className="m" style={{ fontSize: 20, fontWeight: 700, color: "#fff" }}>
               {money(n.s.last)}
             </span>
-            <span className={`m ${n.chg >= 0 ? "g" : "r"}`} style={{ fontSize: 11 }}>
-              {n.chg >= 0 ? "+" : "−"}
+            <span className={`m ${n.chg > 0 ? "g" : n.chg < 0 ? "r" : ""}`} style={{ fontSize: 11, color: n.chg === 0 ? "#98A1AD" : undefined }}>
+              {n.chg > 0 ? "+" : n.chg < 0 ? "−" : ""}
               {(Math.abs(n.chg) * 100).toFixed(2)}%
             </span>
           </span>

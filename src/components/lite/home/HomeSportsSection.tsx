@@ -27,7 +27,6 @@ import { leagueCodeOf, sportCodeOf } from "@/components/lite/sports/sportsFilter
 import { StreamPreview } from "@/components/lite/sports/StreamPreview";
 import { usePlayStream } from "@/hooks/usePlayStream";
 import { MatchScoreText } from "@/components/lite/sports/tennisScore";
-import { kickoffInShort } from "@/components/lite/sports/sportsClock";
 import { PREVIEW_WINDOW_MS } from "@/components/lite/sports/UpcomingStreams";
 import { useStreamReminders } from "@/hooks/useStreamReminders";
 import {
@@ -43,6 +42,7 @@ import {
   cents,
   hhmm,
   ht,
+  leftText,
   rich,
   shortVol,
   tradeLink,
@@ -153,7 +153,7 @@ const Stage = ({
     ? isMobile
       ? ht("sports.live_now")
       : `${ht("sports.live_now")} · ${(leagueCodeOf(m) || m.league).replace(/_/g, " ")}`
-    : ht("sports.biggest_kicks_off_in", { time: kickoffInShort(kickoffMs) });
+    : ht("sports.biggest_kicks_off_in", { time: leftText(kickoffMs) });
   const labelTail = live && m.liveLabel ? `\u00a0·\u00a0${m.liveLabel}` : ""; // nbsp: a flex item would drop a plain leading space
   const label = labelHead + labelTail.replace(/\u00a0/g, " ");
   const badgeSize = isMobile ? 44 : 56;
@@ -600,8 +600,8 @@ export const HomeSportsSection = ({
     liveCount > 0
       ? `● ${ht("sports.eyebrow_live", { count: total, live: liveCount })}`
       : isMobile
-        ? `${ht("sports.eyebrow_short", { count: total })}${nextKick != null ? ht("sports.kickoff_in", { time: kickoffInShort(nextKick) }) : ""}`
-        : `${ht("sports.eyebrow_week", { count: total })}${nextKick != null ? ht("sports.next_kickoff_in", { time: kickoffInShort(nextKick) }) : ""}`;
+        ? `${ht("sports.eyebrow_short", { count: total })}${nextKick != null ? ht("sports.kickoff_in", { time: leftText(nextKick) }) : ""}`
+        : `${ht("sports.eyebrow_week", { count: total })}${nextKick != null ? ht("sports.next_kickoff_in", { time: leftText(nextKick) }) : ""}`;
 
   const onOpen = (id: string, optionId?: string) => navigate(tradeLink(id, { option: optionId }));
   const question = <>{rich(ht("sports.question"))}</>;
@@ -691,9 +691,23 @@ export const HomeSportsSection = ({
     </>
   );
 
+  // #6 (CPO 2026-11-10): a single day picked in the strip → the panel says which day, and a day with nothing
+  // left to list says so ("No more matches on Thu 6 · see all →") instead of the footer vanishing.
+  const dayWord =
+    day === "all"
+      ? null
+      : `${new Date(Number(day)).toLocaleDateString(uiLocale(), { weekday: "short" })} ${new Date(Number(day)).getDate()}`; // "Fri 7", same order as the strip
+  const dayFooter = dayWord != null && model.next.length === 0 && (
+    <div style={{ fontSize: 13, color: MU, paddingTop: model.big.length ? 14 : 4 }}>
+      {ht("sports.no_more_on_day", { day: dayWord })} ·{" "}
+      <button type="button" className="lnk" style={{ fontSize: 13, fontWeight: 400 }} onClick={onOpenAll}>
+        {ht("sports.see_all")}
+      </button>
+    </div>
+  );
   const table = (
     <div className="panel" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-      <Head label={ht("sports.big_this_week")} />
+      <Head label={dayWord != null ? ht("sports.big_on_day", { day: dayWord }) : ht("sports.big_this_week")} />
       <div style={{ display: "flex", flexDirection: "column" }}>
         {model.big.map((m, i) => (
           <Row key={m.id} m={m} big hr={i < model.big.length - 1} isMobile={isMobile} onOpen={onOpen} />
@@ -715,6 +729,7 @@ export const HomeSportsSection = ({
           </div>
         </>
       )}
+      {!isMobile && dayFooter}
     </div>
   );
 

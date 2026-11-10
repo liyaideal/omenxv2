@@ -59,7 +59,8 @@ const SPORTS_CASES: SectionCase[] = [
     key: "home-ha5",
     label: "HA-5 · Sports 状态④：0 live",
     spec: [
-      { state: "舞台位 = 本周最大场", when: "live.length === 0", visual: "标签「Biggest this week · kicks off in 1d 2h」（灰）+ 对阵 + 开球时间 40px 白 + 两队价钮", source: "Stage !live · upcoming by volume" },
+      { state: "舞台位 = 本周最大场", when: "live.length === 0", visual: "标签「Biggest this week · kicks off in 26h 00m」（灰）+ 对阵 + 开球时间 40px 白 + 两队价钮", source: "Stage !live · upcoming by volume" },
+      { state: "倒计时写法", when: "舞台标签 / 眉行的 kicks off in", visual: "≥ 1 小时写「26h 00m」（小时 + 两位分钟，不进位成天）；< 1 小时写「40m」；< 1 分钟写「30s」——与页面其他倒计时同一个 leftText（#3 · 2026-11-10，原来写「1d 2h」）", source: "leftText · S5" },
       { state: "链接 · 没直播或超过 48h", when: "!m.streamUrl || kickoff − now > 48h", visual: "「Open match →」进交易页（本帧这场没有直播）；能设提醒的样子见 HA-21a / b / c", source: "Stage remind.can === false · S4" },
       { state: "眉行", when: "live.length === 0", visual: "「Sports · N matches this week · next kickoff in X」（无红点）；手机「Sports · N matches · kickoff in X」", source: "eyebrow" },
     ],
@@ -71,6 +72,8 @@ const SPORTS_CASES: SectionCase[] = [
     spec: [
       { state: "选中某天", when: "day !== 'all'", visual: "该格变选中态；右表 Big this week / Next up 只列这一天还没开赛的比赛", source: "HomeSportsSection day · buildDayStrip" },
       { state: "数字", when: "始终", visual: "眉行 N = 这 7 天所有没结算的（含正在打）；ALL n 与各天数字 = 没开赛的；「+N more this week」= 全部没开赛 − 本段已展示，跟选哪天无关", source: "R1 / R2" },
+      { state: "面板标题", when: "day !== 'all'", visual: "「Big on Fri 7 · by volume」——星期 + 日号，和日历条同顺序（#6 · 2026-11-10，原来仍写 Big this week）", source: "big_on_day · dayWord" },
+      { state: "那天排完了", when: "day !== 'all' && model.next.length === 0", visual: "面板底一行灰字「No more matches on Fri 7 · see all →」，see all 进 Sports 品类页；只在桌面（手机没有右表）", source: "no_more_on_day · dayFooter" },
       { state: "再点 ALL", when: "点 ALL 格", visual: "回到全周", source: "setDay('all')" },
     ],
   },
@@ -138,6 +141,8 @@ const CRYPTO_CASES: SectionCase[] = [
     note: "fixture：三个币同一轮窗口（已过 62%），BTC open 74,081 / Up 55¢；价格路径 = roundSeries（按 event id 播种的确定性游走，真平台换成 underlyingTrendPoints，画法不变）。",
     spec: [
       { state: "段头", when: "currentFor.get(`btc-${tf}`)", visual: "眉行「● Crypto · Up or Down · new round every 5 min」+ 48px 问句；右：This round closes in MM:SS 28px + 220px 进度条 ｜ 5m 15m 1h 4h 1D", source: "C1 C2" },
+      { state: "默认周期", when: "进首页", visual: "首页 Crypto 段单独记周期，默认 5m；切过后在首页内保持；Intraday 品类页仍默认 15m，互不影响（C1 · 2026-11-10）", source: "LiteEventsPage homeTf" },
+      { state: "价格写法", when: "BTC / ETH / SOL 价、OPEN 标签", visual: "≥ $10,000 取整（$74,063）；以下两位小数（$2,137.09 / $86.97）；一律千分位（#11 · 2026-11-10）", source: "HomeCryptoSection money · RoundCanvas" },
       { state: "BTC 主卡", when: "always", visual: "₿ BTC · Round HH:MM → HH:MM · ● this round $x · Traded today $xk；价 84px；+$x · +x.xx% / above the open · Up wins if it closed now；图 206px；Up / Down 大钮 + 比例条 + 两头 %；Last 8 rounds 柱 + Up won N · Down won N · last round Up", source: "C3 C4 C5 C6" },
       { state: "图表（V1）", when: "canvas", visual: "窗口 过去 72% / 未来 28%；NOW 竖虚线 + 未来淡区；收盘线进窗才出；开盘虚线 + OPEN $ 标签压顶；上青下柠檬双色面；开盘前灰线；头点缓动 + 呼吸环；时间刻度 5m 每分钟", source: "RoundCanvas · C4" },
       { state: "ETH / SOL 面板", when: "always", visual: "右 4 栏面板两半等高：币 · 价 20px · 涨跌 · closes HH:MM；小图 80px 同画法；Up ｜ 细比例条 ｜ Down", source: "C7" },
@@ -150,6 +155,24 @@ const CRYPTO_CASES: SectionCase[] = [
     label: "HA-7 · Crypto 1h（周期 tab 切换）",
     spec: [
       { state: "tab = 1h", when: 'tf === "1h"', visual: "眉行后半句「new round every hour」；时间刻度每 10 分钟；密点按 3px 一桶平均", source: "C1 C4 · TICK_MS" },
+    ],
+  },
+  {
+    key: "home-ha7b",
+    label: "HA-7b · Crypto 平盘（现价 = 开盘价 · C3）",
+    note: "fixture：每轮刚开第一刻，三个币的现价都等于开盘价。后端规则是收盘 > 开盘才算 Up，平盘结算 Down。",
+    spec: [
+      { state: "BTC 主卡", when: "last === open", visual: "灰色「$0 · 0.00%」不带 + / − 号；副句「at the open · Down wins if it closed now」（Down wins 柠檬）", source: "C3 · at_open" },
+      { state: "ETH / SOL", when: "chg === 0", visual: "涨跌位灰色「0.00%」不带符号", source: "C7" },
+    ],
+  },
+  {
+    key: "home-ha7c",
+    label: "HA-7c · Crypto 一轮刚结束、下一轮还没到（Settling…）",
+    note: "fixture：钟停在本轮结束那一刻。生产上通常几秒内下一轮就到，钟自动恢复倒计时。",
+    spec: [
+      { state: "段头钟", when: "rem <= 0", visual: "前缀「This round closes in」隐藏，时间位写「Settling…」（同字号同色），进度条满格（#8 · 2026-11-10，原来停在 00:00）", source: "HomeCryptoSection · crypto.settling" },
+      { state: "手机", when: "isMobile && rem <= 0", visual: "钟整行同样写「Settling…」", source: "MB4" },
     ],
   },
   {
@@ -180,9 +203,10 @@ const STOCKS_CASES: SectionCase[] = [
     label: "HA-8 · Stocks · 盘中（K4 ①，US Wed 11:00 ET）",
     note: "fixture 19 只：US 10 / HK 6 / KR 3；桌面前 10 两列各 5，手机前 5 每只两行（K3 / MB5）。",
     spec: [
-      { state: "段头", when: "stockRows.length > 0", visual: "眉行「Stocks · Daily close · N markets today」+ 问句；右：US 10 ｜ Hong Kong 6 ｜ Korea 3 单行 tab + 一行状态「Market open · closes in X · settles in Y」", source: "K1 K2 · getStockSessionState" },
+      { state: "段头", when: "stockRows.length > 0", visual: "眉行「Stocks · Daily close · N markets today」+ 问句；右：US 10 ｜ Hong Kong 6 ｜ Korea 3 单行 tab + 一行状态「Market open · closes in X · settles in Y」；settles = 官方收盘 + 15 分钟（与现货页 Settles、同步文档 §7 第 3 条一致），所以盘中两个数差 15 分钟", source: "K1 K2 · getStockSessionState · SETTLE_AFTER_CLOSE_MS" },
+      { state: "平盘", when: "现价 === Base", visual: "涨跌位灰色「0.00%」不带 + 号（平盘结算 Down）", source: "K4 · 2026-11-10" },
       { state: "行 · 盘中实线", when: 'session.phase === "live"', visual: "图标 26 · 代码 + 全名不截断 · 96×28 实线（涨 #4ADE80 / 跌 #F87171，基准橙虚线）· 价 + 相对 Base % · Up / Down 88px", source: "K3 K4① K5" },
-      { state: "底部", when: "live.length > 0", visual: "「N of 10 trading above their base price right now」+「Show all N →」", source: "K6" },
+      { state: "底部", when: "live.length > 0", visual: "「N of 10 trading above their base price right now」+「Show all N →」；Show all 只在该市场只数 > 屏上行数时出现（本帧 US 10 只全在屏上 → 不出，切到 HK / Korea 同理），点了进 Finance 并预选当前页签的市场", source: "K6 · 2026-11-10" },
     ],
   },
   {
@@ -227,7 +251,7 @@ const DESK_CASES: SectionCase[] = [
     key: "home-ha12",
     label: "HA-12 · Editor's Desk · 多档 pick",
     spec: [
-      { state: "多档", when: "optionCount > 2", visual: "两档胶囊 +「+N more」", source: "E4" },
+      { state: "多档", when: "optionCount > 2", visual: "两档胶囊 +「+N more」；两档 = 价最高的两个结果、价高在前（Republicans 61¢ / Democrats 37¢），不是数据源的前两个（2026-11-10）", source: "E4 · toEditorPick" },
     ],
   },
   {
@@ -251,6 +275,7 @@ const MORE_CASES: SectionCase[] = [
       { state: "互斥", when: "|Σ yes − 1| < .12", visual: "bar 下加「Outcomes are mutually exclusive — exactly one pays $1.」", source: "M3" },
       { state: "二元", when: "children.length ≤ 2", visual: "大数字 36px「34%」+ chance of Yes + Yes / No 110px", source: "M4 · B1" },
       { state: "临近结算", when: "expiry − now < 48h", visual: "眉行末尾「closes in Xh」", source: "M5" },
+      { state: "长标题", when: "桌面", visual: "标题最多 3 行再省略（原来 2 行）；手机不截断", source: "M2 · 2026-11-10" },
       { state: "手机", when: "isMobile", visual: "封面 96×58 + 标题；多档每档名字独占一行、下面 bar + 58px 钮；二元 = 大数字 + 两钮整行", source: "MB6" },
     ],
   },
@@ -318,7 +343,7 @@ export const HomeAllSection = () => (
       <SubSection title="②b Sports 状态④ · Remind me（HA-21a / b / c）">
         <Pair cases={REMIND_CASES} desktopMin={1100} mobileMin={1300} />
       </SubSection>
-      <SubSection title="③ Crypto（HA-6 / HA-7）">
+      <SubSection title="③ Crypto（HA-6 / HA-7 / HA-7b / HA-7c）">
         <Pair cases={CRYPTO_CASES} desktopMin={700} mobileMin={900} />
       </SubSection>
       <SubSection title="④ Stocks 三种时刻（HA-8 … HA-10）">

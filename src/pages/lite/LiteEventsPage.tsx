@@ -1,6 +1,6 @@
 import { t } from "@/i18n";
 import { SeoFooter } from "@/components/seo/SeoFooter";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Star } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
@@ -157,6 +157,13 @@ const LiteEventsPage = () => {
   const isCryptoView = !calendarOn && sector === "crypto";
   const isFinanceView = !calendarOn && sector === "finance";
   const [mobileTf, setMobileTf] = useState<Timeframe>("15m");
+  // C1 (CPO 2026-11-10): the home Crypto section opens on 5m, like the approved mock; the Intraday view keeps 15m.
+  const [homeTf, setHomeTf] = useState<Timeframe>("5m");
+  // K6: "Show all N →" on a home Stocks tab lands on Finance with that market picked.
+  const [financeRegion, setFinanceRegion] = useState<string>("all");
+  useEffect(() => {
+    if (sector !== "finance") setFinanceRegion("all");
+  }, [sector]);
   // One-shot intent: the user tapped a "session open" row, so the Finance view
   // should scroll its rounds engine into view once after landing.
   const [scrollToEngine, setScrollToEngine] = useState(0);
@@ -444,12 +451,15 @@ const LiteEventsPage = () => {
             picks={editorPicks}
             events={filtered}
             getBoostMax={boostMaxFor}
-            tf={mobileTf}
-            onSelectTf={setMobileTf}
+            tf={homeTf}
+            onSelectTf={setHomeTf}
             livePrices={livePrices}
             isMobile={false}
             onOpenSports={() => setSector("sports")}
-            onOpenFinance={() => setSector("finance")}
+            onOpenFinance={(m) => {
+              setFinanceRegion(m ?? "all");
+              setSector("finance");
+            }}
           />
         )}
 
@@ -495,6 +505,8 @@ const LiteEventsPage = () => {
         {/* Finance vertical view — session engine + catalogue. */}
         {isFinanceView && (
           <LiteFinanceView
+            key={`fin-${financeRegion}`}
+            initialRegion={financeRegion}
             stockRows={stockRows}
             tickSeconds={tickSeconds}
             events={filtered}
@@ -523,12 +535,15 @@ const LiteEventsPage = () => {
             picks={editorPicks}
             events={filtered}
             getBoostMax={boostMaxFor}
-            tf={mobileTf}
-            onSelectTf={setMobileTf}
+            tf={homeTf}
+            onSelectTf={setHomeTf}
             livePrices={livePrices}
             isMobile
             onOpenSports={() => setSector("sports")}
-            onOpenFinance={() => setSector("finance")}
+            onOpenFinance={(m) => {
+              setFinanceRegion(m ?? "all");
+              setSector("finance");
+            }}
           />
         )}
 

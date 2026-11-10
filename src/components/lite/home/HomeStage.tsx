@@ -32,7 +32,7 @@ export interface HomeStageProps {
   livePrices?: Record<string, number | undefined>;
   isMobile: boolean;
   onOpenSports: () => void;
-  onOpenFinance: () => void;
+  onOpenFinance: (market?: "us" | "hk" | "kr") => void;
   /** Frozen clock for style-guide fixtures (ms); production leaves it unset. */
   nowOverride?: number;
 }

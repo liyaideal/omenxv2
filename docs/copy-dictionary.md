@@ -301,6 +301,8 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 |---|---|
 | **Live on stream · n** | 直播舞台区头（红点 LivePulse），n = 舞台上的场数 |
 | **n on stream** / **n playing now** | 手机顶部芯片一段一枚，数字分别与 `Live on stream · n`、`Playing now · n` 相同；桌面今天日期头 `n on stream · n playing now · n to come`（DESIGN 第 15 条） |
+| **{N} Matches this week** / **{N} Upcoming this week · {n} live** | Sports 品类页桌面页头大数字（2026-11-10）：大数字 = 日期条 ALL（这 7 天还没开赛的）；有比赛正在打时标签写 `Upcoming this week · {n} live`，没有时写 `Matches this week`（key `sports_vertical_chrome.upcoming_live` / `matches_this_week`）——原来大数字把正在打的也算进去，和 ALL 对不上 |
+| **Up {c}¢** / **Down {c}¢**（股票行） | Finance 品类页、日历页、Intraday 舞台的股票行一律 `Up` / `Down`，不写 `Not up`（2026-11-10，与首页一致）；Finance 两颗钮定宽 112px，价格列上下对齐。数据库选项名仍是 `Not Up`，展示层 `liteSideName` 改写成 Down |
 | **LIVE** | 舞台视频左上橙底角标；只写 LIVE，不写时钟 |
 | **Live streams · n** | 舞台切换条区头（多于一路时出现） |
 | `ARS 1 – 0 RMA` + `63'` | 切换标签：主队缩写 比分 客队缩写 + 比赛时钟（`liveLabel` 优先，否则 `minute'`） |
@@ -310,7 +312,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Stream** | 海报左上描边胶囊 |
 | **Stream starts in** / **Stream starts** | 海报倒计时 lead：< 24h 用 in，≥ 24h 用 starts |
 | `37:53` / `5h 20m` / `Tomorrow 19:14` | 倒计时值：< 1h 秒级跳、橙色；1–24h；≥ 24h 写开赛时间（`streamCountdown`） |
-| `Today 12:55` / `Tmrw 10:15` / `Fri 19:15` | 预告卡 meta 行开赛时间（`kickoffShort`）；星期按用户语言（`周五` / `金` …），时间一律 24 小时制 |
+| `Today 12:55` / `Tomorrow 10:15` / `Fri 19:15`（2026-11-10 起不写自编缩写 Tmrw） | 预告卡 meta 行开赛时间（`kickoffShort`）；星期按用户语言（`周五` / `金` …），时间一律 24 小时制 |
 | **Remind me** / **Reminder set** | 预告卡按钮未设 / 已设；再点取消 |
 | **Couldn't update the reminder** · `Please try again.` | 写库失败 toast（乐观更新已回滚） |
 | （游客点击无文案） | 直接打开站内标准登录框，不弹 toast、不改登录框文字；自选星标同规则（原 `Sign in to use Watchlist` toast 已删除，2026-11-04） |
@@ -1377,11 +1379,11 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | 舞台位标签 | `Live now · {联赛} · {节点}` · 0 live：`Biggest this week · kicks off in {X}` · 右：`▶ Live stream` / `Stream {i} / {N}` | S0 S3 |
 | 舞台位动作 | `Open match →` · 状态④有直播且 48h 内开赛：`☆ Remind me` → 已设 `★ Reminder set`（橙）· `Vol ${x}` · 有直播：画面中央 `Watch live` | S4 / S2 |
 | 瓷砖组标题 | `Also live · {n}` / `Up next` / `Up next · {HH:mm} / {HH:mm}` · `See all {n} live →` | S0 |
-| 右表 | `Big this week · by volume` / `Next up` · `+{n} more this week · see all →` · 手机 `All {N} matches →` | S0 / MB3 |
+| 右表 | `Big this week · by volume` / `Next up` · `+{n} more this week · see all →` · 手机 `All {N} matches →` · 日历条选了某天：`Big on {Fri 7} · by volume`，那天排完：`No more matches on {Fri 7} · see all →`（key `sports.big_on_day` / `sports.no_more_on_day`） | S0 / MB3 / R2 |
 | Crypto 眉行 | `● Crypto · Up or Down · new round every {5 min / 15 min / hour / 4 hours / day}` | C1 |
 | Crypto 问句 | `Will the price go up?`（`go up` 柠檬）| G1 |
-| 钟 | `This round closes in {MM:SS}`（≥ 1 小时 `{H:MM:SS}`）| C2 |
-| BTC 行 | `Round {HH:MM} → {HH:MM}` · `this round ${x}` · `Traded today ${x}k` · `{+$x · +x.xx%}` · `above the open · Up wins if it closed now` / `below the open · Down wins if it closed now` | C3 |
+| 钟 | `This round closes in {MM:SS}`（≥ 1 小时 `{H:MM:SS}`）· 到点、下一轮还没到：前缀隐藏，写 `Settling…`（key `crypto.settling`）| C2 |
+| BTC 行 | `Round {HH:MM} → {HH:MM}` · `this round ${x}` · `Traded today ${x}k` · `{+$x · +x.xx%}` · `above the open · Up wins if it closed now` / `below the open · Down wins if it closed now` · 平盘：灰色 `$0 · 0.00%` + `at the open · Down wins if it closed now`（key `crypto.at_open`）· 价格 ≥ $10,000 取整、以下两位小数、千分位 | C3 |
 | 图表标签 | `OPEN ${x}` · `closes {HH:MM}` · `now` | C4 |
 | 比例条 | `{n}% of money on Up` · `{n}% on Down` | C5 |
 | Last 8 | `Last {n} rounds` · `Up won {n} · Down won {n} · last round {Up/Down}` · 手机 `BTC · last {n}` · `Up {n} · Down {n} · last {Up/Down}` | C6 / MB4 |
@@ -1389,10 +1391,10 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | Stocks 状态行 | `Market open · closes in {X} · settles in {Y}` / `Market opens in {X} · settles in {Y}` · 这一轮已过结算时间、下一轮还没出来：`settles in {Y}` 换成 `settling now` | K2 |
 | Stocks 市场 tab | `US {n}` / `Hong Kong {n}` / `Korea {n}`（n = 该市场可交易数，没有数据的市场不出 tab）| K2 |
 | Stocks 行 | `{+x.xx%}` 或 `Base price`（收盘无成交）| K4 |
-| 股票事件名 | `{短名} ({代码}) — will close higher today?`：短名不是公司全称（`AMD`、`SK Hynix`、`Invesco QQQ`），代码港股 4 位 `0700.HK`、韩股 `000660.KR`、美股原样 | 主网同步第 2 批 §7 规则 7、8；行里的公司名从事件名取（`stockCompanyName`） |
+| 股票事件名 | `{短名} ({代码}) — will it close higher today?`（2026-11-10 起新开的轮次；已开的保持 `— will close higher today?`）：短名不是公司全称（`AMD`、`SK Hynix`、`Invesco QQQ`），代码港股 4 位 `0700.HK`、韩股 `000660.KR`、美股原样 | 主网同步第 2 批 §7 规则 7、8；行里的公司名从事件名取（`stockCompanyName`） |
 | 韩元价格 | `₩1,136,000`：不带小数、千分位；纵轴、`Price to beat`、Base 同样 | 主网同步第 2 批 §4 ④ |
 | 加密 1d / 4h 轮 | 1d = 美东中午 12 点到次日中午；4h = 美东 0 / 4 / 8 / 12 / 16 / 20 点切；页面上一律换成看的人本地时间 | 主网同步第 2 批 §7 规则 9 |
-| Stocks 底注 | `{n} of {N} trading above their base price right now` · `Show all {N} →` · 手机 `{n} of 5 above their base price` | K6 / MB5 |
+| Stocks 底注 | `{n} of {N} trading above their base price right now` · `Show all {N} →`（只在该市场多于屏上行数时出现，点了进 Finance 预选该市场）· 手机 `{n} of 5 above their base price` | K6 / MB5 |
 | Editor's Desk | `✦ Editor's Desk · {N} picks` · `What's worth watching?` · 眉行 `{品类} · settles {HH:mm} / Tomorrow {HH:mm} / settles {Mon D}` · `+{n} more` | E1 E3 E4 |
 | More | `More markets · {N} open` · `Will it happen?` · `{品类} · {N} markets / Yes / No · Boost {n}× · closes in {X}h` · `Vol ${x} · settles {Mon D}` · `+{n} more outcomes →` · `Outcomes are mutually exclusive — exactly one pays $1.` · `{n}% chance of Yes` · `Yes {n}¢` / `No {n}¢` | M1–M5 |
 | 价钮链接（G3） | `/trade?event={id}&option={选项 id}&side=yes|no`（现货事件 `/spot?…`；`up` / `down` 也认）；行 / 瓷砖 / Open match 只带 `event` | G3 |

@@ -637,6 +637,7 @@ const STREAM_CASES: SectionCase[] = [
       { state: "不再单列", when: "isOnStream(m)", visual: "在舞台上的比赛不进下方 Playing now 卡片", source: "useStreamLineup streamed / others" },
       { state: "开赛那一秒", when: "liveAt(m, now) 每秒重算", visual: "比赛开赛即离开预告排、同一秒进舞台（舞台已有直播时进切换条）；时钟 / 比分在随后一次自动刷新补上，之前时钟位写 `LIVE`", source: "sportsData liveAt · useSportsMatches" },
       { state: "手机顶部芯片", when: "isMobile && filters", visual: "一段一枚、数字与区头一致：`● 1 on stream` `● 1 playing now` `3 this week`；某段为 0 不出那一枚，都为 0 写 `Nothing playing now`", source: "MobileSportsModule chips · useStreamLineup" },
+      { state: "桌面页头大数字", when: "useIsMobile() === false", visual: "大数字 = 日期条 ALL（这 7 天还没开赛的）；有比赛正在打时标签写「Upcoming this week · N live」，没有时写「Matches this week」（#15 · 2026-11-10，原来大数字把正在打的也算进去，和 ALL 对不上）", source: "LiteSportsView weekCount − liveNowCount" },
       { state: "桌面列表今天日期头", when: "今天有正在打的比赛", visual: "`1 on stream · 1 playing now · 1 to come`：on stream = 舞台场数、playing now = Playing now 场数；没有直播时照旧 `n playing now · n to come`", source: "buildDayGroups isOnStream" },
     ],
   },

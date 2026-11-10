@@ -122,7 +122,7 @@ export const MobileTradingStockRow = ({
           onClick={go("up")}
         />
         <DirectionButton
-          label={t("events.screen.simple.calendar.calendar_day.not_up")}
+          label={t("events.screen.simple.home.home_crypto_card.down")}
           price={row.downPrice}
           tone="down"
           grow

@@ -270,7 +270,7 @@ export const LiteVerticalViewsSection = () => {
     <SectionWrapper
       id="lite-verticals"
       title="Lite · Vertical views (Crypto / Finance)"
-      description="Assembly-only category views. Frozen clock FROZEN_NOW = 2026-08-03T15:20:00Z. Both filter rows use the Dimension pill (DimensionPill, sub-dimension rows); the top-level category row above the stage uses the Category pill (PILL_BASE). Coin tiles use Last8Strip (squares, 11px) and DirectionButton (split)."
+      description="Assembly-only category views. Frozen clock FROZEN_NOW = 2026-08-03T15:20:00Z. Both filter rows use the Dimension pill (DimensionPill, sub-dimension rows); the top-level category row above the stage uses the Category pill (PILL_BASE). Coin tiles use Last8Strip (squares, 11px) and DirectionButton (split). Finance stock rows: Up / Down (never Not up), both buttons a fixed 112px so the price column lines up (#13, 2026-11-10)."
     >
       <SubSection title="Crypto view">
         <PresetRail presets={CRYPTO_PRESETS} activeId={cryptoId} onSelect={setCryptoId} />

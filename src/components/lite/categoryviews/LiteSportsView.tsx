@@ -767,6 +767,7 @@ export const LiteSportsView = ({
     () => scoped.filter((m) => liveAt(m, nowMs) || isUpcoming(m, nowMs)).length,
     [scoped, nowMs],
   );
+  const liveNowCount = useMemo(() => scoped.filter((m) => liveAt(m, nowMs)).length, [scoped, nowMs]);
   const groups = useMemo(
     () => buildDayGroups(matchesInBucket(scoped, bucket), nowMs, isOnStream),
     [scoped, bucket, nowMs, isOnStream],
@@ -836,7 +837,8 @@ export const LiteSportsView = ({
               letterSpacing: "-0.02em",
             }}
           >
-            {weekCount}
+            {/* #15 (CPO 2026-11-10): the big number = the strip's ALL (still to kick off); live ones are named beside it */}
+            {weekCount - liveNowCount}
           </span>
           <span
             style={{
@@ -847,7 +849,9 @@ export const LiteSportsView = ({
               fontWeight: 700,
             }}
           >
-            {t("events.screen.simple.sports_view.sports_vertical_chrome.matches_this_week")}
+            {liveNowCount > 0
+              ? t("events.screen.simple.sports_view.sports_vertical_chrome.upcoming_live", { live: liveNowCount })
+              : t("events.screen.simple.sports_view.sports_vertical_chrome.matches_this_week")}
           </span>
         </span>
       </div>

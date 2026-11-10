@@ -102,7 +102,7 @@
 | 4 | Base 用主网的 | `basePrice`（上一交易日官方收盘） |
 | 5 | 其他价格照旧模拟 | Up / Down 报价第一次进库用主网 `lastTradePrice`（和第 1 批一样），成交额第一次用 `totalVolume`，之后演示引擎动 |
 | 6 | 按 Lovable 自己的模拟收盘价结算 | 收盘价 = 首页 Stocks 小图那条走势线的最后一点（`HomeStocksSection` 的 `walk`，48 个点，σ 0.004，按事件 id 定种子），后端 `mn_walk_close()` 逐位照抄，结果和前端一致到小数点后 8 位；大于 Base → Up，否则 Not Up |
-| 7 | 名字 `短名 (代码) — will close higher today?` | 短名表 `mn_stock_names`（如 `Advanced Micro Devices, Inc.` → `AMD`、`SKHynix` → `SK Hynix`）；没有短名的去掉 Inc. / Corporation 等后缀。前端公司名一律从事件名里取（`stockCompanyName`） |
+| 7 | 名字 `短名 (代码) — will it close higher today?`（2026-11-10 起新开的轮次；之前已开的轮次保持原名 `— will close higher today?`，不改名，免得已下单的人对不上） | 短名表 `mn_stock_names`（如 `Advanced Micro Devices, Inc.` → `AMD`、`SKHynix` → `SK Hynix`）；没有短名的去掉 Inc. / Corporation 等后缀。前端公司名一律从事件名里取（`stockCompanyName`） |
 | 8 | 港股 4 位、韩股照主网 | `700.HK` → `0700.HK`；`000660.KR`（原来前端写 `.KS`，已改） |
 | 9 | 加密 1d / 4h 按美东切 | 1d = 美东中午 12 点到次日 12 点；4h = 美东 0 / 4 / 8 / 12 / 16 / 20 点；夏令时跟着变。切换当天，已开的那一轮按旧时间跑完，下一轮从新切点开（第一轮会短一些） |
 | 7b | 股票 logo 跟主网（同日补） | 主网交易目录里没有 logo，首页「daily close」接口有：`/pub/event/daily-close/rounds/current?assetCode=<代码>` → `asset.iconUrl`（96×96 圆形头像 SVG）。每轮同步取 12 只缺 logo 或超过一天的，存进 `mn_stock_names.icon_url`；前端头像优先用它、铺满圆（和主网一样），没有再用仓库自带 logo、再没有才是代码字。主网没有的（阿里 `9988.HK`、汇丰 `0005.HK`，旧阵容）保留仓库 logo |

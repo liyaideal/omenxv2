@@ -639,7 +639,7 @@ export const kickoffLabel = (d: Date | null): { day: string; time: string } => {
     k === today
       ? "Today"
       : k === today + DAY_MS
-        ? "Tmrw"
+        ? "Tomorrow" // #16 (CPO 2026-11-10): no home-made abbreviations
         : d.toLocaleDateString(undefined, { weekday: "short" });
   const time = d.toLocaleTimeString(undefined, {
     hour: "2-digit",

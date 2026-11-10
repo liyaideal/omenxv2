@@ -101,6 +101,7 @@ export const DirectionButton = ({
   gap,
   grow,
   labelWeight = 700,
+  width,
   onClick,
 }: {
   label: string;
@@ -115,6 +116,8 @@ export const DirectionButton = ({
   gap?: number;
   grow?: boolean;
   labelWeight?: number;
+  /** Fixed width so a column of rows keeps its price column on one line (#13, 2026-11-10). */
+  width?: number;
   onClick: (e: React.MouseEvent) => void;
 }) => (
   <button
@@ -130,6 +133,7 @@ export const DirectionButton = ({
     style={{
       borderRadius: radius,
       minHeight,
+      width,
       padding: padding ?? (layout === "centered" ? "0 15px" : "0 14px"),
       gap: gap ?? (layout === "centered" ? 5 : undefined),
     }}
@@ -356,10 +360,13 @@ export const TradingStockRow = ({
         labelSize={13}
         priceSize={15}
         layout="centered"
+        width={112}
         onClick={go("up")}
       />
       <DirectionButton
-        label={t("events.screen.simple.calendar.calendar_day.not_up")}
+        width={112}
+        // #13 (CPO 2026-11-10): "Up / Down" on every surface, as on the home page (was "Not up" here)
+        label={t("events.screen.simple.home.home_crypto_card.down")}
         price={row.downPrice}
         tone="down"
         minHeight={44}

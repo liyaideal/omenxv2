@@ -647,7 +647,7 @@ const CHIP_TIER_PRESETS = [
     id: "tier-1",
     label: "Tier 1 · direction button",
     caption:
-      "Trigger — a binary DIRECTION pair (Up/Down on coin tiles and coin cards, Up/Not up on stock rows): tinted fill, coloured label AND price, hover brightens the fill.",
+      "Trigger — a binary DIRECTION pair (Up/Down on coin tiles, coin cards and stock rows (#13, 2026-11-10: stock rows used to say Not up)): tinted fill, coloured label AND price, hover brightens the fill.",
   },
   {
     id: "tier-2",

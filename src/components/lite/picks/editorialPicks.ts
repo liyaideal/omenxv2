@@ -126,6 +126,9 @@ export const toEditorPick = (row: RawRow): EditorPick | null => {
   if (isMatch && opts.length > 2) {
     const sorted = [...opts].sort((a, b) => a.id.localeCompare(b.id));
     opts = [sorted[0], sorted[sorted.length - 1]];
+  } else if (!isMatch && opts.length > 2) {
+    // E4 (CPO 2026-11-10): a multi-outcome pick shows its two most likely outcomes (highest price first), not the feed's first two.
+    opts = [...opts].sort((a, b) => b.price - a.price).slice(0, 2);
   }
   const sides = parseSides(row.side_labels);
   const alias = (sides?.yes || "").trim().toLowerCase();

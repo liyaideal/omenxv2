@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-10 | [首页 / Sports / Finance · 交叉验收待批项落地（15 条）](./2026-11-10-review-decisions.md) | 股票 settles = 收盘 +15 分钟；平盘灰色 · Down wins；倒计时 26h 00m；首页 Crypto 默认 5m；Sports 选某天的标题与底句；Settling…；Show all 按需出现并预选市场；精选取最高两档；价格千分位；股票事件名补 it；股票行 Up / Down 定宽；More 标题 3 行；Sports 页头数字对上 ALL；Tomorrow |
 | 2026-11-10 | [首页 / Sports / 现货页 · 三方交叉验收修复](./2026-11-10-cross-review-fixes.md) | 字典弹层各自一个框；股票钮进 /spot、精选带 side、+N more、标签时钟不丢、768–1279 排法、Traded today 只算 BTC、骨架按最终高度；现货页倒计时 / 横轴 / 快捷钮 / 右栏；快轮页本地时间；队徽重叠与 NFL / MLB 取色；文档 K4 / MB5 / R7 / R9 |
 | 2026-11-10 | [Lovable 展示 omenx.com 真实事件 · 第 2 批](./2026-11-10-mainnet-sync-batch2.md) | 股票日轮阵容 / 开收盘 / Base 跟主网（美 51 · 港 12 · 韩 7，韩股首次上线，`₩` 不带小数、`000660.KR`、港股 4 位代码、短名事件名）；价格照旧模拟，结算按首页小图收盘点；旧股票开轮 cron 停用；加密 1d / 4h 按美东切 |
 | 2026-11-09 | [首页 All 视图终验四项](./2026-11-09-home-all-final4.md) | 状态④有直播且 48h 内开赛 → Remind me（与 Sports 品类页同一条提醒，HA-21a/b/c）；价钮进交易页预选那一边 / 那一档（`&option=` `&side=`，交易页真的读了）；首页五段 7 语（`events.screen.simple.home_all.*`）；首屏骨架按五段重画（HA-22）；style-guide 侧栏可收起 |
