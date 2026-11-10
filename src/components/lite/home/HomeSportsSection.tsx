@@ -85,6 +85,8 @@ const PricePill = ({ m, side, onOpen }: { m: SportsMatch; side: "home" | "away";
       }
     }}
   >
+    {/* CPO 2026-11-10: a price alone doesn't say which team — the team's short code leads, muted (as on the stage) */}
+    <span className="tc-pcode">{abbr(m, side)}</span>
     {cents(priceOf(m, side))}
   </span>
 );
@@ -600,7 +602,9 @@ export const HomeSportsSection = ({
   }, [matches, now, day, streamIndex, isMobile, nextUpRows]);
 
   const strip = useMemo(() => buildDayStrip(matches, now), [matches, now]);
-  const total = matches.length;
+  // R1 (CPO 2026-11-10): N = playing now + not started; a match that has finished but not settled yet
+  // is no longer counted, so N − ALL = the live count exactly.
+  const total = model.live.length + model.upcoming.length;
   const liveCount = model.live.length;
   const nextKick = model.upcoming[0]?.kickoff ? model.upcoming[0].kickoff.getTime() - now : null;
   const eyebrow =

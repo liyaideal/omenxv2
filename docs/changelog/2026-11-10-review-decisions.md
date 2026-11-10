@@ -46,6 +46,12 @@
 - 一轮都没结算过时 Last 8 不写「last round Down」；已过截止的长期事件不写「closes in 1h」；股票平盘小图画灰色。
 - 规则台账 `homeAllRules.ts`（字典 HA-R）与交付文档 §2 重新对齐（S1 C1 C2 C3 C4 C6 K2 K5 K6 E4 M2 M5 G1 R2 R5 R8）。
 
+**验收后 CPO 再定的三条（2026-11-10 傍晚）**
+
+- 现货页「Settles」改显示官方收盘 + 15 分钟（`expected_settlement_time`），和首页 Stocks「settles in」、主网同步 §7 第 3 条一致（之前文档写「与现货页一致」是错的，现货页原来显示的是收盘时间）。
+- Sports 眉行「N matches this week」= 正在打的 + 还没开赛的，已打完待结算的不算；N − ALL = 正在打的场数。
+- Sports 右表和瓷砖的小价钮先写队伍短码（灰）再写价格，如 `NOT 46¢`。
+
 **没动什么**
 
 - 港股午休与节假日的时段判断不变。

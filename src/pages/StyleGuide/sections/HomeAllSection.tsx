@@ -42,7 +42,7 @@ const SPORTS_CASES: SectionCase[] = [
     spec: [
       { state: "舞台位", when: "live.length === 1 && m.streamUrl", visual: "标签「● Live now · 联赛 · 节点」+ 右「▶ Live stream」；直播截图 + 播放钮 → 对阵（徽 56 / 短码 16 / 全名 11.5）→ 比分 56px 柠檬 → 两队价钮 → Open match → · Vol", source: "Stage live" },
       { state: "Up next 瓷砖", when: "live.length === 1", visual: "4 块未开球：短码 + 开球 HH:mm + 「Sat · 项目图标 联赛短码」+ 两价胶囊", source: "Tile upcoming" },
-      { state: "右表", when: "desktop", visual: "面板 Big this week（按量前 3，行内 Vol 柠檬）+ Next up（按开球，行数填满到与左块齐）+「+N more this week · see all →」；一场只出现一次", source: "S0 去重顺序" },
+      { state: "右表", when: "desktop", visual: "面板 Big this week（按量前 3，行内 Vol 柠檬；每行两颗小价钮写「队伍短码（灰）+ 价」如 NOT 46¢）+ Next up（按开球，行数填满到与左块齐）+「+N more this week · see all →」；一场只出现一次", source: "S0 去重顺序" },
       { state: "日历条", when: "always", visual: "ALL(总数) + 有赛事的日子（星期 / 日号 / 场数），选中柠檬底；点日子只筛右表", source: "buildDayStrip · matchesInBucket" },
     ],
   },
