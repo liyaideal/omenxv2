@@ -35,6 +35,7 @@ import type { SportsMatch } from "@/components/lite/sports/sportsData";
 import type { EditorPick } from "@/components/lite/picks/editorialPicks";
 import type { EventRow, MarketChildRow } from "@/hooks/useMarketListData";
 import { NOW_HK_AFTER_CLOSE, NOW_US_LIVE, NOW_US_SETTLING } from "./homeStagePreviews";
+import { getStockSessionState, resolveStockMarket } from "@/lib/usStockSessions";
 
 const MIN = 60_000;
 const HOUR = 3_600_000;
@@ -351,17 +352,25 @@ export const STOCK_ROWS: StockEventRow[] = [
   stock("hk-1810-updown-daily", "Xiaomi — higher than it opened?", 41.3, HK_STOCK_SUBTYPE, 0.53, 20),
   stock("hk-0005-updown-daily", "HSBC — higher than it opened?", 112.9, HK_STOCK_SUBTYPE, 0.5, 20),
   stock("hk-1211-updown-daily", "BYD — higher than it opened?", 356.4, HK_STOCK_SUBTYPE, 0.47, 20),
-  stock("kr-005930-updown-daily", "Samsung Electronics — higher than it opened?", 98_400, KR_STOCK_SUBTYPE, 0.51, 19),
-  stock("kr-000660-updown-daily", "SK hynix — higher than it opened?", 412_000, KR_STOCK_SUBTYPE, 0.56, 19),
-  stock("kr-035420-updown-daily", "NAVER — higher than it opened?", 218_500, KR_STOCK_SUBTYPE, 0.44, 19),
+  // Korea: real name format and real sizes (₩ has no minor unit; the longest name wraps to two lines).
+  stock("kr-000660-updown-daily", "SK Hynix (000660.KR) — will close higher today?", 1_136_000, KR_STOCK_SUBTYPE, 0.56, 19),
+  stock("kr-005930-updown-daily", "Samsung Electronics (005930.KR) — will close higher today?", 189_900, KR_STOCK_SUBTYPE, 0.51, 19),
+  stock("kr-009150-updown-daily", "Samsung Electro-Mechanics (009150.KR) — will close higher today?", 843_000, KR_STOCK_SUBTYPE, 0.47, 19),
+  stock("kr-035420-updown-daily", "NAVER (035420.KR) — will close higher today?", 187_100, KR_STOCK_SUBTYPE, 0.44, 19),
 ];
-/** The session fixtures run on the exchange calendar (NOW_US_*), so settle times hang off that clock. */
+/**
+ * The session fixtures run on the exchange calendar (NOW_US_* …). Each row's round ends at its market's
+ * close: today's if the market is open, else the next session's (a new round opens right after a close,
+ * mainnet sync §7 rule 3) — so "closes in / opens in / settles in" always agree with each other.
+ */
 export const stockRowsAt = (now: Date): StockEventRow[] =>
-  STOCK_ROWS.map((r) => ({
-    ...r,
-    start_date: new Date(now.getTime() - 10 * HOUR).toISOString(),
-    end_date: new Date(now.getTime() + Number(r.end_date) * HOUR).toISOString(),
-  }));
+  STOCK_ROWS.map((r) => {
+    const market = resolveStockMarket({ id: r.id, event_subtype: r.event_subtype });
+    const s = getStockSessionState(market, now);
+    const sessionMs = ((market.closeMinutes ?? 960) - (market.openMinutes ?? 570)) * 60_000;
+    const close = s.phase === "live" && s.closeAt ? s.closeAt : new Date(s.nextOpenAt.getTime() + sessionMs);
+    return { ...r, start_date: new Date(now.getTime() - 10 * HOUR).toISOString(), end_date: close.toISOString() };
+  });
 const StocksDemo = ({ mode, now, market }: { mode: PrintMode; now: Date; market?: "us" | "hk" | "kr" }) => {
   const isMobile = useIsMobile();
   return (
@@ -378,6 +387,9 @@ export const HaStocksRegularPreview = () => <StocksDemo mode="regular" now={NOW_
 export const HaStocksExtendedPreview = () => <StocksDemo mode="extended" now={NOW_US_SETTLING} />;
 /** K4 ③ closed, no prints yet → no chart, "Base price". HK after 16:00 (US never sits here — it has extended prints). */
 export const HaStocksNonePreview = () => <StocksDemo mode="none" now={NOW_HK_AFTER_CLOSE} market="hk" />;
+/** Korea in session (Tue 11:00 KST): ₩ whole won, the longest short name on two lines. */
+const NOW_KR_LIVE = new Date("2026-11-10T02:00:00Z");
+export const HaStocksKoreaPreview = () => <StocksDemo mode="regular" now={NOW_KR_LIVE} market="kr" />;
 
 /* =========================== Editor's Desk =========================== */
 

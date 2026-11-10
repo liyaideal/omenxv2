@@ -822,6 +822,7 @@ const SPOT_TABLE_CASES: SectionCase[] = [
   },
   {
     key: "pro-spot-orders-cancel-confirm",
+    isolate: true,
     label: "OS-D2 · 桌面 /spot Current Orders · 点 Cancel 先弹确认框",
     note: "研发问题 #10c（2026-09-24）：现货撤单原来直接撤，合约有确认框，两边不一致。现在现货复用同一套 `Cancel Order` AlertDialog：Market / Side / Type / Limit / Shares，Buy 单多一行 `Reserved · refunded on cancel $X`（Sell 单不锁份额、无退款行）；`Keep Order` 关闭，`Cancel Order` 才真撤并 toast `Order cancelled · $X refunded`。",
     spec: [

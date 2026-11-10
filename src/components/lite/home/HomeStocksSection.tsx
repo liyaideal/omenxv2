@@ -167,7 +167,8 @@ export const HomeStocksSection = ({ stockRows, isMobile, onOpenAll, nowOverride,
   const statusLine = `${status}${settleAt ? ht("stocks.settles_in", { time: leftText(settleAt - now.getTime()) }) : settlingNow ? ht("stocks.settling_now") : ""}`;
   const live = prints.filter((p) => p.mode !== "none");
   const ups = rows.filter((r, i) => prints[i].mode !== "none" && prints[i].last > (r.base_price ?? 0)).length;
-  const go = (r: StockEventRow, side: "yes" | "no") => () => navigate(tradeLink(r.id, { side }));
+  // G3: stock rounds are spot events → /spot (not the contract page), with the side preselected.
+  const go = (r: StockEventRow, side: "yes" | "no") => () => navigate(tradeLink(r.id, { side, spot: true }));
 
   const tabs = (
     <div className="row" style={{ gap: isMobile ? 18 : 22 }}>

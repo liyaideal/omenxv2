@@ -148,11 +148,14 @@ const Stage = ({
 }) => {
   const hasVideo = live && !!m.streamUrl;
   const kickoffMs = m.kickoff ? Math.max(0, m.kickoff.getTime() - now) : 0;
-  const label = live
+  // The clock (liveLabel) is the useful part: when space runs out only the league shrinks, never the clock.
+  const labelHead = live
     ? isMobile
-      ? `${ht("sports.live_now")}${m.liveLabel ? ` · ${m.liveLabel}` : ""}`
-      : `${ht("sports.live_now")} · ${(leagueCodeOf(m) || m.league).replace(/_/g, " ")}${m.liveLabel ? ` · ${m.liveLabel}` : ""}`
+      ? ht("sports.live_now")
+      : `${ht("sports.live_now")} · ${(leagueCodeOf(m) || m.league).replace(/_/g, " ")}`
     : ht("sports.biggest_kicks_off_in", { time: kickoffInShort(kickoffMs) });
+  const labelTail = live && m.liveLabel ? `\u00a0·\u00a0${m.liveLabel}` : ""; // nbsp: a flex item would drop a plain leading space
+  const label = labelHead + labelTail.replace(/\u00a0/g, " ");
   const badgeSize = isMobile ? 44 : 56;
 
   const rightLabel = live ? (
@@ -193,12 +196,9 @@ const Stage = ({
       >
         <span className="row" style={{ gap: 10, minWidth: 0 }}>
           {live && <span className="livedot" />}
-          <span
-            className="tc-lbl2"
-            style={{ color: live ? OR : MU, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}
-            title={label}
-          >
-            {label}
+          <span className="tc-lbl2 row" style={{ color: live ? OR : MU, whiteSpace: "nowrap", minWidth: 0, gap: 0 }} title={label}>
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>{labelHead}</span>
+            {labelTail && <span style={{ flexShrink: 0 }}>{labelTail}</span>}
           </span>
         </span>
         {rightLabel}
@@ -586,7 +586,9 @@ export const HomeSportsSection = ({
     const seeAll = live.length - 1 > alsoLive.length;
     const fill = stageHasVideo ? nextUpRows + (seeAll ? 1 : 0) : live.length > 0 ? nextUpRows - 3 : nextUpRows - 4;
     const next = pool.filter((m) => !bigSet.has(m.id)).slice(0, isMobile ? 0 : fill);
-    const remain = Math.max(0, upcoming.length - upNext.length - big.length - next.length);
+    // R2: "+N more" = not-started matches not shown anywhere — the stage counts too when it hasn't kicked off (state ④).
+    const stageUpcoming = stage && upcoming.some((m) => m.id === stage.id) ? 1 : 0;
+    const remain = Math.max(0, upcoming.length - stageUpcoming - upNext.length - big.length - next.length);
     return { live, liveSet, upcoming, streams, stage, alsoLive, upNext, big, next, remain };
   }, [matches, now, day, streamIndex, isMobile, nextUpRows]);
 

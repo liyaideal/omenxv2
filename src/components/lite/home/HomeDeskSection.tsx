@@ -33,16 +33,16 @@ const Buttons = ({ p, go }: { p: EditorPick; go: (href: string) => void }) => {
   if (isRound(p)) {
     return (
       <>
-        <UpButton price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId))} />
-        <DownButton price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId))} />
+        <UpButton price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId, "yes"))} />
+        <DownButton price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId, "no"))} />
       </>
     );
   }
   if (p.optionCount > 2) {
     return (
       <>
-        <OddsButton label={p.yesLabel} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId))} />
-        <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId))} />
+        <OddsButton label={p.yesLabel} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId, "yes"))} />
+        <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId, "no"))} />
         <button type="button" className="lnk" style={{ fontSize: 13 }} onClick={() => go(pickHref(p))}>
           {ht("desk.more", { count: p.optionCount - 2 })}
         </button>
@@ -52,15 +52,15 @@ const Buttons = ({ p, go }: { p: EditorPick; go: (href: string) => void }) => {
   if (/^yes$/i.test(p.yesLabel)) {
     return (
       <>
-        <UpButton label={t("common.yes")} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId))} />
-        <DownButton label={t("common.no")} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId))} />
+        <UpButton label={t("common.yes")} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId, "yes"))} />
+        <DownButton label={t("common.no")} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId, "no"))} />
       </>
     );
   }
   return (
     <>
-      <OddsButton label={p.yesLabel} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId))} />
-      <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId))} />
+      <OddsButton label={p.yesLabel} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId, "yes"))} />
+      <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId, "no"))} />
     </>
   );
 };

@@ -141,6 +141,8 @@ export const SECTION_ALIASES: Record<string, string> = {
   "lite-verticals": "lite-events",
   "lite-calendar": "lite-events",
   "lite-final-touches": "lite-events",
+  // the docs link the home dictionary as #home-all (its SectionWrapper id) — land on the page that holds it
+  "home-all": "lite-events",
   "lite-spot": "lite-trade",
   wallet: "lite-wallet",
   deposit: "lite-wallet",

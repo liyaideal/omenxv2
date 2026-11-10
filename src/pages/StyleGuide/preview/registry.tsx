@@ -205,6 +205,7 @@ export const previewRegistry: Record<string, Loader> = {
   "home-ha8": pick(homeAll, "HaStocksRegularPreview"),
   "home-ha9": pick(homeAll, "HaStocksExtendedPreview"),
   "home-ha10": pick(homeAll, "HaStocksNonePreview"),
+  "home-ha10b": pick(homeAll, "HaStocksKoreaPreview"),
   "home-ha11": pick(homeAll, "HaDeskPreview"),
   "home-ha12": pick(homeAll, "HaDeskMultiPreview"),
   "home-ha13": pick(homeAll, "HaMorePreview"),

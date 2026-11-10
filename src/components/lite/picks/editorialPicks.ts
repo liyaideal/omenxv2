@@ -85,12 +85,13 @@ export const relativeSince = (d: Date | null): string => {
   return `${Math.floor(hrs / 24)}d ago`;
 };
 
-export const pickHref = (p: EditorPick, optionId?: string | null): string => {
+/** G3: a price button opens the trade page on that outcome AND that side (the spot / quick pages read `side`, not `option`). */
+export const pickHref = (p: EditorPick, optionId?: string | null, side?: "yes" | "no"): string => {
   const base = p.isSpot ? "/spot" : "/trade";
-  const q = `event=${encodeURIComponent(p.id)}`;
-  return optionId
-    ? `${base}?${q}&option=${encodeURIComponent(optionId)}`
-    : `${base}?${q}`;
+  const q = new URLSearchParams({ event: p.id });
+  if (optionId) q.set("option", optionId);
+  if (side) q.set("side", side);
+  return `${base}?${q.toString()}`;
 };
 
 export const formatPickVolume = (n: number): string => {

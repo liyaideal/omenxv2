@@ -695,6 +695,7 @@ const WITHDRAW_FLOW_CASES: SectionCase[] = [
   },
   {
     key: "wallet-withdraw-verify",
+    isolate: true,
     label: "W-27a · 提现验证 · email OTP",
     note: "demo 码 111111 属切真开关（src/lib/demoOtp.ts），接真验证码归研发，见 lite-wallet-spec-v1.md §3。",
     spec: [
@@ -703,6 +704,7 @@ const WITHDRAW_FLOW_CASES: SectionCase[] = [
   },
   {
     key: "wallet-withdraw-verify-bind-email",
+    isolate: true,
     label: "W-27b · 提现验证 · 绑定邮箱",
     spec: [
       { state: "bind_email", when: "模式含 email 且 profile.email 为空", visual: "先绑定邮箱再发码", source: "WithdrawVerifyDialog.tsx（fixtureMode='bind_email'）" },
@@ -710,6 +712,7 @@ const WITHDRAW_FLOW_CASES: SectionCase[] = [
   },
   {
     key: "wallet-withdraw-verify-totp",
+    isolate: true,
     label: "W-27c · 提现验证 · TOTP",
     spec: [
       { state: "totp", when: "模式含 totp 且 totp_enabled === true", visual: "6 位验证器码输入", source: "WithdrawVerifyDialog.tsx（fixtureMode='totp'）" },
@@ -717,6 +720,7 @@ const WITHDRAW_FLOW_CASES: SectionCase[] = [
   },
   {
     key: "wallet-withdraw-verify-bind-totp",
+    isolate: true,
     label: "W-27d · 提现验证 · 绑定验证器",
     note: "演示密钥固定为 OMENXDEMOSECRET234567（demoSecret prop），生产路径仍走随机生成。",
     spec: [

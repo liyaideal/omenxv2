@@ -111,9 +111,9 @@ const PickCard = ({
   priority?: boolean;
 }) => {
   const navigate = useNavigate();
-  const go = (optionId?: string | null) => (e: React.MouseEvent) => {
+  const go = (optionId?: string | null, side?: "yes" | "no") => (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(pickHref(pick, optionId));
+    navigate(pickHref(pick, optionId, side));
   };
 
   return (
@@ -189,14 +189,14 @@ const PickCard = ({
             price={pick.yesPrice}
             tone="#33D6FF"
             compact={compact}
-            onClick={go(pick.yesOptionId)}
+            onClick={go(pick.yesOptionId, "yes")}
           />
           <OutcomeChip
             label={pick.noLabel}
             price={pick.noPrice}
             tone="#CFFF4A"
             compact={compact}
-            onClick={go(pick.noOptionId)}
+            onClick={go(pick.noOptionId, "no")}
           />
         </span>
         {!compact && (

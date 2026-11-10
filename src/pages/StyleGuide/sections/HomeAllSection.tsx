@@ -194,9 +194,19 @@ const STOCKS_CASES: SectionCase[] = [
   },
   {
     key: "home-ha10",
-    label: "HA-10 · Stocks · 收盘后没成交（K4 ③，HK / KR 16:00 后）",
+    label: "HA-10 · Stocks · 收盘后没成交（K4 ③，HK 16:00 / KR 15:30 后）",
     spec: [
       { state: "行 · 无图", when: 'phase !== "live" && !market.extendedPrints', visual: "不画线，只有基准虚线 + 空心点；价格 = Base，涨跌位写灰字「Base price」；底部左句不显示", source: "K4③ K6" },
+    ],
+  },
+  {
+    key: "home-ha10b",
+    label: "HA-10b · Stocks · Korea 盘中（₩ 不带小数 · 长短名折两行 · 主网 logo）",
+    note: "韩股 2026-11-10 起跟主网同步（同步文档 §7）。fixture 用真实的短名、代码和价位；头像 logo 来自主网（mn_stock_names.icon_url），离线时退回代码字。",
+    spec: [
+      { state: "韩元", when: 'market.key === "kr"', visual: "价格整数 + 千分位（₩1,134,988），价格列仍定宽 112px", source: "formatMarketPrice · K3" },
+      { state: "长短名", when: "短名放不下一行", visual: "折成两行（Samsung Electro- / Mechanics），不截断、不压到走势线", source: "K3 · .srow .n" },
+      { state: "头像", when: "mn_stock_names.icon_url 有值", visual: "主网 logo 铺满圆；没有 → 仓库 logo → 代码字（韩股去掉前导 0）", source: "AssetAvatar · 同步 §7 7b" },
     ],
   },
 ];
