@@ -626,7 +626,7 @@ export const HomeSportsSection = ({
   if (!model.stage) return null;
 
   const dayStrip = (
-    <div className={isMobile ? "hscroll" : "row"} style={{ gap: 8, marginTop: isMobile ? 18 : 0 }}>
+    <div className={isMobile ? "hscroll" : "row"} style={{ gap: 8 }}>
       {strip.map((b) => {
         // Weekday in the viewer's language (same rule as the Sports view); ALL / TODAY from the catalog.
         const w =
@@ -763,10 +763,14 @@ export const HomeSportsSection = ({
     return (
       <section className="sec">
         <SectionHead eyebrow={eyebrow} eyebrowColor={RED} question={question} isMobile />
-        {dayStrip}
         {stage}
         <div style={{ marginTop: 28 }}>{tiles}</div>
-        <div style={{ marginTop: 28 }}>{table}</div>
+        {/* MB3 (CPO 2026-11-11): the day strip only filters this table, so on the phone it sits right above it
+            (it used to be under the section title, a screen away from what it changes). */}
+        <div style={{ marginTop: 28 }}>
+          {dayStrip}
+          <div style={{ marginTop: 10 }}>{table}</div>
+        </div>
         {dayFooter}
         <div className="row" style={{ marginTop: 18, justifyContent: "space-between" }}>
           <span className="kv">{ht("sports.more_this_week", { count: model.remain })}</span>

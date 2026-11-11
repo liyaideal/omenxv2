@@ -68,7 +68,7 @@ const SPORTS_CASES: SectionCase[] = [
   {
     key: "home-ha17",
     label: "HA-17 · Sports 日历条选中某一天（R1 / R2）",
-    note: "同 HA-5 的数据，挂载后点日历条第三格。只有右表跟着日期变；舞台位、瓷砖、眉行数字不变。",
+    note: "同 HA-5 的数据，挂载后点日历条第三格。只有右表跟着日期变；舞台位、瓷砖、眉行数字不变。手机上日历条紧贴在面板正上方（MB3，2026-11-11），桌面在段头右边。",
     spec: [
       { state: "选中某天", when: "day !== 'all'", visual: "该格变选中态；右表 Big this week / Next up 只列这一天还没开赛的比赛", source: "HomeSportsSection day · buildDayStrip" },
       { state: "数字", when: "始终", visual: "眉行 N = 正在打的 + 还没开赛的（已打完、等结算的不算，CPO 2026-11-10）；ALL n 与各天数字 = 没开赛的；「+N more this week」= 全部没开赛 − 本段已展示，跟选哪天无关", source: "R1 / R2" },
@@ -290,7 +290,7 @@ const LOADING_CASES: SectionCase[] = [
     note: "生产页 stageFirstLoad 时就是这一块（上面还有行情条骨架，见 EV-24）。数据回来后每段各自换成真内容，没数据的段整段收起。",
     spec: [
       { state: "桌面", when: "stageFirstLoad && !isMobile", visual: "五段各按最终尺寸占位：Sports（段头 + 日历条位 / 左：舞台 + 对阵 + 两价钮 + 瓷砖 2×2 / 右表 10 行）→ Crypto（段头 + 钟 / BTC 主卡 + 图 / ETH·SOL 面板）→ Stocks（段头 + tab / 两列各 5 行）→ Editor's Desk（三列）→ More（3 行：封面 + 标题 / 档位区）；段间细线；色块只用 #171A1F / #15181C", source: "LiteAllStageSkeleton" },
-      { state: "手机", when: "stageFirstLoad && isMobile", visual: "同顺序单列：Sports 段头 + 日历条 + 舞台 + 对阵 + 两价钮 + 瓷砖 2×2 → Crypto 段头 + 钟 + 进度条 + 周期 tab + BTC 卡（价 / 图 150 / 两钮）→ Stocks 段头 + tab + 5 只（每只两行）→ Desk 三条竖叠 → More 2 条", source: "LiteMobileStageSkeleton" },
+      { state: "手机", when: "stageFirstLoad && isMobile", visual: "同顺序单列：Sports 段头 + 舞台 + 对阵 + 两价钮 + 瓷砖 2×2 + 日历条（面板上方，MB3）→ Crypto 段头 + 钟 + 进度条 + 周期 tab + BTC 卡（价 / 图 150 / 两钮）→ Stocks 段头 + tab + 5 只（每只两行）→ Desk 三条竖叠 → More 2 条", source: "LiteMobileStageSkeleton" },
       { state: "有缓存", when: "react-query 有缓存", visual: "不出骨架，直接渲染上次的数据再刷新", source: "stageFirstLoad 判定（EV-24）" },
     ],
   },

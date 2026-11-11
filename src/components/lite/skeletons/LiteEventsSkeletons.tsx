@@ -360,12 +360,6 @@ export const LiteMobileSportsSkeleton = () => (
   <div className="flex flex-col" style={{ padding: "36px 0", gap: 18, minHeight: SKEL_H.m.sports }}>
     <SkelBlock w={240} h={11} tone="secondary" />
     <SkelBlock w={300} h={34} r={8} />
-    {/* the real day strip scrolls sideways — the placeholder is cut at the edge, never widens the page */}
-    <div className="flex overflow-hidden" style={{ gap: 8 }}>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <SkelBlock key={i} w={56} h={56} r={12} tone="secondary" style={{ flex: "none" }} />
-      ))}
-    </div>
     <SkelBlock w={200} h={11} tone="secondary" />
     <SkelBlock h={0} style={{ paddingTop: "56.25%", borderRadius: 12 }} />
     <div className="grid items-center" style={{ gridTemplateColumns: "1fr auto 1fr", gap: 12 }}>
@@ -382,6 +376,13 @@ export const LiteMobileSportsSkeleton = () => (
       <TileSkeleton />
       <TileSkeleton />
       <TileSkeleton />
+    </div>
+    {/* day strip sits above the table on the phone (MB3, 2026-11-11) */}
+    {/* the real day strip scrolls sideways — the placeholder is cut at the edge, never widens the page */}
+    <div className="flex overflow-hidden" style={{ gap: 8 }}>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <SkelBlock key={i} w={56} h={56} r={12} tone="secondary" style={{ flex: "none" }} />
+      ))}
     </div>
   </div>
 );
