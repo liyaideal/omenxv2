@@ -52,7 +52,7 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
       { id: "C3", text: "BTC 主卡（8 栏裸放）：₿ BTC · Round HH:MM → HH:MM · 本轮成交 · 右上 Traded today；价格 84px；涨跌行「+$x · +x.xx%」+「above/below the open · Up/Down wins if it closed now」。不展示 open 价、不展示单轮成交量明细。「Traded today」= BTC 今天（UTC 0 点起）所有周期、所有轮次的成交额之和；「本轮成交」= 当前周期当前这一轮的成交额。平盘（现价正好等于开盘价）：后端规则是收盘 > 开盘才算 Up，所以平盘写灰色「$0 · 0.00%」不带符号 +「at the open · Down wins if it closed now」，ETH / SOL 的 0.00% 同样灰色无符号（2026-11-10 批，字典 HA-7b）。价格写法：≥ $10,000 取整（$74,063），以下两位小数（$2,137.09 / $86.97），一律千分位；图上 OPEN 标签同规则。" },
       { id: "C4", text: "BTC 图表 = V1 双色面 + 紧量程，动效借 Quick Play 舞台：canvas；时间窗 = 过去 72% 轮长 + 未来 28%，整条线随时间左移；NOW 竖虚线，未来区淡色；收盘线进入窗口才出现（橙，带 closes HH:MM）；开盘虚线横贯，OPEN $ 标签最上层带底色；高于开盘青色面、低于开盘柠檬面；开盘前历史画灰细线不算输赢；量程只看本轮——但开盘后最初 15% 的时间里，本轮还几乎没有走势，量程把窗口里开盘前的灰线也算进去，随时间平滑收回到只看本轮；超出量程的灰线断开不画，不再拉成竖条（2026-11-10 批）；头点跟最新价缓动 + 呼吸环；密点按 3px 一桶平均；时间刻度 5m 每分钟 / 15m 3 分 / 1h 10 分 / 4h 1 小时 / 1D 3 小时。" },
       { id: "C5", text: "Up / Down 大钮 + 资金比例条（Up 青 / Down 柠檬）+ 两头百分比。比例 = 本轮 Up / Down 两边下单金额的占比（正式版接资金数据；Lovable 没有资金池，用 Up 价格代替）。" },
-      { id: "C6", text: "Last 8 rounds：8 根小柱按结果上色（Up 青 / Down 柠檬），最新一根描边；右侧「Up won N · Down won N · last round Up/Down」。不写上一轮涨跌金额。一轮都还没结算过时只画空柱、不写右侧这句（否则会写成「last round Down」，2026-11-10 修）。" },
+      { id: "C6", text: "Last 8 rounds：8 根小柱按结果上色（Up 青 / Down 柠檬），最新一根描边；右侧「Up won N · Down won N · last round Up/Down」。不写上一轮涨跌金额。这个币这个周期一轮都还没结算过时（刚上线的周期）：不画柱、也不写右侧这句，只剩「LAST 8 ROUNDS」小标题（2026-11-10 修）。注意这不是「当前轮到点还没结算」——那几秒 Last 8 不变，结算完才把新结果推进来（C8）。" },
       { id: "C7", text: "右栏面板 ETH / SOL 两半等高：币 + 价格 + 涨跌 + closes HH:MM；小图同 C4 画法缩小（80px 高，带 OPEN 标签）；Up / Down 小钮 + 细比例条。" },
       { id: "C8", text: "到点结算：当前轮结束 → Last 8 推入结果 → 新一轮 open = 上轮收盘价，钟和进度条重置。" },
     ],
