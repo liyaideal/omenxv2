@@ -74,7 +74,7 @@ Single source of truth for user-visible field names across the app.
 | **In progress / Claimed** | 邀请行两个终态词；`qualified` 行显示 `$5 voucher` + `Claim voucher` | Pending, Waiting, Complete |
 | **ticket / tickets** | 第三种奖励单位（2026-11-12），色 `#FBBA23`。只在所属活动里计数，不进余额；用途（排名 / 抽奖）由运营写在任务副标题。奖励槽写 `{n} ticket(s)`，判定：`reward.ticket > 0` | Points, Coupons, Entries, Lottery ticket |
 | **{n} earned** | 可重复任务奖励槽第二行：这条任务已经发了几次。判定：该任务 `#r` grant 行里 claimed 的行数 | Completed, Done ×n, Claimed ×n |
-| **Tickets earned** / **{n} tickets earned** | 奖励卡的 ticket 格；活动卡与归档上的一行汇总（0 时不显示） | Total tickets, My tickets |
+| **Tickets earned** / **{n} tickets earned** | 奖励卡的 ticket 格；活动卡与归档上的一行汇总 | Total tickets, My tickets |
 | **Make a profitable trade** | 盈利交易任务的标准任务名（运营可改）。一笔盈利交易 = 赚钱收场的仓位：结算赢或提前卖出赚钱；判定 `pnl − winning_commission > 0`。门槛写在副标题：`Trades of $10 or more count` | Win a trade, Winning bet, Correct prediction |
 | **Ticket ranking · top {N}** | 活动排行榜标题（配置里的 `leaderboard.title`；不写则 `Ranking · top {N}`）。**不叫 Leaderboard**，免得和主站的 Leaderboard 混 | Leaderboard, Top traders, Rank list |
 | **You** / **Your rank** | 榜上「我」那行的名字位；奖励卡的名次格（未上榜显示 `—`） | Me, My position |
