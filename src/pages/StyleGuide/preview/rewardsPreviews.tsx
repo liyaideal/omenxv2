@@ -1085,13 +1085,13 @@ export const RepeatableTaskRowStatesPreview = () => (
     <p className="text-[11px] text-[#6B7280]">F8 winning_trades 套直接达标 + ticket 奖励（3 / 5 → 已达标）</p>
     <GrantTaskRow task={WINS_THRESHOLD_TASK} status="in_progress" progressValue={3} onClaim={rNoop} />
     <GrantTaskRow task={WINS_THRESHOLD_TASK} status="claimed" progressValue={5} onClaim={rNoop} />
-    <p className="text-[11px] text-[#6B7280]">F10 设了上限并发满（max_times 3）</p>
-    <RepeatableTaskRow task={{ ...WIN_TICKET_TASK, max_times: 3 }} grants={repeatGrants(WIN_TICKET_TASK, 3)} />
     <p className="text-[11px] text-[#6B7280]">F9 和现有任务排在一起（前三条是现有形态）</p>
     <GrantTaskRow task={ROW_TASK} status="not_started" onClaim={rNoop} />
     <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 36000, 4)} onClaim={rNoop} />
     <GrantTaskRow task={ACTIVE_TASK} status="in_progress" progressValue={3} onClaim={rNoop} />
     <RepeatableTaskRow task={WIN_TICKET_TASK} grants={repeatGrants(WIN_TICKET_TASK, 12)} />
+    <p className="text-[11px] text-[#6B7280]">F10 设了上限并发满（max_times 3）</p>
+    <RepeatableTaskRow task={{ ...WIN_TICKET_TASK, max_times: 3 }} grants={repeatGrants(WIN_TICKET_TASK, 3)} />
   </div>
 );
 
@@ -1118,7 +1118,7 @@ export const CampaignLeaderboardStatesPreview = () => (
   <div className="space-y-4 p-4">
     <BoardLabel>L1 有榜 · 我在前 10 之外（第 14 名，固定在最下面）</BoardLabel>
     <CampaignLeaderboard def={BOARD_DEF} rows={boardRows({ rank: 14, value: 12 })} unit={t("rewards.screen.campaign_leaderboard.unit_tickets")} />
-    <BoardLabel>L2 我在前三（卡片里显示 You）</BoardLabel>
+    <BoardLabel>L2 我在前三（用户名位显示 You）</BoardLabel>
     <CampaignLeaderboard def={BOARD_DEF} rows={boardRows({ rank: 2, value: 38 })} unit={t("rewards.screen.campaign_leaderboard.unit_tickets")} />
     <BoardLabel>L3 我在第 4–10 名（列表里高亮）</BoardLabel>
     <CampaignLeaderboard def={BOARD_DEF} rows={boardRows({ rank: 7, value: 22 })} unit={t("rewards.screen.campaign_leaderboard.unit_tickets")} />

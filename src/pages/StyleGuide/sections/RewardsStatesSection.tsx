@@ -635,8 +635,8 @@ const DETAIL_CASES: SectionCase[] = [
       { state: "F6 最长文案", when: "西语入口的标题 / 副标题 / CTA", visual: "副标题在手机上折成两到三行，不截断；奖励位不折行", source: "campaign_entries.rules.tasks[]" },
       { state: "F7 换指标 / 换奖励", when: "repeatable × referrals_qualified × USDC；repeatable × usd_volume × ticket", visual: "同一行卡；USDC 青 `$5 USDC` + `3 earned`（次数）；ticket 金 `2 tickets` + `8 earned`（票数）", source: "REWARD_COLOUR / rewardLabel" },
       { state: "F8 winning_trades 套直接达标", when: "type 缺省（threshold）+ metric winning_trades + reward.ticket", visual: "Trophy 图标、分段条 `3 / 5 wins`、奖励位金色 `5 tickets`；达标后动作栏 `Credited`", source: "GrantTaskRow · metricIcon / metricUnit" },
-      { state: "F10 发满上限", when: "task.max_times 且已发次数 ≥ max_times", visual: "动作栏由 CTA 变为灰字 `Claimed`；奖励位照常", source: "deriveRepeatable().maxed" },
       { state: "F9 混排", when: "同一活动里有现有形态的任务", visual: "卡高、三栏位置、按钮与直接达标 / 阶梯 / 指标行对齐；唯一的新东西是金色奖励位", source: "TaskRowShell" },
+      { state: "F10 发满上限", when: "task.max_times 且已发次数 ≥ max_times", visual: "动作栏由 CTA 变为灰字 `Claimed`；奖励位照常", source: "deriveRepeatable().maxed" },
     ],
   },
   {
