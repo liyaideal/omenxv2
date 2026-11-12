@@ -326,7 +326,14 @@
 | Master of Predictions（进行中） | `/rewards/campaign/b3333333-3333-4333-8333-bbbbbbbbbbb3`，西语 `?entry=BRUNOO-ES` | alex_carter 1 张 ticket（真实成交重算出来的），榜上 13 个演示交易者 41 → 3 张，alex 钉在末尾 |
 | Prediction Sprint（已结束） | `/rewards/campaign/b4444444-4444-4444-8444-bbbbbbbbbbb4` | 冻结态；alex 9 张 ticket，第 9 名在前 10 内高亮 |
 
-Lovable 上这个活动从 11-10 23:00 UTC 就算开始，方便现在验；正式窗口是 11-15 23:00 UTC → 11-30 22:59:59 UTC（西班牙时间 16 日 00:00 → 30 日 23:59）。
+**Lovable 上有两处是为演示留的，和正式上线的配置不一样（CPO 2026-11-12 定：Lovable 保持现状，正式版按下表配）：**
+
+| 项 | Lovable 现状（演示用） | 正式上线要配成 |
+|---|---|---|
+| 活动开始时间 `campaigns.starts_at` | `2026-11-10 23:00 UTC`，为了现在就能看到进行中的状态 | `2026-11-15 23:00 UTC`（西班牙时间 11 月 16 日 00:00）。结束时间不变：`2026-11-30 22:59:59 UTC`（西班牙时间 30 日 23:59） |
+| 两个入口的 `rules.eligibility.allow_user_ids` | 里面有演示账号 alex_carter（`968a2b3a-…`），所以这个老账号也能拿票、上榜 | 留空（或只放 KOL 本人）。alex 不在名单里时，他在这个活动里是 Not eligible |
+
+榜上 13 个演示交易者是直接写进库的演示数据，正式版不需要。
 
 ### 12.5 Lovable / 正式版边界
 
