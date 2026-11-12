@@ -196,6 +196,7 @@ BEGIN
       -- NEW · repeatable: one reward every time the metric grows by `target`; grant keys <task_key>#r<n>.
       -- Counts from the later of joining and the campaign start; `max_times` caps the number of rewards.
       IF v_type = 'repeatable' THEN
+        IF v_target <= 0 THEN CONTINUE; END IF;
         v_val := public.campaign_metric_value(_user_id, v_metric, t, GREATEST(p.joined_at, p.starts_at), 'infinity'::timestamptz);
         v_units := floor(v_val / GREATEST(v_target, 0.000001))::int;
         IF (t->>'max_times') IS NOT NULL THEN v_units := LEAST(v_units, (t->>'max_times')::int); END IF;
@@ -302,10 +303,10 @@ BEGIN
   ), s AS (
     SELECT g.user_id,
            CASE WHEN v_type = 'repeatable'
-                THEN count(*) FILTER (WHERE starts_with(g.task_key, v_key||'#r') AND g.status IN ('claimed','claimable')) * v_mult
+                THEN count(*) FILTER (WHERE starts_with(g.task_key, v_key||'#r') AND g.status = 'claimed') * v_mult
                 ELSE max(coalesce((g.progress->>'value')::numeric, 0)) END AS val,
            CASE WHEN v_type = 'repeatable'
-                THEN max(g.created_at) FILTER (WHERE starts_with(g.task_key, v_key||'#r') AND g.status IN ('claimed','claimable'))
+                THEN max(g.created_at) FILTER (WHERE starts_with(g.task_key, v_key||'#r') AND g.status = 'claimed')
                 ELSE max(g.updated_at) END AS reached_at
       FROM public.campaign_grants g
      WHERE g.entry_id IN (SELECT id FROM ent)
@@ -323,3 +324,19 @@ END $function$;
 
 REVOKE ALL ON FUNCTION public.get_campaign_leaderboard(uuid, integer) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_campaign_leaderboard(uuid, integer) TO anon, authenticated;
+
+-- NEW · the first repeat reward locks the participation to its entry (same lock a voucher claim sets),
+-- so switching between two links of one campaign cannot earn the same wins twice.
+CREATE OR REPLACE FUNCTION public.campaign_lock_entry_on_repeat_reward() RETURNS trigger
+ LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
+AS $function$
+BEGIN
+  UPDATE public.campaign_participations SET locked_at = now(), updated_at = now()
+   WHERE user_id = NEW.user_id AND entry_id = NEW.entry_id AND locked_at IS NULL;
+  RETURN NEW;
+END $function$;
+
+DROP TRIGGER IF EXISTS trg_campaign_grants_lock_entry ON public.campaign_grants;
+CREATE TRIGGER trg_campaign_grants_lock_entry AFTER INSERT OR UPDATE OF status ON public.campaign_grants
+  FOR EACH ROW WHEN (NEW.status = 'claimed' AND NEW.task_key LIKE '%#r%')
+  EXECUTE FUNCTION public.campaign_lock_entry_on_repeat_reward();

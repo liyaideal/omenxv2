@@ -77,7 +77,7 @@ export const RepeatableTaskRow = ({
     <div className={isMobile ? "" : "w-[92px] shrink-0 text-right"}>
       <div
         className="whitespace-nowrap font-display text-[13.5px] font-bold leading-4"
-        style={{ color: blocked ? "#9AA1AC" : REWARD_COLOUR[d.unit] }}
+        style={{ color: blocked || frozen ? "#9AA1AC" : REWARD_COLOUR[d.unit] }}
         data-reward-unit={d.unit}
       >
         {rewardLabel(d.unit, d.per)}
@@ -101,6 +101,9 @@ export const RepeatableTaskRow = ({
         {t("rewards.screen.campaign_detail_page.ended")}
       </span>
     );
+  } else if (d.maxed) {
+    // `max_times` reached: the only way a repeatable task finishes.
+    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]" data-repeat-maxed>Claimed</span>;
   } else {
     action = <TaskActionButton label={cta.label} href={cta.href} />;
   }

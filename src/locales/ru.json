@@ -3728,7 +3728,7 @@
   "screen.campaign_card.retry": "Повторить",
   "screen.campaign_card.rewards_up_to": "Награды до",
   "screen.campaign_card.voucher_reward": "${{amount}} в ваучерах",
-  "screen.campaign_repeatable.ticket_reward_one": "{{count}} билет",
+  "screen.campaign_repeatable.ticket_reward_one": "Билеты: {{count}}",
   "screen.campaign_repeatable.ticket_reward_other": "Билеты: {{count}}",
   "screen.campaign_repeatable.earned_count": "Получено: {{count}}",
   "screen.campaign_repeatable.tickets_earned": "Билетов получено",

@@ -289,7 +289,9 @@ export default function LiteCampaignDetailPage() {
     />
   ));
 
-  const finePrint = <RewardsFinePrint />;
+  // The fine print is about USDC amounts and vouchers: a campaign that only hands out tickets shows none.
+  const paysMoney = (entry?.tasks ?? []).some((task) => /"(usdc|voucher)":\s*[1-9]/.test(JSON.stringify(task)));
+  const finePrint = paysMoney ? <RewardsFinePrint /> : null;
 
   const tasksPanel = view && (
     <div className="space-y-3">

@@ -45,7 +45,7 @@ export const CampaignRewardsCard = ({
     view.hasTickets && {
       label: t("rewards.screen.campaign_repeatable.tickets_earned"),
       value: view.ticketsEarned.toLocaleString("en-US"),
-      color: "#FFFFFF",
+      color: "#FBBA23",
     },
     showRank && { label: t("rewards.screen.campaign_leaderboard.your_rank"), value: rankText, color: "#FFFFFF" },
     hasAvailable && { label: "Available", value: `$${available}`, color: "#FFFFFF" },
@@ -89,7 +89,7 @@ export const CampaignRewardsCard = ({
       {view.hasTickets && (
       <div className="flex items-baseline justify-between" data-rewards-row="tickets">
         <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.campaign_repeatable.tickets_earned")}</span>
-        <span className="font-display text-[15px] font-bold tabular-nums text-white">
+        <span className="font-display text-[15px] font-bold tabular-nums text-[#FBBA23]">
           {view.ticketsEarned.toLocaleString("en-US")}
         </span>
       </div>

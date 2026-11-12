@@ -15,15 +15,15 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const CARD = "overflow-hidden rounded-[14px] border border-[#1D2026] bg-[#131519]";
 
-const Avatar = ({ name, size, lit }: { name: string; size: number; lit?: boolean }) => (
+const Avatar = ({ name, size, lit, me }: { name: string; size: number; lit?: boolean; me?: boolean }) => (
   <span
     className="grid shrink-0 place-items-center rounded-full font-display font-bold"
     style={{
       height: size,
       width: size,
       fontSize: Math.round(size * 0.38),
-      background: lit ? "#2A3310" : "#1B1E24",
-      color: lit ? "#CFFF4A" : "#C9CED6",
+      background: me ? "#0E2C36" : lit ? "#2A3310" : "#1B1E24",
+      color: me ? "#33D6FF" : lit ? "#CFFF4A" : "#C9CED6",
     }}
     aria-hidden="true"
   >
@@ -60,7 +60,7 @@ const Tile = ({
   >
     <div className="flex items-center gap-[10px]">
       <RankBadge rank={row.rank} />
-      <Avatar name={row.username} size={36} lit={row.rank === 1} />
+      <Avatar name={row.username} size={36} lit={row.rank === 1} me={row.isMe} />
       <span
         className="min-w-0 break-words text-[13px] font-semibold [overflow-wrap:anywhere]"
         style={{ color: row.isMe ? "#33D6FF" : "#F2F3F5" }}
@@ -89,9 +89,12 @@ const ListRow = ({
   value,
   me,
   prize,
+  avatarName,
 }: {
   rank: string;
   name: string;
+  /** Initial shown in the avatar when `name` is the "You" label. */
+  avatarName?: string;
   value: string;
   me?: boolean;
   prize?: string;
@@ -107,13 +110,17 @@ const ListRow = ({
     >
       {rank}
     </span>
-    <Avatar name={name} size={24} />
+    <Avatar name={avatarName ?? name} size={24} me={me} />
     <span
       className="min-w-0 flex-1 break-words text-[13px] [overflow-wrap:anywhere]"
       style={{ color: me ? "#33D6FF" : "#F2F3F5", fontWeight: me ? 600 : 400 }}
     >
       {name}
-      {prize && <span className="ml-2 font-display text-[11.5px] font-bold text-[#33D6FF]">{prize}</span>}
+      {prize && (
+        <span className="mt-0.5 block whitespace-nowrap font-display text-[11.5px] font-bold text-[#33D6FF]" data-board-prize>
+          {prize}
+        </span>
+      )}
     </span>
     <span
       className="shrink-0 font-mono text-[13px] font-bold tabular-nums"
@@ -202,12 +209,13 @@ export const CampaignLeaderboard = ({
               key={r.rank}
               rank={String(r.rank)}
               name={r.isMe ? youLabel : r.username}
+              avatarName={r.username}
               value={fmt(r.value)}
               me={r.isMe}
               prize={prizeOf(r.rank)}
             />
           ))}
-          {meOutside && <ListRow rank={String(me!.rank)} name={youLabel} value={fmt(me!.value)} me />}
+          {meOutside && <ListRow rank={String(me!.rank)} name={youLabel} avatarName={me!.username} value={fmt(me!.value)} me />}
           {showDash && <ListRow rank="—" name={youLabel} value="—" me />}
         </div>
       );

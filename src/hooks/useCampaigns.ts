@@ -85,11 +85,14 @@ export const repeatGrantPrefix = (taskKey: string) => `${taskKey}#r`;
 export const deriveRepeatable = (task: CampaignTaskDef, grants: { taskKey: string; status: GrantStatus }[]) => {
   const prefix = repeatGrantPrefix(task.task_key);
   const rows = grants.filter((g) => g.taskKey.startsWith(prefix));
-  const times = rows.filter((g) => g.status === "claimed" || g.status === "claimable").length;
   const unit: "ticket" | "usdc" | "voucher" =
     (task.reward?.ticket ?? 0) > 0 ? "ticket" : (task.reward?.usdc ?? 0) > 0 ? "usdc" : "voucher";
+  // Tickets and USDC are settled by the server straight to `claimed`; only vouchers wait as `claimable`.
+  // Counting `claimed` only keeps this in step with get_campaign_leaderboard().
+  const times = rows.filter((g) => g.status === "claimed" || (unit === "voucher" && g.status === "claimable")).length;
   const per = task.reward?.[unit] ?? 0;
-  return { times, unit, per, earned: times * per, notEligible: rows.some((g) => g.status === "not_eligible") };
+  const maxed = !!task.max_times && times >= task.max_times;
+  return { times, unit, per, earned: times * per, maxed, notEligible: rows.some((g) => g.status === "not_eligible") };
 };
 
 /** Progress unit per metric — `$` prefixes, count words are appended. */

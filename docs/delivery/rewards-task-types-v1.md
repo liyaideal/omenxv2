@@ -49,7 +49,7 @@
 **只在字典可见、生产凑不出条件的态**（既定状态，不是 bug）：
 - RW-8b 券阶梯四态、RW-8d 券版周期任务（D7）——生产只配了 USDC 版；券版行为已实现等运营配。
 - RW-8b 第 9 行「8 档上限」——生产最多配了 7 档；用来看档位标尺最密时的样子。
-- RW-8b / 8d 的 not_eligible——阶梯 / 周期任务目前没有 KOL 专属入口场景。
+- RW-8b / 8d 的 not_eligible——阶梯 / 周期任务目前没有 KOL 专属入口场景。（2026-11-12 起入口可设「只限新用户」，但不符合条件时的 Not eligible 只接了直接达标行和可重复行；阶梯 / 周期行未接，这类入口暂时不要配阶梯 / 周期任务。）
 - RW-8d D5「第 7 连今天橙点」、D8「30 / 30 Completed」、D9 周任务、RW-8d-c 周任务历史——演示账号还没跑到 / 生产没配周任务；服务端逻辑已按 §3 实测。
 - RW-8e 活跃天数 3/7、持仓 1/3 的进行中态——演示账号 alex 的真实数据已经达标入账（30 天 / 19 仓），生产页上这两条显示 `Credited`。
 
@@ -80,8 +80,8 @@
 | 字段 | 类型 | 说明 |
 |---|---|---|
 | `task_key` | text | 父任务 key；各类型的 grant key 派生规则见 §2.3 |
-| `type` | `threshold` \| `tiered` \| `recurring` | 缺省 `threshold` = 现有单目标任务，存量零改动 |
-| `metric` | `usd_volume` \| `count` \| `referrals_qualified` \| `active_days` \| `hold_positions` | 进度怎么算，见 §2.2；缺省 `count` |
+| `type` | `threshold` \| `tiered` \| `recurring` \| `repeatable`（2026-11-12，见 §12） | 缺省 `threshold` = 现有单目标任务，存量零改动 |
+| `metric` | `usd_volume` \| `count` \| `referrals_qualified` \| `active_days` \| `hold_positions` \| `winning_trades`（2026-11-12，见 §12） | 进度怎么算，见 §2.2；缺省 `count` |
 | `name` / `subtitle` | text | 与现有一致；**约定：副标题只写达成口径，不写奖励单位**（单位在第二列奖励槽），也不写判定细则（如强平计入）——细则进活动规则折叠 / 本文 |
 | `scope` | json | `{any_market:true}` / `{categories:[…]}`，交易类指标按事件品类过滤；邀请指标不看 scope |
 | `cta` | `{label, href}` | 缺省：邀请指标 `Invite` → `/rewards?tab=referral`，其余 `Trade` → `/events(?sector=)` |
@@ -127,9 +127,11 @@
 | `hold_positions` | 名义 ≥ `hold.min_notional` 且持有 ≥ `hold.min_hours` 的仓位数：仍持有（Filled，`now − created_at`）或已平（Closed，`closed_at − created_at`，含自动平仓） | `trades` | 平仓落库 + 每小时 cron `campaign-hold-sweep` |
 | `referrals_qualified` | 窗口内 `qualified_at` 的合格好友数（status qualified / rewarded） | `referrals` | 好友合格（trigger `trg_referrals_campaign_hook`） |
 
-窗口：threshold / tiered 为 `[joined_at, ∞)`；recurring 为当期 `[max(period_start, joined_at), period_end)`。`count` 无 scope 的任务（Discord / share）仍不自动驱动。
+窗口：repeatable 为 `[max(joined_at, 活动开始), ∞)`（§12.2）；threshold / tiered 为 `[joined_at, ∞)`；recurring 为当期 `[max(period_start, joined_at), period_end)`。`count` 无 scope 的任务（Discord / share）仍不自动驱动。
 
 ### 2.3 grant 行（`campaign_grants`，表结构不变）
+
+> 2026-11-12：可重复任务的 grant 键是 `<task_key>#r<n>`，ticket 奖励写 `progress.credited_ticket`，详见 §12.2。
 
 | type | grant key | 说明 |
 |---|---|---|
@@ -297,20 +299,22 @@
 | Quick Play | `arcade_calls.status = 'won'` 且 `gross ≥ min_stake` 算一笔；市场 = 开仓所在的 30 秒窗。任务 `scope` 带 `categories` 时不计 Quick Play；`scope.products` 不含 `quick_play` 时也不计 |
 | 窗口 | repeatable 从 `max(加入时间, 活动开始)` 起算到活动结束；活动开始前的交易不算 |
 | **repeatable 发放** | 值每跨过一个 `target` 发一次：第 n 次的 grant 行是 `<task_key>#r<n>`，目标 `target × n`。全部从源表重算，重复触发不会多发（同一行唯一键 + 行级闩锁） |
-| **ticket** | `campaign_settle_grant()` 达标即把该行置 `claimed`，`progress.credited_ticket = n`、`credited_at`；**不写余额、不写流水**。用户的 ticket 数 = 该入口下 `#r` 行里 claimed 的行数 × `reward.ticket` |
+| **ticket** | `campaign_settle_grant()` 达标即把该行置 `claimed`，`progress.credited_ticket = n`、`credited_at`；**不写余额、不写流水**。用户的 ticket 数 = 该入口下 `#r` 行里 `claimed` 的行数 × `reward.ticket`（只数 claimed；页面与排行榜同一算法） |
 | 其他奖励单位 + repeatable | USDC：每次达标自动入 Standard（沿用原入账路径）。券：grant 行会变 `claimable`，但页面的逐次领取按钮和 `claim-campaign-grant` 对 `#r` 键的解析**本轮未做**，暂不要配 |
 | **排行榜**（`get_campaign_leaderboard(_entry_id, _limit)`） | 同一活动下、`leaderboard.task_key` 相同的所有入口合成一张榜。repeatable 任务按「已发次数 × 每次 ticket 数」排，其他类型按进度值排；并列时先达到的在前。返回前 N 名 + 调用者自己那一行（不在前 N 也返回）。只返回 `rank / username / value / is_me`，不返回 user_id。anon 可读 |
+| **换入口** | 同一活动的两个入口（英 / 西）一个用户只能在一个里。拿到第一次可重复奖励时，参与记录即锁定在当前入口（`campaign_participations.locked_at`，与领券后锁定同一机制，触发器 `trg_campaign_grants_lock_entry`），之后再点另一条链接不会换过去，避免同一批盈利交易在两个入口各发一遍 |
+| 分批卖出（**Lovable 的已知偏差**） | Lovable 的演示仓位在部分卖出后 `margin` 变成剩余部分、`pnl` 只留最后一笔，所以分批卖的仓位可能判不准。**正式版口径：`min_stake` 比开仓时投入的本金；盈亏看整个仓位累计已实现盈亏（扣佣后）> 0** |
 | **只限新用户**（`campaign_entry_eligible()`） | `new_users_only = true` 时，只有 `campaign_participations.source = 'link'` 且账号创建时间不早于绑定这条链接前 24 小时的用户计进度；`allow_user_ids` 里的账号不受限（KOL 本人、演示号）。不符合的用户看得到页面，任务行显示 Not eligible + 一句原因，不计进度、不上榜 |
 
 ### 12.3 页面
 
 | 位置 | 行为 |
 |---|---|
-| 任务行（`RepeatableTaskRow`，RW-8f） | 结构与其他任务行同一外壳：标题、副标题、奖励槽、右侧动作。奖励槽两行：`1 ticket`（金 `#FBBA23`）+ `{n} earned`。右侧一直是 CTA（Trade），因为它没有「完成」这个终点；设了 `max_times` 并发满后变 Claimed。未登录：Sign in to start。活动已结束：冻结，保留已得数。不符合条件：虚线灰行 + 原因句 |
+| 任务行（`RepeatableTaskRow`，RW-8f） | 结构与其他任务行同一外壳：标题、副标题、奖励槽、右侧动作。奖励槽两行：`1 ticket`（金 `#FBBA23`）+ `{n} earned`。右侧一直是 CTA（Trade），因为它没有「完成」这个终点；设了 `max_times` 并发满后变 Claimed（RW-8f F10）。未登录：Sign in to start。活动已结束：冻结，保留已得数。不符合条件：虚线灰行 + 原因句 |
 | 与其他任务混排 | ticket 是第三种奖励色，与 USDC（青）、voucher（柠檬）并列；单阈值任务（`GrantTaskRow`）也可以发 ticket。阶梯 / 周期任务发 ticket 的显示本轮未做 |
-| 排行榜（`CampaignLeaderboard`，RW-8g） | 位置：任务列表之下、Campaign rules 之上。桌面前 3 名做成三张名次卡，手机只把第 1 名做成卡，其余为列表行；「我」的那行高亮，不在前 N 时钉在列表末尾并显示真实名次。态：加载骨架 / 空（No one is on the board yet. Be the first.）/ 读取失败 / 活动结束（标题不变，数据冻结） |
+| 排行榜（`CampaignLeaderboard`，RW-8g） | 位置：任务列表之下、Campaign rules 之上。桌面前 3 名做成三张名次卡，手机只把第 1 名做成卡，其余为列表行；「我」的那行高亮，不在前 N 时钉在列表末尾并显示真实名次。态：加载骨架 / 空（No one is on the board yet. Be the first.）/ 读取失败 / 活动结束（样式与标题不变，数据冻结，RW-8g L11）。用户名过长时折行，不截断 |
 | 奖励卡（Your rewards here） | 只显示这个活动实际会发的单位：有 ticket 的活动显示 `Tickets earned`，配了排行榜再显示 `Your rank`；没有券 / USDC 任务时不显示对应格和跳转按钮 |
-| 活动卡 / 已结束归档 | 活动里只有可重复任务时，不显示「x of y done」进度条和 `Rewards up to`，改为一行 `{n} tickets earned`（0 时不显示） |
+| 活动卡 / 已结束归档 | 活动里只有可重复任务时，不显示「x of y done」进度条和 `Rewards up to`，改为一行 `{n} tickets earned` |
 | 活动名 | `branding.title` 有值时，卡片、详情页头、归档都用它 |
 
 多语言：页面框架文案走站内 7 种语言；任务名、副标题、规则正文、榜单标题是运营写进配置的原文，不翻译（西语入口整套写西语）。**站内目前没有西语界面语言**，西语入口上按钮类的框架词（Sign in to start、You、tickets 等）仍是英语或用户所选语言。
@@ -330,6 +334,7 @@ Lovable 上这个活动从 11-10 23:00 UTC 就算开始，方便现在验；正�
 |---|---|---|
 | 盈利交易计数 | `positions` / `arcade_calls` 的状态触发器 → 重算 | 接自有结算事件；口径以 §12.2 为准，必须保留重算幂等 |
 | ticket 记账 | 就是 `campaign_grants` 的行 | 同语义即可；ticket 不是资产，不进账务系统 |
+| 参与记录写权限 | 现有 RLS 允许用户改自己的 `campaign_participations`（含 `source` / `joined_at`） | **必须只允许服务端写**，否则「只限新用户」可被绕过 |
 | grant 行写权限 | 现有 RLS 允许用户更新自己的 grant 行（历史遗留） | **必须只允许服务端写**，否则 ticket 数可被改 |
 | 排行榜 | 每次请求实时聚合 | 人多时改物化 / 缓存；并列规则、「我」的行、不外泄 user_id 三点保留 |
 | 新用户判定 | 账号创建时间 vs 绑定链接时间（24 小时内） | 可换成注册归因字段，语义不变：通过这条链接注册的新号 |
