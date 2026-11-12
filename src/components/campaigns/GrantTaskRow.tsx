@@ -138,7 +138,7 @@ export const GrantTaskRow = ({
       action={
         <div className={`flex items-center justify-end ${isMobile ? "" : "w-[132px] shrink-0"}`}>
         {signedOut && !frozen ? (
-          <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">Sign in to start</span>
+          <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">{t("rewards.screen.campaign_detail_page.sign_in_to_start")}</span>
         ) : showAction ? (
           <TaskActionButton label={cta.label} href={cta.href} />
         ) : status === "claimable" && voucher > 0 && !frozen ? (
@@ -152,7 +152,11 @@ export const GrantTaskRow = ({
               ? "Credited to Standard after review"
               : status === "claimed" && (usdc > 0 || ticket > 0) && voucher === 0
                 ? "Credited"
-                : STATUS_LABEL[status]}
+                : status === "claimed"
+                  ? t("common.claimed")
+                  : status === "not_eligible"
+                    ? t("rewards.screen.campaign_detail_page.not_eligible")
+                    : STATUS_LABEL[status]}
           </span>
         )}
         </div>

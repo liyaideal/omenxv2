@@ -36,6 +36,7 @@ const loaders: Record<LanguageCode, () => Promise<{ default: Catalog }>> = {
   ko: () => import("@/locales/ko.json") as Promise<{ default: Catalog }>,
   ru: () => import("@/locales/ru.json") as Promise<{ default: Catalog }>,
   vi: () => import("@/locales/vi.json") as Promise<{ default: Catalog }>,
+  es: () => import("@/locales/es.json") as Promise<{ default: Catalog }>,
 };
 
 let current: LanguageCode = DEFAULT_LANGUAGE;

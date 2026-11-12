@@ -92,9 +92,9 @@ export const RepeatableTaskRow = ({
 
   let action: JSX.Element;
   if (signedOut && !frozen) {
-    action = <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">Sign in to start</span>;
+    action = <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">{t("rewards.screen.campaign_detail_page.sign_in_to_start")}</span>;
   } else if (blocked) {
-    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">Not eligible</span>;
+    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">{t("rewards.screen.campaign_detail_page.not_eligible")}</span>;
   } else if (frozen) {
     action = (
       <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">
@@ -103,7 +103,7 @@ export const RepeatableTaskRow = ({
     );
   } else if (d.maxed) {
     // `max_times` reached: the only way a repeatable task finishes.
-    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]" data-repeat-maxed>Claimed</span>;
+    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]" data-repeat-maxed>{t("common.claimed")}</span>;
   } else {
     action = <TaskActionButton label={cta.label} href={cta.href} />;
   }

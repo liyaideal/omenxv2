@@ -11,8 +11,8 @@ import { AuthSheet } from "@/components/auth/AuthSheet";
  * Keeps the frozen card chrome; only the body swaps to a sign-in invite.
  */
 export const SignInPromptCard = ({
-  cap = "YOUR REWARDS HERE",
-  description = "Sign in to track progress and claim rewards.",
+  cap = t("rewards.screen.campaign_detail_page.your_rewards_here"),
+  description = t("rewards.screen.campaign_detail_page.sign_in_to_track_progress_and_claim_rewards"),
 }: {
   cap?: string;
   description?: string;

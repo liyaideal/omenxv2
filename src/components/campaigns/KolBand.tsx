@@ -1,9 +1,19 @@
+import { t } from "@/i18n";
 /**
  * KOL brand band — pure presentational, props-driven.
  * Extracted verbatim out of LiteCampaignDetailPage (same JSX, same tokens);
  * the detail page keeps rendering both variants in place.
  */
-export const KolBandDesktop = ({ kolName, avatar }: { kolName: string; avatar?: string | null }) => (
+export const KolBandDesktop = ({
+  kolName,
+  avatar,
+  joined = true,
+}: {
+  kolName: string;
+  avatar?: string | null;
+  /** The viewer is bound to this entry. Visitors who are not (signed out, or not joined yet) see no second line. */
+  joined?: boolean;
+}) => (
   <div
     className="inline-flex self-start items-center gap-[11px] rounded-full"
     style={{ background: "#FF8A3D", color: "#2A1200", padding: "5px 15px 5px 5px" }}
@@ -18,11 +28,15 @@ export const KolBandDesktop = ({ kolName, avatar }: { kolName: string; avatar?: 
         kolName.slice(0, 1)
       )}
     </span>
-    <div className="flex min-w-0 flex-col gap-[1px]">
-      <span className="font-display text-[13.5px] font-bold">{kolName} × OmenX · Exclusive entry</span>
-      <span className="truncate text-[11.5px] font-semibold">
-        You joined through {kolName}'s link — his terms apply.
+    <div className="flex min-h-[34px] min-w-0 flex-col justify-center gap-[1px]">
+      <span className="font-display text-[13.5px] font-bold">
+        {t("rewards.screen.campaign_detail_page.kol_exclusive_entry", { name: kolName })}
       </span>
+      {joined && (
+        <span className="truncate text-[11.5px] font-semibold" data-kol-joined>
+          {t("rewards.screen.campaign_detail_page.kol_joined_through", { name: kolName })}
+        </span>
+      )}
     </div>
   </div>
 );

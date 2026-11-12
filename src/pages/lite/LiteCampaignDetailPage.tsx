@@ -174,10 +174,13 @@ export default function LiteCampaignDetailPage() {
 
           <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
             {view.phase === "always-on"
-              ? "Always valid"
+              ? t("rewards.screen.campaign_detail_page.always_valid")
               : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
-            {view.daysLeft !== null && ` · ${view.daysLeft}d left`} · {view.joined.toLocaleString()} joined
-            {frozen && " · Ended"}
+            {view.daysLeft !== null &&
+              ` · ${t("rewards.screen.campaign_detail_page.days_left_compact", { count: view.daysLeft })}`}
+            {" · "}
+            {t("rewards.screen.campaign_detail_page.joined_count", { count: view.joined, joined: view.joined.toLocaleString() })}
+            {frozen && ` · ${t("rewards.screen.campaign_detail_page.ended")}`}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -223,15 +226,20 @@ export default function LiteCampaignDetailPage() {
       <div />
       <div className="mx-auto flex w-full max-w-[1248px] flex-col gap-[12px]">
         {isSpecial && (
-<KolBandDesktop kolName={kolName} avatar={avatar} />
+<KolBandDesktop kolName={kolName} avatar={avatar} joined={!signedOut && view.participation?.entryId === entry?.id} />
         )}
 
         <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">
           {view.title}
         </h1>
         <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
-            {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
-            {view.daysLeft !== null && ` · ${view.daysLeft} days left`} · {view.joined.toLocaleString()} joined
+            {view.phase === "always-on"
+              ? t("rewards.screen.campaign_detail_page.always_valid")
+              : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+            {view.daysLeft !== null &&
+              ` · ${t("rewards.screen.campaign_detail_page.days_left", { count: view.daysLeft })}`}
+            {" · "}
+            {t("rewards.screen.campaign_detail_page.joined_count", { count: view.joined, joined: view.joined.toLocaleString() })}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

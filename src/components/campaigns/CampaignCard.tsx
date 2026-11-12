@@ -53,13 +53,14 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const pct = view.tasksTotal > 0 ? (view.tasksDone / view.tasksTotal) * 100 : 0;
-  const dateLine = view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt);
+  const dateLine = view.phase === "always-on" ? t("rewards.screen.campaign_card.always_valid") : formatDateRange(view.campaign.startsAt, view.campaign.endsAt);
 
   const meta: string[] = [];
   const claimedTotal = view.voucherClaimed + view.usdcClaimed;
   if (claimedTotal > 0) meta.push(`$${claimedTotal} claimed`);
-  meta.push(`${view.joined.toLocaleString()} joined`);
-  if (view.daysLeft !== null) meta.push(`Ends in ${view.daysLeft}d`);
+  const joinedText = t("rewards.screen.campaign_card.joined_count", { count: view.joined, joined: view.joined.toLocaleString() });
+  meta.push(joinedText);
+  if (view.daysLeft !== null) meta.push(t("rewards.screen.campaign_card.ends_in_days", { count: view.daysLeft }));
   const claimLine = !signedOut && view.claimableCount > 0 ? `● ${view.claimableCount} ready to claim` : "";
 
   return (
@@ -80,7 +81,7 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
         <div>
           <div className="font-display text-[17px] font-bold leading-tight text-[#F2F3F5]">{view.title}</div>
           <div className="mt-1 font-display text-[11.5px] tabular-nums text-[#C9CED6]">
-            {isMobile ? `${dateLine} · ${view.joined.toLocaleString()} joined` : dateLine}
+            {isMobile ? `${dateLine} · ${joinedText}` : dateLine}
           </div>
         </div>
       </CampaignKeyVisual>
@@ -129,7 +130,7 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
           <div className="space-y-1">
             {claimLine && <div className="text-[11px] font-bold text-[#CFFF4A]">{claimLine}</div>}
             <div className="text-[11px] tabular-nums text-[#6B7280]">
-              {meta.filter((m) => !m.endsWith("joined")).join(" · ")}
+              {meta.filter((m) => m !== joinedText).join(" · ")}
             </div>
           </div>
         ) : (

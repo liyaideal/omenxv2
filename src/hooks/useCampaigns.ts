@@ -1,3 +1,4 @@
+import { getI18nLanguage } from "@/i18n";
 import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
@@ -545,7 +546,8 @@ export const useCampaignViews = () => {
 };
 
 export const formatDateRange = (startsAt: string, endsAt: string | null) => {
-  const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const lang = getI18nLanguage();
+  const fmt = (d: Date) => d.toLocaleDateString(lang === "en" ? "en-US" : lang, { month: "short", day: "numeric" });
   const start = fmt(new Date(startsAt));
   return endsAt ? `${start} – ${fmt(new Date(endsAt))}` : `${start} – no end date`;
 };

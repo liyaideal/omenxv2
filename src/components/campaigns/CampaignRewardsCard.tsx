@@ -178,10 +178,12 @@ export const CampaignRewardsCard = ({
         </span>
         <div className="min-w-0">
           <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6B7280]">
-            {isSpecial ? "Entry" : "Host"}
+            {isSpecial ? t("rewards.screen.campaign_detail_page.entry") : t("rewards.screen.campaign_detail_page.host")}
           </div>
           <div className="text-[12.5px] font-semibold" style={{ color: isSpecial ? "#FF8A3D" : "#F2F3F5" }}>
-            {isSpecial ? `Joined via ${kolName}` : "Official OmenX campaign — open to everyone"}
+            {isSpecial
+              ? t("rewards.screen.campaign_detail_page.joined_via", { entry: kolName })
+              : t("rewards.screen.campaign_detail_page.official_host_line")}
           </div>
         </div>
       </div>

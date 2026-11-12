@@ -3,7 +3,7 @@
  * Settings › Preferences › Language (CPO 2026-09-22).
  *
  * Batch 1 (this round): EN · 简体中文 · 繁體中文 · 日本語 · 한국어 · Русский · Tiếng Việt.
- * Batch 2 (later, not shipped): Español · Bahasa Indonesia · Türkçe.
+ * Batch 2 (later, not shipped): Bahasa Indonesia · Türkçe. Español: partial since 2026-11-12 (see below).
  *
  * Labels are the language's own name in its own script — the one accepted
  * exception to "user-visible copy is English only" (precedent: header).
@@ -11,7 +11,7 @@
  * Page copy is NOT translated in the blueprint; the preference is stored
  * (profiles.language) and drives the header chip + the language of emails.
  */
-export type LanguageCode = "en" | "zh-CN" | "zh-TW" | "ja" | "ko" | "ru" | "vi";
+export type LanguageCode = "en" | "zh-CN" | "zh-TW" | "ja" | "ko" | "ru" | "vi" | "es";
 
 export interface SiteLanguage {
   code: LanguageCode;
@@ -27,6 +27,9 @@ export const SITE_LANGUAGES: SiteLanguage[] = [
   { code: "ko", short: "KO", label: "한국어" },
   { code: "ru", short: "RU", label: "Русский" },
   { code: "vi", short: "VI", label: "Tiếng Việt" },
+  // 2026-11-12 (CPO): Español added for the Crypto Brunoo campaign. Only the campaign pages, sign-in and
+  // the site shell are translated so far; every other string falls back to English until the full pass.
+  { code: "es", short: "ES", label: "Español" },
 ];
 
 export const DEFAULT_LANGUAGE: LanguageCode = "en";

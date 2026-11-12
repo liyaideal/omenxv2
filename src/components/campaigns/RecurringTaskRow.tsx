@@ -450,9 +450,9 @@ export const RecurringTaskRow = ({
   /* action */
   let action: JSX.Element;
   if (signedOut && !frozen) {
-    action = <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">Sign in to start</span>;
+    action = <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">{t("rewards.screen.campaign_detail_page.sign_in_to_start")}</span>;
   } else if (d.notEligible) {
-    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">Not eligible</span>;
+    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">{t("rewards.screen.campaign_detail_page.not_eligible")}</span>;
   } else if (frozen) {
     action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">{t("home.ended")}</span>;
   } else if (d.completed) {

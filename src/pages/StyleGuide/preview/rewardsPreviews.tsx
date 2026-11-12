@@ -325,6 +325,8 @@ export const KolBandPreview = () => (
     {/* Desktop band — lives inside the hero scrim on /rewards/campaign/:id */}
     <div className="hidden md:block">
       <KolBandDesktop kolName="Lao Wang" avatar={laowangAvatar.url} />
+      <p className="mt-3 text-[11px] text-[#6B7280]">未登录 / 还没通过这条链接加入：只有第一行</p>
+      <KolBandDesktop kolName="Lao Wang" avatar={laowangAvatar.url} joined={false} />
     </div>
 
     {/* Mobile capsule — single line, 22px avatar, no explainer sentence */}
