@@ -226,7 +226,7 @@ export default function LiteCampaignDetailPage() {
       <div />
       <div className="mx-auto flex w-full max-w-[1248px] flex-col gap-[12px]">
         {isSpecial && (
-<KolBandDesktop kolName={kolName} avatar={avatar} joined={!signedOut && view.participation?.entryId === entry?.id} />
+<KolBandDesktop kolName={kolName} avatar={avatar} joined={!signedOut && eligible && view.participation?.entryId === entry?.id} />
         )}
 
         <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">

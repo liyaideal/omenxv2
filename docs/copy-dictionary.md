@@ -66,7 +66,7 @@ Single source of truth for user-visible field names across the app.
 | **Host** | 官方活动的归属条：`Official OmenX campaign — open to everyone` | Organizer, Provider |
 | **Joined via {KOL}** | 通过专属链接绑定后的 Entry 条（橙 `#FF8A3D`） | Invited by, Referred by |
 | **Exclusive entry** | KOL 专属入口标识行 | Special entry, Private link |
-| **You joined through {KOL}'s link — his terms apply.** | 桌面 KolBand 第二行。**只在当前用户已绑定到这个入口时显示**（2026-11-12 修：未登录 / 未加入的访客以前也看到这句）；否则只有第一行 | You are in, Joined |
+| **You joined through {KOL}'s link — his terms apply.** | 桌面 KolBand 第二行。**只在当前用户已绑定到这个入口且符合资格时显示**（2026-11-12 修：未登录 / 未加入的访客以前也看到这句）；否则只有第一行 | You are in, Joined |
 | **Voucher sent to Position Vouchers** | claim 成功 toast 标题；描述 `Open vouchers to reveal it.`，动作 `Open` | Reward claimed, Success |
 | **This campaign is no longer available.** | 详情页取不到 view 时的空态正文 | Not found, Campaign missing |
 | **Invite a friend** | Referral 邀请卡标题 | Refer a friend, Share link |

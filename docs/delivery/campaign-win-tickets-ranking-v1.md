@@ -338,7 +338,7 @@ Ticket 拿来干什么（排名 / 抽奖 / 别的）站内不管，由运营写�
 KOL 专属入口的详情页头上那条橙色胶囊。
 
 - 第一行一直显示：`Crypto Brunoo × OmenX · Exclusive entry`（手机只显示 `Crypto Brunoo × OmenX`，原有行为）。
-- 第二行 `You joined through Crypto Brunoo's link — his terms apply.`：**只在当前用户已经绑定到这个入口时显示**。没登录、或登录了但没加入这个入口的，只有第一行。（这是本次修的：之前对所有人都显示。）
+- 第二行 `You joined through Crypto Brunoo's link — his terms apply.`：**只在当前用户已经绑定到这个入口、并且符合资格时显示**。没登录、登录了但没加入这个入口、或加入了但不符合资格（R21）的，只有第一行。（这是本次修的：之前对所有人都显示。）
 
 词条：`screen.campaign_detail_page.kol_exclusive_entry`、`.kol_joined_through`。
 
@@ -439,7 +439,7 @@ KOL 专属入口的详情页头上那条橙色胶囊。
 | 编号 | 对应规则 | 步骤 | 预期 |
 |---|---|---|---|
 | T29 | R21 | 退出登录 → 打开带 `?entry=BRUNOO` 的活动页 → 用一个全新邮箱注册 | 弹 `You're in — Crypto Brunoo's terms apply`；任务行是正常的 `0 earned` + `Trade`；橙色条出现第二行 |
-| T30 | R21 / R23 | 用一个老账号（如 Mia）登录后打开带 `?entry=BRUNOO` 的活动页 | 弹的提示是 `Only for new users who signed up through Crypto Brunoo's link.`（不是 `You're in…`）；任务行虚线灰、`Not eligible`、原因句；榜上没有 You 行；奖励卡没有 Your rank 行 |
+| T30 | R21 / R23 | 用一个老账号（如 Mia）登录后打开带 `?entry=BRUNOO` 的活动页 | 弹的提示是 `Only for new users who signed up through Crypto Brunoo's link.`（不是 `You're in…`）；任务行虚线灰、`Not eligible`、原因句；橙色条只有第一行；榜上没有 You 行；奖励卡没有 Your rank 行（底部归属条仍写 `Joined via Crypto Brunoo`，这是事实归属，既定） |
 | T31 | R23 | 上一条的老账号去做一笔符合条件的盈利交易 | 不得票，不上榜 |
 | T32 | R24 | 退出登录看活动页 | 任务行右侧 `Sign in to start`，不是 Not eligible |
 | T33 | R26 | T29 的新账号还没得票时，打开 `?entry=BRUNOO-ES` | 换到西语入口：活动名变成 Maestro de las Predicciones，任务文案变西语 |
@@ -488,7 +488,7 @@ KOL 专属入口的详情页头上那条橙色胶囊。
 | 账号 | 用来测什么 | 现状 |
 |---|---|---|
 | alex_carter（Google 登录选 Alex Carter） | 符合资格的用户（靠白名单）：得票、榜上的"我"、奖励卡 | 进行中活动 1 张票、第 14 名；已结束活动 9 张票、第 9 名。已锁定在英语入口，所以**不能用它看登录后的西语入口** |
-| Mia Reyes（Google 登录选 Mia Reyes） | 老账号、不在白名单：Not eligible | 没有加入这个活动 |
+| Mia Reyes（Google 登录选 Mia Reyes） | 老账号、不在白名单：Not eligible | 已通过英语入口的链接绑定，状态是 Not eligible |
 | 自己新注册一个邮箱账号 | 真正的"通过链接注册的新用户"流程（T29、T33、T34） | — |
 
 **榜上的 13 个交易者**（Flickergecko_Jaw 41 张 … 最少 3 张）是直接写进库的演示数据，一直都在。已结束活动的榜同样是演示数据。
