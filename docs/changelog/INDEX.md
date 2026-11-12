@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-12 | [活动：赢单拿票 + 活动排行榜（Crypto Brunoo「Master of Predictions」）— 交付说明 v1](../delivery/campaign-win-tickets-ranking-v1.md) | **研发与测试交付用的独立文档。** 盈利交易、可重复任务、ticket 奖励、活动排行榜、只限通过链接注册的新用户、两个语言入口、Español（部分）、KOL 橙色条修复。27 条规则、配置字段表、页面状态与文案、49 条测试用例、Lovable / 正式版差别、已知问题 |
 | 2026-11-12 | [语言栏加 Español（部分）+ 活动页框架词接多语言](../delivery/rewards-task-types-v1.md#123-页面) | 语言栏第 8 种语言 Español：活动详情页、Rewards 活动卡、登录弹窗、导航与页脚约 210 条，其余回落英语。活动页原先写死的英语（Sign in to start / Not eligible / joined / days left / Entry / Host 等）接上词条。修：KolBand「You joined through…」只对已加入的用户显示 |
 | 2026-11-12 | [Rewards · 盈利交易 / 可重复任务 / ticket 奖励 / 活动排行榜（并入 rewards-task-types-v1 §12）](../delivery/rewards-task-types-v1.md#12-2026-11-12-追加--盈利交易--可重复--ticket--活动排行榜) | 四个可复用零件，运营只写 JSON：`winning_trades` 指标、`repeatable` 类型、`ticket` 奖励单位、入口排行榜；外加「只限通过链接注册的新用户」。首用 Crypto Brunoo「Master of Predictions」（英 / 西两个入口合榜）。字典 RW-8f / RW-8g |
 | 2026-11-10 | [首页 / Sports / Finance · 交叉验收待批项落地（15 条）](./2026-11-10-review-decisions.md) | 股票 settles = 收盘 +15 分钟；平盘灰色 · Down wins；倒计时 26h 00m；首页 Crypto 默认 5m；Sports 选某天的标题与底句；Settling…；Show all 按需出现并预选市场；精选取最高两档；价格千分位；股票事件名补 it；股票行 Up / Down 定宽；More 标题 3 行；Sports 页头数字对上 ALL；Tomorrow；手机价钮短码在上价格在下；播放钮一律按 Lite 打开（存 Pro 也是）+ Pro 终端页头 ▶ Watch live（S5） |

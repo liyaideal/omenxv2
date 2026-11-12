@@ -265,6 +265,8 @@
 
 ## 12. 2026-11-12 追加 · 盈利交易 / 可重复 / ticket / 活动排行榜
 
+> **这次需求有一份独立的交付说明：[`campaign-win-tickets-ranking-v1.md`](./campaign-win-tickets-ranking-v1.md)**——规则逐条编号、配置字段表、每块页面每个状态和文案、49 条测试用例、Lovable 与正式版的差别、已知问题。研发和测试看那一份就够；本节是它在任务模块总文档里的摘要。
+
 首次使用：Crypto Brunoo「Master of Predictions」（英语入口 `BRUNOO`、西语入口 `BRUNOO-ES`，两个入口共用一张榜）。四个零件互相独立，可与原有类型任意组合。migration `20261112100000_campaign_winning_trades_repeatable_tickets_leaderboard.sql`，演示留档 `20261112100100_seed_master_of_predictions_demo.sql`。
 
 ### 12.1 配置写法
