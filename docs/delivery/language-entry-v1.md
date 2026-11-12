@@ -1,5 +1,7 @@
 # 语言切换入口整理 — 交付说明 v1
 
+> **2026-11-12 追加**：语言列表加了第 8 种 **Español（`es`，页头短码 ES）**，起因是 Crypto Brunoo 的西语活动入口。目前只翻了活动详情页、Rewards 活动卡、登录弹窗和全站外壳（导航 / 页脚）约 210 条（`src/locales/es.json`），其余页面在西语下回落英语；整站西语另排期。入口、存储、跟随账号的规则与其他语言完全一样，下文不变。
+
 > **2026-10-13 修订（消息中心 Notifications，CPO 方案 A）**：桌面**登录态**的 `LanguageChip` 退役，顶栏那一格给铃铛（`Equity → 🔔 → 头像`）；语言改为头像菜单 `Language · EN ▸` 子菜单行（Settings 之上，列表仍是 `LanguageMenuItems`）。游客顶栏 chip、移动品牌栏 🌐、Me 抽屉行、Settings 入口不变。见 `docs/delivery/notifications-v1.md` §3.1、DESIGN §Addendum 2026-10-13 第 1 条。
 
 日期：2026-09-28 · 范围：全站语言入口（桌面顶栏 / 移动品牌栏 / Me 抽屉 / Settings）· 决策：Liya（CPO）批 R1–R8 + 视觉 mock · Lovable commit 见 changelog

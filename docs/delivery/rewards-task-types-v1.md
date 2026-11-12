@@ -27,9 +27,10 @@
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/rewards/campaign/19033848-dc98-4a53-b4c5-d9e31b24a51f`（Starter Rewards，always-on：第 4–8 条任务分别是阶梯 / 每日 / 邀请阶梯 / 活跃天数 / 持仓）、`/rewards/campaign/a2222222-2222-4222-8222-aaaaaaaaaaa2`（Finals Week，ended：阶梯 + 每日各一条）、`/rewards?tab=referral`（好友行不因活动邀请任务改样）
-- 什么时候变成什么样 → `/style-guide` → Lite → Rewards 状态字典 **RW-8b / 8c / 8d / 8d-b / 8d-c / 8e / 12b / 12c / 15**（每个 case 有「状态 / 触发条件 / 视觉 / 数据来源」表）
-- 字段名、文案、公式、时间口径、术语 → `docs/copy-dictionary.md`（顶部有「Lite 术语对照表」；Rewards 节「阶梯任务」「周期任务与指标」两小节）→ 本文档对应章节
-- 设计法则（刻度点、奖励槽两行、日历条、分段条、抽屉 / hover 对等）→ `DESIGN.md` §Addendum 2026-09-23 · 阶梯任务行、§Addendum 2026-09-25 · 周期任务行与指标行
+- 2026-11-12 新增的四样（盈利交易 / 可重复任务 / ticket / 活动排行榜）长什么样 → `/rewards/campaign/b3333333-3333-4333-8333-bbbbbbbbbbb3`（Master of Predictions，进行中；西语入口加 `?entry=BRUNOO-ES`）、`/rewards/campaign/b4444444-4444-4444-8444-bbbbbbbbbbb4`（Prediction Sprint，已结束）；规则全在 §12
+- 什么时候变成什么样 → `/style-guide` → Lite → Rewards 状态字典 **RW-8b / 8c / 8d / 8d-b / 8d-c / 8e / 8f / 8g / 12b / 12c / 15**（每个 case 有「状态 / 触发条件 / 视觉 / 数据来源」表）
+- 字段名、文案、公式、时间口径、术语 → `docs/copy-dictionary.md`（顶部有「Lite 术语对照表」；Rewards 节「阶梯任务」「周期任务与指标」两小节；ticket / 排行榜 / 只限新用户的词条在 Rewards / Campaigns 主表末尾）→ 本文档对应章节
+- 设计法则（刻度点、奖励槽两行、日历条、分段条、抽屉 / hover 对等）→ `DESIGN.md` §Addendum 2026-09-23 · 阶梯任务行、§Addendum 2026-09-25 · 周期任务行与指标行、§Addendum 2026-11-12 · ticket 奖励色、可重复任务行、活动排行榜
 - Rewards 页整体（相位、九分支任务行、邀请、合规）→ `docs/delivery/lite-rewards-spec-v1.md`（本文档只写任务类型新增的部分）
 
 提问前先按上面顺序查一遍；查不到再提，提问时写明"我查了 X 没有"。
@@ -44,13 +45,14 @@
 6. 页头搜索框敲 `RW-8d` 或 `recurring`，结果点了落到样张。
 7. 单张查看 / 截图：`/style-guide/preview?c=<key>`，key 见 §7。
 
-**编号规则**：RW 前缀 = Rewards；`b / c / d / e` 是同一模块（任务行）的类型变体样张，`8d-b` 是 8d 的二级面（抽屉），`8d-c` 是它的周任务变体；`12b / 12c` 是入账 / streak 两种 toast。无 `-D` / `-M` 后缀，桌面 / 手机在同一编号的上下两帧。
+**编号规则**：RW 前缀 = Rewards；`b / c / d / e / f` 是同一模块（任务行）的类型变体样张（`8f` = 可重复任务行），`8g` 是活动排行榜，`8d-b` 是 8d 的二级面（抽屉），`8d-c` 是它的周任务变体；`12b / 12c` 是入账 / streak 两种 toast。无 `-D` / `-M` 后缀，桌面 / 手机在同一编号的上下两帧。
 
 **只在字典可见、生产凑不出条件的态**（既定状态，不是 bug）：
 - RW-8b 券阶梯四态、RW-8d 券版周期任务（D7）——生产只配了 USDC 版；券版行为已实现等运营配。
 - RW-8b 第 9 行「8 档上限」——生产最多配了 7 档；用来看档位标尺最密时的样子。
 - RW-8b / 8d 的 not_eligible——阶梯 / 周期任务目前没有 KOL 专属入口场景。（2026-11-12 起入口可设「只限新用户」，但不符合条件时的 Not eligible 只接了直接达标行和可重复行；阶梯 / 周期行未接，这类入口暂时不要配阶梯 / 周期任务。）
 - RW-8d D5「第 7 连今天橙点」、D8「30 / 30 Completed」、D9 周任务、RW-8d-c 周任务历史——演示账号还没跑到 / 生产没配周任务；服务端逻辑已按 §3 实测。
+- RW-8f 的 F4「不符合资格」、F7「换指标 / 换奖励」（每邀请 1 人发 USDC、每 $100 交易量发票）、F8「盈利交易做成直接达标」、F10「发满上限」；RW-8g 的 L4「还没有成绩」、L6「名次奖励标签」、L7「不带单位的榜」、L8–L10 加载 / 空 / 出错——生产只配了「每笔盈利交易 1 张票、不封顶」这一种，演示账号在白名单里也触发不了 Not eligible；这些态的行为都已实现，等运营配。
 - RW-8e 活跃天数 3/7、持仓 1/3 的进行中态——演示账号 alex 的真实数据已经达标入账（30 天 / 19 仓），生产页上这两条显示 `Credited`。
 
 ## 1. 功能目标
@@ -64,6 +66,7 @@
 | `recurring` 周期重复 | 每日 / 每周各发一次 + 连续 bonus（**本批**） | `referrals_qualified` | 成交满门槛的好友数（**本批**） |
 | | | `active_days` | 有成交的不同天数（**本批**） |
 | | | `hold_positions` | 拿满 N 小时的仓位数（**本批**） |
+| `repeatable` 可重复 | 每做到一次目标发一次，不封顶或设上限（**2026-11-12，§12**） | `winning_trades` | 赚钱收场的交易笔数（**2026-11-12，§12**） |
 
 本批必须守住的规则：
 
@@ -154,8 +157,9 @@
 | threshold | 1 | claimed | claimable | reward | claimed 的 reward |
 | tiered | 1 | 全档 claimed | 任一档 claimable | 全档之和 | 已发档之和 |
 | recurring | 1 | `max_periods` 达到（无上限永不计） | 任一期 / bonus claimable | `reward × max_periods` + 凑得到的 bonus（无上限时不累加） | 已发期 + bonus |
+| repeatable（2026-11-12） | **0**（没有「完成」，不进 x of y） | — | 任一次 claimable（只有券奖励会出现） | 不累加（奖励会重复，没有上限可写） | 已发次数 × 每次奖励；ticket 另计入 `ticketsEarned` |
 
-## 3. 数据库 / 服务端（migration `20260923150000` + `20260925100000` + `20260926110000`）
+## 3. 数据库 / 服务端（migration `20260923150000` + `20260925100000` + `20260926110000`；2026-11-12 的 `20261112100000` 见 §12）
 
 两层：**指标层** `campaign_metric_value()` 重算绝对值 → **类型层** `apply_campaign_progress()` 按 `type` 分发 → **结算层** `campaign_settle_grant()` 唯一入账点。
 
@@ -171,7 +175,7 @@
 
 ## 4. 用户端流程
 
-### 4.1 任务行（挂在 `LiteCampaignDetailPage`，按 `task.type` 分发到 `GrantTaskRow` / `TieredTaskRow` / `RecurringTaskRow`）
+### 4.1 任务行（挂在 `LiteCampaignDetailPage`，按 `task.type` 分发到 `GrantTaskRow` / `TieredTaskRow` / `RecurringTaskRow`；2026-11-12 起多一个 `RepeatableTaskRow`，见 §12.3）
 
 三种行卡共用 `TaskRowShell`。新增的槽：
 
@@ -318,6 +322,10 @@
 | 活动名 | `branding.title` 有值时，卡片、详情页头、归档都用它 |
 
 多语言：页面框架文案走站内语言；任务名、副标题、规则正文、榜单标题是运营写进配置的原文，不翻译（西语入口整套写西语）。**2026-11-12 起语言栏有 Español**（`src/locales/es.json`）：目前只翻了活动详情页、Rewards 列表卡、登录弹窗和全站外壳（导航 / 页脚）约 210 条，其余页面在西语下回落英语，等整站西语那一轮补齐。活动页的日期按用户所选语言和本地时区显示。
+
+本轮新增的词条（8 个语言文件里都有，`rewards` 命名空间）：`screen.campaign_repeatable.*`（7 个：ticket_reward、earned_count、tickets_earned、tickets_earned_count、new_users_only）、`screen.campaign_leaderboard.*`（6 个：title、you、your_rank、unit_tickets、empty、load_error）、`screen.campaign_detail_page.sign_in_to_start` / `not_eligible` / `kol_exclusive_entry` / `kol_joined_through` / `official_host_line`。**这些还没有回写到 i18n 总表 xlsx**，正式版接词条时以 `src/locales/*.json` 为准。
+
+橙色的 KOL 条（`KolBand`）第二行「You joined through {KOL}'s link — his terms apply.」只对已经绑定到这个入口的用户显示；未登录或还没加入的访客只看到第一行（2026-11-12 修，之前对所有人都显示）。
 
 ### 12.4 演示数据
 

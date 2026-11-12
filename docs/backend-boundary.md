@@ -203,7 +203,7 @@
 |---|---|---|
 | `profiles.notification_prefs`（jsonb：settled / auto_close / trades / funds，默认全 true） | 🟡 | 「四类邮件提醒可分别开关、新账号默认全开、无邮箱不发」的规则照抄；字段位置自选 |
 | 真实发信（结算 / 自动平仓预警 / 成交 / 出入金邮件） | 🟢（正式版必做，Lovable 未做） | Lovable 只存偏好；正式版由通知服务按偏好 + 用户语言发信；浏览器推送 / Telegram 通知为第二批 |
-| `profiles.language`（en / zh-CN / zh-TW / ja / ko / ru / vi） | 🟡 | 「站点语言偏好登录后跟账号走、页头与 Settings 共用一份」照抄；游客 localStorage `omenx.language`。页面文案 i18n 本轮未做；第二批语言 es / id / tr |
+| `profiles.language`（en / zh-CN / zh-TW / ja / ko / ru / vi；2026-11-12 起加 es） | 🟡 | 「站点语言偏好登录后跟账号走、页头与 Settings 共用一份」照抄；游客 localStorage `omenx.language`。页面文案 i18n 本轮未做；第二批语言 es / id / tr |
 | RPC `list_my_sessions()`（SECURITY DEFINER 读 `auth.sessions`，按 `auth.uid()` 过滤，`is_current` = JWT `session_id`） | 🟡 | 「用户能看到自己的活跃会话、标出本机、能登出其他设备」的规则照抄；正式版由认证服务提供会话列表，**IP → 城市**由服务端解析（Lovable 显示 IP） |
 | `supabase.auth.signOut({ scope: "others" })` | 🟡 | 语义照抄（撤销本机以外全部 refresh token） |
 | Close account | 🟢（正式版必做，Lovable 部分模拟） | 2026-10-12 定稿四步：余额 ≥ 起提额拦截去 Wallet；0 < 余额 < 起提额 → 发到已保存地址或放弃；确认 = 提现验证设置（邮箱 / 验证器 / 两者 / 无）+ CLOSE；确认即关闭，无冷静期、不可恢复。Lovable：打款走 `record-transaction` + 余额清零、码固定 111111、写 `profiles.closed_at` 不删数据，已关账号再登录由 `ClosedAccountGate` 全站拦一屏 + Sign out。正式版：链上打款（USDC on Base）、真验码、确认即异步注销（删 profile / API key / 全部会话，保留合规交易记录；登录直接失败）、放弃余额归平台。见 `docs/delivery/email-login-settings-v1.md` §4.4 / §7 #10 |
