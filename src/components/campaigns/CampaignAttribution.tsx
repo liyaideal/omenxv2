@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { t } from "@/i18n";
 import { showIneligibleEntryToast } from "@/components/campaigns/IneligibleEntryToast";
 
 const PENDING_KEY = "omenx_pending_campaign_entry";
@@ -63,7 +64,7 @@ export const CampaignAttribution = () => {
     (async () => {
       const { data: entry } = await supabase
         .from("campaign_entries")
-        .select("id, campaign_id, branding, kind")
+        .select("id, campaign_id, branding, kind, rules")
         .eq("link_code", pending)
         .maybeSingle();
       if (!entry) {
@@ -73,6 +74,17 @@ export const CampaignAttribution = () => {
 
       const displayName =
         ((entry.branding as Record<string, unknown> | null)?.display_name as string) ?? "This entry";
+      // Entries limited to new users (rules.eligibility): an existing account is still bound to the entry
+      // (it can see the page), but it is told why it cannot take part instead of "You're in".
+      const eligibility = (entry.rules as { eligibility?: { new_users_only?: boolean; allow_user_ids?: string[] } } | null)
+        ?.eligibility;
+      const isNewAccount = !!user.created_at && new Date(user.created_at).getTime() >= Date.now() - 24 * 3_600_000;
+      const takesPart =
+        !eligibility?.new_users_only || !!eligibility.allow_user_ids?.includes(user.id) || isNewAccount;
+      const welcome = () =>
+        takesPart
+          ? toast(`You're in — ${displayName}'s terms apply`)
+          : toast(t("rewards.screen.campaign_repeatable.new_users_only", { name: displayName }));
 
       const { data: existing } = await supabase
         .from("campaign_participations")
@@ -91,7 +103,7 @@ export const CampaignAttribution = () => {
           refuse();
           return;
         }
-        toast(`You're in — ${displayName}'s terms apply`);
+        welcome();
       } else if (!existing.locked_at && existing.entry_id !== entry.id) {
         const { error } = await supabase
           .from("campaign_participations")
@@ -101,7 +113,7 @@ export const CampaignAttribution = () => {
           refuse();
           return;
         }
-        toast(`You're in — ${displayName}'s terms apply`);
+        welcome();
       } else if (existing.locked_at && existing.entry_id !== entry.id) {
         refuse();
         return;

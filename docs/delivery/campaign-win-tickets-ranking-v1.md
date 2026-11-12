@@ -79,7 +79,7 @@
 
 1. 用户点 Brunoo 的链接：`/rewards/campaign/<活动 id>?entry=BRUNOO`（西语受众用 `?entry=BRUNOO-ES`）。任何带 `?entry=<code>` 的站内页面都会记住这个入口。
 2. 没登录：页面照常能看（任务、榜、规则），任务行右侧写 `Sign in to start`。入口码先记在浏览器里，等登录后再绑定。
-3. 注册 / 登录后：自动绑定到这个入口（没有 Join 按钮），弹一条提示 `You're in — Crypto Brunoo's terms apply`。
+3. 注册 / 登录后：自动绑定到这个入口（没有 Join 按钮），弹一条提示：符合资格的是 `You're in — Crypto Brunoo's terms apply`；不符合资格的（老账号）是 `Only for new users who signed up through Crypto Brunoo's link.`。
 4. 判定资格（R21）：是通过这条链接注册的新用户 → 任务行正常；不是 → 任务行变成虚线灰行，写 `Not eligible` 和一句原因，不计进度、不上榜。
 5. 用户去交易。每有一笔赚钱收场的交易（R1–R7），自动得 1 张 ticket，不用点领取。任务行上 `{n} earned` 加 1，右侧奖励卡 `Tickets earned` 加 1，榜上的得数加 1。
 6. 活动进行中任务行右侧一直是 `Trade` 按钮（去 `/events`），因为这个任务没有"完成"。
@@ -346,10 +346,9 @@ KOL 专属入口的详情页头上那条橙色胶囊。
 
 | 什么时候 | 文案 |
 |---|---|
-| 登录用户第一次绑定到一个链接入口（或在锁定前换入口） | `You're in — {KOL 名}'s terms apply` |
-| 入口码不存在，或用户已锁定在别的入口 | `This entry is not available`，并回到首页 |
-
-这两条目前是写死的英语。
+| 登录用户第一次绑定到一个链接入口（或在锁定前换入口），且符合资格 | `You're in — {KOL 名}'s terms apply`（写死的英语） |
+| 同上，但入口只限新用户而这个账号不符合（R21） | `Only for new users who signed up through {KOL 名}'s link.`（词条 `screen.campaign_repeatable.new_users_only`，和任务行上的原因句是同一句，已翻译）。账号仍然会绑定到入口，能看页面，只是不计进度 |
+| 入口码不存在，或用户已锁定在别的入口 | `This entry is not available`，并回到首页（写死的英语） |
 
 ---
 
@@ -440,7 +439,7 @@ KOL 专属入口的详情页头上那条橙色胶囊。
 | 编号 | 对应规则 | 步骤 | 预期 |
 |---|---|---|---|
 | T29 | R21 | 退出登录 → 打开带 `?entry=BRUNOO` 的活动页 → 用一个全新邮箱注册 | 弹 `You're in — Crypto Brunoo's terms apply`；任务行是正常的 `0 earned` + `Trade`；橙色条出现第二行 |
-| T30 | R21 / R23 | 用一个老账号（如 Mia）登录后打开带 `?entry=BRUNOO` 的活动页 | 任务行虚线灰、`Not eligible`、原因句；榜上没有 You 行；奖励卡没有 Your rank 行。（已知：这时也会弹 `You're in…`，见 §11） |
+| T30 | R21 / R23 | 用一个老账号（如 Mia）登录后打开带 `?entry=BRUNOO` 的活动页 | 弹的提示是 `Only for new users who signed up through Crypto Brunoo's link.`（不是 `You're in…`）；任务行虚线灰、`Not eligible`、原因句；榜上没有 You 行；奖励卡没有 Your rank 行 |
 | T31 | R23 | 上一条的老账号去做一笔符合条件的盈利交易 | 不得票，不上榜 |
 | T32 | R24 | 退出登录看活动页 | 任务行右侧 `Sign in to start`，不是 Not eligible |
 | T33 | R26 | T29 的新账号还没得票时，打开 `?entry=BRUNOO-ES` | 换到西语入口：活动名变成 Maestro de las Predicciones，任务文案变西语 |
@@ -536,13 +535,12 @@ alex 那 1 张票是他真实的一笔盈利交易重算出来的，不是手写
 
 | # | 问题 | 影响 | 打算 |
 |---|---|---|---|
-| 1 | 老用户点 Brunoo 的链接，也会弹 `You're in — Crypto Brunoo's terms apply`，然后看到的是 Not eligible | 提示和实际状态矛盾 | 未改，等产品定：不符合资格时不弹，或换一句 |
-| 2 | 排行榜加载中的占位是 5 行等高的灰条，加载完前三名更高，页面会轻微跳一下 | 观感 | 下次动这页时改 |
-| 3 | 两条 toast（§5.8）是写死的英语 | 西语用户看到英语提示 | 随整站西语一起做 |
-| 4 | 榜和票数不自动刷新，要刷新页面 | 得票后不是立刻看到 | 未排期 |
-| 5 | 已结束活动的榜没有"Final"之类的标记 | 只能靠页头的 ENDED 标区分 | CPO：先不加 |
-| 6 | 西语只翻了约 210 条，且未经母语者校对 | 见 §6 | 整站西语另排期 |
-| 7 | 新词条没回写 i18n 总表 xlsx | 平台侧接词条时要从 JSON 取 | 待补 |
+| 1 | 排行榜加载中的占位是 5 行等高的灰条，加载完前三名更高，页面会轻微跳一下 | 观感 | 下次动这页时改 |
+| 2 | 两条 toast（§5.8 里标了「写死的英语」的）没接翻译 | 西语用户看到英语提示 | 随整站西语一起做 |
+| 3 | 榜和票数不自动刷新，要刷新页面 | 得票后不是立刻看到 | 未排期 |
+| 4 | 已结束活动的榜没有"Final"之类的标记 | 只能靠页头的 ENDED 标区分 | CPO：先不加 |
+| 5 | 西语只翻了约 210 条，且未经母语者校对 | 见 §6 | 整站西语另排期 |
+| 6 | 新词条没回写 i18n 总表 xlsx | 平台侧接词条时要从 JSON 取 | 待补 |
 
 未做的功能见 §1。
 
