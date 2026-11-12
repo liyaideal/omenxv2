@@ -2922,6 +2922,7 @@
     "lite.live.cash_out": "Cash out",
     "lite.live.empty": "No live calls yet",
     "lite.live.browse_events": "Browse events",
+    "lite.live.deposit_to_start": "Deposit to start",
     "lite.live.call": "CALL",
     "lite.live.side": "SIDE",
     "lite.live.auto_close_if_wins": "AUTO-CLOSE / IF WINS",

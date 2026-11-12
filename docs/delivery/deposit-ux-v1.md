@@ -1,14 +1,14 @@
 # 充值引导优化 — 交付说明 v1（2026-11-12）
 
 > 起因是 BD 在主站测充值流程的反馈：注册到充值是主要卡点，用户找不到充值入口。
-> 这份文档会随这个需求分批更新。**本次（第一批）只有一处变化**：Lite 交易页的下单卡在余额不到 $1 时，那行提示里的「Add money」变成了可以点的链接。
-> 下单按钮、脚注、余额旁的 ⇄ 划转入口都没动。
-> 先看 §0 知道去哪儿查，再看 §3。
+> 这份文档会随这个需求分批更新。目前落地两处：① Lite 交易页的下单卡在余额不到 $1 时，提示里的「Add money」变成可以点的链接（§3）；② Portfolio 的 Live 页没有持仓、两个账户加起来不到 $1 时，空态的主按钮变成「Deposit to start」（§4）。
+> 下单按钮、脚注、余额旁的 ⇄ 划转入口、有钱时的 Portfolio 空态都没动。
+> 先看 §0 知道去哪儿查，再看 §3 / §4。
 
 ## 0. 查什么去哪儿
 
-- 长什么样 → 生产页：合约交易页 `/trade?event=…`、现货交易页 `/spot?event=…`（余额不到 $1 的账号才看得到这个态）
-- 什么时候变成什么样 → `/style-guide` → Lite → `交易页 ✅`（TR-30）、现货节（SP-20）
+- 长什么样 → 生产页：合约交易页 `/trade?event=…`、现货交易页 `/spot?event=…`、`/portfolio`（Live）——都要余额不到 $1 的账号才看得到
+- 什么时候变成什么样 → `/style-guide` → Lite → `交易页 ✅`（TR-30）、现货节（SP-20）、`Portfolio ✅`（PF-33b）
 - 字段名、文案、术语 → `docs/copy-dictionary.md` › Trading 表「Add money（Lite 下单卡余额不够提示里的链接）」→ 本文
 - 交易口径的词（爆仓 / 杠杆 / 限价单……）在 Lite 里叫什么 → copy-dictionary 顶部「Lite 术语对照表」
 
@@ -16,12 +16,12 @@
 
 | 步 | 做什么 | 看到什么 |
 |---|---|---|
-| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 本次涉及 **Lite** 组 `交易页 ✅` 的 TR-30、现货节的 SP-20 |
-| 2 | 页头搜索框敲 `TR-30` / `SP-20` | 直接滚到那张样张 |
+| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 本次涉及 **Lite** 组 `交易页 ✅` 的 TR-30、现货节的 SP-20、`Portfolio ✅` 的 PF-33b |
+| 2 | 页头搜索框敲 `TR-30` / `SP-20` / `PF-33b` | 直接滚到那张样张 |
 | 3 | 样张上方编号行 + iframe 里的真组件（可以点 Add money；字典里没登录、两个账户都是 0，所以点了走充值分支——桌面宽度弹充值弹窗，手机宽度跳 `/deposit`，帧里会变成 `Missing preview key`，属预期，刷新即回；划转分支要在生产页用另一个账户有钱的账号看） | 下方表格「状态 / 触发条件 / 视觉 / 数据来源」，新增一行「余额不够 · 点 Add money」 |
-| 4 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=trade-tr30`、`?c=spot-sp20`；加 `&lang=ru` 等可切语言 |
+| 4 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=trade-tr30`、`?c=spot-sp20`、`?c=portfolio-lite-empty-nofunds`；加 `&lang=ru` 等可切语言 |
 
-只在字典看得到、演示账号凑不出的态：TR-30 / SP-20 本身（alex_carter 有余额）。
+只在字典看得到、alex_carter 凑不出的态：TR-30 / SP-20 / PF-33b（alex 有余额；演示账号 Mia 两个账户都是 0，用她登录可在生产页看到）。
 
 ## 3. 下单卡余额不够：Add money 做成链接
 
@@ -46,6 +46,18 @@
 
 7 种语言都已写进 `src/locales/*.json`（链接词：添加资金 / 加入資金 / 資金を追加 / 자금을 추가 / Пополните / Nạp tiền）。西语目前没有这两条，回落英语。
 
+## 4. Portfolio Live 空态：没钱时引导充值
+
+| 规则 | 内容 |
+|---|---|
+| 什么时候出现 | `/portfolio` 的 Live 页没有持仓（原空态 `No live calls yet`），并且：已登录、余额已读完、`Standard + Boost < $1` |
+| 长什么样 | 插画和 `No live calls yet` 不变；主按钮 `Deposit to start`（主色实心，h 40、圆角 10），`Browse events` 变成旁边的描边次按钮。桌面两个按钮并排；手机竖排，宽 240，两个按钮占满 |
+| 点了去哪 | `Deposit to start`：桌面原地弹充值弹窗（不预选账户，沿用用户上次的选择）；手机进 `/deposit` 充值页。`Browse events` 不变，去 `/events` |
+| 余额还在读 | 按「有钱」处理，只出 `Browse events`，读完再判定，有钱的用户不会闪一下 Deposit |
+| 不变的 | 有钱时的 Live 空态、Settled 空态、未登录门 |
+
+文案：新 key `portfolio › lite.live.deposit_to_start` = `Deposit to start`（充值开始 / 儲值開始 / 入金して始める / 입금하고 시작하기 / Пополнить и начать / Nạp tiền để bắt đầu）。
+
 ## Lovable / 正式版
 
 | | Lovable | 正式版要做的 |
@@ -59,4 +71,6 @@
 | 代号 | 白话 | 章节 |
 |---|---|---|
 | deposit-ux ③ | 下单卡 Add money 链接 | §3 |
+| deposit-ux ④ | Portfolio 空态 Deposit to start | §4 |
+| PF-33b | Portfolio Live 空态没钱的字典样张 | §0.1 |
 | TR-30 / SP-20 | 合约 / 现货卡余额不够的字典样张 | §0.1 |

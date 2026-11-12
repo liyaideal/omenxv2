@@ -266,6 +266,7 @@ export const previewRegistry: Record<string, Loader> = {
   "portfolio-lite-settled": pick(portfolio, "PortfolioSettledListPreview"),
   "portfolio-lite-settled-mobile": pick(portfolio, "PortfolioSettledListPreview"),
   "portfolio-lite-empty": pick(portfolio, "PortfolioEmptyStatesPreview"),
+  "portfolio-lite-empty-nofunds": pick(portfolio, "PortfolioEmptyNoFundsPreview"),
   "portfolio-lite-auth-gate-out": pick(portfolio, "PortfolioAuthGateSignedOutPreview"),
   "portfolio-lite-auth-gate-in": pick(portfolio, "PortfolioAuthGateSignedInPreview"),
 

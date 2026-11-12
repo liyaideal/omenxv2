@@ -842,8 +842,18 @@ const STATE_CASES: SectionCase[] = [
     label: "PF-33 · 空态",
     note: "两个空态都是生产实渲（Live 空态已提取为 PortfolioEmptyLive），不是手抄 div。",
     spec: [
-      { state: "Live 空", when: "live.length === 0 && !isLoading && !isError", visual: "`No live calls yet` + 描边按钮 `Browse events`（去 /events）", source: "PortfolioEmptyLive" },
+      { state: "Live 空", when: "live.length === 0 && !isLoading && !isError（且有钱，见 PF-33b）", visual: "`No live calls yet` + 描边按钮 `Browse events`（去 /events）", source: "PortfolioEmptyLive" },
       { state: "Settled 空", when: "settled.length === 0 && !isLoading && !isError", visual: "休息猞猁（empty-no-boost，宽 150）+ `Nothing settled yet`，无按钮（2026-10-21 配图）", source: "PortfolioEmptySettled（SettledList groups.length === 0 · 系列详情无数据兜底）" },
+    ],
+  },
+  {
+    key: "portfolio-lite-empty-nofunds",
+    label: "PF-33b · Live 空 · 两个账户都没钱",
+    note: "CPO 2026-11-12（deposit-ux ④）：没持仓又没钱时，空态先引导充值。生产实渲 PortfolioEmptyLive，字典用 previewNoFunds 夹具注入「没钱」（不传 = 按真实余额判定，生产零变化）。",
+    spec: [
+      { state: "Live 空 · 没钱", when: "live.length === 0 && user && !profileLoading && spotBalance + balance < 1", visual: "主按钮 `Deposit to start`（bg-primary，h-10 r-10）+ 次按钮 `Browse events`（描边，不变）。桌面并排；手机竖排、宽 240、两个按钮占满", source: "PortfolioEmptyLive · i18n portfolio.lite.live.deposit_to_start" },
+      { state: "点 Deposit to start", when: "点主按钮", visual: "桌面原地弹 DepositDialog（不预选账户，沿用记住的选择）；手机进 /deposit", source: "PortfolioEmptyLive" },
+      { state: "余额读取中", when: "profileLoading", visual: "按有钱处理（只出 Browse events），读完再判定，避免有钱用户闪一下 Deposit", source: "useUserProfile().isLoading" },
     ],
   },
   {
@@ -1234,10 +1244,11 @@ export const PortfolioStatesSection = () => (
         />
       </SubSection>
 
-      <SubSection title="Ⓚ 空态 / 门禁 / 异步 / 错误（PF-33 … PF-38）">
+      <SubSection title="Ⓚ 空态 / 门禁 / 异步 / 错误（PF-33 … PF-38，含 PF-33b）">
         <Pair
           cases={byKey(
             "portfolio-lite-empty",
+            "portfolio-lite-empty-nofunds",
             "portfolio-lite-auth-gate-out",
             "portfolio-lite-auth-gate-in",
             "portfolio-lite-loading",

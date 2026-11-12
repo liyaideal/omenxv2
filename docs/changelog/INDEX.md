@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-12 | [充值引导优化 · Portfolio 空态 Deposit to start（并入 deposit-ux-v1 §4）](../delivery/deposit-ux-v1.md#4-portfolio-live-空态没钱时引导充值) | Live 页没持仓、Standard + Boost < $1 时，空态主按钮 `Deposit to start`（桌面弹充值弹窗、手机进 `/deposit`），`Browse events` 降为次按钮；余额读取中按有钱处理。新 key `portfolio.lite.live.deposit_to_start`（7 语）。字典 PF-33b |
 | 2026-11-12 | [充值引导优化 — 交付说明 v1（第一批：下单卡 Add money 链接）](../delivery/deposit-ux-v1.md) | BD 反馈的充值卡点。Lite 合约卡 / 现货卡余额不到 $1 时，提示里的 `Add money` 可以点：另一个账户有钱开划转，另一个账户为 0 打开充值（桌面弹充值弹窗、手机进 `/deposit`）；下单按钮不变。i18n `low_balance_hint` 改成带 `{{link}}` 的模板 + 新增 `low_balance_link`（7 语）。字典 TR-30 / SP-20 加一行。顶栏 Deposit、Equity→Balance、Portfolio 空态等后续批次并入本文 |
 | 2026-11-12 | [活动：赢单拿票 + 活动排行榜（Crypto Brunoo「Master of Predictions」）— 交付说明 v1](../delivery/campaign-win-tickets-ranking-v1.md) | **研发与测试交付用的独立文档。** 盈利交易、可重复任务、ticket 奖励、活动排行榜、只限通过链接注册的新用户、两个语言入口、Español（部分）、KOL 橙色条修复。27 条规则、配置字段表、页面状态与文案、49 条测试用例、Lovable / 正式版差别、已知问题 |
 | 2026-11-12 | [语言栏加 Español（部分）+ 活动页框架词接多语言](../delivery/rewards-task-types-v1.md#123-页面) | 语言栏第 8 种语言 Español：活动详情页、Rewards 活动卡、登录弹窗、导航与页脚约 210 条，其余回落英语。活动页原先写死的英语（Sign in to start / Not eligible / joined / days left / Entry / Host 等）接上词条。修：KolBand「You joined through…」只对已加入的用户显示 |

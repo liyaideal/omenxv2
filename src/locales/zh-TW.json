@@ -2792,6 +2792,7 @@
   "lite.live.cash_out": "平倉",
   "lite.live.empty": "暫無進行中的預測",
   "lite.live.browse_events": "瀏覽事件",
+  "lite.live.deposit_to_start": "儲值開始",
   "lite.live.call": "預測",
   "lite.live.side": "方向",
   "lite.live.auto_close_if_wins": "自動平倉 / 獲勝收益",

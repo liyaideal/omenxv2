@@ -474,6 +474,8 @@ export const PortfolioSettledListPreview = () => (
   </div>
 );
 
+export const PortfolioEmptyNoFundsPreview = () => <PortfolioEmptyLive previewNoFunds />;
+
 export const PortfolioEmptyStatesPreview = () => (
   <div className="space-y-6 bg-background p-4">
     <PortfolioEmptyLive />

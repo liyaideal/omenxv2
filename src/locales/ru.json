@@ -2828,6 +2828,7 @@
   "lite.live.cash_out": "Вывести",
   "lite.live.empty": "Пока нет активных позиций",
   "lite.live.browse_events": "Смотреть события",
+  "lite.live.deposit_to_start": "Пополнить и начать",
   "lite.live.call": "ПОЗИЦИЯ",
   "lite.live.side": "СТОРОНА",
   "lite.live.auto_close_if_wins": "АВТОЗАКРЫТИЕ / ЕСЛИ ВЫИГРЫШ",

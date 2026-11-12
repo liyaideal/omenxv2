@@ -12,7 +12,13 @@
 //    render `—` and the list area carries the retry affordance.
 // ============================================================
 import { t } from "@/i18n";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { DepositDialog } from "@/components/deposit/DepositDialog";
 import lynxMagnifier from "@/assets/empty-states/lynx-magnifier.png";
 
 const GROUND = "#171A1F";
@@ -99,21 +105,50 @@ export const PortfolioSkeleton = ({
 /**
  * Live tab empty state. Lives here (not inline in the page) so the style guide
  * mounts the same production render instead of a hand-copied div.
+ *
+ * No money (CPO 2026-11-12, deposit-ux ④): signed in, profile loaded and
+ * Standard + Boost < $1 → primary `Deposit to start` (desktop opens the
+ * Deposit dialog in place, mobile goes to /deposit) with `Browse events`
+ * demoted to the outline secondary beside it (stacked full-width on mobile).
+ * Otherwise unchanged. `previewNoFunds` is a style-guide-only fixture.
  */
-export const PortfolioEmptyLive = () => {
+export const PortfolioEmptyLive = ({ previewNoFunds }: { previewNoFunds?: boolean } = {}) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const { spotBalance, balance, isLoading } = useUserProfile();
+  const [depositOpen, setDepositOpen] = useState(false);
+  const noFunds =
+    previewNoFunds ?? (!!user && !isLoading && (spotBalance ?? 0) + (balance ?? 0) < 1);
+  const browse = (
+    <button
+      type="button"
+      onClick={() => navigate("/events")}
+      className={cn("h-10 rounded-[10px] px-4 text-[13px] font-semibold text-[#F2F3F5]", noFunds && isMobile && "w-full")}
+      style={{ border: "1px solid #2A2F38" }}
+    >
+      {t("portfolio.lite.live.browse_events")}
+    </button>
+  );
   return (
     <div className="flex flex-col items-center gap-3 py-14">
       <img src={lynxMagnifier} alt="" aria-hidden className="pointer-events-none select-none" style={{ width: 100, height: 103.33 }} />
       <p className="text-[13px] text-[#6B7280]">{t("portfolio.lite.live.empty")}</p>
-      <button
-        type="button"
-        onClick={() => navigate("/events")}
-        className="h-10 rounded-[10px] px-4 text-[13px] font-semibold text-[#F2F3F5]"
-        style={{ border: "1px solid #2A2F38" }}
-      >
-        {t("portfolio.lite.live.browse_events")}
-      </button>
+      {noFunds ? (
+        <div className={cn("flex items-center gap-2", isMobile && "w-[240px] flex-col")}>
+          <button
+            type="button"
+            onClick={() => (isMobile ? navigate("/deposit") : setDepositOpen(true))}
+            className={cn("h-10 rounded-[10px] bg-primary px-4 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90", isMobile && "w-full")}
+          >
+            {t("portfolio.lite.live.deposit_to_start")}
+          </button>
+          {browse}
+        </div>
+      ) : (
+        browse
+      )}
+      {!isMobile && <DepositDialog open={depositOpen} onOpenChange={setDepositOpen} />}
     </div>
   );
 };
