@@ -7,7 +7,7 @@ const SLOT = "\u0000";
  * The sentence is one i18n template with a `{{link}}` slot so each language
  * keeps its own word order; the slot renders `linkKey` as an inline button.
  * Click → `onAddMoney` (useInsufficientBalanceToast().addMoney): Transfer when
- * the other account has money, otherwise /deposit. CPO 2026-11-12.
+ * the other account has money, otherwise deposit. CPO 2026-11-12.
  */
 export const LowBalanceHint = ({
   id,
@@ -31,7 +31,7 @@ export const LowBalanceHint = ({
           <button
             type="button"
             onClick={onAddMoney}
-            className="font-semibold text-primary underline underline-offset-2 transition-colors hover:text-primary/80"
+            className="rounded-sm font-semibold text-primary underline underline-offset-[3px] transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
           >
             {t(linkKey)}
           </button>

@@ -294,11 +294,11 @@ const SESSION_CASES: SectionCase[] = [
   {
     key: "spot-sp20",
     label: "SP-20 · 下单面板 · 余额不够下单（Max = 0）",
-    note: "CPO 2026-11-05，与合约 TR-30 同一条规则：已登录用户输入的金额永远不超过 Max（= floor(Standard balance)）；Max 为 0 时卡片就地说明。CTA 与脚注不变，划转靠余额旁已有的 ⇄；2026-11-12 起提示里的 Add money 也可点（另一个账户有钱开划转，都没钱去 /deposit）。",
+    note: "CPO 2026-11-05，与合约 TR-30 同一条规则：已登录用户输入的金额永远不超过 Max（= floor(Standard balance)）；Max 为 0 时卡片就地说明。CTA 与脚注不变，提示里的 Add money 可点（2026-11-12）：另一个账户有钱开划转，另一个账户为 0 打开充值；余额旁的 ⇄ 照旧。",
     spec: [
       { state: "超过 Max", when: "user && parseFloat(input) > floor(spotBalance)", visual: "输入框里的数直接变成 Max（静默）", source: "LiteOrderPanel setAmountCapped" },
       { state: "余额不够", when: "user && floor(spotBalance) < 1", visual: "输入框锁住只显示占位 `0`；下一行 `Add money to your Standard balance to place an order.`，其中 `Add money` 是链接（primary、下划线、semibold）；快捷金额置灰不可点；CTA 不变", source: "LiteOrderPanel lowBalance · i18n spot.screen.lite_spot_order_panel.low_balance_hint / low_balance_link" },
-      { state: "余额不够 · 点 Add money", when: "点提示里的 Add money", visual: "Boost 余额 > 0 → 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向 Boost → Standard）；两个账户都没钱 → 跳 /deposit。与余额不够时点下单的 toast 同一分叉（useInsufficientBalanceToast.addMoney）", source: "useInsufficientBalanceToast · CPO 2026-11-12" },
+      { state: "余额不够 · 点 Add money", when: "点提示里的 Add money", visual: "Boost 余额 > 0 → 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向 Boost → Standard）；Boost 余额 = 0 → 打开充值（桌面弹 DepositDialog 预选 Standard，手机进 /deposit）。与余额不够时点下单的 toast 同一分叉（useInsufficientBalanceToast.addMoney）", source: "useInsufficientBalanceToast · CPO 2026-11-12" },
       { state: "游客例外", when: "!user", visual: "不封顶、不提示", source: "capApplies" },
     ],
   },
@@ -425,7 +425,7 @@ const Pair = ({
 export const SpotStatesSection = () => (
   <SectionWrapper
     id="spot-states"
-    title="/spot · 现货轮 · 状态字典（SP-1 … SP-18）"
+    title="/spot · 现货轮 · 状态字典（SP-1 … SP-20）"
     description="crypto 快轮与 stocks 日内共用同一骨架，差异只在模块增删。16 个 case 全部用生产组件 + fixture 落案（M2d 抽出 SpotHeadBlocks.tsx 后，原 5 个缺口 SP-1 / SP-2 / SP-9 / SP-15 / SP-16 已补齐，缺口表撤除）。抽件为零视觉搬移，生产页渲染未变。"
   >
     <SubSection title="① 页头（SP-1 / SP-2）">

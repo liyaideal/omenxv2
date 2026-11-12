@@ -1,7 +1,7 @@
 # Lite 交易页与 Portfolio 四处小优化 — 交付说明 v1（2026-11-05）
 
 > **通俗导读**：这次是在已经交付过的 Lite 交易页和 Portfolio 上改四处，都不是新页面。
-> 1. **余额不够时的下单卡**：原来输入金额会被限制在 Max 以内（主站已经这么做了），但余额不到 $1 时 Max 是 0，输什么都变回 $0.00，用户以为是 bug。现在这种情况下卡片多一行提示 `Add money to your Boost balance to make a call.`（Standard 卡写 `…Standard balance to place an order.`），快捷金额置灰；下单按钮不变，划转还是用余额旁边原有的 ⇄。
+> 1. **余额不够时的下单卡**：原来输入金额会被限制在 Max 以内（主站已经这么做了），但余额不到 $1 时 Max 是 0，输什么都变回 $0.00，用户以为是 bug。现在这种情况下卡片多一行提示 `Add money to your Boost balance to make a call.`（Standard 卡写 `…Standard balance to place an order.`），快捷金额置灰；下单按钮不变，划转还是用余额旁边原有的 ⇄（2026-11-12 起提示里的 `Add money` 也可点，见下方追加）。
 > 2. **桌面交易页下单卡悬浮**：右栏的下单卡跟着页面走，滚到列表很下面选 market 也能看到下单卡。原来在下单卡下面的 More markets / More stocks 挪到左栏最底部。
 > 3. **Settled 的分享入口**：Live 早就有分享，Settled 之前只有单笔详情页有。现在 Settled 列表每一行、以及系列详情页都能分享；海报沿用原来的结算海报和 Quick Play 海报，不新增样式。
 > 4. **Settled 的数统一扣手续费**：列表行、顶部 Net Profit / Win Rate / Record、单笔详情、系列详情、分享海报，全部用"盈亏 − 手续费"这一个数，现在各行加起来正好等于顶部 Net Profit。
@@ -39,12 +39,12 @@
 | 游客例外 | 未登录 | 不封顶、不提示——点 Buy 先拉起登录 |
 
 文案（7 种语言已入 `src/locales/*.json`）：
-- Boost 卡：`Add money to your Boost balance to make a call.`（key `trade.screen.lite.lite_contract_order_panel.low_balance_hint`）
-- Standard 卡：`Add money to your Standard balance to place an order.`（key `spot.screen.lite_spot_order_panel.low_balance_hint`）
+- Boost 卡：`Add money to your Boost balance to make a call.`（key `trade.screen.lite.lite_contract_order_panel.low_balance_hint`；2026-11-12 起值改为模板 `{{link}} to your Boost balance to make a call.` + 新 key `…low_balance_link` = `Add money`）
+- Standard 卡：`Add money to your Standard balance to place an order.`（key `spot.screen.lite_spot_order_panel.low_balance_hint`；2026-11-12 起值改为模板 `{{link}} to your Standard balance to place an order.` + 新 key `…low_balance_link` = `Add money`）
 
 和主站的差别：主站已经有"输入不超过 Max"，缺的是 Max 为 0 时那一行提示和快捷金额置灰。
 
-> **2026-11-12 追加**：提示里的 `Add money` 改成链接——另一个账户有钱打开划转、两个都没钱去 `/deposit`，下单按钮仍不变。见 [deposit-ux-v1 §3](./deposit-ux-v1.md#3-下单卡余额不够add-money-做成链接)。
+> **2026-11-12 追加**：提示里的 `Add money` 改成链接——另一个账户有钱打开划转、另一个账户为 0 打开充值，下单按钮仍不变。见 [deposit-ux-v1 §3](./deposit-ux-v1.md#3-下单卡余额不够add-money-做成链接)。
 
 ## 2. 桌面交易页下单卡悬浮
 

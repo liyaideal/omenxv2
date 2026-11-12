@@ -58,7 +58,7 @@ Pro 侧输入语义是交易所惯例的 notional / 数量，两面各自 canoni
 | 输入框派生行 | 重算，`A = 0` 时消失 | 重算，切回 1× 时消失 |
 | Max 按钮 | — | 填入可用余额（向下取整），**不乘 Boost** |
 | 输入上限（2026-11-05） | 已登录用户手输或点预设超过 Max 时，输入框直接变成 Max | 不受影响 |
-| 余额不够（2026-11-05） | Max 为 0（余额不到 $1）：输入框锁住，下面一行 `Add money to your Boost balance to make a call.`（Standard 卡写 `…Standard balance to place an order.`），预设置灰；CTA 与脚注不变，划转靠余额旁的 ⇄ | 不受影响 |
+| 余额不够（2026-11-05） | Max 为 0（余额不到 $1）：输入框锁住，下面一行 `Add money to your Boost balance to make a call.`（Standard 卡写 `…Standard balance to place an order.`），预设置灰；CTA 与脚注不变；划转靠余额旁的 ⇄，2026-11-12 起提示里的 `Add money` 也可点（见 deposit-ux-v1 §3） | 不受影响 |
 | $10 / $25 / $50 / $100 预设 | 直接写入输入框 | 预设是 margin 值，不随 Boost 缩放 |
 | CTA 金额 | 跟随 win | 跟随 win |
 
