@@ -642,11 +642,11 @@ const DETAIL_CASES: SectionCase[] = [
   {
     key: "rewards-campaign-leaderboard",
     label: "RW-8g · 活动排行榜区块（CampaignLeaderboard）",
-    note: "入口配了 `rules.leaderboard` 才出现，排在任务区下面、规则区上面。按活动里的一条任务排名（repeatable 任务按已发次数 × 每次票数，其余按进度值），并列时先达到的在前；同一活动里按同一条任务排名的入口共用一张榜（英语入口 + 西语入口）。桌面前三名是卡片、其余是列表；手机只有第一名是卡片。",
+    note: "入口配了 `rules.leaderboard` 才出现，排在任务区下面、规则区上面。按活动里的一条任务排名（repeatable 任务按已发次数 × 每次票数，其余按进度值），并列时先达到的在前；同一活动里按同一条任务排名的入口共用一张榜（英语入口 + 西语入口）。前三名是「领先者」区（桌面三栏细线分隔，手机三行）：大名次数字、得数、用户名、与第 1 名的差距条；其余是列表。",
     spec: [
       { state: "L1 我在榜外", when: "我的名次 > top", visual: "列表最后追加一行青色 `14 · You · 12`，上边 1px #2B2F38、底 #1B1E24", source: "get_campaign_leaderboard() 多返回调用者那行" },
-      { state: "L2 我在前三", when: "我的名次 ≤ 3（手机 = 1）", visual: "对应卡片名字换成青色 `You`", source: "row.isMe" },
-      { state: "L3 我在 4–10 名", when: "卡片之外、top 之内", visual: "列表里我的那行高亮", source: "row.isMe" },
+      { state: "L2 我在前三", when: "我的名次 ≤ 3", visual: "领先者区里我的用户名位写青色 `You`", source: "row.isMe" },
+      { state: "L3 我在 4–10 名", when: "前三名之外、top 之内", visual: "列表里我的那行高亮", source: "row.isMe" },
       { state: "L4 还没有成绩", when: "已登录、符合资格、榜里没有我", visual: "最后一行 `— · You · —`", source: "showDash" },
       { state: "L5 未登录 / 不符合资格", when: "signedOut 或 hideMe", visual: "没有 You 行", source: "CampaignLeaderboard signedOut / hideMe" },
       { state: "L6 名次奖励标签", when: "`rules.leaderboard.prizes[]` 配了该名次", visual: "卡片下方青色小胶囊 / 列表行名字后青字；不配不显示。榜上不足三人时只画有的卡片", source: "def.prizes" },

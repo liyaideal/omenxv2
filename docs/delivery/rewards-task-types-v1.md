@@ -312,7 +312,7 @@
 |---|---|
 | 任务行（`RepeatableTaskRow`，RW-8f） | 结构与其他任务行同一外壳：标题、副标题、奖励槽、右侧动作。奖励槽两行：`1 ticket`（金 `#FBBA23`）+ `{n} earned`。右侧一直是 CTA（Trade），因为它没有「完成」这个终点；设了 `max_times` 并发满后变 Claimed（RW-8f F10）。未登录：Sign in to start。活动已结束：冻结，保留已得数。不符合条件：虚线灰行 + 原因句 |
 | 与其他任务混排 | ticket 是第三种奖励色，与 USDC（青）、voucher（柠檬）并列；单阈值任务（`GrantTaskRow`）也可以发 ticket。阶梯 / 周期任务发 ticket 的显示本轮未做 |
-| 排行榜（`CampaignLeaderboard`，RW-8g） | 位置：任务列表之下、Campaign rules 之上。桌面前 3 名做成三张名次卡，手机只把第 1 名做成卡，其余为列表行；「我」的那行高亮，不在前 N 时钉在列表末尾并显示真实名次。态：加载骨架 / 空（No one is on the board yet. Be the first.）/ 读取失败 / 活动结束（样式与标题不变，数据冻结，RW-8g L11）。用户名过长时折行，不截断 |
+| 排行榜（`CampaignLeaderboard`，RW-8g） | 位置：任务列表之下、Campaign rules 之上。前 3 名是一条「领先者」区：桌面三栏用细线分开，每栏有大名次数字（第 1 名柠檬绿）、得数、用户名和一根表示与第 1 名差距的细条；手机上是三行同样的内容。4 名以后为列表行；「我」的那行高亮，不在前 N 时钉在列表末尾并显示真实名次。态：加载骨架 / 空（No one is on the board yet. Be the first.）/ 读取失败 / 活动结束（样式与标题不变，数据冻结，RW-8g L11）。用户名过长时折行，不截断 |
 | 奖励卡（Your rewards here） | 只显示这个活动实际会发的单位：有 ticket 的活动显示 `Tickets earned`，配了排行榜再显示 `Your rank`；没有券 / USDC 任务时不显示对应格和跳转按钮 |
 | 活动卡 / 已结束归档 | 活动里只有可重复任务时，不显示「x of y done」进度条和 `Rewards up to`，改为一行 `{n} tickets earned` |
 | 活动名 | `branding.title` 有值时，卡片、详情页头、归档都用它 |
