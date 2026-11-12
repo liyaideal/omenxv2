@@ -92,7 +92,7 @@ export const RepeatableTaskRow = ({
 
   let action: JSX.Element;
   if (signedOut && !frozen) {
-    action = <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">{t("rewards.screen.campaign_detail_page.sign_in_to_start")}</span>;
+    action = <span className="max-w-[132px] text-right text-[12.5px] leading-4 text-[#6B7280]">{t("rewards.screen.campaign_detail_page.sign_in_to_start")}</span>;
   } else if (blocked) {
     action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">{t("rewards.screen.campaign_detail_page.not_eligible")}</span>;
   } else if (frozen) {

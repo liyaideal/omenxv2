@@ -138,7 +138,7 @@ export const GrantTaskRow = ({
       action={
         <div className={`flex items-center justify-end ${isMobile ? "" : "w-[132px] shrink-0"}`}>
         {signedOut && !frozen ? (
-          <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">{t("rewards.screen.campaign_detail_page.sign_in_to_start")}</span>
+          <span className="max-w-[132px] text-right text-[12.5px] leading-4 text-[#6B7280]">{t("rewards.screen.campaign_detail_page.sign_in_to_start")}</span>
         ) : showAction ? (
           <TaskActionButton label={cta.label} href={cta.href} />
         ) : status === "claimable" && voucher > 0 && !frozen ? (
