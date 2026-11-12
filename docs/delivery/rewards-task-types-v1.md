@@ -291,7 +291,7 @@
 
 | 项 | 口径 |
 |---|---|
-| **一笔盈利交易**（`winning_trades`） | `positions` 里 `status = 'Closed'` 且 `pnl − winning_commission > 0` 的仓位：市场结算赢、提前卖出赚钱都算；被自动平仓的一定是亏的，自然不算。统计窗口内**开仓**的才算 |
+| **一笔盈利交易**（`winning_trades`） | `positions` 里 `status = 'Closed'` 且 `pnl − winning_commission > 0` 的仓位：市场结算赢、提前卖出赚钱都算；不看平仓原因，只看最后是不是赚的。统计窗口内**开仓**的才算 |
 | `min_stake` | 比的是 `positions.margin`（用户自己出的钱），不是 Boost 放大后的名义 |
 | `once_per_market` | 市场 = 仓位所属的事件（`event_options.event_id`，取不到用 `event_name`）。同一事件买两边、分几次买，都只算一次；每一轮 5 分钟 / 每日轮是各自的事件，各算各的 |
 | Quick Play | `arcade_calls.status = 'won'` 且 `gross ≥ min_stake` 算一笔；市场 = 开仓所在的 30 秒窗。任务 `scope` 带 `categories` 时不计 Quick Play；`scope.products` 不含 `quick_play` 时也不计 |
