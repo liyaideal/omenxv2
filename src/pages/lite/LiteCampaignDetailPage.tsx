@@ -12,6 +12,8 @@ import H2eCampaignDetailPage from "./H2eCampaignDetailPage";
 import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
 import { TieredTaskRow, deriveTiered } from "@/components/campaigns/TieredTaskRow";
 import { RecurringTaskRow } from "@/components/campaigns/RecurringTaskRow";
+import { RepeatableTaskRow } from "@/components/campaigns/RepeatableTaskRow";
+import { CampaignLeaderboard } from "@/components/campaigns/CampaignLeaderboard";
 import { showCreditedToast, showStreakBonusToast } from "@/components/campaigns/CreditedToastBody";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { CampaignDetailSkeleton } from "@/components/campaigns/CampaignDetailSkeleton";
@@ -24,7 +26,15 @@ import { CampaignRulesDisclosure } from "@/components/campaigns/CampaignRulesDis
 import { softBindPublicEntry } from "@/components/campaigns/CampaignAttribution";
 import { useAuth } from "@/hooks/useAuth";
 
-import { formatDateRange, isRecurringTask, isTieredTask, useCampaignViews } from "@/hooks/useCampaigns";
+import {
+  formatDateRange,
+  isEntryEligible,
+  isRecurringTask,
+  isRepeatableTask,
+  isTieredTask,
+  useCampaignLeaderboard,
+  useCampaignViews,
+} from "@/hooks/useCampaigns";
 
 const CREDITED_SEEN_KEY = (userId: string) => `omenx_campaign_credited_seen:${userId}`;
 
@@ -44,6 +54,11 @@ export default function LiteCampaignDetailPage() {
   const entry = view?.entry ?? null;
   const isSpecial = entry?.kind === "special";
   const frozen = view?.phase === "ended";
+  // Entries can be limited to people who signed up through the entry's link (rules.eligibility).
+  const eligible = isEntryEligible(entry, view?.participation ?? null, user?.id, user?.created_at);
+  const board = useCampaignLeaderboard(entry);
+  const boardTask = entry?.leaderboard ? entry.tasks.find((x) => x.task_key === entry.leaderboard!.task_key) : undefined;
+  const myBoardRow = board.data?.find((r) => r.isMe) ?? null;
 
   // Public first-visit soft binding.
   useEffect(() => {
@@ -137,6 +152,7 @@ export default function LiteCampaignDetailPage() {
   };
 
   const kolName = entry?.branding.display_name ?? "Partner";
+  const notEligibleReason = t("rewards.screen.campaign_repeatable.new_users_only", { name: kolName });
   const avatar = entry?.branding.avatar_url;
 
   const mobileHero = view && (
@@ -154,7 +170,7 @@ export default function LiteCampaignDetailPage() {
 <KolBandMobile kolName={kolName} avatar={avatar} />
           )}
 
-          <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">{view.campaign.name}</h1>
+          <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">{view.title}</h1>
 
           <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
             {view.phase === "always-on"
@@ -211,7 +227,7 @@ export default function LiteCampaignDetailPage() {
         )}
 
         <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">
-          {view.campaign.name}
+          {view.title}
         </h1>
         <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
             {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
@@ -268,6 +284,8 @@ export default function LiteCampaignDetailPage() {
       kolName={kolName}
       avatar={avatar}
       frozen={frozen}
+      showRank={!!entry?.leaderboard && eligible}
+      rank={myBoardRow?.rank ?? null}
     />
   ));
 
@@ -277,13 +295,26 @@ export default function LiteCampaignDetailPage() {
     <div className="space-y-3">
       <div className="flex items-baseline justify-between">
         <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">{t("rewards.screen.campaign_detail_task_list.grant_tasks")}</span>
-        <span className="text-[11.5px] text-[#6B7280]">
-          {view.tasksDone} of {view.tasksTotal} done
-        </span>
+        {/* repeatable tasks are never "done": with nothing to finish there is no count */}
+        {view.tasksTotal > 0 && (
+          <span className="text-[11.5px] text-[#6B7280]">
+            {view.tasksDone} of {view.tasksTotal} done
+          </span>
+        )}
       </div>
 
       {(entry?.tasks ?? []).map((task) =>
-        isRecurringTask(task) ? (
+        isRepeatableTask(task) ? (
+          <RepeatableTaskRow
+            key={task.task_key}
+            task={task}
+            grants={view.grants}
+            frozen={frozen}
+            signedOut={signedOut}
+            notEligible={!eligible}
+            notEligibleReason={notEligibleReason}
+          />
+        ) : isRecurringTask(task) ? (
           <RecurringTaskRow
             key={task.task_key}
             task={task}
@@ -308,7 +339,8 @@ export default function LiteCampaignDetailPage() {
           <GrantTaskRow
             key={task.task_key}
             task={task}
-            status={statusFor(task.task_key)}
+            status={eligible ? statusFor(task.task_key) : "not_eligible"}
+            notEligibleReason={eligible ? undefined : notEligibleReason}
             progressValue={progressFor(task.task_key)}
             isClaiming={claiming === task.task_key}
             frozen={frozen}
@@ -320,6 +352,19 @@ export default function LiteCampaignDetailPage() {
 
     </div>
   );
+
+  const leaderboardModule =
+    view && entry?.leaderboard ? (
+      <CampaignLeaderboard
+        def={entry.leaderboard}
+        rows={board.data}
+        isLoading={board.isLoading}
+        isError={board.isError}
+        unit={(boardTask?.reward?.ticket ?? 0) > 0 ? t("rewards.screen.campaign_leaderboard.unit_tickets") : undefined}
+        signedOut={signedOut}
+        hideMe={!eligible}
+      />
+    ) : null;
 
   const rulesModule = entry?.details ? (
     <CampaignRulesDisclosure paragraphs={entry.details.paragraphs} heading={entry.details.heading} />
@@ -333,6 +378,7 @@ export default function LiteCampaignDetailPage() {
     <div className="space-y-5">
       {mobileHero}
       {tasksPanel}
+      {leaderboardModule}
       {rulesModule}
       {rewardsCard}
       {finePrint}
@@ -343,6 +389,7 @@ export default function LiteCampaignDetailPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="order-2 space-y-5 lg:order-1">
           {tasksPanel}
+          {leaderboardModule}
           {rulesModule}
           {finePrint}
         </div>

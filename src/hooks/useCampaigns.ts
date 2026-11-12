@@ -7,7 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 export type CampaignStatus = "draft" | "live" | "ended";
 export type GrantStatus = "not_started" | "in_progress" | "claimable" | "claimed" | "not_eligible";
 
-export type TaskReward = { voucher?: number; usdc?: number };
+/** `ticket` is a count inside the campaign (2026-11-12): nothing is credited to a balance, the grant itself is the ticket. */
+export type TaskReward = { voucher?: number; usdc?: number; ticket?: number };
 
 /** One rung of a tiered task: reach `target` on the shared metric → `reward`. */
 export interface CampaignTaskTier {
@@ -21,8 +22,10 @@ export interface CampaignTaskTier {
  * - `tiered`: `tiers[]` on one shared metric; each tier is its own grant
  *   keyed `<task_key>#t<n>` (n from 1). USDC tiers are credited by the
  *   trigger the moment they are reached; voucher tiers become claimable.
+ * - `repeatable` (2026-11-12): one reward every time the metric grows by `target`, never "done";
+ *   each reward is its own grant keyed `<task_key>#r<n>` (n from 1). `max_times` caps the count.
  */
-export type CampaignTaskType = "threshold" | "tiered" | "recurring";
+export type CampaignTaskType = "threshold" | "tiered" | "recurring" | "repeatable";
 
 /**
  * How progress is measured (server recomputes each from source tables):
@@ -30,8 +33,17 @@ export type CampaignTaskType = "threshold" | "tiered" | "recurring";
  * - referrals_qualified: friends who traded $100 (one reward path — counted friends
  *   skip the per-friend voucher) · active_days: distinct UTC days with a fill ≥ min_notional
  * - hold_positions: positions ≥ hold.min_notional held ≥ hold.min_hours (auto-closed count)
+ * - winning_trades (2026-11-12): positions that ended in profit after the winning commission — settled or
+ *   cashed out early — with at least `min_stake` of the user's own money; Quick Play wins count too
+ *   unless the task is limited to categories; each market counts once unless `once_per_market: false`
  */
-export type CampaignTaskMetric = "count" | "usd_volume" | "referrals_qualified" | "active_days" | "hold_positions";
+export type CampaignTaskMetric =
+  | "count"
+  | "usd_volume"
+  | "referrals_qualified"
+  | "active_days"
+  | "hold_positions"
+  | "winning_trades";
 
 export interface CampaignTaskDef {
   task_key: string;
@@ -51,8 +63,14 @@ export interface CampaignTaskDef {
   min_notional?: number;
   /** hold_positions parameters. */
   hold?: { min_hours?: number; min_notional?: number };
+  /** winning_trades: minimum own money (margin, not the boosted size) per position. */
+  min_stake?: number;
+  /** winning_trades: count each market once (default true). */
+  once_per_market?: boolean;
+  /** repeatable: cap on how many times the reward is given (default: no cap). */
+  max_times?: number;
   /** Which markets count toward this task (server-side driver reads the same field). */
-  scope?: { categories?: string[]; any_market?: boolean };
+  scope?: { categories?: string[]; any_market?: boolean; products?: ("markets" | "quick_play")[] };
   /** Action button shown while the task is not yet claimable. */
   cta?: { label?: string; href?: string };
 }
@@ -60,13 +78,34 @@ export interface CampaignTaskDef {
 export const isTieredTask = (t: CampaignTaskDef): boolean =>
   t.type === "tiered" && Array.isArray(t.tiers) && t.tiers.length > 0;
 export const isRecurringTask = (t: CampaignTaskDef): boolean => t.type === "recurring";
+export const isRepeatableTask = (t: CampaignTaskDef): boolean => t.type === "repeatable";
+/** Grant-key prefix of a repeatable task's rewards (`<task_key>#r<n>`). */
+export const repeatGrantPrefix = (taskKey: string) => `${taskKey}#r`;
+/** How many times a repeatable task has paid out, and the reward total in its unit. */
+export const deriveRepeatable = (task: CampaignTaskDef, grants: { taskKey: string; status: GrantStatus }[]) => {
+  const prefix = repeatGrantPrefix(task.task_key);
+  const rows = grants.filter((g) => g.taskKey.startsWith(prefix));
+  const times = rows.filter((g) => g.status === "claimed" || g.status === "claimable").length;
+  const unit: "ticket" | "usdc" | "voucher" =
+    (task.reward?.ticket ?? 0) > 0 ? "ticket" : (task.reward?.usdc ?? 0) > 0 ? "usdc" : "voucher";
+  const per = task.reward?.[unit] ?? 0;
+  return { times, unit, per, earned: times * per, notEligible: rows.some((g) => g.status === "not_eligible") };
+};
 
 /** Progress unit per metric — `$` prefixes, count words are appended. */
-export const metricUnit = (m?: CampaignTaskMetric): "$" | "friends" | "days" | "positions" =>
-  m === "referrals_qualified" ? "friends" : m === "active_days" ? "days" : m === "hold_positions" ? "positions" : "$";
+export const metricUnit = (m?: CampaignTaskMetric): "$" | "friends" | "days" | "positions" | "wins" =>
+  m === "referrals_qualified"
+    ? "friends"
+    : m === "active_days"
+      ? "days"
+      : m === "hold_positions"
+        ? "positions"
+        : m === "winning_trades"
+          ? "wins"
+          : "$";
 /** Count metrics with small targets render as segmented steps. */
 export const isCountMetric = (m?: CampaignTaskMetric) =>
-  m === "referrals_qualified" || m === "active_days" || m === "hold_positions";
+  m === "referrals_qualified" || m === "active_days" || m === "hold_positions" || m === "winning_trades";
 
 /** Grant key for period p of a recurring task (`YYYY-MM-DD` / `IYYY-Www`). */
 export const periodGrantKey = (taskKey: string, periodKey: string) => `${taskKey}@${periodKey}`;
@@ -81,6 +120,27 @@ export interface CampaignBranding {
   blurb?: string | null;
   key_visual_url?: string | null;
   accent?: string | null;
+  /** Replaces the campaign name on this entry's page and cards (e.g. a Spanish entry of the same campaign). */
+  title?: string | null;
+}
+
+/** Entry leaderboard (rules.leaderboard): ranks the campaign's participants by one task. */
+export interface CampaignLeaderboardDef {
+  task_key: string;
+  /** Rows shown (default 10). */
+  top?: number;
+  /** Block title; defaults to the catalog string. */
+  title?: string;
+  /** Optional text next to a rank, e.g. `{ rank: 1, label: "Wins $1,000 USDC" }`. */
+  prizes?: { rank: number; label: string }[];
+}
+
+/** Entry eligibility (rules.eligibility). */
+export interface CampaignEligibilityDef {
+  /** Only accounts created through this entry's link take part. */
+  new_users_only?: boolean;
+  /** Accounts that take part regardless (the KOL's own account, demo accounts). */
+  allow_user_ids?: string[];
 }
 
 export interface CampaignRuleDetails {
@@ -99,6 +159,8 @@ export interface CampaignEntry {
   branding: CampaignBranding;
   /** Long-form campaign rules, authored in rules.details. */
   details?: CampaignRuleDetails;
+  leaderboard?: CampaignLeaderboardDef;
+  eligibility?: CampaignEligibilityDef;
   seedBase: number;
   cap: number | null;
 }
@@ -144,6 +206,15 @@ const mapEntry = (row: any): CampaignEntry => {
   const details: CampaignRuleDetails | undefined = paragraphs.length
     ? { heading: typeof rawDetails.heading === "string" ? rawDetails.heading : undefined, paragraphs }
     : undefined;
+  const rawBoard = asRecord(rules.leaderboard);
+  const leaderboard: CampaignLeaderboardDef | undefined =
+    typeof rawBoard.task_key === "string" && tasks.some((t) => t.task_key === rawBoard.task_key)
+      ? (rawBoard as unknown as CampaignLeaderboardDef)
+      : undefined;
+  const rawElig = asRecord(rules.eligibility);
+  const eligibility: CampaignEligibilityDef | undefined = Object.keys(rawElig).length
+    ? (rawElig as CampaignEligibilityDef)
+    : undefined;
   return {
     id: row.id,
     campaignId: row.campaign_id,
@@ -154,6 +225,8 @@ const mapEntry = (row: any): CampaignEntry => {
     reward: asRecord(row.reward) as { voucher?: number; usdc?: number },
     branding: asRecord(row.branding) as CampaignBranding,
     details,
+    leaderboard,
+    eligibility,
     seedBase: Number(row.seed_base ?? 0),
     cap: row.cap === null || row.cap === undefined ? null : Number(row.cap),
   };
@@ -284,8 +357,15 @@ export interface CampaignView {
   entry: CampaignEntry | null;
   participation: CampaignParticipation | null;
   phase: CampaignPhase;
+  /** Name shown for this entry: its own title when set, otherwise the campaign name. */
+  title: string;
+  /** Tasks that can be finished — repeatable tasks never are, so they are left out of both counts. */
   tasksTotal: number;
   tasksDone: number;
+  /** Tickets earned in this entry (0 when no task pays tickets). */
+  ticketsEarned: number;
+  /** At least one task pays tickets. */
+  hasTickets: boolean;
   claimableCount: number;
   rewardVoucherUpTo: number;
   rewardUsdcUpTo: number;
@@ -349,8 +429,21 @@ export const buildCampaignView = (
       ? t.tiers!.some((_, i) => statusFor(tierGrantKey(t.task_key, i + 1)) === "claimable")
       : isRecurringTask(t)
         ? [...periodGrants(t), ...streakGrants(t)].some((g) => g.status === "claimable")
-        : statusFor(t.task_key) === "claimable";
+        : isRepeatableTask(t)
+          ? entryGrants.some((g) => g.taskKey.startsWith(repeatGrantPrefix(t.task_key)) && g.status === "claimable")
+          : statusFor(t.task_key) === "claimable";
+  let ticketsEarned = 0;
+  const hasTickets = tasks.some((t) => (t.reward?.ticket ?? 0) > 0);
+  const completable = tasks.filter((t) => !isRepeatableTask(t));
   tasks.forEach((t) => {
+    if (isRepeatableTask(t)) {
+      // no "up to": the reward repeats; only what has been paid is known
+      const r = deriveRepeatable(t, entryGrants);
+      if (r.unit === "ticket") ticketsEarned += r.earned;
+      else if (r.unit === "usdc") usdcClaimed += r.earned;
+      else voucherClaimed += entryGrants.filter((g) => g.taskKey.startsWith(repeatGrantPrefix(t.task_key)) && g.status === "claimed").length * r.per;
+      return;
+    }
     if (isRecurringTask(t)) {
       const max = t.max_periods ?? 0;
       const bonusCount = t.streak_bonus?.every ? Math.floor(max / t.streak_bonus.every) : 0;
@@ -380,6 +473,7 @@ export const buildCampaignView = (
     if (statusFor(t.task_key) === "claimed") {
       voucherClaimed += t.reward?.voucher ?? 0;
       usdcClaimed += t.reward?.usdc ?? 0;
+      ticketsEarned += t.reward?.ticket ?? 0;
     }
   });
 
@@ -394,8 +488,11 @@ export const buildCampaignView = (
     entry,
     participation,
     phase,
-    tasksTotal: tasks.length,
-    tasksDone: tasks.filter(taskDone).length,
+    title: entry?.branding.title || campaign.name,
+    tasksTotal: completable.length,
+    tasksDone: completable.filter(taskDone).length,
+    ticketsEarned,
+    hasTickets,
     claimableCount: tasks.filter(taskClaimable).length,
     rewardVoucherUpTo: voucherUpTo,
     rewardUsdcUpTo: usdcUpTo,
@@ -448,4 +545,49 @@ export const formatDateRange = (startsAt: string, endsAt: string | null) => {
   const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   const start = fmt(new Date(startsAt));
   return endsAt ? `${start} – ${fmt(new Date(endsAt))}` : `${start} – no end date`;
+};
+
+/**
+ * Mirrors `campaign_entry_eligible()` in SQL: an entry limited to new users only counts accounts
+ * created no earlier than 24h before they were bound to the entry by its link (or allow-listed ones).
+ */
+export const isEntryEligible = (
+  entry: CampaignEntry | null,
+  participation: CampaignParticipation | null,
+  userId?: string | null,
+  userCreatedAt?: string | null,
+): boolean => {
+  if (!entry?.eligibility?.new_users_only) return true;
+  if (!userId) return true; // signed-out visitors are not told they are ineligible
+  if (entry.eligibility.allow_user_ids?.includes(userId)) return true;
+  if (!participation || participation.source !== "link" || !userCreatedAt) return false;
+  return new Date(userCreatedAt).getTime() >= new Date(participation.joinedAt).getTime() - 24 * 3_600_000;
+};
+
+export interface CampaignLeaderboardRow {
+  rank: number;
+  username: string;
+  value: number;
+  isMe: boolean;
+}
+
+/** Top rows of an entry's leaderboard plus the caller's own row (security-definer RPC). */
+export const useCampaignLeaderboard = (entry: CampaignEntry | null) => {
+  const { user } = useAuth();
+  const top = entry?.leaderboard?.top ?? 10;
+  return useQuery({
+    enabled: !!entry?.leaderboard,
+    queryKey: ["campaign-leaderboard", entry?.id, top, user?.id],
+    queryFn: async (): Promise<CampaignLeaderboardRow[]> => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase.rpc as any)("get_campaign_leaderboard", { _entry_id: entry!.id, _limit: top });
+      if (error) throw error;
+      return ((data ?? []) as { rank: number; username: string; value: number; is_me: boolean }[]).map((r) => ({
+        rank: Number(r.rank),
+        username: r.username,
+        value: Number(r.value),
+        isMe: !!r.is_me,
+      }));
+    },
+  });
 };

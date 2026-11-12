@@ -269,6 +269,19 @@
 | DQ-19 | 订单状态标：Pending 也可 hover / 点开成交进度（`0 / N`），终态不展开（Liya 10-12） | ✅ | `OrderStatusBadge isOpen()`；字典 OS-D1b |
 | DQ-字典 | CH-D1 / OB-D1 / PT-D1 / HD-D1 / OS-D2 / OS-M2 / EI-D1 / EI-D2；DK 案例去 Suspended | ✅ | sg:audit PASS |
 
+## 2026-11-12 — Rewards 盈利交易 / 可重复 / ticket / 活动排行榜（总文档 [rewards-task-types-v1.md §12](../delivery/rewards-task-types-v1.md#12-2026-11-12-追加--盈利交易--可重复--ticket--活动排行榜)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| R3-1 | 指标 `winning_trades`（结算赢 / 提前卖出赚钱；`min_stake`；每市场一次；含 Quick Play） | ✅ | `campaign_metric_value()`；positions / arcade_calls 触发器 |
+| R3-2 | 类型 `repeatable`（`<key>#r<n>`，`max_times`） | ✅ | `apply_campaign_progress()`；连跑两次不多发 |
+| R3-3 | 奖励单位 `ticket`（金 `#FBBA23`，不进余额） | ✅ | `campaign_settle_grant()`；RepeatableTaskRow / GrantTaskRow |
+| R3-4 | 活动排行榜（两个入口合榜，前 N + 我） | ✅ | `get_campaign_leaderboard()`；`CampaignLeaderboard` |
+| R3-5 | 入口只限通过链接注册的新用户 | ✅ | `campaign_entry_eligible()`；Not eligible 行 + 原因句 |
+| R3-6 | 奖励卡 / 活动卡 / 归档跟着显示 ticket 与名次 | ✅ | 只有可重复任务时不显示进度条 |
+| R3-字典 | RW-8f / RW-8g | ✅ | sg:audit PASS |
+| R3-未做 | 券奖励 + repeatable 的逐次领取；阶梯 / 周期任务发 ticket；每日上限；按名次自动发奖；站内抽奖；西语界面语言 | ⏸ | 见 §11 / §12.2 |
+
 ## 2026-09-25 — Rewards 任务类型第二轮 RW-T2（总文档 [rewards-task-types-v1.md](../delivery/rewards-task-types-v1.md)）
 
 | # | 项 | Status | Notes |

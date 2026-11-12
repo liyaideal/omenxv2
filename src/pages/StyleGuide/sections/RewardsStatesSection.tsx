@@ -623,6 +623,39 @@ const DETAIL_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "rewards-repeatable-rows",
+    label: "RW-8f · 可重复任务行（RepeatableTaskRow）+ ticket 奖励 + 盈利交易指标",
+    note: "三个互相独立的零件：`type: repeatable`（每达成一次发一次，永远不会“完成”）· `reward.ticket`（第三种奖励单位，金色，只是活动内的计数，不入账）· `metric: winning_trades`（盈利交易笔数）。行卡没有进度条；奖励位两行同阶梯任务：第一行「数量 + 单位」，第二行累计 `12 earned`。票是干嘛用的由运营写在副标题里。",
+    spec: [
+      { state: "F1 未登录", when: "signedOut", visual: "奖励位只有第一行 `1 ticket`；动作栏灰字 `Sign in to start`", source: "RepeatableTaskRow signedOut" },
+      { state: "F2 还没有票", when: "已登录、符合资格、0 条 `<key>#r<n>` grant", visual: "第二行 `0 earned`；动作栏描边 CTA（缺省 Trade）", source: "deriveRepeatable().times === 0" },
+      { state: "F3 有票", when: "N 条 `<key>#r<n>` grant 为 claimed", visual: "第二行 `12 earned`（ticket 显示票数 = 次数 × 每次票数；USDC / 券显示次数）；CTA 一直在", source: "deriveRepeatable()" },
+      { state: "F4 不符合资格", when: "入口 `rules.eligibility.new_users_only` 且账号不是通过该入口链接注册的新用户（见 isEntryEligible）", visual: "虚线灰卡、CircleSlash、副标题换成 `Only for new users who signed up through {KOL}'s link.`、奖励位灰、动作栏 `Not eligible`", source: "isEntryEligible / campaign_entry_eligible()" },
+      { state: "F5 活动结束", when: "phase === ended", visual: "保留累计行；动作栏 `Ended`", source: "RepeatableTaskRow frozen" },
+      { state: "F6 最长文案", when: "西语入口的标题 / 副标题 / CTA", visual: "副标题在手机上折成两到三行，不截断；奖励位不折行", source: "campaign_entries.rules.tasks[]" },
+      { state: "F7 换指标 / 换奖励", when: "repeatable × referrals_qualified × USDC；repeatable × usd_volume × ticket", visual: "同一行卡；USDC 青 `$5 USDC` + `3 earned`（次数）；ticket 金 `2 tickets` + `8 earned`（票数）", source: "REWARD_COLOUR / rewardLabel" },
+      { state: "F8 winning_trades 套直接达标", when: "type 缺省（threshold）+ metric winning_trades + reward.ticket", visual: "Trophy 图标、分段条 `3 / 5 wins`、奖励位金色 `5 tickets`；达标后动作栏 `Credited`", source: "GrantTaskRow · metricIcon / metricUnit" },
+      { state: "F9 混排", when: "同一活动里有现有形态的任务", visual: "卡高、三栏位置、按钮与直接达标 / 阶梯 / 指标行对齐；唯一的新东西是金色奖励位", source: "TaskRowShell" },
+    ],
+  },
+  {
+    key: "rewards-campaign-leaderboard",
+    label: "RW-8g · 活动排行榜区块（CampaignLeaderboard）",
+    note: "入口配了 `rules.leaderboard` 才出现，排在任务区下面、规则区上面。按活动里的一条任务排名（repeatable 任务按已发次数 × 每次票数，其余按进度值），并列时先达到的在前；同一活动里按同一条任务排名的入口共用一张榜（英语入口 + 西语入口）。桌面前三名是卡片、其余是列表；手机只有第一名是卡片。",
+    spec: [
+      { state: "L1 我在榜外", when: "我的名次 > top", visual: "列表最后追加一行青色 `14 · You · 12`，上边 1px #2B2F38、底 #1B1E24", source: "get_campaign_leaderboard() 多返回调用者那行" },
+      { state: "L2 我在前三", when: "我的名次 ≤ 3（手机 = 1）", visual: "对应卡片名字换成青色 `You`", source: "row.isMe" },
+      { state: "L3 我在 4–10 名", when: "卡片之外、top 之内", visual: "列表里我的那行高亮", source: "row.isMe" },
+      { state: "L4 还没有成绩", when: "已登录、符合资格、榜里没有我", visual: "最后一行 `— · You · —`", source: "showDash" },
+      { state: "L5 未登录 / 不符合资格", when: "signedOut 或 hideMe", visual: "没有 You 行", source: "CampaignLeaderboard signedOut / hideMe" },
+      { state: "L6 名次奖励标签", when: "`rules.leaderboard.prizes[]` 配了该名次", visual: "卡片下方青色小胶囊 / 列表行名字后青字；不配不显示。榜上不足三人时只画有的卡片", source: "def.prizes" },
+      { state: "L7 不带单位", when: "排名任务的奖励不是 ticket", visual: "大数字后没有单位词；标题缺省 `Ranking · top N`", source: "unit / def.title" },
+      { state: "L8 加载中", when: "isLoading", visual: "5 行骨架", source: "useCampaignLeaderboard" },
+      { state: "L9 空榜", when: "没有任何人有成绩", visual: "一行说明 `No one is on the board yet. Be the first.`", source: "ranked.length === 0" },
+      { state: "L10 出错", when: "isError", visual: "一行说明 `The ranking could not be loaded. Refresh to try again.`", source: "useCampaignLeaderboard" },
+    ],
+  },
+  {
     key: "rewards-campaign-rules",
     label: "RW-9 · 活动规则折叠（CampaignRulesDisclosure）",
     note: "帧内三态：收起 / 展开（受控 defaultOpen，非 setTimeout）/ paragraphs 为空整块不渲染。文案来自 `campaign_entries.rules.details`，只读。",
@@ -1170,6 +1203,12 @@ export const RewardsStatesSection = () => (
         </div>
         <div className="mt-6">
           <Pair cases={byKey("rewards-metric-rows")} desktopMin={620} mobileMin={1100} />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("rewards-repeatable-rows")} desktopMin={1500} mobileMin={2900} />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("rewards-campaign-leaderboard")} desktopMin={4300} mobileMin={4700} />
         </div>
         <div className="mt-6">
           <Pair cases={byKey("rewards-campaign-rules")} desktopMin={420} mobileMin={520} />

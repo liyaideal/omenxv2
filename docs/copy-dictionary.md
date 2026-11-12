@@ -71,6 +71,15 @@ Single source of truth for user-visible field names across the app.
 | **Invite a friend** | Referral 邀请卡标题 | Refer a friend, Share link |
 | **Your invites** | Referral 邀请列表标题 | Invited friends, Referrals |
 | **In progress / Claimed** | 邀请行两个终态词；`qualified` 行显示 `$5 voucher` + `Claim voucher` | Pending, Waiting, Complete |
+| **ticket / tickets** | 第三种奖励单位（2026-11-12），色 `#FBBA23`。只在所属活动里计数，不进余额；用途（排名 / 抽奖）由运营写在任务副标题。奖励槽写 `{n} ticket(s)`，判定：`reward.ticket > 0` | Points, Coupons, Entries, Lottery ticket |
+| **{n} earned** | 可重复任务奖励槽第二行：这条任务已经发了几次。判定：该任务 `#r` grant 行里 claimed 的行数 | Completed, Done ×n, Claimed ×n |
+| **Tickets earned** / **{n} tickets earned** | 奖励卡的 ticket 格；活动卡与归档上的一行汇总（0 时不显示） | Total tickets, My tickets |
+| **Make a profitable trade** | 盈利交易任务的标准任务名（运营可改）。一笔盈利交易 = 赚钱收场的仓位：结算赢或提前卖出赚钱；判定 `pnl − winning_commission > 0`。门槛写在副标题：`Trades of $10 or more count` | Win a trade, Winning bet, Correct prediction |
+| **Ticket ranking · top {N}** | 活动排行榜标题（配置里的 `leaderboard.title`；不写则 `Ranking · top {N}`）。**不叫 Leaderboard**，免得和主站的 Leaderboard 混 | Leaderboard, Top traders, Rank list |
+| **You** / **Your rank** | 榜上「我」那行的名字位；奖励卡的名次格（未上榜显示 `—`） | Me, My position |
+| **No one is on the board yet. Be the first.** | 排行榜空态 | No data, Empty |
+| **The ranking could not be loaded. Refresh to try again.** | 排行榜读取失败 | Error, Failed to load |
+| **Only for new users who signed up through {KOL}'s link.** | 入口设了 `new_users_only` 而当前用户不符合时，任务行副标题位的原因句（行状态 Not eligible） | New users only, You are not eligible |
 
 **合规铁律**：任何出现 USDC 金额的页面，有且只有一条完整 fine print（`RewardsFinePrint`，11.5px `#6B7280`），金额旁**禁止**行内写 "not guaranteed"。
 

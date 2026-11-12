@@ -78,7 +78,7 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
           <Badge view={view} />
         </div>
         <div>
-          <div className="font-display text-[17px] font-bold leading-tight text-[#F2F3F5]">{view.campaign.name}</div>
+          <div className="font-display text-[17px] font-bold leading-tight text-[#F2F3F5]">{view.title}</div>
           <div className="mt-1 font-display text-[11.5px] tabular-nums text-[#C9CED6]">
             {isMobile ? `${dateLine} · ${view.joined.toLocaleString()} joined` : dateLine}
           </div>
@@ -90,16 +90,26 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
           <>
             <div className="flex items-center justify-between">
           <span className="text-[12px] text-[#9AA1AC]">{t("common.your_progress")}</span>
-          <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
-            {view.tasksDone} / {view.tasksTotal} tasks done
-          </span>
+          {/* A campaign made only of repeatable tasks has nothing to finish: show what was earned, no bar. */}
+          {view.tasksTotal === 0 && view.hasTickets ? (
+            <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#FBBA23]" data-card-tickets>
+              {t("rewards.screen.campaign_repeatable.tickets_earned_count", { count: view.ticketsEarned })}
+            </span>
+          ) : (
+            <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
+              {view.tasksDone} / {view.tasksTotal} tasks done
+            </span>
+          )}
             </div>
-            <div className="h-[5px] w-full overflow-hidden rounded-[3px] bg-[#1A1D22]">
-              <div className="h-full rounded-[3px]" style={{ width: `${pct}%`, background: view.accent }} />
-            </div>
+            {view.tasksTotal > 0 && (
+              <div className="h-[5px] w-full overflow-hidden rounded-[3px] bg-[#1A1D22]">
+                <div className="h-full rounded-[3px]" style={{ width: `${pct}%`, background: view.accent }} />
+              </div>
+            )}
           </>
         )}
 
+        {(view.rewardVoucherUpTo > 0 || view.rewardUsdcUpTo > 0) && (
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[12px]">
           <span className="text-[#9AA1AC]">{t("rewards.screen.campaign_card.rewards_up_to")}</span>
           {view.rewardVoucherUpTo > 0 && (
@@ -113,6 +123,7 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
             </span>
           )}
         </div>
+        )}
 
         {isMobile ? (
           <div className="space-y-1">

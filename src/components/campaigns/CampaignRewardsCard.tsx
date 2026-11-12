@@ -10,6 +10,10 @@ export interface CampaignRewardsCardProps {
   kolName: string;
   avatar: string | undefined;
   frozen: boolean;
+  /** The entry has a leaderboard and this account takes part: show the rank row. */
+  showRank?: boolean;
+  /** The viewer's rank on the entry leaderboard; null = no score yet. */
+  rank?: number | null;
 }
 
 /**
@@ -25,8 +29,27 @@ export const CampaignRewardsCard = ({
   kolName,
   avatar,
   frozen,
+  showRank,
+  rank,
 }: CampaignRewardsCardProps) => {
   const navigate = useNavigate();
+  // Rows follow what the campaign pays: a ticket-only campaign shows no $0 voucher / USDC rows.
+  const hasVoucherRow = view.rewardVoucherUpTo > 0 || view.voucherClaimed > 0;
+  const hasUsdcRow = view.rewardUsdcUpTo > 0 || view.usdcClaimed > 0;
+  const available = Math.max(0, view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed);
+  const hasAvailable = view.rewardVoucherUpTo + view.rewardUsdcUpTo > 0;
+  const rankText = rank ? String(rank) : "—";
+  const stats = [
+    hasVoucherRow && { label: "Vouchers", value: `$${view.voucherClaimed}`, color: "#CFFF4A" },
+    hasUsdcRow && { label: "USDC", value: `$${view.usdcClaimed}`, color: "#33D6FF" },
+    view.hasTickets && {
+      label: t("rewards.screen.campaign_repeatable.tickets_earned"),
+      value: view.ticketsEarned.toLocaleString("en-US"),
+      color: "#FFFFFF",
+    },
+    showRank && { label: t("rewards.screen.campaign_leaderboard.your_rank"), value: rankText, color: "#FFFFFF" },
+    hasAvailable && { label: "Available", value: `$${available}`, color: "#FFFFFF" },
+  ].filter(Boolean) as { label: string; value: string; color: string }[];
 
   return (
     <aside
@@ -36,19 +59,11 @@ export const CampaignRewardsCard = ({
       <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">{t("rewards.screen.h2e_rewards_rail.your_rewards_here")}</div>
 
       {isMobile ? (
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { label: "Vouchers", value: `$${view.voucherClaimed}`, color: "#CFFF4A" },
-            { label: "USDC", value: `$${view.usdcClaimed}`, color: "#33D6FF" },
-            {
-              label: "Available",
-              value: `$${Math.max(
-                0,
-                view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed,
-              )}`,
-              color: "#FFFFFF",
-            },
-          ].map((s) => (
+        <div
+          className="grid gap-2"
+          style={{ gridTemplateColumns: `repeat(${stats.length === 4 ? 2 : Math.max(1, Math.min(3, stats.length))}, minmax(0, 1fr))` }}
+        >
+          {stats.map((s) => (
             <div key={s.label} className="rounded-[12px] bg-[#0F1114] px-3 py-2.5">
               <div className="text-[10px] uppercase tracking-[0.1em] text-[#6B7280]">{s.label}</div>
               <div className="mt-1 font-display text-[16px] font-bold tabular-nums" style={{ color: s.color }}>
@@ -59,23 +74,39 @@ export const CampaignRewardsCard = ({
         </div>
       ) : (
         <>
+      {hasVoucherRow && (
       <div className="flex items-baseline justify-between">
         <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.campaign_detail_page.vouchers_claimed")}</span>
         <span className="font-display text-[15px] font-bold tabular-nums text-[#CFFF4A]">${view.voucherClaimed}</span>
       </div>
+      )}
+      {hasUsdcRow && (
       <div className="flex items-baseline justify-between">
         <span className="text-[12.5px] text-[#9AA1AC]">USDC credited</span>
         <span className="font-display text-[15px] font-bold tabular-nums text-[#33D6FF]">${view.usdcClaimed}</span>
       </div>
-      {!frozen && (
+      )}
+      {view.hasTickets && (
+      <div className="flex items-baseline justify-between" data-rewards-row="tickets">
+        <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.campaign_repeatable.tickets_earned")}</span>
+        <span className="font-display text-[15px] font-bold tabular-nums text-white">
+          {view.ticketsEarned.toLocaleString("en-US")}
+        </span>
+      </div>
+      )}
+      {showRank && (
+      <div className="flex items-baseline justify-between" data-rewards-row="rank">
+        <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.campaign_leaderboard.your_rank")}</span>
+        <span className="font-display text-[15px] font-bold tabular-nums text-white">{rankText}</span>
+      </div>
+      )}
+      {!frozen && hasAvailable && (
         <div
           className="flex items-baseline justify-between"
           style={{ borderTop: "1px solid #1D2026", paddingTop: 11 }}
         >
           <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.campaign_detail_page.still_available")}</span>
-          <span className="font-display text-[15px] font-bold tabular-nums text-white">
-            ${Math.max(0, view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed)}
-          </span>
+          <span className="font-display text-[15px] font-bold tabular-nums text-white">${available}</span>
         </div>
       )}
         </>

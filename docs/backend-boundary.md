@@ -228,6 +228,11 @@
 | `type: recurring` 期 grant `<key>@<YYYY-MM-DD \| IYYY-Www>`、bonus `<key>#s<n>`、`max_periods` | 🟡 | 键法与 progress 键名照抄；UTC 日 / ISO 周边界 |
 | `referrals_campaign_hook()`：好友合格 → 只驱动邀请人所在活动里 `referrals_qualified` 任务 +1，**不写 referrals 表** | 🟢 | 与 Referral 分页每人 $5 券各算各的（2026-09-26 Liya 拍板，取代 09-25 的"不叠加 / counted_toward"）；正式版同样两条独立路径，不需要跨模块判断 |
 | `hold_positions`：平仓事件 + pg_cron `campaign-hold-sweep`（每小时 :15） | 🟡 | 正式版可改事件驱动；含自动平仓 |
+| `winning_trades` 指标：`positions`（Closed 且 `pnl − winning_commission > 0`，`margin ≥ min_stake`）+ `arcade_calls`（won）；触发器 `trg_positions_campaign_wins` / `trg_arcade_calls_campaign_wins` | 🟢（口径以 `docs/delivery/rewards-task-types-v1.md` §12.2 为准） | Lovable 用状态触发器重算；正式版接结算事件，保留重算幂等。触发器包了异常，活动出错不会挡结算 |
+| `type: repeatable` grant `<key>#r<n>`、`max_times`；`reward.ticket`（`progress.credited_ticket`，不写余额不写流水） | 🟡 | 键法与 progress 键名照抄；ticket 不是资产 |
+| `get_campaign_leaderboard(_entry_id, _limit)`：同活动同 `leaderboard.task_key` 的入口合榜，返回前 N + 自己，不返回 user_id | 🟡 | 正式版可物化 / 缓存；并列先到先得 |
+| `campaign_entry_eligible()`：`rules.eligibility.new_users_only` / `allow_user_ids` | 🟡 | 正式版可换注册归因字段 |
+| `campaign_grants` 的 RLS 目前允许用户更新自己的行 | 🔴 历史遗留 | 正式版必须只允许服务端写（ticket 数与排名都靠这张表） |
 | 演示滚动器 `roll_demo_campaign_daily()` + pg_cron `roll-demo-campaign-daily`（00:02 UTC） | 🔴 演示专用 | 只重写 alex_carter 的 daily_trade 期记录与对应流水；正式版不存在 |
 | 演示补量 `top_up_demo_voucher_volume()` + pg_cron `top-up-demo-voucher-volume`（05:25 UTC） | 🔴 演示专用 | alex_carter 近 30 天成交量 < $12k 时补一笔已结算合约单（trade + Closed position + trade_profit 流水，≤ $4k/次，目标 $15k）让 Vouchers 页 Payout tier 常驻 T3；正式版不存在。migration `20261008120000` |
 | `active_days`：distinct UTC 日，`min_notional` 缺省 $10 | 🟡 | 照抄 |

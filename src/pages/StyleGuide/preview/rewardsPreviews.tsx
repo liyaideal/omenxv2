@@ -23,6 +23,9 @@ import { CampaignRewardsCard } from "@/components/campaigns/CampaignRewardsCard"
 import { ClaimSuccessToastBody } from "@/components/campaigns/ClaimSuccessToastBody";
 import { TieredTaskRow } from "@/components/campaigns/TieredTaskRow";
 import { RecurringTaskRow } from "@/components/campaigns/RecurringTaskRow";
+import { RepeatableTaskRow } from "@/components/campaigns/RepeatableTaskRow";
+import { CampaignLeaderboard } from "@/components/campaigns/CampaignLeaderboard";
+import type { CampaignLeaderboardRow } from "@/hooks/useCampaigns";
 import { CreditedToastBody, StreakBonusToastBody } from "@/components/campaigns/CreditedToastBody";
 import type { CampaignGrant } from "@/hooks/useCampaigns";
 import { formatDateRange } from "@/hooks/useCampaigns";
@@ -99,6 +102,9 @@ const makeView = (over: Partial<CampaignView> = {}, campaign: Partial<Campaign> 
     entry,
     participation: null,
     phase: "live",
+    title: over.entry?.branding.title || campaign.name || "World Cup — Group stage run",
+    ticketsEarned: 0,
+    hasTickets: false,
     tasksTotal: 2,
     tasksDone: 1,
     claimableCount: 1,
@@ -231,6 +237,24 @@ const TWO_CLAIMABLE = makeView(
   { id: "camp-7", name: "Two rewards waiting" },
 );
 
+/** A campaign made only of repeatable ticket tasks: the card shows tickets earned, no progress bar, no "up to". */
+const TICKET_CAMPAIGN = makeView(
+  {
+    entry: makeEntry({ id: "entry-tk", kind: "special", branding: { display_name: "Crypto Brunoo", accent: "#FF8A3D" } }),
+    tasksTotal: 0,
+    tasksDone: 0,
+    claimableCount: 0,
+    rewardVoucherUpTo: 0,
+    rewardUsdcUpTo: 0,
+    voucherClaimed: 0,
+    usdcClaimed: 0,
+    hasTickets: true,
+    ticketsEarned: 12,
+    joined: 184,
+  },
+  { id: "camp-tk", name: "Master of Predictions" },
+);
+
 const Grid = ({ children }: { children: React.ReactNode }) => (
   <div className="grid gap-4 md:grid-cols-2">{children}</div>
 );
@@ -246,6 +270,7 @@ export const CampaignCardStatesPreview = () => (
     <CampaignCard view={NO_ART} />
     <CampaignCard view={TWO_CLAIMABLE} />
     <CampaignCard view={LIVE_PUBLIC} signedOut />
+    <CampaignCard view={TICKET_CAMPAIGN} />
   </Grid>
 );
 
@@ -978,6 +1003,146 @@ export const MetricTaskRowsPreview = () => (
   </div>
 );
 
+/* ---------------- RW-8f · 可重复任务行（repeatable）+ ticket 奖励 + winning_trades 指标 ---------------- */
+const WIN_TICKET_TASK: CampaignTaskDef = {
+  task_key: "mp_wins",
+  type: "repeatable",
+  metric: "winning_trades",
+  name: "Make a profitable trade",
+  subtitle: "Trades of $10 or more count · tickets enter the weekly lucky draw",
+  target: 1,
+  min_stake: 10,
+  scope: { any_market: true },
+  reward: { ticket: 1 },
+};
+/** Longest copy the row has to hold (Spanish entry of the same campaign). */
+const WIN_TICKET_TASK_ES: CampaignTaskDef = {
+  ...WIN_TICKET_TASK,
+  task_key: "mp_wins_es",
+  name: "Haz una operación con ganancias",
+  subtitle: "Cuentan las operaciones de $10 o más · los boletos entran en el sorteo semanal",
+  cta: { label: "Operar", href: "/events" },
+};
+const INVITE_REPEAT_TASK: CampaignTaskDef = {
+  task_key: "invite_each",
+  type: "repeatable",
+  metric: "referrals_qualified",
+  name: "Invite a friend who trades",
+  subtitle: "Every friend who trades $100 counts",
+  target: 1,
+  reward: { usdc: 5 },
+};
+const VOLUME_TICKET_TASK: CampaignTaskDef = {
+  task_key: "vol_tickets",
+  type: "repeatable",
+  metric: "usd_volume",
+  name: "Trade $100 in volume",
+  subtitle: "Any market · every $100 counts again",
+  target: 100,
+  scope: { any_market: true },
+  reward: { ticket: 2 },
+};
+const WINS_THRESHOLD_TASK: CampaignTaskDef = {
+  task_key: "win_5",
+  metric: "winning_trades",
+  name: "Make 5 profitable trades",
+  subtitle: "Trades of $10 or more count",
+  target: 5,
+  min_stake: 10,
+  scope: { any_market: true },
+  reward: { ticket: 5 },
+};
+const repeatGrants = (task: CampaignTaskDef, times: number): CampaignGrant[] =>
+  Array.from({ length: times }, (_, i) => ({
+    id: `${task.task_key}-r${i + 1}`,
+    entryId: "entry-1",
+    taskKey: `${task.task_key}#r${i + 1}`,
+    progress: { value: i + 1, target: i + 1 },
+    status: "claimed" as GrantStatus,
+  }));
+const NEW_USERS_ONLY = "Only for new users who signed up through Crypto Brunoo's link.";
+
+export const RepeatableTaskRowStatesPreview = () => (
+  <div className="space-y-2.5 p-4">
+    <p className="text-[11px] text-[#6B7280]">F1 未登录</p>
+    <RepeatableTaskRow task={WIN_TICKET_TASK} grants={[]} signedOut />
+    <p className="text-[11px] text-[#6B7280]">F2 已登录 · 还没有票</p>
+    <RepeatableTaskRow task={WIN_TICKET_TASK} grants={[]} />
+    <p className="text-[11px] text-[#6B7280]">F3 已登录 · 12 张票</p>
+    <RepeatableTaskRow task={WIN_TICKET_TASK} grants={repeatGrants(WIN_TICKET_TASK, 12)} />
+    <p className="text-[11px] text-[#6B7280]">F4 不符合资格（入口限新用户）</p>
+    <RepeatableTaskRow task={WIN_TICKET_TASK} grants={[]} notEligible notEligibleReason={NEW_USERS_ONLY} />
+    <p className="text-[11px] text-[#6B7280]">F5 活动结束</p>
+    <RepeatableTaskRow task={WIN_TICKET_TASK} grants={repeatGrants(WIN_TICKET_TASK, 12)} frozen />
+    <p className="text-[11px] text-[#6B7280]">F6 最长文案（西语入口）</p>
+    <RepeatableTaskRow task={WIN_TICKET_TASK_ES} grants={repeatGrants(WIN_TICKET_TASK_ES, 12)} />
+    <p className="text-[11px] text-[#6B7280]">F7 同一形态换指标 / 换奖励：每邀请 1 人 $5 USDC · 每 $100 交易量 2 张票</p>
+    <RepeatableTaskRow task={INVITE_REPEAT_TASK} grants={repeatGrants(INVITE_REPEAT_TASK, 3)} />
+    <RepeatableTaskRow task={VOLUME_TICKET_TASK} grants={repeatGrants(VOLUME_TICKET_TASK, 4)} />
+    <p className="text-[11px] text-[#6B7280]">F8 winning_trades 套直接达标 + ticket 奖励（3 / 5 → 已达标）</p>
+    <GrantTaskRow task={WINS_THRESHOLD_TASK} status="in_progress" progressValue={3} onClaim={rNoop} />
+    <GrantTaskRow task={WINS_THRESHOLD_TASK} status="claimed" progressValue={5} onClaim={rNoop} />
+    <p className="text-[11px] text-[#6B7280]">F9 和现有任务排在一起（前三条是现有形态）</p>
+    <GrantTaskRow task={ROW_TASK} status="not_started" onClaim={rNoop} />
+    <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 36000, 4)} onClaim={rNoop} />
+    <GrantTaskRow task={ACTIVE_TASK} status="in_progress" progressValue={3} onClaim={rNoop} />
+    <RepeatableTaskRow task={WIN_TICKET_TASK} grants={repeatGrants(WIN_TICKET_TASK, 12)} />
+  </div>
+);
+
+/* ---------------- RW-8g · 活动排行榜区块（CampaignLeaderboard） ---------------- */
+const BOARD_NAMES = [
+  "Flickergecko_Jaw", "Heatherturner_Eye", "Surffox_Wyrm", "Cybercrow_Llama", "Eveningfox_Singer",
+  "Ringwolverine_Jester", "Foillightning_Sentry", "Planetantler_Oriole", "Checkerqueen_Eater", "Browngargoyle_Seed",
+];
+const BOARD_VALUES = [41, 38, 33, 29, 27, 24, 22, 19, 17, 15];
+const boardRows = (me?: { rank: number; value: number }): CampaignLeaderboardRow[] => {
+  const rows = BOARD_NAMES.map((username, i) => ({ rank: i + 1, username, value: BOARD_VALUES[i], isMe: false }));
+  if (!me) return rows;
+  if (me.rank <= 10) {
+    rows[me.rank - 1] = { rank: me.rank, username: "alex_carter", value: me.value, isMe: true };
+    return rows;
+  }
+  return [...rows, { rank: me.rank, username: "alex_carter", value: me.value, isMe: true }];
+};
+const BOARD_DEF = { task_key: "mp_wins", top: 10, title: "Ticket ranking · top 10" };
+const BoardLabel = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-[11px] text-[#6B7280]">{children}</p>
+);
+export const CampaignLeaderboardStatesPreview = () => (
+  <div className="space-y-4 p-4">
+    <BoardLabel>L1 有榜 · 我在前 10 之外（第 14 名，固定在最下面）</BoardLabel>
+    <CampaignLeaderboard def={BOARD_DEF} rows={boardRows({ rank: 14, value: 12 })} unit="tickets" />
+    <BoardLabel>L2 我在前三（卡片里显示 You）</BoardLabel>
+    <CampaignLeaderboard def={BOARD_DEF} rows={boardRows({ rank: 2, value: 38 })} unit="tickets" />
+    <BoardLabel>L3 我在第 4–10 名（列表里高亮）</BoardLabel>
+    <CampaignLeaderboard def={BOARD_DEF} rows={boardRows({ rank: 7, value: 22 })} unit="tickets" />
+    <BoardLabel>L4 已登录、还没有成绩（最后一行显示 —）</BoardLabel>
+    <CampaignLeaderboard def={BOARD_DEF} rows={boardRows()} unit="tickets" />
+    <BoardLabel>L5 未登录 / 不符合资格（没有 You 行）</BoardLabel>
+    <CampaignLeaderboard def={BOARD_DEF} rows={boardRows()} unit="tickets" signedOut />
+    <BoardLabel>L6 运营给名次配了奖励标签；榜上不足三人</BoardLabel>
+    <CampaignLeaderboard
+      def={{ ...BOARD_DEF, prizes: [{ rank: 1, label: "Wins $1,000 USDC" }, { rank: 2, label: "$300 USDC" }] }}
+      rows={boardRows().slice(0, 2)}
+      unit="tickets"
+      signedOut
+    />
+    <BoardLabel>L7 不带单位的榜（按交易量任务排；标题用默认文案）</BoardLabel>
+    <CampaignLeaderboard
+      def={{ task_key: "vol", top: 5 }}
+      rows={boardRows().slice(0, 5).map((r) => ({ ...r, value: r.value * 1250 }))}
+      signedOut
+    />
+    <BoardLabel>L8 加载中</BoardLabel>
+    <CampaignLeaderboard def={BOARD_DEF} rows={undefined} isLoading unit="tickets" />
+    <BoardLabel>L9 榜上还没有人</BoardLabel>
+    <CampaignLeaderboard def={BOARD_DEF} rows={[]} unit="tickets" />
+    <BoardLabel>L10 加载失败</BoardLabel>
+    <CampaignLeaderboard def={BOARD_DEF} rows={undefined} isError unit="tickets" />
+  </div>
+);
+
 /* ---------------- RW-9 · CampaignRulesDisclosure（受控展开） ---------------- */
 export const CampaignRulesStatesPreview = () => (
   <div className="space-y-3 p-3">
@@ -1005,6 +1170,24 @@ const CARD_FROZEN = makeView(
   { id: "camp-fz", name: "July Warm-up" },
 );
 
+/** Ticket-only campaign (repeatable ticket task + leaderboard): no $0 voucher / USDC rows, no button. */
+const CARD_TICKETS = makeView(
+  {
+    entry: makeEntry({ id: "entry-t", kind: "special", branding: { display_name: "Crypto Brunoo", accent: "#FF8A3D" } }),
+    tasksTotal: 0,
+    tasksDone: 0,
+    claimableCount: 0,
+    rewardVoucherUpTo: 0,
+    rewardUsdcUpTo: 0,
+    voucherClaimed: 0,
+    usdcClaimed: 0,
+    hasTickets: true,
+    ticketsEarned: 12,
+  },
+  { id: "camp-t", name: "Master of Predictions" },
+);
+const CARD_TICKETS_ZERO = { ...CARD_TICKETS, ticketsEarned: 0 };
+
 const RewardsCardSet = ({ isMobile }: { isMobile: boolean }) => (
   <div className={isMobile ? "space-y-4 p-3" : "grid gap-4 p-3 md:grid-cols-2"}>
     <CampaignRewardsCard view={CARD_BOTH} isMobile={isMobile} isSpecial={false} kolName="Partner" avatar={undefined} frozen={false} />
@@ -1012,6 +1195,9 @@ const RewardsCardSet = ({ isMobile }: { isMobile: boolean }) => (
     <CampaignRewardsCard view={CARD_VOUCHER_ONLY} isMobile={isMobile} isSpecial={false} kolName="Partner" avatar={undefined} frozen={false} />
     <CampaignRewardsCard view={CARD_USDC_ONLY} isMobile={isMobile} isSpecial={false} kolName="Partner" avatar={undefined} frozen={false} />
     <CampaignRewardsCard view={CARD_FROZEN} isMobile={isMobile} isSpecial={false} kolName="Partner" avatar={undefined} frozen />
+    <CampaignRewardsCard view={CARD_TICKETS} isMobile={isMobile} isSpecial kolName="Crypto Brunoo" avatar={undefined} frozen={false} showRank rank={14} />
+    <CampaignRewardsCard view={CARD_TICKETS_ZERO} isMobile={isMobile} isSpecial kolName="Crypto Brunoo" avatar={undefined} frozen={false} showRank rank={null} />
+    <CampaignRewardsCard view={CARD_TICKETS} isMobile={isMobile} isSpecial kolName="Crypto Brunoo" avatar={undefined} frozen />
   </div>
 );
 

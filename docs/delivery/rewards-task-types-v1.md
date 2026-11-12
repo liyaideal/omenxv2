@@ -13,6 +13,15 @@
 > 同批顺手补了两处：阶梯任务在桌面上把每档门槛直接写在进度条下面（档位标尺）；任务行第二列统一写成「金额 + USDC / voucher」。
 >
 > 本文档并入了 `rewards-tiered-tasks-v1.md`（阶梯解锁那一批）；那份只留档。
+>
+> **2026-11-12 追加（§12）**：为 Crypto Brunoo 的「Master of Predictions」活动加了四个以后都能复用的零件，运营照样只写 JSON：
+>
+> 1. **盈利交易指标** —— 进度 = 赚钱收场的交易笔数（结算赢或提前卖出赚钱都算），可设「自己出的钱至少多少才算」。
+> 2. **可重复任务** —— 每做到一次目标就发一次奖励，不封顶（也可以设上限）。
+> 3. **Ticket 奖励** —— 第三种奖励单位（金色）。只在这个活动里计数，不进任何余额；拿来排名或线下抽奖，用途由运营写在任务副标题里。
+> 4. **活动排行榜** —— 详情页任务下面的一块榜单，按某条任务的得数排，显示前 N 名和「我」的名次。
+>
+> 另有一个入口级开关「只给通过这条链接注册的新用户」。页面上不出现奖金数额（CPO 定）。
 
 ## 0. 读者须知
 
@@ -218,15 +227,17 @@
 | Ⓒ | 周期任务历史（hover 卡 / 抽屉） | RW-8d-b | `rewards-recurring-drawer` |
 | Ⓒ | 周期任务历史 · 周任务变体 | RW-8d-c | `rewards-recurring-drawer-weekly` |
 | Ⓒ | 指标行（邀请 / 活跃天 / 持仓 + 邀请阶梯） | RW-8e | `rewards-metric-rows` |
+| Ⓒ | RepeatableTaskRow 可重复任务全态（ticket 奖励、盈利交易、混排、Not eligible、冻结、最长文案） | RW-8f | `rewards-repeatable-rows` |
+| Ⓒ | CampaignLeaderboard 活动排行榜全态（桌面 + 手机；我在榜内 / 榜外 / 未上榜 / 未登录 / 加载 / 空 / 出错 / 已结束） | RW-8g | `rewards-campaign-leaderboard` |
 | Ⓒ | 自动入账 toast | RW-12b | `rewards-credited-toast` |
 | Ⓒ | streak bonus toast | RW-12c | `rewards-streak-toast` |
 | Ⓓ | Your invites 行（pending / qualified / rewarded） | RW-15 | `rewards-referral-rows` |
 
 ## 8. 涉及文件
 
-**前端**：`src/components/campaigns/TieredTaskRow.tsx` · `RecurringTaskRow.tsx` · `CreditedToastBody.tsx` · `TaskRowShell.tsx` · `GrantTaskRow.tsx` · `ReferralPanel.tsx` · `src/pages/lite/LiteCampaignDetailPage.tsx` · `src/hooks/useCampaigns.ts`
+**前端**：`src/components/campaigns/TieredTaskRow.tsx` · `RecurringTaskRow.tsx` · `CreditedToastBody.tsx` · `TaskRowShell.tsx` · `GrantTaskRow.tsx` · `ReferralPanel.tsx` · `src/pages/lite/LiteCampaignDetailPage.tsx` · `src/hooks/useCampaigns.ts` · 2026-11-12：`RepeatableTaskRow.tsx` · `CampaignLeaderboard.tsx` · `CampaignCard.tsx` · `CampaignRewardsCard.tsx` · `EndedCampaignsArchive.tsx`
 
-**后端**：`supabase/functions/claim-campaign-grant/index.ts` · `supabase/migrations/20260923150000_campaign_tiered_tasks.sql` · `20260925100000_campaign_task_types_r2.sql` · `20260926110000_referral_no_link.sql` · 演示留档 `20260923150100_*` / `20260925100100_*` / `20260926000000_*`
+**后端**：`supabase/functions/claim-campaign-grant/index.ts` · `supabase/migrations/20260923150000_campaign_tiered_tasks.sql` · `20260925100000_campaign_task_types_r2.sql` · `20260926110000_referral_no_link.sql` · 演示留档 `20260923150100_*` / `20260925100100_*` / `20260926000000_*` · 2026-11-12：`20261112100000_campaign_winning_trades_repeatable_tickets_leaderboard.sql` + 演示 `20261112100100_*`
 
 **字典**：`src/pages/StyleGuide/preview/rewardsPreviews.tsx` · `preview/registry.tsx` · `sections/RewardsStatesSection.tsx`
 
@@ -244,4 +255,83 @@
 
 ## 11. 未做的类型（等拍板）
 
-顺序清单、人工审核（解 share / discord 事件源缺口）、排名结算、瓜分奖池、抽奖。框架已预留 `type` / `metric` 两轴。
+顺序清单、人工审核（解 share / discord 事件源缺口）、按排名自动发奖、瓜分奖池、站内抽奖（开奖 / 中奖名单）。框架已预留 `type` / `metric` 两轴。排行榜的**展示**已在 §12 做了；按名次自动结算奖金没做，Master of Predictions 的奖金由运营线下发。
+
+## 12. 2026-11-12 追加 · 盈利交易 / 可重复 / ticket / 活动排行榜
+
+首次使用：Crypto Brunoo「Master of Predictions」（英语入口 `BRUNOO`、西语入口 `BRUNOO-ES`，两个入口共用一张榜）。四个零件互相独立，可与原有类型任意组合。migration `20261112100000_campaign_winning_trades_repeatable_tickets_leaderboard.sql`，演示留档 `20261112100100_seed_master_of_predictions_demo.sql`。
+
+### 12.1 配置写法
+
+```jsonc
+// campaign_entries.rules
+{
+  "tasks": [{
+    "task_key": "mp_wins",
+    "type": "repeatable",            // 每达到一次 target 发一次 reward
+    "metric": "winning_trades",
+    "target": 1,
+    "max_times": 50,                 // 可选，最多发几次；不写 = 不封顶
+    "min_stake": 10,                 // 可选，自己出的钱（margin）至少多少才算；缺省 0
+    "once_per_market": true,         // 可选，同一个市场只算一次；缺省 true
+    "scope": { "any_market": true, "products": ["markets", "quick_play"] },   // products 缺省两个都算
+    "reward": { "ticket": 1 },
+    "name": "Make a profitable trade",
+    "subtitle": "Trades of $10 or more count · tickets enter the weekly lucky draw",
+    "cta": { "label": "Trade", "href": "/events" }
+  }],
+  "leaderboard": { "task_key": "mp_wins", "top": 10, "title": "Ticket ranking · top 10",
+                   "prizes": [{ "rank": 1, "label": "Master of Predictions" }] },   // title / prizes 可选
+  "eligibility": { "new_users_only": true, "allow_user_ids": ["<uuid>"] }           // 可选
+}
+// campaign_entries.branding.title：可选，覆盖活动名（西语入口写 "Maestro de las Predicciones"）
+```
+
+### 12.2 口径
+
+| 项 | 口径 |
+|---|---|
+| **一笔盈利交易**（`winning_trades`） | `positions` 里 `status = 'Closed'` 且 `pnl − winning_commission > 0` 的仓位：市场结算赢、提前卖出赚钱都算；被自动平仓的一定是亏的，自然不算。统计窗口内**开仓**的才算 |
+| `min_stake` | 比的是 `positions.margin`（用户自己出的钱），不是 Boost 放大后的名义 |
+| `once_per_market` | 市场 = 仓位所属的事件（`event_options.event_id`，取不到用 `event_name`）。同一事件买两边、分几次买，都只算一次；每一轮 5 分钟 / 每日轮是各自的事件，各算各的 |
+| Quick Play | `arcade_calls.status = 'won'` 且 `gross ≥ min_stake` 算一笔；市场 = 开仓所在的 30 秒窗。任务 `scope` 带 `categories` 时不计 Quick Play；`scope.products` 不含 `quick_play` 时也不计 |
+| 窗口 | repeatable 从 `max(加入时间, 活动开始)` 起算到活动结束；活动开始前的交易不算 |
+| **repeatable 发放** | 值每跨过一个 `target` 发一次：第 n 次的 grant 行是 `<task_key>#r<n>`，目标 `target × n`。全部从源表重算，重复触发不会多发（同一行唯一键 + 行级闩锁） |
+| **ticket** | `campaign_settle_grant()` 达标即把该行置 `claimed`，`progress.credited_ticket = n`、`credited_at`；**不写余额、不写流水**。用户的 ticket 数 = 该入口下 `#r` 行里 claimed 的行数 × `reward.ticket` |
+| 其他奖励单位 + repeatable | USDC：每次达标自动入 Standard（沿用原入账路径）。券：grant 行会变 `claimable`，但页面的逐次领取按钮和 `claim-campaign-grant` 对 `#r` 键的解析**本轮未做**，暂不要配 |
+| **排行榜**（`get_campaign_leaderboard(_entry_id, _limit)`） | 同一活动下、`leaderboard.task_key` 相同的所有入口合成一张榜。repeatable 任务按「已发次数 × 每次 ticket 数」排，其他类型按进度值排；并列时先达到的在前。返回前 N 名 + 调用者自己那一行（不在前 N 也返回）。只返回 `rank / username / value / is_me`，不返回 user_id。anon 可读 |
+| **只限新用户**（`campaign_entry_eligible()`） | `new_users_only = true` 时，只有 `campaign_participations.source = 'link'` 且账号创建时间不早于绑定这条链接前 24 小时的用户计进度；`allow_user_ids` 里的账号不受限（KOL 本人、演示号）。不符合的用户看得到页面，任务行显示 Not eligible + 一句原因，不计进度、不上榜 |
+
+### 12.3 页面
+
+| 位置 | 行为 |
+|---|---|
+| 任务行（`RepeatableTaskRow`，RW-8f） | 结构与其他任务行同一外壳：标题、副标题、奖励槽、右侧动作。奖励槽两行：`1 ticket`（金 `#FBBA23`）+ `{n} earned`。右侧一直是 CTA（Trade），因为它没有「完成」这个终点；设了 `max_times` 并发满后变 Claimed。未登录：Sign in to start。活动已结束：冻结，保留已得数。不符合条件：虚线灰行 + 原因句 |
+| 与其他任务混排 | ticket 是第三种奖励色，与 USDC（青）、voucher（柠檬）并列；单阈值任务（`GrantTaskRow`）也可以发 ticket。阶梯 / 周期任务发 ticket 的显示本轮未做 |
+| 排行榜（`CampaignLeaderboard`，RW-8g） | 位置：任务列表之下、Campaign rules 之上。桌面前 3 名做成三张名次卡，手机只把第 1 名做成卡，其余为列表行；「我」的那行高亮，不在前 N 时钉在列表末尾并显示真实名次。态：加载骨架 / 空（No one is on the board yet. Be the first.）/ 读取失败 / 活动结束（标题不变，数据冻结） |
+| 奖励卡（Your rewards here） | 只显示这个活动实际会发的单位：有 ticket 的活动显示 `Tickets earned`，配了排行榜再显示 `Your rank`；没有券 / USDC 任务时不显示对应格和跳转按钮 |
+| 活动卡 / 已结束归档 | 活动里只有可重复任务时，不显示「x of y done」进度条和 `Rewards up to`，改为一行 `{n} tickets earned`（0 时不显示） |
+| 活动名 | `branding.title` 有值时，卡片、详情页头、归档都用它 |
+
+多语言：页面框架文案走站内 7 种语言；任务名、副标题、规则正文、榜单标题是运营写进配置的原文，不翻译（西语入口整套写西语）。**站内目前没有西语界面语言**，西语入口上按钮类的框架词（Sign in to start、You、tickets 等）仍是英语或用户所选语言。
+
+### 12.4 演示数据
+
+| 活动 | 地址 | 看什么 |
+|---|---|---|
+| Master of Predictions（进行中） | `/rewards/campaign/b3333333-3333-4333-8333-bbbbbbbbbbb3`，西语 `?entry=BRUNOO-ES` | alex_carter 1 张 ticket（真实成交重算出来的），榜上 13 个演示交易者 41 → 3 张，alex 钉在末尾 |
+| Prediction Sprint（已结束） | `/rewards/campaign/b4444444-4444-4444-8444-bbbbbbbbbbb4` | 冻结态；alex 9 张 ticket，第 9 名在前 10 内高亮 |
+
+Lovable 上这个活动从 11-10 23:00 UTC 就算开始，方便现在验；正式窗口是 11-15 23:00 UTC → 11-30 22:59:59 UTC（西班牙时间 16 日 00:00 → 30 日 23:59）。
+
+### 12.5 Lovable / 正式版边界
+
+| 项 | Lovable | 正式版 |
+|---|---|---|
+| 盈利交易计数 | `positions` / `arcade_calls` 的状态触发器 → 重算 | 接自有结算事件；口径以 §12.2 为准，必须保留重算幂等 |
+| ticket 记账 | 就是 `campaign_grants` 的行 | 同语义即可；ticket 不是资产，不进账务系统 |
+| grant 行写权限 | 现有 RLS 允许用户更新自己的 grant 行（历史遗留） | **必须只允许服务端写**，否则 ticket 数可被改 |
+| 排行榜 | 每次请求实时聚合 | 人多时改物化 / 缓存；并列规则、「我」的行、不外泄 user_id 三点保留 |
+| 新用户判定 | 账号创建时间 vs 绑定链接时间（24 小时内） | 可换成注册归因字段，语义不变：通过这条链接注册的新号 |
+| 按名次发奖 / 抽奖 | 无，运营线下做 | 等拍板（§11） |
+| 配置校验 | 无 | `repeatable` 要求 `target > 0`、单一奖励单位；`leaderboard.task_key` 必须指向本入口存在的任务；`min_stake ≥ 0` |

@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-12 | [Rewards · 盈利交易 / 可重复任务 / ticket 奖励 / 活动排行榜（并入 rewards-task-types-v1 §12）](../delivery/rewards-task-types-v1.md#12-2026-11-12-追加--盈利交易--可重复--ticket--活动排行榜) | 四个可复用零件，运营只写 JSON：`winning_trades` 指标、`repeatable` 类型、`ticket` 奖励单位、入口排行榜；外加「只限通过链接注册的新用户」。首用 Crypto Brunoo「Master of Predictions」（英 / 西两个入口合榜）。字典 RW-8f / RW-8g |
 | 2026-11-10 | [首页 / Sports / Finance · 交叉验收待批项落地（15 条）](./2026-11-10-review-decisions.md) | 股票 settles = 收盘 +15 分钟；平盘灰色 · Down wins；倒计时 26h 00m；首页 Crypto 默认 5m；Sports 选某天的标题与底句；Settling…；Show all 按需出现并预选市场；精选取最高两档；价格千分位；股票事件名补 it；股票行 Up / Down 定宽；More 标题 3 行；Sports 页头数字对上 ALL；Tomorrow；手机价钮短码在上价格在下；播放钮一律按 Lite 打开（存 Pro 也是）+ Pro 终端页头 ▶ Watch live（S5） |
 | 2026-11-10 | [首页 / Sports / 现货页 · 三方交叉验收修复](./2026-11-10-cross-review-fixes.md) | 字典弹层各自一个框；股票钮进 /spot、精选带 side、+N more、标签时钟不丢、768–1279 排法、Traded today 只算 BTC、骨架按最终高度；现货页倒计时 / 横轴 / 快捷钮 / 右栏；快轮页本地时间；队徽重叠与 NFL / MLB 取色；文档 K4 / MB5 / R7 / R9 |
 | 2026-11-10 | [Lovable 展示 omenx.com 真实事件 · 第 2 批](./2026-11-10-mainnet-sync-batch2.md) | 股票日轮阵容 / 开收盘 / Base 跟主网（美 51 · 港 12 · 韩 7，韩股首次上线，`₩` 不带小数、`000660.KR`、港股 4 位代码、短名事件名）；价格照旧模拟，结算按首页小图收盘点；旧股票开轮 cron 停用；加密 1d / 4h 按美东切 |

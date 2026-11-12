@@ -1,5 +1,6 @@
-import { CalendarCheck, CirclePlus, CircleSlash, Clock, Loader2, TrendingUp, UserPlus } from "lucide-react";
+import { CalendarCheck, CirclePlus, CircleSlash, Clock, Loader2, TrendingUp, Trophy, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
+import { t } from "@/i18n";
 import type { CampaignTaskDef, GrantStatus } from "@/hooks/useCampaigns";
 import { isCountMetric, metricUnit } from "@/hooks/useCampaigns";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -14,6 +15,8 @@ export const metricIcon = (task: CampaignTaskDef) => {
       return CalendarCheck;
     case "hold_positions":
       return Clock;
+    case "winning_trades":
+      return Trophy;
     default:
       return null;
   }
@@ -74,6 +77,7 @@ export const GrantTaskRow = ({
   isClaiming,
   frozen,
   signedOut,
+  notEligibleReason,
 }: {
   task: CampaignTaskDef;
   status: GrantStatus;
@@ -82,8 +86,11 @@ export const GrantTaskRow = ({
   isClaiming?: boolean;
   frozen?: boolean;
   signedOut?: boolean;
+  /** Subtitle of the not-eligible state; defaults to the referral wording. */
+  notEligibleReason?: string;
 }) => {
   const isMobile = useIsMobile();
+  const ticket = task.reward?.ticket ?? 0;
   const voucher = task.reward?.voucher ?? 0;
   const usdc = task.reward?.usdc ?? 0;
   const notEligible = status === "not_eligible";
@@ -102,7 +109,7 @@ export const GrantTaskRow = ({
       dashed={notEligible}
       subtitle={
         notEligible
-          ? "Covered by your friend's invite — this one goes to them."
+          ? (notEligibleReason ?? "Covered by your friend's invite — this one goes to them.")
           : task.subtitle
       }
       progress={
@@ -121,6 +128,11 @@ export const GrantTaskRow = ({
             <div className="font-display text-[13.5px] font-bold text-[#CFFF4A]">${voucher} voucher</div>
           )}
           {usdc > 0 && <div className="font-display text-[13.5px] font-bold text-[#33D6FF]">${usdc} USDC</div>}
+          {ticket > 0 && (
+            <div className="whitespace-nowrap font-display text-[13.5px] font-bold text-[#FBBA23]" data-reward-unit="ticket">
+              {t("rewards.screen.campaign_repeatable.ticket_reward", { count: ticket })}
+            </div>
+          )}
         </div>
       }
       action={
@@ -138,7 +150,7 @@ export const GrantTaskRow = ({
           <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">
             {status === "claimable" && usdc > 0
               ? "Credited to Standard after review"
-              : status === "claimed" && usdc > 0 && voucher === 0
+              : status === "claimed" && (usdc > 0 || ticket > 0) && voucher === 0
                 ? "Credited"
                 : STATUS_LABEL[status]}
           </span>

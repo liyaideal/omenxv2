@@ -21,7 +21,7 @@ export interface TaskRowTick {
 const fmtUsd = (n: number) => `$${n.toLocaleString("en-US")}`;
 
 /** Progress unit: `$` prefixes the numbers; any other word is appended (`2 / 3 friends`). */
-export type ProgressUnit = "$" | "friends" | "days" | "positions" | "weeks";
+export type ProgressUnit = "$" | "friends" | "days" | "positions" | "weeks" | "wins";
 export const fmtProgress = (n: number, unit: ProgressUnit = "$") =>
   unit === "$" ? fmtUsd(n) : n.toLocaleString("en-US");
 

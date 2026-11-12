@@ -922,6 +922,8 @@ export const previewRegistry: Record<string, Loader> = {
   "rewards-recurring-drawer-weekly": pick(rewards, "RecurringTaskRowDrawerWeeklyPreview"),
   "rewards-streak-toast": pick(rewards, "StreakBonusToastPreview"),
   "rewards-metric-rows": pick(rewards, "MetricTaskRowsPreview"),
+  "rewards-repeatable-rows": pick(rewards, "RepeatableTaskRowStatesPreview"),
+  "rewards-campaign-leaderboard": pick(rewards, "CampaignLeaderboardStatesPreview"),
   "rewards-kol-band": pick(rewards, "KolBandPreview"),
   "rewards-ended-archive": pick(rewards, "EndedArchivePreview"),
   "rewards-ended-detail": pick(rewards, "EndedCampaignDetailPreview"),
