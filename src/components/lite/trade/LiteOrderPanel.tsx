@@ -12,6 +12,7 @@ import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AccountBalanceLine } from "@/components/wallet/AccountBalanceLine";
 import { useInsufficientBalanceToast } from "@/components/wallet/useInsufficientBalanceToast";
+import { LowBalanceHint } from "@/components/lite/shared/LowBalanceHint";
 import { cn } from "@/lib/utils";
 import { SideButton } from "@/components/lite/shared/SideButton";
 import { useAuth } from "@/hooks/useAuth";
@@ -95,7 +96,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
   const { user } = useAuth();
   const { spotBalance, deductSpotBalance, addSpotBalance } = useUserProfile();
   const [submitting, setSubmitting] = useState(false);
-  const { notify: notifyInsufficient, overlay: transferOverlay } =
+  const { notify: notifyInsufficient, addMoney, overlay: transferOverlay } =
     useInsufficientBalanceToast("to_spot");
 
   const sidePrice = side === "yes" ? yesPrice : noPrice;
@@ -276,9 +277,12 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
           </div>
         </div>
         {lowBalance && (
-          <p id="lite-standard-low-balance" className="text-xs leading-[17px] text-foreground/75">
-            {t("spot.screen.lite_spot_order_panel.low_balance_hint")}
-          </p>
+          <LowBalanceHint
+            id="lite-standard-low-balance"
+            templateKey="spot.screen.lite_spot_order_panel.low_balance_hint"
+            linkKey="spot.screen.lite_spot_order_panel.low_balance_link"
+            onAddMoney={addMoney}
+          />
         )}
         <div className={cn("grid grid-cols-5 gap-1.5", lowBalance && "pointer-events-none opacity-40")} aria-disabled={lowBalance || undefined}>
           {PRESETS.map((p) => {

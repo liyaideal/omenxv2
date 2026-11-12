@@ -5162,7 +5162,8 @@
   "screen.lite_spot_trade.view_in_portfolio": "포트폴리오에서 보기 →",
   "screen.lite_spot_trade.buy_market": "{{market}} 매수",
   "screen.lite_spot_trade.chance": "{{percent}} 확률",
-  "screen.lite_spot_order_panel.low_balance_hint": "Standard 잔액에 자금을 추가하면 주문할 수 있어요."
+  "screen.lite_spot_order_panel.low_balance_hint": "Standard 잔액에 {{link}}하면 주문할 수 있어요.",
+  "screen.lite_spot_order_panel.low_balance_link": "자금을 추가"
  },
  "trade": {
   "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} {{line}} 커버",
@@ -5244,7 +5245,8 @@
   "screen.lite.lite_contract_trade_page.buy_market": "{{market}} 매수",
   "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
   "screen.lite.lite_contract_trade_page.buy_side": "{{side}} 매수",
-  "screen.lite.lite_contract_order_panel.low_balance_hint": "Boost 잔액에 자금을 추가하면 주문할 수 있어요."
+  "screen.lite.lite_contract_order_panel.low_balance_hint": "Boost 잔액에 {{link}}하면 주문할 수 있어요.",
+  "screen.lite.lite_contract_order_panel.low_balance_link": "자금을 추가"
  },
  "transparency": {
   "screen.TransparencyPage.hero_title": "온체인 투명성",

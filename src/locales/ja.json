@@ -5163,7 +5163,8 @@
   "screen.lite_spot_trade.view_in_portfolio": "ポートフォリオで見る →",
   "screen.lite_spot_trade.buy_market": "{{market}} を購入",
   "screen.lite_spot_trade.chance": "{{percent}} の確率",
-  "screen.lite_spot_order_panel.low_balance_hint": "Standard 残高に資金を追加すると注文できます。"
+  "screen.lite_spot_order_panel.low_balance_hint": "Standard 残高に{{link}}すると注文できます。",
+  "screen.lite_spot_order_panel.low_balance_link": "資金を追加"
  },
  "trade": {
   "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} {{line}} をカバー",
@@ -5245,7 +5246,8 @@
   "screen.lite.lite_contract_trade_page.buy_market": "{{market}} を購入",
   "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
   "screen.lite.lite_contract_trade_page.buy_side": "{{side}} を購入",
-  "screen.lite.lite_contract_order_panel.low_balance_hint": "Boost 残高に資金を追加すると注文できます。"
+  "screen.lite.lite_contract_order_panel.low_balance_hint": "Boost 残高に{{link}}すると注文できます。",
+  "screen.lite.lite_contract_order_panel.low_balance_link": "資金を追加"
  },
  "transparency": {
   "screen.TransparencyPage.hero_title": "オンチェーンの透明性",

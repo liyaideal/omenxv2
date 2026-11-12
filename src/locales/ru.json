@@ -5247,7 +5247,8 @@
   "screen.lite_spot_trade.view_in_portfolio": "Смотреть в портфеле →",
   "screen.lite_spot_trade.buy_market": "Купить {{market}}",
   "screen.lite_spot_trade.chance": "{{percent}} вероятность",
-  "screen.lite_spot_order_panel.low_balance_hint": "Пополните баланс Standard, чтобы разместить ордер."
+  "screen.lite_spot_order_panel.low_balance_hint": "{{link}} баланс Standard, чтобы разместить ордер.",
+  "screen.lite_spot_order_panel.low_balance_link": "Пополните"
  },
  "trade": {
   "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} {{line}} проходит фору",
@@ -5331,7 +5332,8 @@
   "screen.lite.lite_contract_trade_page.buy_market": "Купить {{market}}",
   "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
   "screen.lite.lite_contract_trade_page.buy_side": "Купить {{side}}",
-  "screen.lite.lite_contract_order_panel.low_balance_hint": "Пополните баланс Boost, чтобы сделать прогноз."
+  "screen.lite.lite_contract_order_panel.low_balance_hint": "{{link}} баланс Boost, чтобы сделать прогноз.",
+  "screen.lite.lite_contract_order_panel.low_balance_link": "Пополните"
  },
  "transparency": {
   "screen.TransparencyPage.hero_title": "Ончейн-прозрачность",

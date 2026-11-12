@@ -11,6 +11,10 @@ import type { TransferDirection } from "./TransferForm";
  * Insufficient-balance toast with an actionable follow-up.
  * If the other account still holds funds → "Transfer" (into `direction`'s
  * target account). Otherwise → "Add funds" (deposit flow).
+ *
+ * `addMoney` is the same fork without the toast — the low-balance hint's
+ * "Add money" link calls it directly (CPO 2026-11-12, deposit-ux ③): other
+ * account has money → open Transfer; neither has → /deposit.
  */
 export const useInsufficientBalanceToast = (direction: TransferDirection) => {
   const navigate = useNavigate();
@@ -21,6 +25,13 @@ export const useInsufficientBalanceToast = (direction: TransferDirection) => {
 
   // direction "to_spot" funds the Standard account, so the source is Boost.
   const sourceBalance = direction === "to_spot" ? balance : spotBalance;
+
+  const hasOtherFunds = sourceBalance > 0;
+
+  const addMoney = useCallback(() => {
+    if (hasOtherFunds) setOpen(true);
+    else navigate("/deposit");
+  }, [hasOtherFunds, navigate]);
 
   const notify = useCallback(() => {
     if (sourceBalance > 0) {
@@ -36,5 +47,5 @@ export const useInsufficientBalanceToast = (direction: TransferDirection) => {
 
   const overlay = <Overlay open={open} onOpenChange={setOpen} initialDirection={direction} />;
 
-  return { notify, overlay };
+  return { notify, addMoney, overlay };
 };

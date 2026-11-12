@@ -15,6 +15,7 @@ import { Info } from "lucide-react";
 import { toast } from "sonner";
 import { AccountBalanceLine } from "@/components/wallet/AccountBalanceLine";
 import { useInsufficientBalanceToast } from "@/components/wallet/useInsufficientBalanceToast";
+import { LowBalanceHint } from "@/components/lite/shared/LowBalanceHint";
 import { cn } from "@/lib/utils";
 import { SideButton } from "@/components/lite/shared/SideButton";
 import { useAuth } from "@/hooks/useAuth";
@@ -159,7 +160,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const { balance, deductBalance, addBalance } = useUserProfile();
   const risk = useRealtimeRiskMetrics();
   const [submitting, setSubmitting] = useState(false);
-  const { notify: notifyInsufficient, overlay: transferOverlay } =
+  const { notify: notifyInsufficient, addMoney, overlay: transferOverlay } =
     useInsufficientBalanceToast("to_futures");
 
   const effBoost = boostEnabled ? boost : 1;
@@ -493,9 +494,12 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         </div>
 
         {lowBalance && (
-          <p id="lite-boost-low-balance" className="text-xs leading-[17px] text-foreground/75">
-            {t("trade.screen.lite.lite_contract_order_panel.low_balance_hint")}
-          </p>
+          <LowBalanceHint
+            id="lite-boost-low-balance"
+            templateKey="trade.screen.lite.lite_contract_order_panel.low_balance_hint"
+            linkKey="trade.screen.lite.lite_contract_order_panel.low_balance_link"
+            onAddMoney={addMoney}
+          />
         )}
         <div className={cn("grid grid-cols-5 gap-1.5", lowBalance && "pointer-events-none opacity-40")} aria-disabled={lowBalance || undefined}>
           {PRESETS.map((p) => {

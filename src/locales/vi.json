@@ -5162,7 +5162,8 @@
   "screen.lite_spot_trade.view_in_portfolio": "Xem trong danh mục →",
   "screen.lite_spot_trade.buy_market": "Mua {{market}}",
   "screen.lite_spot_trade.chance": "{{percent}} khả năng",
-  "screen.lite_spot_order_panel.low_balance_hint": "Nạp tiền vào số dư Standard để đặt lệnh."
+  "screen.lite_spot_order_panel.low_balance_hint": "{{link}} vào số dư Standard để đặt lệnh.",
+  "screen.lite_spot_order_panel.low_balance_link": "Nạp tiền"
  },
  "trade": {
   "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} {{line}} phủ kèo",
@@ -5244,7 +5245,8 @@
   "screen.lite.lite_contract_trade_page.buy_market": "Mua {{market}}",
   "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
   "screen.lite.lite_contract_trade_page.buy_side": "Mua {{side}}",
-  "screen.lite.lite_contract_order_panel.low_balance_hint": "Nạp tiền vào số dư Boost để đặt lệnh."
+  "screen.lite.lite_contract_order_panel.low_balance_hint": "{{link}} vào số dư Boost để đặt lệnh.",
+  "screen.lite.lite_contract_order_panel.low_balance_link": "Nạp tiền"
  },
  "transparency": {
   "screen.TransparencyPage.hero_title": "Minh bạch on-chain",

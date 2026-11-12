@@ -5147,7 +5147,8 @@
   "screen.lite_spot_trade.view_in_portfolio": "在投资组合中查看 →",
   "screen.lite_spot_trade.buy_market": "买入 {{market}}",
   "screen.lite_spot_trade.chance": "{{percent}} 概率",
-  "screen.lite_spot_order_panel.low_balance_hint": "向 Standard 余额添加资金后即可下单。"
+  "screen.lite_spot_order_panel.low_balance_hint": "向 Standard 余额{{link}}后即可下单。",
+  "screen.lite_spot_order_panel.low_balance_link": "添加资金"
  },
  "trade": {
   "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} 让分 {{line}} 打出",
@@ -5229,7 +5230,8 @@
   "screen.lite.lite_contract_trade_page.buy_market": "买入 {{market}}",
   "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
   "screen.lite.lite_contract_trade_page.buy_side": "买入 {{side}}",
-  "screen.lite.lite_contract_order_panel.low_balance_hint": "向 Boost 余额添加资金后即可下单。"
+  "screen.lite.lite_contract_order_panel.low_balance_hint": "向 Boost 余额{{link}}后即可下单。",
+  "screen.lite.lite_contract_order_panel.low_balance_link": "添加资金"
  },
  "transparency": {
   "screen.TransparencyPage.hero_title": "链上透明度",
