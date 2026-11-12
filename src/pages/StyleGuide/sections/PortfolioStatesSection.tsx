@@ -851,9 +851,10 @@ const STATE_CASES: SectionCase[] = [
     label: "PF-33b · Live 空 · 两个账户都没钱",
     note: "CPO 2026-11-12（deposit-ux ④）：没持仓又没钱时，空态先引导充值。生产实渲 PortfolioEmptyLive，字典用 previewNoFunds 夹具注入「没钱」（不传 = 按真实余额判定，生产零变化）。",
     spec: [
-      { state: "Live 空 · 没钱", when: "live.length === 0 && user && !profileLoading && spotBalance + balance < 1", visual: "主按钮 `Deposit to start`（bg-primary，h-10 r-10）+ 次按钮 `Browse events`（描边，不变）。桌面并排；手机竖排、宽 240、两个按钮占满", source: "PortfolioEmptyLive · i18n portfolio.lite.live.deposit_to_start" },
+      { state: "Live 空 · 没钱", when: "rows.length === 0 && boostLive.length + standardLive.length === 0 && user && !profileLoading && !profileError && profile && spotBalance + balance < 1", visual: "主按钮 `Deposit to start`（bg-primary，h-10 r-10）+ 次按钮 `Browse events`（描边，不变）。桌面并排；手机竖排、宽 240、两个按钮占满", source: "PortfolioEmptyLive · i18n portfolio.lite.live.deposit_to_start" },
       { state: "点 Deposit to start", when: "点主按钮", visual: "桌面原地弹 DepositDialog（不预选账户，沿用记住的选择）；手机进 /deposit", source: "PortfolioEmptyLive" },
-      { state: "余额读取中", when: "profileLoading", visual: "按有钱处理（只出 Browse events），读完再判定，避免有钱用户闪一下 Deposit", source: "useUserProfile().isLoading" },
+      { state: "余额读取中 / 读取失败", when: "profileLoading || profileError || !profile", visual: "按有钱处理（只出 Browse events），避免有钱用户闪一下或误看到 Deposit", source: "useUserProfile().isLoading / error / profile" },
+      { state: "另一个分段有持仓", when: "当前分段空，另一分段有持仓", visual: "不出 Deposit（钱在持仓里），只出 Browse events", source: "LitePortfolio noPositionsAnywhere" },
     ],
   },
   {

@@ -566,7 +566,7 @@ Pro 侧输入语义为 notional / 数量，两面各自 canonical，不互相迁
 | **Loss capped at your stake** | Sub-line under a `None` value on the trade-page position card | — |
 | **Close to current price** / **close to entry** | Hot adverb (|mark − level| / mark ≤ 10%) — position-card sub-line / order-panel suffix, both rendered red | `near liquidation`, `close to liq` |
 | **Moves with your other positions** | Permanent helper line beside `Est. auto-close ⓘ`; renders with the field, never conditionally | — |
-| **Deposit to start** | Live 页空态的主按钮，只在「没持仓 + 已登录 + 余额已读完 + Standard + Boost < $1」时出现；旁边 `Browse events` 降为描边次按钮（手机竖排宽 240）。桌面原地弹充值弹窗，手机进 `/deposit`。key `portfolio.lite.live.deposit_to_start`。CPO 2026-11-12，字典 PF-33b | 有钱时也显示 |
+| **Deposit to start** | Live 页空态的主按钮，只在「两个分段都没持仓 + 已登录 + 余额已读完且没读错 + Standard + Boost < $1」时出现；旁边 `Browse events` 降为描边次按钮（手机竖排宽 240）。桌面原地弹充值弹窗，手机进 `/deposit`。key `portfolio.lite.live.deposit_to_start`。CPO 2026-11-12，字典 PF-33b | 有钱时也显示 |
 | ~~None at this balance~~ | RETIRED site-wide — never reintroduce | — |
 
 ### Auto-close tooltip（全站唯一）

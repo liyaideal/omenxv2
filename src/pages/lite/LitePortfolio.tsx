@@ -392,7 +392,7 @@ export default function LitePortfolio() {
       )}
 
       {rows.length === 0 ? (
-        <EmptyLive />
+        <EmptyLive noPositionsAnywhere={p.boostLive.length + p.standardLive.length === 0} />
       ) : (
         <>
           {isMobile ? (

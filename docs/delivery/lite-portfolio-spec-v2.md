@@ -242,7 +242,7 @@ case 定义在 `src/pages/StyleGuide/sections/PortfolioStatesSection.tsx`，prev
 |---|---|---|
 | Loading | `isLoading && !hasData && !isError`（首次拉取且无缓存；缓存直渲、后续刷新不闪骨架） | `PortfolioSkeleton`：KPI 占位卡桌面 3 / 移动 2 + 列表行占位 3 行；底 `#171A1F`、块 `#15181C`、根节点单一 `animate-pulse`；tabs 与 Boost/Standard chips 是静态 chrome，首载即实底可点、不骨架 |
 | Error | `isError`（列表请求失败，非渲染异常） | `PortfolioFetchError`：`Couldn't load your positions.`（text-sm muted）+ 描边按钮 `Retry`（重新发起拉取）；KPI 三值渲染 `—`，不渲染 `$0.00` 假零态 |
-| Empty | 请求成功但无数据 | `PortfolioEmptyLive`：`No live calls yet` + `Browse events`；Settled 空态 `Nothing settled yet`（无按钮） |
+| Empty | 请求成功但无数据 | `PortfolioEmptyLive`：`No live calls yet` + `Browse events`（2026-11-12 起两个分段都没持仓且 Standard + Boost < $1 时，主按钮改为 `Deposit to start`、`Browse events` 降为次按钮，见 deposit-ux-v1 §4）；Settled 空态 `Nothing settled yet`（无按钮） |
 | 详情 Not found | id 不存在 **或** 属于他人（越权） | `PortfolioNotFound`：`Position not found` + `It may have been removed, or the link is wrong.` + `Back to settled`（回 `/portfolio?tab=settled`）。两种情况渲染逐字相同，不泄露他人 event 名与金额 |
 | 渲染崩溃 | 组件抛错 | `PortfolioErrorBoundary`：`Something went wrong` + `Back to settled` |
 

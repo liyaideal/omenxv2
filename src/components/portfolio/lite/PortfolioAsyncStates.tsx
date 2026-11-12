@@ -106,20 +106,30 @@ export const PortfolioSkeleton = ({
  * Live tab empty state. Lives here (not inline in the page) so the style guide
  * mounts the same production render instead of a hand-copied div.
  *
- * No money (CPO 2026-11-12, deposit-ux ④): signed in, profile loaded and
- * Standard + Boost < $1 → primary `Deposit to start` (desktop opens the
+ * No money (CPO 2026-11-12, deposit-ux ④): no live positions in EITHER
+ * segment (`noPositionsAnywhere` from the page), signed in, profile loaded
+ * without error and Standard + Boost < $1 → primary `Deposit to start` (desktop opens the
  * Deposit dialog in place, mobile goes to /deposit) with `Browse events`
  * demoted to the outline secondary beside it (stacked full-width on mobile).
  * Otherwise unchanged. `previewNoFunds` is a style-guide-only fixture.
  */
-export const PortfolioEmptyLive = ({ previewNoFunds }: { previewNoFunds?: boolean } = {}) => {
+export const PortfolioEmptyLive = ({
+  previewNoFunds,
+  noPositionsAnywhere = true,
+}: { previewNoFunds?: boolean; noPositionsAnywhere?: boolean } = {}) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { spotBalance, balance, isLoading } = useUserProfile();
+  const { profile, error, spotBalance, balance, isLoading } = useUserProfile();
   const [depositOpen, setDepositOpen] = useState(false);
   const noFunds =
-    previewNoFunds ?? (!!user && !isLoading && (spotBalance ?? 0) + (balance ?? 0) < 1);
+    previewNoFunds ??
+    (noPositionsAnywhere &&
+      !!user &&
+      !isLoading &&
+      !error &&
+      !!profile && // a failed / missing profile reads as $0 — never treat that as "no money"
+      spotBalance + balance < 1);
   const browse = (
     <button
       type="button"
@@ -148,7 +158,7 @@ export const PortfolioEmptyLive = ({ previewNoFunds }: { previewNoFunds?: boolea
       ) : (
         browse
       )}
-      {!isMobile && <DepositDialog open={depositOpen} onOpenChange={setDepositOpen} />}
+      {noFunds && isMobile === false && <DepositDialog open={depositOpen} onOpenChange={setDepositOpen} />}
     </div>
   );
 };

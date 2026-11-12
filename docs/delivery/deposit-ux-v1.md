@@ -9,7 +9,7 @@
 
 - 长什么样 → 生产页：合约交易页 `/trade?event=…`、现货交易页 `/spot?event=…`、`/portfolio`（Live）——都要余额不到 $1 的账号才看得到
 - 什么时候变成什么样 → `/style-guide` → Lite → `交易页 ✅`（TR-30）、现货节（SP-20）、`Portfolio ✅`（PF-33b）
-- 字段名、文案、术语 → `docs/copy-dictionary.md` › Trading 表「Add money（Lite 下单卡余额不够提示里的链接）」→ 本文
+- 字段名、文案、术语 → `docs/copy-dictionary.md` › Trading 表「Add money（Lite 下单卡余额不够提示里的链接）」、Portfolio (Lite) 表「Deposit to start」→ 本文
 - 交易口径的词（爆仓 / 杠杆 / 限价单……）在 Lite 里叫什么 → copy-dictionary 顶部「Lite 术语对照表」
 
 ## 0.1 字典怎么看
@@ -50,13 +50,16 @@
 
 | 规则 | 内容 |
 |---|---|
-| 什么时候出现 | `/portfolio` 的 Live 页没有持仓（原空态 `No live calls yet`），并且：已登录、余额已读完、`Standard + Boost < $1` |
+| 什么时候出现 | `/portfolio` 的 Live 页当前分段空着（原空态 `No live calls yet`），并且：Boost 和 Standard **两个分段都没有持仓**、已登录、余额已读完且没读错、`Standard + Boost < $1`（两个账户合计，不取整） |
 | 长什么样 | 插画和 `No live calls yet` 不变；主按钮 `Deposit to start`（主色实心，h 40、圆角 10），`Browse events` 变成旁边的描边次按钮。桌面两个按钮并排；手机竖排，宽 240，两个按钮占满 |
 | 点了去哪 | `Deposit to start`：桌面原地弹充值弹窗（不预选账户，沿用用户上次的选择）；手机进 `/deposit` 充值页。`Browse events` 不变，去 `/events` |
-| 余额还在读 | 按「有钱」处理，只出 `Browse events`，读完再判定，有钱的用户不会闪一下 Deposit |
+| 余额还在读 / 读取失败 | 都按「有钱」处理，只出 `Browse events`；读失败时余额会回落成 0，不能当成没钱 |
+| 另一个分段有持仓 | 不出 Deposit（钱在持仓里），只出 `Browse events` |
 | 不变的 | 有钱时的 Live 空态、Settled 空态、未登录门 |
 
-文案：新 key `portfolio › lite.live.deposit_to_start` = `Deposit to start`（充值开始 / 儲值開始 / 入金して始める / 입금하고 시작하기 / Пополнить и начать / Nạp tiền để bắt đầu）。
+文案：新 key `portfolio › lite.live.deposit_to_start` = `Deposit to start`（充值开始 / 儲值開始 / 入金して始める / 입금하고 시작하기 / Пополнить и начать / Nạp tiền để bắt đầu）。西语没有这条，回落英语。
+
+门槛和 §3 不同是有意的：§3 下单卡问的是「这个账户够不够下这一单」，所以按单个账户、取整；这里问的是「这个人还有没有钱可以交易」，所以两个账户合计。
 
 ## Lovable / 正式版
 
@@ -64,7 +67,8 @@
 |---|---|---|
 | 链接本身、分叉判定 | 已做 | 照做；主站当前若还没有 11-05 那行提示，需要先做 1105 §1 |
 | 充值去处 | 桌面弹 `DepositDialog`（`initialAccount`），手机 `/deposit` 页 | 指向正式版对应的充值弹窗 / 充值页 |
-| i18n | 两个 key 已改 / 已加 | 同步进 OMENX-i18n 文案表 |
+| Portfolio 空态 Deposit to start | 已做 | 照做（判定见 §4） |
+| i18n | `low_balance_hint` ×2 改值、`low_balance_link` ×2 新增、`lite.live.deposit_to_start` 新增 | 同步进 OMENX-i18n 文案表 |
 
 ## 代号 ↔ 章节
 
