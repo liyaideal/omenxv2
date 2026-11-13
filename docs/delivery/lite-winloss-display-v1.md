@@ -36,8 +36,9 @@
 | 仓位 | **Position** | P = A × Boost | — |
 | 开仓手续费 | **trading fee** | F = P × 费率（`FUTURES_FEE_RATE`，与实际扣费同一配置；Lovable 0.15%，主网按主网配置） | `entryFeeFor(P)` |
 | 赢了净赚 | **If it wins → +$X** | (1 − p) × Q − F − 5% × ((1 − p) × Q − F)，Q = 份数，p = 买入价 | `netWinIfRight(p, Q)` |
-| 单笔最多亏 | **can lose up to $Y** | P + F | `maxLossFor(P)` |
+| 单笔最多亏 | **can lose up to $Y** | P + F | `maxLossFor(P)`；交易页持仓卡的 F 取「实际读到的开仓费」与「费率 × 整个仓位」中较大的那个（加过仓的单只能读到第一笔的费） |
 
+- 价格接近 $1 时，赢了的价格结果可能小于手续费，净赚会显示成负数（如 `If it wins → -$0.03`）；这时不收赢利佣金（佣金只对正利润收）。
 - 全仓：一笔亏过投入的部分从 Boost 余额里扣，所以「最多亏」写的是**仓位 + 开仓费**，不是投入。
 - **单笔最多亏是否再按余额封顶、几笔加起来超过余额怎么提示**——属于 ①，等 CTO 确认，本轮不做。
 - 海报口径与对账口径分开：海报（用户点 Share）**不扣手续费、不扣赢利佣金**；Portfolio、结算详情、钱包一律净额（2026-11-05 已统一）。
@@ -47,7 +48,9 @@
 | 条件 | 文案 |
 |---|---|
 | Boost > 1× | `Bought {side} · ${A} at {N}× Boost · ${P} position` |
-| 1× / Standard | `Bought {side} · ${A}` |
+| Boost 1× | `Bought {side} · ${A}` |
+
+Standard 下单卡（`LiteOrderPanel`）的 toast 本轮不动，仍是 `Bought {qty} shares · {side}`。
 
 位置：`LiteContractOrderPanel` 下单成功 toast。
 
@@ -58,7 +61,7 @@
 | None 副行 | auto-close 为 none | `Can lose up to ${P + 已付开仓费}`（取实际扣的开仓费；读不到时按费率算）。取代 `Loss capped at your stake` |
 | Profit ⓘ | 持仓卡有活价 | Profit 标签旁 ⓘ，悬停 / 点按打开：`Right after you buy, this starts a little below $0: you bought at {entry}, and selling right now gets {mark}. The {fee} trading fee was charged when you bought.` |
 
-单仓卡和多 market 的每条腿都有 ⓘ。来源：`LiteContractTrade.profitNoteFor` → `LitePositionCard.profitNote`。
+单仓卡和多 market 的每条腿都有 ⓘ。**手机上 ⓘ 点按打开底部抽屉**（标题 = 格子标签，正文同上）——tooltip 在触屏上点不开；同卡的 auto-close ⓘ 一起改成手机抽屉，桌面仍是悬停 tooltip。来源：`LiteContractTrade.profitNoteFor` → `LitePositionCard.profitNote`。
 
 ## 4. ④ Portfolio Live
 
@@ -67,7 +70,7 @@
 | `Cost` → `Put in` | KPI（手机 + 桌面）、手机卡片格、桌面表头 | key `common.put_in`（7 语已有） |
 | Boost 行一句话 | Boost 段的行（含 1×：全仓同样可能亏过投入） | 手机卡：`If it wins → +$X · can lose up to $Y`，level 态后接 ` · auto-close ≈{c}¢`；桌面行列窄，拆三行 `If it wins → +$X` / `Can lose up to $Y` / `auto-close ≈{c}¢`（或 `None`） |
 | Standard 行 | Standard 段 | 不变：手机 `If it wins you get $X`，桌面 `If it wins → $X` |
-| Boost check 说明句 | 卡片 / 抽屉 / 桌面弹层 | `All your Boost calls share your Boost balance. If it runs low, calls start closing automatically.`（key `portfolio.lite.boost.description` 7 语同步） |
+| Boost check 说明句 | 卡片 / 抽屉 / 桌面弹层 | `All your Boost calls share your Boost balance. If it runs low, calls start closing automatically.`（页面里与改前一样是英文写死的 `DETAILS_SENTENCE`；目录 key `portfolio.lite.boost.description` 已 7 语同步，平台接 i18n 时直接用） |
 
 Boost 行里 X、Y 由「投入 × Boost」和份数反推买入价后代入 §1 公式（`LiveCards.boostFigures`）。
 
@@ -75,9 +78,13 @@ Boost 行里 X、Y 由「投入 × Boost」和份数反推买入价后代入 §1
 
 | 规则 | 表现 |
 |---|---|
-| 赚钱平仓 | toast `Cashed out ≈ $X`，并照旧自动弹海报 |
-| 亏钱平仓 | toast `Cashed out {side} · you lost $X on this call`（X = 拿回 − 投入 − 开仓费），**不弹海报** |
-| 打平 | toast `Cashed out ≈ $X`，不弹海报 |
+判定按**价格结果**（这笔按买入价和卖出价算出的盈亏，不含手续费）——和海报口径一致：
+
+| 条件 | 表现 |
+|---|---|
+| 价格结果 > 0 | toast `Cashed out ≈ $X`（X = 到账金额），并照旧自动弹海报（海报写价格结果，不扣费）。价格赚了但被手续费吃成小亏的也走这一支 |
+| 价格结果 ≤ 0，且扣完开仓费后是亏的 | toast `Cashed out {side} · you lost $X on this call`（X = 投入 + 开仓费 − 拿回），**不弹海报**。价格持平但付了手续费也算这一支 |
+| 价格结果 ≤ 0，扣费后不亏（没有开仓费的极端情况） | toast `Cashed out ≈ $X`，不弹海报 |
 | 海报数字（自动弹出或用户点 Share） | 盈亏 = 价格结果（不扣开仓费、不扣赢利佣金）；左格 Put in；右格 = Put in + 价格结果 |
 
 覆盖面：Lite 合约平仓、Standard 平仓（Standard 没有 pnl 时按「拿回 − 投入」算）、Settled 行 / 系列 / 单笔详情的 Share。
@@ -90,7 +97,7 @@ Boost 行里 X、Y 由「投入 × Boost」和份数反推买入价后代入 §1
 | Put in | 取代 `Cost`；手机为 Details 一行，桌面为 KPI 卡标题 |
 | Position | Boost > 1× 才有：`$X · N× Boost`，X = 投入 × N。手机在 Put in 下一行，桌面在 Details 的 Side 下一行；桌面 PUT IN 卡副行第二行 `$X position` |
 | Fees 副行 | `Trading fee $A buy · $B sell`；A = Open / Add 成交的手续费合计（封顶为该仓手续费），B = 剩下的部分；B < $0.005 时整句退回 `Trading fee $X`；有赢利佣金时后接 ` · Winning commission $Y` |
-| Activity · Open / Add | Boost > 1× 时成交额下方加副行 `$X put in · N× Boost`（X = 成交额 ÷ N） |
+| Activity · Open / Add | 金额 = 份数 × 成交价（这笔成交的仓位价值；trades.amount 在个别下单路径存的是输入额，不可靠）；Boost > 1× 时下方加副行 `$X put in · N× Boost`（X = 份数 × 成交价 ÷ N） |
 
 数据：`useSettlementDetail` 的成交记录新增 `fee`（取 trades.fee）。系列详情（多轮）不在本轮范围，仍是 `Cost`。
 
@@ -103,7 +110,7 @@ Boost 行里 X、Y 由「投入 × Boost」和份数反推买入价后代入 §1
 | Boost 卡底注 | `For {categories}. Trade with leverage — Boost up to {maxBoost}×.`（品类随配置） |
 | 平仓流水 | `Cashed out: {event} · {side}`——新写入的不再带 `· Won` / `· Lost`；旧流水显示时去掉 |
 | 首页 hero 副标题（手机）/ `how_to_trade` | `Pick a topic, then pick a side.` |
-| 首页 hero 副标题（桌面） | `Think you know what happens next? Pick a topic, then pick a side.`（ja / ko / ru / vi 没有这个 key，回退英文，与改前一致） |
+| 首页 hero 副标题（桌面） | `Think you know what happens next? Pick a topic, then pick a side.`（`sub_v2` 与手机 `sub_v2_mobile` 两个 key 在 ja / ko / ru / vi 里本来就没有，回退英文，与改前一致；`how_to_trade` 7 语齐） |
 
 Wallet 卡底注与总余额说明在页面里仍是英文写死（与改前一致）；`wallet.*` 目录 key 已同步改成新文案、7 语齐，平台接 i18n 时直接用。
 
@@ -112,13 +119,15 @@ Wallet 卡底注与总余额说明在页面里仍是英文写死（与改前一�
 | 排 | key | 看什么 |
 |---|---|---|
 | ③ | `autoclose-position-none` | None 副行 `Can lose up to $242.41` |
-| ③ | `autoclose-position-profit-note`（新增 AC-T1b） | Profit ⓘ 打开态 |
+| ③ | `autoclose-position-profit-note`（新增 AC-T1b） | Profit ⓘ 打开态（桌面 tooltip） |
+| ③ | `autoclose-position-profit-note-mobile`（新增 AC-T1c） | Profit ⓘ 手机抽屉打开态 |
 | ③ | `trade-tr11`、`trade-tr12` | 1× 卡的 None 副行 |
 | ④ | `portfolio-lite-live-cards`、`portfolio-lite-desktop-rows` | Put in；Boost 行一句话 |
 | ④ | `portfolio-lite-kpi-mobile`、`portfolio-lite-kpi-desktop` | KPI `Put in` |
 | ④ | `portfolio-lite-details-drawer`、`portfolio-lite-details-popover`、`portfolio-lite-gauge-states` | Boost check 说明句 |
 | ⑥ | `portfolio-lite-detail-cashout(-mobile)` | Bucks vs. Magic 那笔：Position、手续费拆买卖、Activity 副行 |
-| ⑥ | `portfolio-lite-detail-won(-mobile)`、`…-autoclosed(-mobile)` | 2× / 3× 到期结算：有 Position、手续费不拆 |
+| ⑥ | `portfolio-lite-detail-won(-mobile)` | 2× 到期结算：有 Position、没有卖出费所以手续费不拆、有赢利佣金 |
+| ⑥ | `portfolio-lite-detail-autoclosed(-mobile)` | 3× 自动平仓：有 Position、手续费拆买 / 卖（卖出那笔是自动平仓的费） |
 | ⑥ | `portfolio-lite-detail-lost(-mobile)` | 1×：没有 Position 行、Activity 无副行 |
 | ⑦ | `wallet-equity-bands`、`wallet-lite-hero-note-lite` | 总余额说明、两张卡底注 |
 | ⑧ | `home-ha1` | hero 副标题 |

@@ -5,12 +5,13 @@
 // (yes/no) only for the side identity in the header.
 // ============================================================
 import { t } from "@/i18n";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ShareIconButton } from "@/components/lite/share/ShareIconButton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AutoCloseTooltipBody } from "@/components/lite/shared/AutoCloseTooltipBody";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
 
 interface Props {
   sideLabel: string;
@@ -102,16 +103,15 @@ export const LitePositionCard = ({
         tone={profit >= 0 ? "up" : "down"}
         labelExtra={
           profitNote ? (
-            <Tooltip {...(profitNoteOpen ? { open: true } : {})}>
-              <TooltipTrigger asChild>
-                <button type="button" aria-label="About profit">
-                  <Info className="w-3 h-3 cursor-help" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-72 p-3 text-xs normal-case tracking-normal leading-relaxed text-muted-foreground">
-                {profitNote}
-              </TooltipContent>
-            </Tooltip>
+            <InfoTip
+              label="About profit"
+              title={t("trade.screen.lite.lite_contract_sections.profit")}
+              mobile={compact}
+              forceOpen={profitNoteOpen}
+              contentClassName="max-w-72 p-3 text-xs normal-case tracking-normal leading-relaxed text-muted-foreground"
+            >
+              {profitNote}
+            </InfoTip>
           ) : undefined
         }
       />
@@ -121,16 +121,14 @@ export const LitePositionCard = ({
         sub={autoCloseSub}
         tone={autoCloseHot ? "down" : undefined}
         labelExtra={
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button type="button" aria-label={t("trade.screen.lite.lite_contract_order_panel.about_auto_close")}>
-                <Info className="w-3 h-3 cursor-help" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent className="p-3">
-              <AutoCloseTooltipBody />
-            </TooltipContent>
-          </Tooltip>
+          <InfoTip
+            label={t("trade.screen.lite.lite_contract_order_panel.about_auto_close")}
+            title={compact ? "Auto-close" : "Est. auto-close"}
+            mobile={compact}
+            contentClassName="p-3"
+          >
+            <AutoCloseTooltipBody />
+          </InfoTip>
         }
       />
     </div>
@@ -161,6 +159,57 @@ export const LitePositionCard = ({
   );
 };
 
+
+/**
+ * ⓘ explainer: hover tooltip on desktop; on mobile a tap opens a bottom sheet
+ * (tooltips never open on touch — 2026-11-13 cross-review).
+ */
+const InfoTip = ({
+  label,
+  title,
+  mobile,
+  forceOpen,
+  contentClassName,
+  children,
+}: {
+  label: string;
+  title: string;
+  mobile: boolean;
+  /** Style-guide fixture only. */
+  forceOpen?: boolean;
+  contentClassName?: string;
+  children: ReactNode;
+}) => {
+  const [open, setOpen] = useState(false);
+  const trigger = (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={mobile ? () => setOpen(true) : undefined}
+      className={mobile ? "-m-2 p-2" : undefined}
+    >
+      <Info className="w-3 h-3 cursor-help" />
+    </button>
+  );
+  if (mobile) {
+    return (
+      <>
+        {trigger}
+        <MobileDrawer open={open || !!forceOpen} onOpenChange={setOpen} title={title}>
+          <div className="pb-6 text-[13px] normal-case tracking-normal leading-relaxed text-muted-foreground">
+            {children}
+          </div>
+        </MobileDrawer>
+      </>
+    );
+  }
+  return (
+    <Tooltip {...(forceOpen ? { open: true } : {})}>
+      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+      <TooltipContent className={contentClassName}>{children}</TooltipContent>
+    </Tooltip>
+  );
+};
 
 const PosCell = ({
   label,

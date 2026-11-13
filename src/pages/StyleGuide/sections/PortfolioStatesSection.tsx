@@ -140,13 +140,13 @@ const KPI_LIVE_SPEC: SectionCase["spec"] = [
   {
     state: "桌面 3 列",
     when: "视口 ≥ lg",
-    visual: "COST / NOW WORTH / PROFIT 三卡，grid-cols-3 gap-3",
+    visual: "PUT IN / NOW WORTH / PROFIT 三卡，grid-cols-3 gap-3（2026-11-13 起 COST → PUT IN，key common.put_in）",
     source: "KpiGrid cols={3}",
   },
   {
     state: "移动 2 列",
     when: "视口 < lg",
-    visual: "COST / NOW WORTH 两卡，PROFIT 并入 NOW WORTH 副行 +$26.58 · +4.5%",
+    visual: "PUT IN / NOW WORTH 两卡，PROFIT 并入 NOW WORTH 副行 +$26.58 · +4.5%",
     source: "KpiGrid cols={2}",
   },
 ];
@@ -341,7 +341,7 @@ const LIVE_CASES: SectionCase[] = [
   {
     key: "portfolio-lite-live-cards",
     label: "PF-8 · Live 常规态（LiveRow · LiveCard）",
-    note: "移动卡：标题 14.5px/600、chip 右上、三宫格 COST / NOW WORTH / PROFIT、末行整宽 Cash out（h-40）。",
+    note: "移动卡：标题 14.5px/600、chip 右上、三宫格 PUT IN / NOW WORTH / PROFIT、末行整宽 Cash out（h-40）。",
     spec: LIVE_BASE_SPEC,
   },
   {
@@ -362,10 +362,10 @@ const LIVE_CASES: SectionCase[] = [
     label: "PF-10 · auto-close 值语法（两态 · 常驻字段）",
     note: "Boost 段该字段常驻，值只有两态：有价 `≈{c}¢`，无价 `none`（灰 #4d5560 + hover 全句）。不存在 `—` 占位、不存在第三态。",
     spec: [
-      { state: "level", when: "segment === 'boost' && autoClose.kind === 'level'", visual: "`If it wins → $X · auto-close ≈{c}¢`", source: "estimateAutoClosePrice()" },
-      { state: "none", when: "autoClose.kind === 'none'", visual: "`· auto-close none`，none 为内联灰 #4d5560，hover tooltip 全句「亏损封顶本金」", source: "estimateAutoClosePrice()" },
+      { state: "level", when: "segment === 'boost' && autoClose.kind === 'level'", visual: "桌面三行：`If it wins → +$X` / `Can lose up to $Y` / `auto-close ≈{c}¢`（2026-11-13）", source: "estimateAutoClosePrice() · LiveCards.boostFigures" },
+      { state: "none", when: "autoClose.kind === 'none'", visual: "第三行 `auto-close none`，none 为内联灰 #4d5560，hover 出 auto-close 说明；最多亏多少由第二行 `Can lose up to $Y` 说", source: "estimateAutoClosePrice()" },
       { state: "none · 1× Boost", when: "leverageNum === 1", visual: "恒 none 分支：无借贷敞口", source: "autoClosePrice boost ≤ 1" },
-      { state: "移动卡句式", when: "移动帧", visual: "level → `… · auto-close ≈{c}¢`；none → `… · no auto-close, loss capped`", source: "LiveCards.LiveCard" },
+      { state: "移动卡句式", when: "移动帧", visual: "`If it wins → +$X · can lose up to $Y`；level 再接 ` · auto-close ≈{c}¢`；none 不接（2026-11-13 起不再写 `no auto-close, loss capped`）", source: "LiveCards.LiveCard" },
     ],
   },
   {
@@ -383,7 +383,7 @@ const LIVE_CASES: SectionCase[] = [
     spec: [
       { state: "level", when: "segment === 'boost' && autoClose.kind === 'level' && hot === false", visual: "句尾 `· auto-close ≈{c}¢`，整句 #6B7280", source: "LiveCards.LiveCard" },
       { state: "hot", when: "hot === true", visual: "整卡红描边 rgba(255,92,92,.55) + 整句 RED", source: "isAutoCloseHot" },
-      { state: "none", when: "autoClose.kind === 'none'", visual: "`· no auto-close, loss capped`", source: "estimateAutoClosePrice()" },
+      { state: "none", when: "autoClose.kind === 'none'", visual: "句子停在 `· can lose up to $Y`，不接 auto-close 段", source: "estimateAutoClosePrice()" },
     ],
   },
   {
@@ -585,7 +585,7 @@ const SETTLED_CASES: SectionCase[] = [
       { state: "折叠不持久化", when: "重新挂载", visual: "collapsed 重置为空集，全部展开", source: "useState(new Set())" },
       { state: "懒加载新增组", when: "Load earlier months 追加的组", visual: "默认展开，不继承折叠状态", source: "SettledList visible" },
       { state: "分享图标（2026-11-05）", when: "已登录（onShare 传入）——单仓 / 系列 / Quick Play 每一行", visual: "金额左边 28px ShareIconButton（同 Live 行）；金额列固定 min-w 88px 右对齐，所以所有行的图标在同一列；点图标只开海报不进详情", source: "SettledRow onShare · lite-share-v1 §4.1" },
-      { state: "分享海报", when: "点分享图标", visual: "单仓 = 结算海报（与单仓详情页同一组数）；系列 = 同一张结算海报，第二行 `Won {wins} of {count} rounds`，Put in = 总成本、Paid out = 总派彩、日期 = 最后一轮；Quick Play = 场次详情那张街机海报", source: "liteSettledShare.ts · quickPlayShareRun" },
+      { state: "分享海报", when: "点分享图标", visual: "单仓 = 结算海报（2026-11-13 起海报不扣手续费和赢利佣金：盈亏 = 价格结果，右格 = 投入 + 价格结果；详情页本身仍是净额）；系列 = 同一张结算海报，第二行 `Won {wins} of {count} rounds`，Put in = 总成本、Paid out = 总派彩、日期 = 最后一轮；Quick Play = 场次详情那张街机海报", source: "liteSettledShare.ts · quickPlayShareRun" },
     ],
   },
   {
@@ -660,7 +660,7 @@ const DETAIL_CASES: SectionCase[] = [
     note: "桌面：Payout 卡片第二行小字；移动：Fees 行下小字",
     spec: [
       { state: "won", when: 'closeReason === "settlement" && outcomeWon === true', visual: "眉线 SETTLED；RESULT `+$X` 绿，副行 `Won · Up settled at $1.00`", source: "SettlementDetailVM" },
-      { state: "Payout 公式", when: "始终", visual: "结果数 = PnL − Fees（费后，2026-11-05 起列表行 / Settled KPI / 详情 / 海报同一个数）；Payout = max(0, Cost + 结果)，副行 `after $F fees`", source: "detailPayout · LiteSettlementDetail netAfterFees" },
+      { state: "Payout 公式", when: "始终", visual: "结果数 = PnL − Fees（费后，2026-11-05 起列表行 / Settled KPI / 详情同一个数；海报 2026-11-13 起不扣费）；Payout = max(0, Cost + 结果)，副行 `after $F fees`", source: "detailPayout · LiteSettlementDetail netAfterFees" },
       { state: "View event", when: "eventId != null", visual: "右上 `View event ›`，带 fromState 返回本详情页", source: "portfolioReturn" },
     ],
   },

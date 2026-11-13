@@ -23,7 +23,7 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     rules: [
       { id: "H1", text: "顶栏 / 行情条不动。行情条走真数据，跑马灯连续左移。" },
       { id: "H2", text: "Hero = 1440×260 全宽横幅：设计师的猞猁键盘插画做整条底图（/assets/desktop/hero-band@2x.png 2880×520，右对齐、撑满高度），上压左浅右深暗色渐变。" },
-      { id: "H3", text: "Hero 文案：H1 两行 56px「Prediction markets, / with leverage.」（第二行柠檬色），副标 15px「Think you know what happens next? Pick a topic, tap Yes or No.」，LIVE MARKETS 小标签。i18n key：home_hero.heading_v2 / sub_v2 / sub_v2_mobile。" },
+      { id: "H3", text: "Hero 文案：H1 两行 56px「Prediction markets, / with leverage.」（第二行柠檬色），副标 15px「Think you know what happens next? Pick a topic, then pick a side.」，LIVE MARKETS 小标签。i18n key：home_hero.heading_v2 / sub_v2 / sub_v2_mobile。" },
       { id: "H4", text: "chip 行左边 = 品类：All / Intraday / Sports / Crypto / Finance…；右边 = 视图开关：⚡ Boost / ☆ Watchlist / ▦ Calendar。Boost 是筛选不是品类。" },
       { id: "H5", text: "Boost 行为不变（boostOnly）：点了换成只列能 Boost 事件的卡片网格、按品类分组，All 的排版不参与。" },
       { id: "H6", text: "Quick Play 横幅照生产组件（ArcadeEntryBanner，桌面 AB-1 / 手机 AB-2），不另画。" },
@@ -126,7 +126,7 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     title: "手机版（390）",
     status: "批 11-09 15:32",
     rules: [
-      { id: "MB1", text: "Hero 按设计师手机稿（Figma 203-91044 / 203:91054）：居中两行 26px 标题 → 一句副标「Pick a topic, tap Yes or No.」→ 358×89 插画条（/assets/mobile/hero-band@3x.png，设计师稿整块导出：面板底 + 插画，3×，紧贴副标下方）；不放 LIVE MARKETS 标签。" },
+      { id: "MB1", text: "Hero 按设计师手机稿（Figma 203-91044 / 203:91054）：居中两行 26px 标题 → 一句副标「Pick a topic, then pick a side.」→ 358×89 插画条（/assets/mobile/hero-band@3x.png，设计师稿整块导出：面板底 + 插画，3×，紧贴副标下方）；不放 LIVE MARKETS 标签。" },
       { id: "MB2", text: "品类 chip 一行横滑；Quick Play 用生产手机横幅 AB-2。" },
       { id: "MB3", text: "Sports：舞台位（直播预览 / 对阵 + 比分 / 最大场倒计时）→ 2 列瓷砖 → 日历条（横滑，紧贴在面板正上方——它只筛这张表，点了马上看得到变化；CPO 2026-11-11 批，原来在段标题下面、离表一屏远）→ 面板只留 Big this week 3 行 → 底部「+N more this week ｜ All N matches →」（这个 N = 眉行的 N：正在打的 + 还没开赛的，所以有比赛在打时比日历条 ALL 多出正在打的场数）。不列 Next up。手机行第一行写两队短码 + 成交额，短码太长时只截短码、成交额不截（2026-11-10）。有直播标记的 live 瓷砖去掉联赛名，保住「▶ Stream」。" },
       { id: "MB4", text: "Crypto：钟 + 进度条整行、周期 tab 一行 → BTC 卡（价 48px、图 150 高、同 C4 画法）→「BTC · last 8」紧贴图表下方、在 Up / Down 钮之前 → 资金比例条 → ETH / SOL 两张半卡并排（图 64 高）。" },

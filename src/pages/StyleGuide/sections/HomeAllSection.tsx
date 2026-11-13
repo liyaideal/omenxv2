@@ -18,7 +18,7 @@ const HERO_CASES: SectionCase[] = [
     note: "文案走 i18n：home_hero.heading_v2 / sub_v2 / sub_v2_mobile（en / zh-CN / zh-TW 已配，其余语言回落 en）。",
     spec: [
       { state: "桌面", when: "useIsMobile() === false", visual: "1440×260 全宽横幅：/assets/desktop/hero-band@2x.png 右对齐撑满高，左浅右深渐变；LIVE MARKETS 药丸 + 两行 56px「Prediction markets, / with leverage.」+ 15px 副标", source: "HomeHero · H2 H3" },
-      { state: "手机", when: "useIsMobile() === true", visual: "居中两行 26px 标题 → 14px 副标「Pick a topic, tap Yes or No.」→ 358×89 插画条 /assets/mobile/hero-band@3x.png（设计师稿 203:91054 整块导出：面板底 + 插画，3×）；无药丸", source: "HomeHero isMobile · MB1" },
+      { state: "手机", when: "useIsMobile() === true", visual: "居中两行 26px 标题 → 14px 副标「Pick a topic, then pick a side.」→ 358×89 插画条 /assets/mobile/hero-band@3x.png（设计师稿 203:91054 整块导出：面板底 + 插画，3×）；无药丸", source: "HomeHero isMobile · MB1" },
     ],
   },
 ];

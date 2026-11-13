@@ -11,7 +11,8 @@
 // TWO-STATE GRAMMAR (CPO 2026-08-26): the result is either a price or
 // "none" — no null, no unknown. Degenerate/zero-size inputs and 1×
 // positions are honest "none" (a zero or unlevered stake can never be
-// auto-closed; loss is capped at the stake). If the account is already
+// auto-closed). "None" only means no auto-close level — under cross margin a
+// call can still lose its whole position, which the UI states as "Can lose up to". If the account is already
 // at/past the trigger at the current mark, the truthful level IS the
 // mark (renders hot). Always an ESTIMATE — the UI keeps the "≈" prefix.
 // ============================================================

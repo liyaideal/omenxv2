@@ -479,7 +479,7 @@ export const FuturesAccountCard = ({
       <p className="text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
         {line && <><span className="text-foreground font-medium">For {line}.</span>{" "}</>}
         {boostMax && boostMax > 1
-          ? `Trade with leverage — Boost up to ${boostMax}×.`
+          ? `Trade with leverage — Boost up\u00a0to\u00a0${boostMax}×.`
           : "Buy and sell shares at full price."}
       </p>
     </AccountCardShell>

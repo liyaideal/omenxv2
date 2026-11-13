@@ -105,7 +105,7 @@ export const LiveCard = ({
     row.segment === "standard"
       ? winSentence(row)
       : row.autoClose.kind === "level"
-        ? `${boostSentence} · auto-close ≈${cents(row.autoClose.price)}`
+        ? `${boostSentence} · auto\u2011close\u00a0≈${cents(row.autoClose.price)}`
         : boostSentence;
 
   const activate = () =>

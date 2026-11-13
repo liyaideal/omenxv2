@@ -110,6 +110,7 @@ export default function LiteSettlementDetail() {
       total: t.total,
       price: t.price,
       fee: t.fee,
+      qty: t.qty,
     })),
   };
 

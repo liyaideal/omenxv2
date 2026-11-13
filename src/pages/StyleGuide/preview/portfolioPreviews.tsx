@@ -194,7 +194,7 @@ export const PortfolioKpiMobilePreview = () => (
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 正</p>
       <KpiGrid cols={2}>
-        <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
+        <KpiCard label="PUT IN" value={money(669.67)} sub="7 calls" />
         <KpiCard
           label="NOW WORTH"
           value={money(775.31)}
@@ -206,7 +206,7 @@ export const PortfolioKpiMobilePreview = () => (
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 负</p>
       <KpiGrid cols={2}>
-        <KpiCard label="COST" value={money(310)} sub="2 calls" />
+        <KpiCard label="PUT IN" value={money(310)} sub="2 calls" />
         <KpiCard
           label="NOW WORTH"
           value={money(268.4)}
@@ -218,7 +218,7 @@ export const PortfolioKpiMobilePreview = () => (
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 零态</p>
       <KpiGrid cols={2}>
-        <KpiCard label="COST" value={money(0)} sub="0 calls" />
+        <KpiCard label="PUT IN" value={money(0)} sub="0 calls" />
         <KpiCard label="NOW WORTH" value={money(0)} sub={`${signedMoney(0)} · +0.0%`} />
       </KpiGrid>
     </div>
@@ -230,7 +230,7 @@ export const PortfolioKpiDesktopPreview = () => (
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 桌面 3 卡</p>
       <KpiGrid cols={3}>
-        <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
+        <KpiCard label="PUT IN" value={money(669.67)} sub="7 calls" />
         <KpiCard label="NOW WORTH" value={money(775.31)} />
         <KpiCard label="PROFIT" value={signedMoney(105.64)} sub="+15.8%" subColor={VOLT} />
       </KpiGrid>
@@ -238,7 +238,7 @@ export const PortfolioKpiDesktopPreview = () => (
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 桌面 3 卡（负）</p>
       <KpiGrid cols={3}>
-        <KpiCard label="COST" value={money(310)} sub="2 calls" />
+        <KpiCard label="PUT IN" value={money(310)} sub="2 calls" />
         <KpiCard label="NOW WORTH" value={money(268.4)} />
         <KpiCard label="PROFIT" value={signedMoney(-41.6)} sub="-13.4%" subColor={RED} />
       </KpiGrid>
@@ -487,7 +487,7 @@ export const PortfolioEmptyStatesPreview = () => (
 const AuthGateBody = () => (
   <div className="p-4">
     <KpiGrid cols={2}>
-      <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
+      <KpiCard label="PUT IN" value={money(669.67)} sub="7 calls" />
       <KpiCard label="NOW WORTH" value={money(775.31)} sub={`${signedMoney(105.64)} · +15.8%`} subColor={VOLT} />
     </KpiGrid>
     <div className="pt-3">
@@ -534,12 +534,13 @@ const detailBase: SettlementDetailVM = {
   eventName: "Bitcoin above $70,000 on Aug 1",
   eventId: "demo-event",
   closeReason: "settlement",
-  net: 221.8,
+  // 2× Boost: $120 in → $240 position ≈ 706 shares @ 34¢; won → net = 706 × 66¢ − fee − 5% commission.
+  net: 441.52,
   cost: 120,
-  fees: 13.2,
+  fees: 24.44,
   tradingFee: 1.2,
-  winningCommission: 12,
-  shares: 355,
+  winningCommission: 23.24,
+  shares: 706,
   avgPrice: 0.34,
   exitPrice: 1,
   leverage: 2,
@@ -558,7 +559,8 @@ const detailAutoClosed: SettlementDetailVM = {
   ...detailBase,
   eventName: "Will the Fed cut rates in September?",
   closeReason: "auto_close",
-  net: -110,
+  // 300 shares × (60¢ − 25¢) = −$105 price result, − $0.54 fees.
+  net: -105.54,
   cost: 60,
   fees: 0.54,
   tradingFee: 0.54,
@@ -602,12 +604,12 @@ const detailLost: SettlementDetailVM = {
   ...detailBase,
   eventName: "9988.HK closes up on Aug 14",
   closeReason: "settlement",
-  net: -100.9,
+  net: -100.15,
   cost: 100,
   fees: 0.15,
   tradingFee: 0.15,
   winningCommission: 0,
-  shares: 240,
+  shares: 238,
   avgPrice: 0.42,
   exitPrice: 0,
   leverage: 1,
@@ -1417,7 +1419,7 @@ export const PortfolioFetchErrorPreview = () => {
       <PortfolioTabs value="live" onChange={() => {}} />
       <div className="px-4 pt-3.5">
         <KpiGrid cols={isMobile ? 2 : 3}>
-          <KpiCard label="COST" value="—" />
+          <KpiCard label="PUT IN" value="—" />
           <KpiCard label="NOW WORTH" value="—" />
           {!isMobile && <KpiCard label="PROFIT" value="—" />}
         </KpiGrid>

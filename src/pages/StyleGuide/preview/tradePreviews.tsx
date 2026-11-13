@@ -251,6 +251,7 @@ export const Tr11Preview = () => {
         nowWorth={31.4}
         profit={6.4}
         autoCloseText="None"
+        profitNote="Right after you buy, this starts a little below $0: you bought at 52¢, and selling right now gets 51¢. The $0.04 trading fee was charged when you bought."
         autoCloseSub={`Can lose up to ${usd(maxLossFor(25))}`}
         compact={!!isMobile}
         onCashOut={() => undefined}
@@ -263,6 +264,7 @@ export const Tr11Preview = () => {
         nowWorth={36.2}
         profit={-3.8}
         autoCloseText="None"
+        profitNote="Right after you buy, this starts a little below $0: you bought at 47¢, and selling right now gets 46¢. The $0.06 trading fee was charged when you bought."
         autoCloseSub={`Can lose up to ${usd(maxLossFor(40))}`}
         compact={!!isMobile}
         onCashOut={() => undefined}
@@ -284,6 +286,7 @@ export const Tr12Preview = () => {
         nowWorth={13.6}
         profit={3.6}
         autoCloseText="None"
+        profitNote="Right after you buy, this starts a little below $0: you bought at 38¢, and selling right now gets 37¢. The $0.02 trading fee was charged when you bought."
         autoCloseSub={`Can lose up to ${usd(maxLossFor(10))}`}
         voucherTag
         compact={!!isMobile}

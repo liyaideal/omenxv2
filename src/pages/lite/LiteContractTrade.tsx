@@ -500,8 +500,10 @@ const LiteContractTrade = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feeKey]);
   const entryFeeFor = (p: (typeof positions)[number]) => {
+    // The fee row we can read is the opening fill's; a call that was added to
+    // paid more, so never report less than the rate on the whole position.
     const paid = p.tradeId ? tradeFees[p.tradeId] : undefined;
-    return paid ?? p.entryPriceNum * p.sizeNum * FUTURES_FEE_RATE;
+    return Math.max(paid ?? 0, p.entryPriceNum * p.sizeNum * FUTURES_FEE_RATE);
   };
 
 

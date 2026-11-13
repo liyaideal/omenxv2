@@ -154,11 +154,16 @@ export const AutoCloseMobileCardsPreview = () => (
 
 /* ------------------------------ AC-T1..T3 ------------------------------ */
 
+// Production passes this whenever the card has a live price, so every position frame shows the Profit ⓘ.
+const PROFIT_NOTE =
+  "Right after you buy, this starts a little below $0: you bought at 62¢, and selling right now gets 61¢. The $0.36 trading fee was charged when you bought.";
+
 const positionCard = (extra: {
   nowWorth: number;
   profit: number;
   profitNote?: string;
   profitNoteOpen?: boolean;
+  compact?: boolean;
   autoCloseText: string;
   autoCloseSub?: string;
   autoCloseHot?: boolean;
@@ -169,6 +174,7 @@ const positionCard = (extra: {
     boost={5}
     putIn={48.41}
     onCashOut={() => undefined}
+    profitNote={PROFIT_NOTE}
     {...extra}
   />
 );
@@ -290,11 +296,26 @@ export const AutoCloseOrderPanelPartialNetPreview = () => (
 export const AutoClosePositionProfitNotePreview = () => (
   <div className="p-4 pt-36">
     {positionCard({
-      nowWorth: 47.79,
-      profit: -0.62,
+      // $48.41 × 5 = $242.05 position ≈ 390 shares @ 62¢; selling at 61¢ = −$3.90, fee $0.36 already paid.
+      nowWorth: 44.15,
+      profit: -4.26,
       profitNote:
         "Right after you buy, this starts a little below $0: you bought at 62¢, and selling right now gets 61¢. The $0.36 trading fee was charged when you bought.",
       profitNoteOpen: true,
+      autoCloseText: "None",
+      autoCloseSub: `Can lose up to ${usd(maxLossFor(48.41 * 5))}`,
+    })}
+  </div>
+);
+
+/** AC-T1c · Profit ⓘ on mobile — a tap opens a bottom sheet (tooltips never open on touch). */
+export const AutoClosePositionProfitNoteMobilePreview = () => (
+  <div className="p-4">
+    {positionCard({
+      nowWorth: 44.15,
+      profit: -4.26,
+      profitNoteOpen: true,
+      compact: true,
       autoCloseText: "None",
       autoCloseSub: `Can lose up to ${usd(maxLossFor(48.41 * 5))}`,
     })}

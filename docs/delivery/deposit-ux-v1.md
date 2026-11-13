@@ -64,7 +64,7 @@
 | 桌面顶栏 | `Equity: $xx` | 不写标签（见 §1） |
 | 顶栏悬浮卡合计行（卡顶标题 2026-11-13 已删） | `Total equity` | `Total balance` |
 | 手机 Me 抽屉余额卡 | `Equity` | `Balance` |
-| Wallet 页头大数标签（2026-11-13 第二批） | `Est. Total Equity` | `Total balance`（key `wallet.equity`；下面那行 `Boost + Standard · does not include open trade profit` 不变） |
+| Wallet 页头大数标签（2026-11-13 第二批） | `Est. Total Equity` | `Total balance`（key `wallet.equity`；下面那行当时不变；2026-11-13 起 Lite 改为单独一句 `Cash in your accounts now. Open calls count once you close them.`（见 lite-winloss-display-v1 §7）） |
 
 key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘額 / 残高 / 잔액 / Баланс / Số dư（西语 Saldo）；`home.screen.HomeGreeting.total_equity` = Total balance / 总余额 / 總餘額 / 合計残高 / 총 잔액 / Общий баланс / Tổng số dư。繁中原来的「股權」是误译，一并改掉。
 

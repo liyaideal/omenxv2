@@ -567,7 +567,7 @@ Pro 侧输入语义为 notional / 数量，两面各自 canonical，不互相迁
 | **None** | Auto-close value, none state — field is always present, never blank | `None at this balance` (retired), `—` |
 | **None · enter an amount** | Auto-close value in the order panel before an amount is typed | `—` |
 | **auto-close none** | Desktop portfolio row suffix for a Boost row with no level; `none` is inline lowercase with a dotted underline that opens the shared auto-close tooltip (see 「Auto-close tooltip（全站唯一）」) | `no auto-close`, `auto-close —` |
-| **no auto-close, loss capped** | Mobile portfolio card suffix for a Boost row with no level | — |
+| ~~no auto-close, loss capped~~ | RETIRED 2026-11-13 — Boost 移动卡 none 态句子停在 `· can lose up to $Y` | — |
 | **≈ {c}¢** | Auto-close value, level state on the trade surfaces (order panel row + position card). The `≈` is never dropped | `{c}¢`, `= {c}¢` |
 | **None · nothing borrowed** | Auto-close value, none state in the order panel when Boost is 1× (and the `Est. auto-close (new position)` partial-net row) | `None · loss capped` (retired), `None at this balance` (retired) |
 | **None · can't be reached** | Auto-close value, none state in the order panel when the level can't be hit between 0¢ and 100¢ | `None · loss capped` (retired) |
@@ -896,7 +896,7 @@ Live 带钟点、Settled 列表只到日、详情带年份与钟点——三种�
 | `auto_close` | `CLOSED · {日期}` | `Closed at {价} · auto-closed` | `Closed` |
 | `cashout` | `CLOSED · {日期}` | `Closed at {价}`（无备注） | `Closed` |
 
-结果数（Won / Lost 后面那个钱数）= `PnL − Fees`，费后（2026-11-05 起 Settled 列表行、顶部 Net Profit、详情页、分享海报全部用这一个数，系列同理逐轮相加）；`Payout = max(0, Cost + 结果)`；为 0 时副行写 `nothing returned`。
+结果数（Won / Lost 后面那个钱数）= `PnL − Fees`，费后（2026-11-05 起 Settled 列表行、顶部 Net Profit、详情页全部用这一个数，系列同理逐轮相加；分享海报 2026-11-13 起不扣手续费和赢利佣金，见 Share 节「海报金额口径」）；`Payout = max(0, Cost + 结果)`；为 0 时副行写 `nothing returned`。
 系列眉线为 `SERIES · WON {x} OF {n}`。
 
 ### 结算详情 · 投入与仓位（2026-11-13 ⑥）
@@ -908,7 +908,7 @@ Live 带钟点、Settled 列表只到日、详情带年份与钟点——三种�
 | **Position** · `$X · N× Boost` | 手机 Details（Put in 下一行）/ 桌面 Details（Side 下一行） | 只在 Boost > 1× 时出现；X = 投入 × N |
 | **$X position** | 桌面 PUT IN 卡副行第二行 | 同上，Boost > 1× 才有 |
 | **Trading fee $A buy · $B sell** | Fees 行副行 | A = 开仓侧成交（Open / Add）的手续费合计，封顶为该仓手续费；B = 手续费 − A。B < $0.005（到期结算没有卖出费）时整句退回 `Trading fee $X`；有赢利佣金时后接 ` · Winning commission $Y` |
-| **$X put in · N× Boost** | Activity 里 Open / Add 行的副行 | 只在 Boost > 1× 时出现；X = 该笔成交额 ÷ N |
+| **$X put in · N× Boost** | Activity 里 Open / Add 行的副行 | 只在 Boost > 1× 时出现；X = 份数 × 成交价 ÷ N（行主值 = 份数 × 成交价） |
 
 ### Close-reason remarks
 
@@ -1410,7 +1410,7 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 
 | 位置 | 文案（英文原文，不翻译数字与符号） | 规则 |
 |---|---|---|
-| Hero 标题 / 副标 | `Prediction markets,` / `with leverage.` · `Think you know what happens next? Pick a topic, tap Yes or No.`（手机 `Pick a topic, tap Yes or No.`）· 桌面左上小标签 `LIVE MARKETS`（手机不放）| H3 / MB1 · i18n `home_hero.heading_v2 / sub_v2 / sub_v2_mobile` |
+| Hero 标题 / 副标 | `Prediction markets,` / `with leverage.` · `Think you know what happens next? Pick a topic, then pick a side.`（手机 `Pick a topic, then pick a side.`；2026-11-13 改）· 桌面左上小标签 `LIVE MARKETS`（手机不放）| H3 / MB1 · i18n `home_hero.heading_v2 / sub_v2 / sub_v2_mobile` |
 | Sports 眉行 | `● Sports · {N} matches this week · {n} live` · 0 live：`Sports · {N} matches this week · next kickoff in {X}` · 手机 0 live：`Sports · {N} matches · kickoff in {X}`（N / ALL 的口径见 R1）| S0 / R1 |
 | Sports 问句 | `Who wins the match?`（`the match` 柠檬）| G1 |
 | 舞台位标签 | `Live now · {联赛} · {节点}` · 0 live：`Biggest this week · kicks off in {X}` · 右：`▶ Live stream` / `Stream {i} / {N}` | S0 S3 |

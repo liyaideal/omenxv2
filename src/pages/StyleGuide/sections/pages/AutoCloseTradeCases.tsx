@@ -23,6 +23,14 @@ const CASES: SectionCase[] = [
     ],
   },
   {
+    key: "autoclose-position-profit-note-mobile",
+    label: "AC-T1c · 持仓条 · Profit ⓘ 打开 · 手机（底部抽屉）",
+    note: "手机上 tooltip 点不开，所以 ⓘ 点按打开底部抽屉（标题 = 该格标签，正文同 AC-T1b）。Est. auto-close 的 ⓘ 同样改成手机抽屉。帧里用 fixture prop `profitNoteOpen` 直接打开。",
+    spec: [
+      { state: "mobile", when: "compact === true（交易页 useIsMobile）", visual: "MobileDrawer，标题 `Profit` / `Auto-close`，正文 13px muted", source: "LitePositionCard.InfoTip" },
+    ],
+  },
+  {
     key: "autoclose-position-hot",
     label: "AC-T2 · 持仓条 · hot",
     note: "mock7 v2 §3 下条：同卡 $48.41 / $50.38 / +$1.97，红 `≈ 89¢` + 红副行 `Close to current price`。",
@@ -76,8 +84,8 @@ const MATRIX_ROWS: string[][] = [
   ["下单面板", "≈X¢", "红 ≈X¢ · close to entry", "None · nothing borrowed / None · can't be reached", "零单=None · enter an amount；加载=骨架", "Standard 无此行"],
   ["下单面板 partial-net 行", "≈X¢", "红", "None · nothing borrowed / None · can't be reached", "零单=None", "—"],
   ["交易页持仓条", "≈ X¢", "红 + Close to current price", "None + Can lose up to $X", "加载=骨架", "无此列"],
-  ["Portfolio 桌面行", "· auto-close ≈X¢", "整行红轨+红字", "· auto-close none", "加载=骨架", "不加段"],
-  ["Portfolio 移动卡", "句尾 · auto-close ≈X¢", "红句", "· no auto-close, loss capped", "加载=骨架", "不加"],
+  ["Portfolio 桌面行", "第三行 auto-close ≈X¢", "整行红轨+红字", "第三行 auto-close none", "加载=骨架", "不加段"],
+  ["Portfolio 移动卡", "句尾 · auto-close ≈X¢", "红句", "句子停在 · can lose up to $Y", "加载=骨架", "不加"],
   ["Pro 侧", "本轮不动（挂账④ 另轮统一到同一求解器）", "—", "—", "—", "—"],
 ];
 

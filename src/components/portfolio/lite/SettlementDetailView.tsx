@@ -4,6 +4,7 @@
 // Mobile layout is the frozen 2026-08-19 stack; desktop is CPO v1.17 §4b.
 // ============================================================
 import { t } from "@/i18n";
+import type React from "react";
 import { Share2 } from "lucide-react";
 import { KpiCard, KpiGrid, GREEN, RED, money, signedMoney } from "./parts";
 
@@ -24,6 +25,10 @@ export interface SettlementTradeVM {
   price: number;
   /** Trading fee on this fill — splits the Fees line into buy / sell. */
   fee?: number;
+  /** Shares in this fill. When present, the row shows shares × price (the
+   *  position value) — `total` is not always the position value on older
+   *  order paths (some store what was typed in). */
+  qty?: number;
 }
 
 export interface SettlementDetailVM {
@@ -76,25 +81,43 @@ export const feeSplit = (vm: SettlementDetailVM) => {
 };
 
 /** Breakdown of the Fees row — trading fee always, commission only when charged. */
-const FeesSubLine = ({ vm }: { vm: SettlementDetailVM }) => {
+const FeesSubLine = ({ vm, inRow = false }: { vm: SettlementDetailVM; inRow?: boolean }) => {
   const split = feeSplit(vm);
   const trading =
     split && split.sell >= 0.005
       ? `Trading fee ${money(split.buy)} buy · ${money(split.sell)} sell`
       : `Trading fee ${money(vm.tradingFee)}`;
   return (
-    <div className="pt-1 text-[11px] text-[#6B7280]">
+    <div className={inRow ? "mt-0.5 text-right text-[11px] font-normal text-[#6B7280]" : "pt-1 text-[11px] text-[#6B7280]"}>
       {trading}
       {vm.winningCommission > 0 ? ` · Winning commission ${money(vm.winningCommission)}` : ""}
     </div>
   );
 };
 
-export const Row = ({ k, v, color }: { k: string; v: string; color?: string }) => (
-  <div className="flex items-center justify-between border-b border-b-[rgba(28,31,38,.8)] py-3 text-[13px] last:border-b-0">
+export const Row = ({
+  k,
+  v,
+  color,
+  sub,
+}: {
+  k: string;
+  v: string;
+  color?: string;
+  /** Small second line under the value, inside the row (above its divider). */
+  sub?: React.ReactNode;
+}) => (
+  <div
+    className={`flex justify-between border-b border-b-[rgba(28,31,38,.8)] py-3 text-[13px] last:border-b-0 ${
+      sub ? "items-start" : "items-center"
+    }`}
+  >
     <span className="text-[#6B7280]">{k}</span>
-    <span className="font-mono font-semibold" style={{ color: color ?? "#F2F3F5" }}>
-      {v}
+    <span className="text-right">
+      <span className="block font-mono font-semibold" style={{ color: color ?? "#F2F3F5" }}>
+        {v}
+      </span>
+      {sub}
     </span>
   </div>
 );
@@ -144,10 +167,13 @@ const costSub = (vm: SettlementDetailVM) =>
 
 const activityRows = (vm: SettlementDetailVM) => vm.trades;
 
+/** Position value of one fill: shares × price when known, else the stored total. */
+const fillValue = (t: SettlementTradeVM) => (t.qty != null && t.qty > 0 ? t.qty * t.price : t.total);
+
 /** Under a Boost buy: what was put in for it. */
 const activitySub = (vm: SettlementDetailVM, t: SettlementTradeVM) =>
   vm.leverage > 1 && t.action !== "Reduce"
-    ? `${money(t.total / vm.leverage)} put in · ${vm.leverage}× Boost`
+    ? `${money(fillValue(t) / vm.leverage)} put in · ${vm.leverage}× Boost`
     : null;
 
 const closingActivityLabel = (vm: SettlementDetailVM) =>
@@ -191,8 +217,7 @@ export const SettlementDetailMobile = ({
         <Row k={exitRowLabel(vm.closeReason)} v={exitValueLine(vm)} color={exitValueColor(vm)} />
         <Row k="Put in" v={money(vm.cost)} />
         {vm.leverage > 1 && <Row k="Position" v={positionLine(vm)} />}
-        <Row k="Fees" v={money(vm.fees)} />
-        <FeesSubLine vm={vm} />
+        <Row k="Fees" v={money(vm.fees)} sub={<FeesSubLine vm={vm} inRow />} />
         <Row k="Payout" v={money(payout)} />
         <Row k="Placed" v={settledDayLabel(vm.openedAt)} />
         <Row
@@ -219,7 +244,7 @@ export const SettlementDetailMobile = ({
               </span>
               <span className="text-right">
                 <span className="block font-mono text-[#C7CCD4]">
-                  {money(t.total)} @ {centsLabel(t.price)}
+                  {money(fillValue(t))} @ {centsLabel(t.price)}
                 </span>
                 {activitySub(vm, t) && (
                   <span className="mt-0.5 block text-[11px] text-[#6B7280]">{activitySub(vm, t)}</span>
@@ -352,7 +377,7 @@ export const SettlementDetailDesktop = ({
             sub={
               <>
                 {costSub(vm)}
-                {vm.leverage > 1 && <div>{money(vm.cost * vm.leverage)} position</div>}
+                {vm.leverage > 1 && <div className="pt-1">{money(vm.cost * vm.leverage)} position</div>}
               </>
             }
           />
@@ -401,7 +426,7 @@ export const SettlementDetailDesktop = ({
                   </span>
                   <span className="text-right">
                     <span className="block font-mono font-semibold text-[#C7CCD4]">
-                      {money(t.total)} @ {centsLabel(t.price)}
+                      {money(fillValue(t))} @ {centsLabel(t.price)}
                     </span>
                     {activitySub(vm, t) && (
                       <span className="mt-0.5 block text-[11px] text-[#6B7280]">{activitySub(vm, t)}</span>
