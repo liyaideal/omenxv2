@@ -104,7 +104,7 @@ export const LitePositionCard = ({
         labelExtra={
           profitNote ? (
             <InfoTip
-              label="About profit"
+              label={t("trade.screen.lite.winloss.about_profit")}
               title={t("trade.screen.lite.lite_contract_sections.profit")}
               mobile={compact}
               forceOpen={profitNoteOpen}

@@ -4,6 +4,8 @@
 // Mobile layout is the frozen 2026-08-19 stack; desktop is CPO v1.17 §4b.
 // ============================================================
 import { t } from "@/i18n";
+
+const tr = t; // activity helpers take a fill named `t`
 import type React from "react";
 import { Share2 } from "lucide-react";
 import { KpiCard, KpiGrid, GREEN, RED, money, signedMoney } from "./parts";
@@ -85,7 +87,7 @@ const FeesSubLine = ({ vm, inRow = false }: { vm: SettlementDetailVM; inRow?: bo
   const split = feeSplit(vm);
   const trading =
     split && split.sell >= 0.005
-      ? `Trading fee ${money(split.buy)} buy · ${money(split.sell)} sell`
+      ? t("portfolio.lite.detail.fee_split", { buy: money(split.buy), sell: money(split.sell) })
       : `Trading fee ${money(vm.tradingFee)}`;
   return (
     <div className={inRow ? "mt-0.5 text-right text-[11px] font-normal text-[#6B7280]" : "pt-1 text-[11px] text-[#6B7280]"}>
@@ -155,7 +157,7 @@ const sideLine = (vm: SettlementDetailVM) => vm.sideWord;
 
 /** Position = what you put in × Boost. Shown only for Boost (> 1×) calls. */
 const positionLine = (vm: SettlementDetailVM) =>
-  `${money(vm.cost * vm.leverage)} · ${vm.leverage}× Boost`;
+  t("portfolio.lite.detail.position_value", { amount: money(vm.cost * vm.leverage), boost: vm.leverage });
 
 const costSub = (vm: SettlementDetailVM) =>
   [
@@ -173,7 +175,7 @@ const fillValue = (t: SettlementTradeVM) => (t.qty != null && t.qty > 0 ? t.qty 
 /** Under a Boost buy: what was put in for it. */
 const activitySub = (vm: SettlementDetailVM, t: SettlementTradeVM) =>
   vm.leverage > 1 && t.action !== "Reduce"
-    ? `${money(fillValue(t) / vm.leverage)} put in · ${vm.leverage}× Boost`
+    ? tr("portfolio.lite.detail.put_in_sub", { amount: money(fillValue(t) / vm.leverage), boost: vm.leverage })
     : null;
 
 const closingActivityLabel = (vm: SettlementDetailVM) =>
@@ -215,8 +217,8 @@ export const SettlementDetailMobile = ({
         <Row k="Avg price" v={centsLabel(vm.avgPrice)} />
         <Row k="Shares" v={`${Math.round(vm.shares)}`} />
         <Row k={exitRowLabel(vm.closeReason)} v={exitValueLine(vm)} color={exitValueColor(vm)} />
-        <Row k="Put in" v={money(vm.cost)} />
-        {vm.leverage > 1 && <Row k="Position" v={positionLine(vm)} />}
+        <Row k={t("common.put_in")} v={money(vm.cost)} />
+        {vm.leverage > 1 && <Row k={t("portfolio.lite.detail.position")} v={positionLine(vm)} />}
         <Row k="Fees" v={money(vm.fees)} sub={<FeesSubLine vm={vm} inRow />} />
         <Row k="Payout" v={money(payout)} />
         <Row k="Placed" v={settledDayLabel(vm.openedAt)} />
@@ -377,7 +379,11 @@ export const SettlementDetailDesktop = ({
             sub={
               <>
                 {costSub(vm)}
-                {vm.leverage > 1 && <div className="pt-1">{money(vm.cost * vm.leverage)} position</div>}
+                {vm.leverage > 1 && (
+                  <div className="pt-1">
+                    {t("portfolio.lite.detail.position_sub", { amount: money(vm.cost * vm.leverage) })}
+                  </div>
+                )}
               </>
             }
           />
@@ -397,7 +403,7 @@ export const SettlementDetailDesktop = ({
       <div className="mt-3 grid grid-cols-2 gap-3">
         <DetailCard title={t("portfolio.lite.boost.details")}>
           <Row k="Side" v={sideLine(vm)} />
-          {vm.leverage > 1 && <Row k="Position" v={positionLine(vm)} />}
+          {vm.leverage > 1 && <Row k={t("portfolio.lite.detail.position")} v={positionLine(vm)} />}
           <Row k="Avg price" v={centsLabel(vm.avgPrice)} />
           <Row k="Shares" v={`${Math.round(vm.shares)}`} />
           <Row k={exitRowLabel(vm.closeReason)} v={exitValueLine(vm)} color={exitValueColor(vm)} />

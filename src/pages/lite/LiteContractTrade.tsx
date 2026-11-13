@@ -1100,7 +1100,7 @@ const LiteContractTrade = () => {
     if (r.kind === "none")
       return {
         text: "None",
-        sub: `Can lose up to ${usd(p.sizeNum * p.entryPriceNum + entryFeeFor(p))}`,
+        sub: t("trade.screen.lite.winloss.can_lose_up_to", { amount: usd(p.sizeNum * p.entryPriceNum + entryFeeFor(p)) }),
         hot: false,
       };
     const hot = isAutoCloseHot(r, p.markPriceNum);
@@ -1113,7 +1113,11 @@ const LiteContractTrade = () => {
 
   // Profit ⓘ: why a call reads a little below $0 right after buying (2026-11-13).
   const profitNoteFor = (p: (typeof positions)[number], mark: number) =>
-    `Right after you buy, this starts a little below $0: you bought at ${formatCents(p.entryPriceNum)}, and selling right now gets ${formatCents(mark)}. The ${usd(entryFeeFor(p))} trading fee was charged when you bought.`;
+    t("trade.screen.lite.winloss.profit_note", {
+      entry: formatCents(p.entryPriceNum),
+      mark: formatCents(mark),
+      fee: usd(entryFeeFor(p)),
+    });
 
   const heldAutoClose = heldPos != null ? autoCloseDisplayFor(heldPos) : null;
 

@@ -353,8 +353,13 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       } else {
         toast.success(
           boostSnapshot > 1
-            ? `Bought ${sideLabel} · ${money(amountSnapshot)} at ${boostSnapshot}× Boost · ${money(notionalSnapshot)} position`
-            : `Bought ${sideLabel} · ${money(amountSnapshot)}`,
+            ? t("trade.screen.lite.winloss.toast_bought_boost", {
+                side: sideLabel,
+                putIn: money(amountSnapshot),
+                boost: boostSnapshot,
+                position: money(notionalSnapshot),
+              })
+            : t("trade.screen.lite.winloss.toast_bought", { side: sideLabel, putIn: money(amountSnapshot) }),
         );
       }
       onAmountChange("");

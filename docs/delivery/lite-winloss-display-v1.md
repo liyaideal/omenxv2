@@ -4,11 +4,12 @@
 > 一共梳理出 17 处，分 8 排（画布「Lite 交易展示 17 条 · 改前改后」）。**本轮落地 ②–⑧**；① 下单面板等 CTO 确认赢亏规则后再做（见 §9）。
 > 1. ② 下单成功提示写清「投入多少 · 几倍 · 仓位多大」。
 > 2. ③ 交易页持仓卡：`None` 下面写「最多会亏多少」；Profit 旁加 ⓘ，解释为什么刚买完 Profit 略低于 $0。
-> 3. ④ Portfolio Live：`Cost` 改 `Put in`；Boost 行的「赢了得多少」改成净赚，并写出最多会亏多少；Boost check 说明句换成人话。
+> 3. ④ Portfolio Live：`Cost` 改 `Put in`；Boost 行的「赢了得多少」改成净赚，并写出最多会亏多少；桌面表头改 `IF IT WINS / RISK`；Boost check 说明句换成人话。
 > 4. ⑤ 平仓：亏了不再自动弹海报，只出一条提示；海报一律不扣手续费和赢利佣金。
 > 5. ⑥ 结算详情：`Side` 只写方向，新增 `Position` 行，`Cost` 改 `Put in`，手续费拆买 / 卖，Activity 写每笔投入。
 > 6. ⑦ 钱包：总余额说明、两张账户卡底注改写；平仓流水去掉结尾的 `Won` / `Lost`。
 > 7. ⑧ 首页标语：`Tap Yes or No` 改 `Pick a topic, then pick a side.`（体育盘口没有 Yes / No）。
+> 8. 以上新文案全部接了 7 种语言（§10）；Boost check 说明句和钱包那几句原来页面里写死英文，这次一起接上。
 
 ## 0. 查什么去哪儿
 
@@ -67,10 +68,11 @@ Standard 下单卡（`LiteOrderPanel`）的 toast 本轮不动，仍是 `Bought 
 
 | 规则 | 范围 | 表现 |
 |---|---|---|
-| `Cost` → `Put in` | KPI（手机 + 桌面）、手机卡片格、桌面表头 | key `common.put_in`（7 语已有） |
+| `Cost` → `Put in` | KPI（手机 + 桌面）、手机卡片格、桌面表头 | key `common.put_in`（7 语已有）；手机卡片三格标签也改走 key（`common.now_worth`、Profit），不再写死英文 |
+| 桌面表头 | 赢 / 风险那一列 | `IF IT WINS / RISK`（原 `AUTO-CLOSE / IF WINS`，顺序和格内内容相反，ru / vi 还在斜杠处折行）；整排表头统一大写；列宽 150 → 180px、按钮列 170 → 140px，7 语表头都不折行 |
 | Boost 行一句话 | Boost 段的行（含 1×：全仓同样可能亏过投入） | 手机卡：`If it wins → +$X · can lose up to $Y`，level 态后接 ` · auto-close ≈{c}¢`；桌面行列窄，拆三行 `If it wins → +$X` / `Can lose up to $Y` / `auto-close ≈{c}¢`（或 `None`） |
 | Standard 行 | Standard 段 | 不变：手机 `If it wins you get $X`，桌面 `If it wins → $X` |
-| Boost check 说明句 | 卡片 / 抽屉 / 桌面弹层 | `All your Boost calls share your Boost balance. If it runs low, calls start closing automatically.`（页面里与改前一样是英文写死的 `DETAILS_SENTENCE`；目录 key `portfolio.lite.boost.description` 已 7 语同步，平台接 i18n 时直接用） |
+| Boost check 说明句 | 卡片 / 抽屉 / 桌面弹层 | `All your Boost calls share your Boost balance. If it runs low, calls start closing automatically.`（key `portfolio.lite.boost.description`，7 语；原来页面里写死英文，这次接上） |
 
 Boost 行里 X、Y 由「投入 × Boost」和份数反推买入价后代入 §1 公式（`LiveCards.boostFigures`）。
 
@@ -112,7 +114,7 @@ Boost 行里 X、Y 由「投入 × Boost」和份数反推买入价后代入 §1
 | 首页 hero 副标题（手机）/ `how_to_trade` | `Pick a topic, then pick a side.` |
 | 首页 hero 副标题（桌面） | `Think you know what happens next? Pick a topic, then pick a side.`（`sub_v2` 与手机 `sub_v2_mobile` 两个 key 在 ja / ko / ru / vi 里本来就没有，回退英文，与改前一致；`how_to_trade` 7 语齐） |
 
-Wallet 卡底注与总余额说明在页面里仍是英文写死（与改前一致）；`wallet.*` 目录 key 已同步改成新文案、7 语齐，平台接 i18n 时直接用。
+Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接上 7 语：`wallet.equityNoteLite`、`wallet.boostCategories`（Standard 卡也用它拼 `For stocks and Quick Play.`）、`wallet.standardDescription`、`wallet.boostDescription`、`wallet.boostFullPriceDescription`；品类名改走 `wallet.category.<key>`，列举的连接词走 `wallet.category_list_two / _three / _more`（俄语用属格，如 `Для спорта, криптовалют и макроэкономики.`）。
 
 ## 8. 字典样张（本轮新增 / 受影响）
 
@@ -140,6 +142,36 @@ Wallet 卡底注与总余额说明在页面里仍是英文写死（与改前一�
 - 只在正式站存在、Lovable 里已经对的问题（赢多少公式、Boost check `$1.00`、结算 Payout 对不上等）单独列给研发，不在本文。
 - 结算详情的买 / 卖手续费拆分来自成交记录；同一事件同一选项的多轮共用一本账时，成交记录可能多算，所以买入部分封顶为该仓手续费。正式版建议后端直接给每仓的开仓费 / 平仓费。
 
-## 10. 改动文件
+## 10. 多语言（7 语：en / zh-CN / zh-TW / ja / ko / ru / vi）
+
+本文所有新文案都有 key，切语言即变；以下 key 是 **Lovable 2026-11-13 新增**，要回写平台 i18n 表（西语没有，回退英文）：
+
+| key | en |
+|---|---|
+| `trade.screen.lite.winloss.toast_bought_boost` | `Bought {{side}} · {{putIn}} at {{boost}}× Boost · {{position}} position` |
+| `trade.screen.lite.winloss.toast_bought` | `Bought {{side}} · {{putIn}}` |
+| `trade.screen.lite.winloss.can_lose_up_to` | `Can lose up to {{amount}}` |
+| `trade.screen.lite.winloss.profit_note` | `Right after you buy, this starts a little below $0: you bought at {{entry}}, and selling right now gets {{mark}}. The {{fee}} trading fee was charged when you bought.` |
+| `trade.screen.lite.winloss.about_profit` | `About profit`（ⓘ 的读屏名） |
+| `trade.screen.lite.winloss.toast_cashed_out` | `Cashed out ≈ {{amount}}` |
+| `trade.screen.lite.winloss.toast_cashed_out_lost` | `Cashed out {{side}} · you lost {{amount}} on this call` |
+| `portfolio.lite.live.boost_sentence` | `If it wins → {{win}} · can lose up to {{loss}}` |
+| `portfolio.lite.live.if_wins_net` | `If it wins → {{win}}` |
+| `portfolio.lite.live.can_lose_up_to` | `Can lose up to`（金额另起一个白色 span） |
+| `portfolio.lite.live.auto_close_word` | `auto-close` |
+| `portfolio.lite.live.auto_close_at` | `auto‑close ≈{{price}}`（不换行连字符 + 不换行空格；整段 nowrap，中日韩也不会从中间断） |
+| `portfolio.lite.detail.position` | `Position` |
+| `portfolio.lite.detail.position_value` | `{{amount}} · {{boost}}× Boost` |
+| `portfolio.lite.detail.position_sub` | `{{amount}} position` |
+| `portfolio.lite.detail.fee_split` | `Trading fee {{buy}} buy · {{sell}} sell` |
+| `portfolio.lite.detail.put_in_sub` | `{{amount}} put in · {{boost}}× Boost` |
+| `wallet.category.{sports,crypto,macro,stocks,quickplay,politics,social}` | `sports` … `Quick Play` … |
+| `wallet.category_list_two / _three / _more` | `{{a}} and {{b}}` / `{{a}}, {{b}} and {{c}}` / `{{a}}, {{b}} and more` |
+
+改了值的已有 key：`portfolio.lite.boost.description`、`portfolio.lite.live.auto_close_if_wins`、`wallet.equityNoteLite`、`wallet.standardCategory`、`wallet.standardDescription`、`wallet.boostDescription`、`events.screen.simple.home.home_hero.sub_v2 / sub_v2_mobile / how_to_trade`、`events.screen.simple.events_simple_intro.how_to_trade`。
+
+结算详情页里原有的行名（Side、Avg price、Shares、Fees、Payout、Placed 等）和 `Trading fee $X` / `Winning commission` 原来就是英文写死，不在本轮；这一页切到其他语言时会是新行中文 / 旧行英文混排，下一轮整页接 i18n。
+
+## 11. 改动文件
 
 `src/lib/liteWinLoss.ts`（新）· `LiteContractOrderPanel` · `LiteContractTrade` · `LitePositionCard` · `LiveCards` · `LitePortfolio` · `parts.tsx` · `LiteCashOutFlow` · `liteSettledShare` · `LiteSettlementDetail` · `SettlementDetailView` · `useSettlementDetail` · `Wallet.tsx` · `tradingService` / `useSupabasePositions`（流水描述）· 7 语 locales · style-guide 预览与说明表。

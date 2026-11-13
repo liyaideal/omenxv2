@@ -134,12 +134,15 @@ export const LiteCashOutFlow = ({
       const priceResult = pnlAtPrice != null ? fraction * pnlAtPrice : payout - costPart;
       const netResult = payout - costPart - fraction * (entryFee ?? 0);
       if (priceResult > 0) {
-        toast.success(`Cashed out ≈ $${payout.toFixed(2)}`);
+        toast.success(t("trade.screen.lite.winloss.toast_cashed_out", { amount: `$${payout.toFixed(2)}` }));
       } else {
         toast.success(
           netResult < 0
-            ? `Cashed out ${sideLabel} · you lost $${Math.abs(netResult).toFixed(2)} on this call`
-            : `Cashed out ≈ $${payout.toFixed(2)}`,
+            ? t("trade.screen.lite.winloss.toast_cashed_out_lost", {
+                side: sideLabel,
+                amount: `$${Math.abs(netResult).toFixed(2)}`,
+              })
+            : t("trade.screen.lite.winloss.toast_cashed_out", { amount: `$${payout.toFixed(2)}` }),
         );
       }
       // Snapshot the realisation BEFORE positions refresh — wins only.

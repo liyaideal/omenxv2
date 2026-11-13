@@ -98,7 +98,8 @@ const XMotif = ({ className = "" }: { className?: string }) => (
 );
 
 /** Lite total-balance note (CPO 2026-11-13, row ⑦) — shown alone, replaces "Boost + Standard · …". */
-export const LITE_EQUITY_NOTE = "Cash in your accounts now. Open calls count once you close them.";
+// i18n key; en: "Cash in your accounts now. Open calls count once you close them."
+export const LITE_EQUITY_NOTE = "wallet.equityNoteLite";
 
 const HERO_CTA_GRADIENT =
   "bg-[image:var(--gradient-button-primary)] text-primary-foreground hover:opacity-90";
@@ -178,7 +179,7 @@ export const HeroEquityCard = ({
           {hidden ? "••••••" : `$${formatEquityUsd(equity)}`}
         </div>
         <div className="text-[13px] text-muted-foreground mt-2.5">
-          {equityNote === LITE_EQUITY_NOTE ? equityNote : `Boost + Standard · ${equityNote}`}
+          {equityNote === LITE_EQUITY_NOTE ? t(LITE_EQUITY_NOTE) : `Boost + Standard · ${equityNote}`}
         </div>
       </div>
 
@@ -275,14 +276,11 @@ const formatCurrency = (value: number) =>
 // Quick Play is paid from Standard too (CPO 2026-11-13, wallet copy row ⑦).
 const STANDARD_CATEGORIES = ["stocks", "quickplay"];
 
-const CATEGORY_LABELS: Record<string, string> = {
-  sports: "sports",
-  crypto: "crypto",
-  macro: "macro",
-  politics: "politics",
-  social: "social",
-  stocks: "stocks",
-  quickplay: "Quick Play",
+/** Category names come from `wallet.category.<key>` (7 languages); unknown keys show as-is. */
+const categoryName = (c: string) => {
+  const key = `wallet.category.${c}`;
+  const name = t(key);
+  return name === key ? c : name;
 };
 
 /**
@@ -298,11 +296,12 @@ const formatCategoryLine = (categories: string[]): string => {
     const ib = CATEGORY_ORDER.indexOf(b);
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
   });
-  const names = ranked.map((c) => CATEGORY_LABELS[c] ?? c);
+  const names = ranked.map(categoryName);
   if (names.length === 0) return "";
   if (names.length === 1) return names[0];
-  if (names.length > 3) return `${names.slice(0, 2).join(", ")} and more`;
-  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+  if (names.length === 2) return t("wallet.category_list_two", { a: names[0], b: names[1] });
+  if (names.length === 3) return t("wallet.category_list_three", { a: names[0], b: names[1], c: names[2] });
+  return t("wallet.category_list_more", { a: names[0], b: names[1] });
 };
 
 /**
@@ -425,10 +424,12 @@ export const SpotAccountCard = ({
     <p className="text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
       {formatCategoryLine(STANDARD_CATEGORIES) && (
         <>
-          <span className="text-foreground font-medium">For {formatCategoryLine(STANDARD_CATEGORIES)}.</span>{" "}
+          <span className="text-foreground font-medium">
+            {t("wallet.boostCategories", { categories: formatCategoryLine(STANDARD_CATEGORIES) })}
+          </span>{" "}
         </>
       )}
-      Put in $100, buy $100 of shares — the most you can lose is what you put in.
+      {t("wallet.standardDescription")}
     </p>
   </AccountCardShell>
 );
@@ -477,10 +478,10 @@ export const FuturesAccountCard = ({
         {mask(balance)}
       </div>
       <p className="text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
-        {line && <><span className="text-foreground font-medium">For {line}.</span>{" "}</>}
+        {line && <><span className="text-foreground font-medium">{t("wallet.boostCategories", { categories: line })}</span>{" "}</>}
         {boostMax && boostMax > 1
-          ? `Trade with leverage — Boost up\u00a0to\u00a0${boostMax}×.`
-          : "Buy and sell shares at full price."}
+          ? t("wallet.boostDescription", { maxBoost: boostMax })
+          : t("wallet.boostFullPriceDescription")}
       </p>
     </AccountCardShell>
   );

@@ -335,7 +335,7 @@ const LIVE_CASES: SectionCase[] = [
   {
     key: "portfolio-lite-desktop-rows",
     label: "PF-8 · Live 常规态（LiveRow · LiveCard）",
-    note: "桌面列模板固定 `minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 150px 170px`；移动为同一份数据的卡片形态。七行覆盖盈利 / 亏损 / 零盈亏与 1×–5× 倍数梯度，红只由 hot 决定（见 PF-11），与盈亏正负无关。",
+    note: "桌面列模板固定 `minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 180px 140px`（2026-11-13：赢 / 风险列 150→180、按钮列 170→140）；表头整排大写、赢 / 风险列表头 `IF IT WINS / RISK` 不折行；移动为同一份数据的卡片形态。七行覆盖盈利 / 亏损 / 零盈亏与 1×–5× 倍数梯度，红只由 hot 决定（见 PF-11），与盈亏正负无关。",
     spec: LIVE_BASE_SPEC,
   },
   {

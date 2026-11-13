@@ -563,6 +563,7 @@ Pro 侧输入语义为 notional / 数量，两面各自 canonical，不互相迁
 | **If it wins → $X** | Desktop live-row payout column — Standard rows only | — |
 | **If it wins → +$X · can lose up to $Y** | Boost live row / card（2026-11-13 ④）。X = `netWinIfRight`（扣开仓费与 5% 赢利佣金后的净赚），Y = `maxLossFor(仓位)`（仓位 + 开仓费）；level 态后接 ` · auto-close ≈{c}¢`。**桌面行**列窄，拆成三行：`If it wins → +$X` / `Can lose up to $Y` / `auto-close ≈{c}¢`（或 `None`） | `If it wins you get {shares×$1}`（Boost 行旧写法，把本金算成赚的） |
 | **Put in** | Portfolio Live KPI / 卡片 / 表头的投入金额（key `common.put_in`，2026-11-13 取代 `Cost`）| Cost, Stake, Margin |
+| **IF IT WINS / RISK** | Portfolio Live 桌面行最后一个数据列的表头（key `portfolio.lite.live.auto_close_if_wins`，2026-11-13 CPO 批；顺序与格内三行一致：先赢多少，再最多亏多少与 auto-close）；整排表头大写，不折行 | `AUTO-CLOSE / IF WINS`（退役：顺序和内容相反） |
 | **auto-close ≈{c}¢** | Auto-close value, level state (Boost only) | Liquidation, stop out, Liq. Price |
 | **None** | Auto-close value, none state — field is always present, never blank | `None at this balance` (retired), `—` |
 | **None · enter an amount** | Auto-close value in the order panel before an amount is typed | `—` |

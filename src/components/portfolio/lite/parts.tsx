@@ -225,8 +225,8 @@ const detailRows = (data: BoostCheckData) => [
   { k: "Until auto-close starts", v: moneyAuto(data.untilAutoClose) },
 ];
 
-const DETAILS_SENTENCE =
-  "All your Boost calls share your Boost balance. If it runs low, calls start closing automatically.";
+// "All your Boost calls share your Boost balance. If it runs low, calls start closing automatically."
+const detailsSentence = () => t("portfolio.lite.boost.description");
 
 const DetailsDrawer = ({
   open,
@@ -239,7 +239,7 @@ const DetailsDrawer = ({
 }) => (
   <MobileDrawer open={open} onOpenChange={onOpenChange} title={t("portfolio.lite.boost.title")}>
     <div className="space-y-3 pb-6">
-      <p className="text-xs text-muted-foreground">{DETAILS_SENTENCE}</p>
+      <p className="text-xs text-muted-foreground">{detailsSentence()}</p>
       <div className="rounded-lg border border-border bg-muted/30 p-3">
         {detailRows(data).map((r) => (
           <div key={r.k} className="flex items-center justify-between py-1.5 text-xs">
@@ -272,7 +272,7 @@ const DetailsPopover = ({
       className="w-[320px] rounded-[12px] border-[#1D2026] bg-[#12151A] p-4"
     >
       <div className="text-[13px] font-bold text-[#F2F3F5]">{t("portfolio.lite.boost.title")}</div>
-      <p className="mt-1.5 text-[12px] text-[#6B7280]">{DETAILS_SENTENCE}</p>
+      <p className="mt-1.5 text-[12px] text-[#6B7280]">{detailsSentence()}</p>
       <div className="mt-3 space-y-2">
         {detailRows(data).map((r) => (
           <div key={r.k} className="flex items-center justify-between">

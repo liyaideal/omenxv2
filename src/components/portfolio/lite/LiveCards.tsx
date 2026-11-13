@@ -100,13 +100,24 @@ export const LiveCard = ({
   const goToMarket = useGoToMarket();
   const hot = row.hot;
   // Boost rows: net win + the most this call can lose (2026-11-13) — never "loss capped".
-  const boostSentence = `If it wins → ${signedMoney(boostFigures(row).win)} · can lose up to ${money(boostFigures(row).maxLoss)}`;
+  const boostSentence = t("portfolio.lite.live.boost_sentence", {
+    win: signedMoney(boostFigures(row).win),
+    loss: money(boostFigures(row).maxLoss),
+  });
+  // The auto-close part never breaks inside itself (CJK breaks between any two characters).
   const sentence =
-    row.segment === "standard"
-      ? winSentence(row)
-      : row.autoClose.kind === "level"
-        ? `${boostSentence} · auto\u2011close\u00a0≈${cents(row.autoClose.price)}`
-        : boostSentence;
+    row.segment === "standard" ? (
+      winSentence(row)
+    ) : row.autoClose.kind === "level" ? (
+      <>
+        {boostSentence} ·{" "}
+        <span className="whitespace-nowrap">
+          {t("portfolio.lite.live.auto_close_at", { price: cents(row.autoClose.price) })}
+        </span>
+      </>
+    ) : (
+      boostSentence
+    );
 
   const activate = () =>
     selectMode ? onToggleSelect?.(row) : goToMarket(row.tradePath);
@@ -161,12 +172,12 @@ export const LiveCard = ({
 
       <div className="mt-3 grid grid-cols-3 gap-2">
         {[
-          { k: "PUT IN", v: money(row.cost), c: "#F2F3F5" },
-          { k: "NOW WORTH", v: money(row.nowWorth), c: "#F2F3F5" },
-          { k: "PROFIT", v: signedMoney(row.profit), c: livePnlColor(row.profit) },
+          { k: t("common.put_in"), v: money(row.cost), c: "#F2F3F5" },
+          { k: t("common.now_worth"), v: money(row.nowWorth), c: "#F2F3F5" },
+          { k: t("trade.screen.lite.lite_contract_sections.profit"), v: signedMoney(row.profit), c: livePnlColor(row.profit) },
         ].map((cell) => (
           <div key={cell.k}>
-            <div className="text-[9.5px] text-[#6B7280]" style={{ letterSpacing: "1px" }}>
+            <div className="text-[9.5px] uppercase text-[#6B7280]" style={{ letterSpacing: "1px" }}>
               {cell.k}
             </div>
             <div className="font-mono text-[15px] font-bold" style={{ color: cell.c }}>
@@ -203,14 +214,15 @@ export const LiveCard = ({
 };
 
 /* ---------------------------- desktop rows ---------------------------- */
-export const DESKTOP_GRID = "minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 150px 170px";
+// Win / risk column 180: its header and three short lines fit every language on one line each (2026-11-13).
+export const DESKTOP_GRID = "minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 180px 140px";
 
 const gridFor = (selectMode?: boolean) =>
   selectMode ? `28px ${DESKTOP_GRID}` : DESKTOP_GRID;
 
 export const LiveRowHeader = ({ selectMode }: { selectMode?: boolean }) => (
   <div
-    className="grid px-4 py-2 text-[10px] text-[#6B7280]"
+    className="grid px-4 py-2 text-[10px] uppercase text-[#6B7280]"
     style={{ gridTemplateColumns: gridFor(selectMode), letterSpacing: "1.1px" }}
   >
     {selectMode && <span />}
@@ -219,7 +231,7 @@ export const LiveRowHeader = ({ selectMode }: { selectMode?: boolean }) => (
     <span>{t("common.put_in")}</span>
     <span>{t("common.now_worth")}</span>
     <span>{t("trade.screen.lite.lite_contract_sections.profit")}</span>
-    <span>{t("portfolio.lite.live.auto_close_if_wins")}</span>
+    <span className="whitespace-nowrap">{t("portfolio.lite.live.auto_close_if_wins")}</span>
     <span />
   </div>
 );
@@ -313,13 +325,13 @@ export const LiveRow = ({
       <div className="pr-3 text-[12px] leading-[1.5]" style={{ color: hot ? RED : "#6B7280" }}>
         {row.segment === "boost" ? (
           <>
-            <div>If it wins → {signedMoney(boostFigures(row).win)}</div>
+            <div>{t("portfolio.lite.live.if_wins_net", { win: signedMoney(boostFigures(row).win) })}</div>
             <div>
-              Can lose up to{" "}
+              {t("portfolio.lite.live.can_lose_up_to")}{" "}
               <span className="font-mono text-[#F2F3F5]">{money(boostFigures(row).maxLoss)}</span>
             </div>
             <div>
-              {"auto-close "}
+              {`${t("portfolio.lite.live.auto_close_word")} `}
               <TooltipProvider delayDuration={150}>
                 <Tooltip>
                   <TooltipTrigger asChild>
