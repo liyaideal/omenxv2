@@ -1486,7 +1486,7 @@ Add to overlay parity table:
 |---|---|---|
 | Transfer between accounts | `TransferDialog` | `TransferDrawer` (MobileDrawer) |
 
-**Desktop-only Equity HoverCard** (attached to top-nav Equity capsule): ~260px width. Content: two data rows (Spot Account / Futures Account, `font-mono text-sm`) → hairline divider → Total Equity row (`font-semibold`) → "Transfer ›" text link that opens `TransferDialog`. Mobile: no equity in the header. **2026-07-21:** Trial Bonus row removed with sunset.
+**Desktop-only Equity HoverCard** (attached to the top-nav balance tray since 2026-11-13 — was the Equity capsule; title now `Total balance`, see §Addendum 2026-11-13): ~260px width. Content: two data rows (Spot Account / Futures Account, `font-mono text-sm`) → hairline divider → Total Equity row (`font-semibold`) → "Transfer ›" text link that opens `TransferDialog`. Mobile: no equity in the header. **2026-07-21:** Trial Bonus row removed with sunset.
 
 ### 5. Total Equity definition (site-wide single source)
 
@@ -2577,7 +2577,9 @@ CPO 2026-11-13 画布「充值引导 mock」选定 A1 托盘 + 配色 ②。交�
 
 1. **桌面顶栏右簇（登录态）= `余额托盘 → 🔔 → 头像 → (交易页 Lite/Pro)`**。托盘 = `flex h-10 rounded-[10px] bg-muted/70 p-[3px] gap-0.5`，里面两件：余额按钮（`h-[34px] px-2.5 rounded-lg`，`Wallet` 16 / 1.75 muted + `font-mono text-sm font-bold text-foreground` 数字，hover `bg-muted`）与 Deposit（`h-[34px] px-3.5 rounded-lg text-sm font-semibold text-primary-foreground`，底 `var(--gradient-button-primary)`，与 Wallet 页 Deposit 同一渐变）。
 2. **数字白色，不再用 trading-green**：顶栏只留一个强调（Deposit 渐变），绿数字 + 蓝按钮并排会打架。
-3. **任何宽度都不写标签**（原 `Equity:` 在 xl 以上显示，退役）；窄屏托盘照常显示，不缩成图标。
+3. **任何宽度都不写标签**（原 `Equity:` 在 xl 以上显示，退役）；窄屏托盘照常显示，不缩成图标。**窄屏让位顺序**（验收后定，保证导航不折行、不钻到托盘下）：① 1280 以下头像旁的用户名隐藏（交易页因为多一个 Lite/Pro 开关，1536 以下就隐藏）；② 1280 以下托盘内边距收紧（余额 `px-2`、Deposit `px-2.5`），导航项 `px-2 text-[13px]`、`whitespace-nowrap`；③ 钱包图标 1024 以下隐藏（交易页 1280 以下隐藏）。余额数字与 Deposit 任何宽度都在。
 4. **手机品牌栏不放 Deposit**（CPO 选 D4-B），右槽仍 `[🔔][🌐]`。
 5. **命名**：Standard + Boost 的合计在 Lite 面一律叫 **Balance**（顶栏悬浮卡 `Total balance`、手机 Me 抽屉余额卡 `Balance`）；`Equity` 只留给 Pro 风险语境（Account Equity / Risk Ratio = MM / Equity，含浮盈）。
+6. **可访问名**：余额按钮 `aria-label = "Balance $x"`（读屏念出金额）。
+7. **同页账户偏好同步**：`useAccountPreference` 在同一页内广播 `omenx:account-preference`，顶栏充值弹窗能看到别处刚选的账户，不用刷新。
 

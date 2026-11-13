@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { AccountKind } from "@/components/wallet/AccountPicker";
 
 const STORAGE_PREFIX = "omenx:";
+const SAME_TAB_EVENT = "omenx:account-preference";
 
 /**
  * Persist the user's last-chosen deposit / withdraw target account across sessions.
@@ -20,6 +21,10 @@ export const useAccountPreference = (kind: "deposit" | "withdraw") => {
     if (typeof window === "undefined") return;
     if (next) window.localStorage.setItem(storageKey, next);
     else window.localStorage.removeItem(storageKey);
+    // Same-tab sync: other mounted users of this key (e.g. the header's Deposit
+    // dialog) must see a pick made elsewhere without a reload. `storage` only
+    // fires across tabs.
+    window.dispatchEvent(new CustomEvent(SAME_TAB_EVENT, { detail: { key: storageKey, value: next } }));
   };
 
   // Cross-tab sync
@@ -29,8 +34,16 @@ export const useAccountPreference = (kind: "deposit" | "withdraw") => {
       if (e.key !== storageKey) return;
       setAccountState(e.newValue === "spot" || e.newValue === "futures" ? e.newValue : null);
     };
+    const onSameTab = (e: Event) => {
+      const d = (e as CustomEvent<{ key: string; value: AccountKind | null }>).detail;
+      if (d?.key === storageKey) setAccountState(d.value);
+    };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener(SAME_TAB_EVENT, onSameTab);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(SAME_TAB_EVENT, onSameTab);
+    };
   }, [storageKey]);
 
   return { account, setAccount };

@@ -17,7 +17,6 @@ import {
   ExternalLink,
   KeyRound,
   ArrowLeftRight,
-  Wallet,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -36,10 +35,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
-import { DepositDialog } from "@/components/deposit/DepositDialog";
+import { BalanceTray } from "@/components/header/BalanceTray";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { HELP_CENTER_URL } from "@/lib/site";
 
@@ -121,8 +119,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { balance, spotBalance, user, username, avatarUrl } = useUserProfile();
   const [transferOpen, setTransferOpen] = useState(false);
-  const [depositOpen, setDepositOpen] = useState(false);
-  const totalEquity = computeTotalEquity({ spotBalance, balance });
   const lang = useLanguagePick();
 
   const handleSignOut = async () => {
@@ -171,7 +167,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className={`relative rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 xl:px-4 ${
+                  className={`relative whitespace-nowrap rounded-lg px-2 py-2 text-[13px] font-medium xl:text-sm transition-all duration-200 xl:px-4 ${
                     isActive
                       ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(260_60%_55%/0.3)]"
                       : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"
@@ -193,43 +189,19 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
           {user ? (
             <>
-              {/* Balance tray (CPO 2026-11-13, deposit-ux ①, canvas A1 + tone ②): one muted tray
-                  holding wallet icon + balance (→ /wallet, hover card unchanged) and an always-on
-                  Deposit (brand gradient, opens the Deposit dialog in place). Replaces the
-                  "Equity: $x" chip; no label at any width. Signed-in only. */}
-              <div className="flex h-10 flex-shrink-0 items-center gap-0.5 rounded-[10px] bg-muted/70 p-[3px]">
-                <HoverCard openDelay={120} closeDelay={100}>
-                  <HoverCardTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => navigate("/wallet")}
-                      aria-label={tt("common.equity")}
-                      className="flex h-[34px] items-center gap-1.5 rounded-lg px-2.5 transition-colors hover:bg-muted"
-                    >
-                      <Wallet className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} aria-hidden />
-                      <span className="font-mono text-sm font-bold text-foreground">
-                        ${formatEquityUsd(totalEquity)}
-                      </span>
-                    </button>
-                  </HoverCardTrigger>
-                  <HoverCardContent align="end" className="w-[260px] p-3">
-                    <EquityHoverCardBody
-                      spotBalance={spotBalance}
-                      balance={balance}
-                      onTransfer={() => setTransferOpen(true)}
-                    />
-                  </HoverCardContent>
-                </HoverCard>
-                <button
-                  type="button"
-                  onClick={() => setDepositOpen(true)}
-                  className="h-[34px] whitespace-nowrap rounded-lg px-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-                  style={{ background: "var(--gradient-button-primary)" }}
-                >
-                  {t("common.deposit")}
-                </button>
-              </div>
-              <DepositDialog open={depositOpen} onOpenChange={setDepositOpen} />
+              {/* Balance tray (CPO 2026-11-13, deposit-ux ①) — see BalanceTray. */}
+              <BalanceTray
+                spotBalance={spotBalance}
+                balance={balance}
+                compact={isTradeRoute}
+                hoverCard={
+                  <EquityHoverCardBody
+                    spotBalance={spotBalance}
+                    balance={balance}
+                    onTransfer={() => setTransferOpen(true)}
+                  />
+                }
+              />
               <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
 
               {/* Notifications (CPO 2026-10-13, plan A): Balance tray → 🔔 → avatar. Signed-in only. */}
@@ -247,7 +219,12 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                           )}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="max-w-[64px] truncate text-sm font-medium text-foreground xl:max-w-[100px]">
+                    <span
+                      className={`hidden max-w-[100px] truncate text-sm font-medium text-foreground ${
+                        // Trade pages also carry the Lite/Pro switch — keep the name off until 2xl there.
+                        isTradeRoute ? "2xl:inline" : "xl:inline"
+                      }`}
+                    >
                       {username || t("home.default_user")}
                     </span>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />

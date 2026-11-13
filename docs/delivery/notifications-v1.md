@@ -127,7 +127,7 @@ cron（到期前 24h）─┘                                    └── 90 �
 
 | 端 | 位置 | 规则 |
 |---|---|---|
-| 桌面 | 顶栏右簇 `Equity → 🔔 → 头像 → (交易页 Lite/Pro)` | 登录态才渲染；游客右簇不变 `🌐 EN → Sign In`。登录态的语言 chip 退役，语言改为头像菜单 `Language · EN ▸` 子菜单行（Settings 之上），列表与原 chip 同一份 |
+| 桌面 | 顶栏右簇 `余额托盘 → 🔔 → 头像 → (交易页 Lite/Pro)`（2026-11-13 起原 Equity 小框换成余额托盘，见 deposit-ux-v1 §1） | 登录态才渲染；游客右簇不变 `🌐 EN → Sign In`。登录态的语言 chip 退役，语言改为头像菜单 `Language · EN ▸` 子菜单行（Settings 之上），列表与原 chip 同一份 |
 | 手机 | 品牌栏（/ /events /portfolio /wallet）右槽 `[🔔][🌐]` | 登录 = 两个 icon button；游客 = 只有 🌐；inner 页不放铃铛 |
 | 手机 | Me 菜单 `Notifications` 行（Rewards 之后） | 右侧未读计数胶囊，0 隐藏 |
 

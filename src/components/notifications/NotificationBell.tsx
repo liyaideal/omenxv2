@@ -1,7 +1,7 @@
 /**
  * NotificationBell — the ONE bell entry (mock v1 §01 / §03 / §05).
  *
- * Desktop (header right cluster, signed-in only): `Equity → 🔔 → avatar`.
+ * Desktop (header right cluster, signed-in only): `Balance tray → 🔔 → avatar`.
  *   Click → Popover 400 × ≤560 (pure information, no confirm button → Popover
  *   not Dialog, DESIGN §5): header "Notifications" + "Mark all read" (hidden at
  *   0 unread), local tabs Trading / Account, day-grouped last 20, "See all" →

@@ -18,7 +18,7 @@ const BELL_CASES: SectionCase[] = [
   {
     key: "notif-bell-states",
     label: "NT-1 · 铃铛 · 角标三态 + 移动缩版",
-    note: "桌面右簇顺序 = Equity → 🔔 → 头像 → (交易页 Lite/Pro)，登录态才渲染；游客右簇不变（🌐 EN → Sign In）。登录态的语言 chip 退役，语言收进头像菜单 `Language · EN ▸`（子菜单 = LanguageMenuItems）。登录态 header 本体需登录，看生产 alex_carter。",
+    note: "桌面右簇顺序 = Balance tray → 🔔 → 头像 → (交易页 Lite/Pro)，登录态才渲染；游客右簇不变（🌐 EN → Sign In）。登录态的语言 chip 退役，语言收进头像菜单 `Language · EN ▸`（子菜单 = LanguageMenuItems）。登录态 header 本体需登录，看生产 alex_carter。",
     spec: [
       { state: "0 unread", when: "badge === 0", visual: "无角标；Bell 20 / 1.5 / muted；hover bg-muted/50 + 白", source: "NotificationBell.tsx · useNotificationCounts().badge" },
       { state: "1–99", when: "1 ≤ badge ≤ 99", visual: "右上 `min-w-[16px] h-4 px-1 rounded-full bg-primary font-mono text-[10px] 600` 数字", source: "BellBadge size=desktop" },

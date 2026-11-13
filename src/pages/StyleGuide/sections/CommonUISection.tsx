@@ -15,7 +15,8 @@ import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RotateCcw, Info, HelpCircle, Settings, Bell, User, Monitor, Smartphone, Globe, ChevronDown, Share2, Trophy, Star, CheckCircle2, AlertCircle, XCircle, Gift } from "lucide-react";
-import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { EventsDesktopHeader, EquityHoverCardBody } from "@/components/EventsDesktopHeader";
+import { BalanceTray } from "@/components/header/BalanceTray";
 import { SettlementPoster } from "@/components/share";
 import { Logo } from "@/components/Logo";
 import { PageHeader } from "@/components/PageHeader";
@@ -2075,6 +2076,20 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
               <div className="min-w-[1100px]">
                 <EventsDesktopHeader />
               </div>
+            </div>
+
+            {/* LIVE: the signed-in balance tray (deposit-ux ①, 2026-11-13). The header above
+                renders in the style-guide's own session (usually signed out), so the tray is
+                mounted here on its own with demo balances — same production component. */}
+            <div className="mb-6 flex flex-wrap items-center gap-6 rounded-lg border border-border bg-background p-4">
+              <span className="text-xs text-muted-foreground">登录态右簇 · 余额托盘（BalanceTray）</span>
+              <BalanceTray
+                spotBalance={1240.5}
+                balance={8548.86}
+                hoverCard={<EquityHoverCardBody spotBalance={1240.5} balance={8548.86} />}
+              />
+              <span className="text-xs text-muted-foreground">交易页（compact，钱包图标 1280 起才出）</span>
+              <BalanceTray spotBalance={1240.5} balance={8548.86} compact />
             </div>
 
             {/* Component Specifications — read off the live component */}

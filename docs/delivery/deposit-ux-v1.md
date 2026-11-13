@@ -8,7 +8,7 @@
 ## 0. 查什么去哪儿
 
 - 长什么样 → 生产页：任何页面的桌面顶栏（登录后）；合约交易页 `/trade?event=…`、现货交易页 `/spot?event=…`、`/portfolio`（Live）——都要余额不到 $1 的账号才看得到
-- 什么时候变成什么样 → `/style-guide` → Common UI › EventsDesktopHeader（顶栏）；Lite → `交易页 ✅`（TR-30）、现货节（SP-20）、`Portfolio ✅`（PF-33b）
+- 什么时候变成什么样 → `/style-guide` → Common UI › EventsDesktopHeader 卡里的「登录态右簇 · 余额托盘」（顶栏本身在字典里是未登录态）；Lite → `交易页 ✅`（TR-30）、现货节（SP-20）、`Portfolio ✅`（PF-33b）
 - 字段名、文案、术语 → `docs/copy-dictionary.md` › Trading 表「Add money（Lite 下单卡余额不够提示里的链接）」、Portfolio (Lite) 表「Deposit to start」→ 本文
 - 交易口径的词（爆仓 / 杠杆 / 限价单……）在 Lite 里叫什么 → copy-dictionary 顶部「Lite 术语对照表」
 
@@ -17,7 +17,7 @@
 | 步 | 做什么 | 看到什么 |
 |---|---|---|
 | 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 本次涉及 **Lite** 组 `交易页 ✅` 的 TR-30、现货节的 SP-20、`Portfolio ✅` 的 PF-33b |
-| 2 | 页头搜索框敲 `TR-30` / `SP-20` / `PF-33b` | 直接滚到那张样张 |
+| 2 | 页头搜索框敲 `TR-30` / `SP-20` / `PF-33b`；顶栏托盘在 Common UI › EventsDesktopHeader 卡里 | 直接滚到那张样张；托盘可点（余额进 /wallet、Deposit 弹充值窗），鼠标停在余额上出悬浮卡 |
 | 3 | 样张上方编号行 + iframe 里的真组件（可以点 Add money；字典里没登录、两个账户都是 0，所以点了走充值分支——桌面宽度弹充值弹窗，手机宽度跳 `/deposit`，帧里会变成 `Missing preview key`，属预期，刷新即回；划转分支要在生产页用另一个账户有钱的账号看） | 下方表格「状态 / 触发条件 / 视觉 / 数据来源」，新增一行「余额不够 · 点 Add money」 |
 | 4 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=trade-tr30`、`?c=spot-sp20`、`?c=portfolio-lite-empty-nofunds`；加 `&lang=ru` 等可切语言 |
 
@@ -32,6 +32,8 @@
 | 余额是什么 | Standard + Boost 两个账户的可用余额相加，不含持仓浮盈（和原来的 Equity 同一个数） |
 | 点余额 | 进 `/wallet`；鼠标停上去出悬浮卡（两个账户分别多少 + 合计 + Transfer），标题改叫 `Total balance` |
 | 点 Deposit | 原地弹出充值弹窗，不预选账户（沿用用户上次选的；从没选过就先让他选） |
+| 窄屏让位 | 导航不折行、不钻到托盘下面：1280 以下隐藏头像旁的用户名（交易页 1536 以下就隐藏，因为多一个 Lite/Pro 开关），托盘和导航内边距收紧、导航字号 13；钱包图标 1024 以下隐藏（交易页 1280 以下隐藏）。余额数字和 Deposit 任何宽度都在 |
+| 读屏 | 余额按钮念「Balance $x」 |
 | 手机 | 品牌栏不加 Deposit，保持 `[🔔][🌐]` |
 
 ## 2. 命名：Equity 改叫 Balance

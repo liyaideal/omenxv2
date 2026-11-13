@@ -163,7 +163,7 @@ RLS：`status = 'published'` 对 anon + authenticated 可读；写只给 admin �
 
 | 端 | 位置 | 规则 |
 |---|---|---|
-| 桌面 | 顶栏右簇 `Equity → 🔔 → 头像 → (交易页 Lite/Pro)` | 登录态才渲染；游客右簇不变 `🌐 EN → Sign In`。登录态的语言 chip 退役，语言改为头像菜单 `Language · EN ▸` 子菜单行 |
+| 桌面 | 顶栏右簇 `余额托盘 → 🔔 → 头像 → (交易页 Lite/Pro)`（2026-11-13 起原 Equity 小框换成余额托盘，见 deposit-ux-v1 §1） | 登录态才渲染；游客右簇不变 `🌐 EN → Sign In`。登录态的语言 chip 退役，语言改为头像菜单 `Language · EN ▸` 子菜单行 |
 | 手机 | 品牌栏（/ /events /portfolio /wallet）右槽 `[🔔][🌐]` | 登录 = 两个 icon button；游客 = 只有 🌐；inner 页不放铃铛 |
 | 手机 | Me 菜单 `Notifications` 行（Rewards 之后） | 右侧未读计数胶囊，0 隐藏 |
 | 公告 | 页脚 Resources「Announcements」；详情页右栏「See all announcements」；通知行 deep link | 顶栏 / Me 菜单 / BottomNav **不加** |
