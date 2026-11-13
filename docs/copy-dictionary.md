@@ -460,7 +460,7 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **PnL** | `(mark − entry) × size × side` (see `mem://technical/pnl-formula-canonical`) |
 | **Side** | `long` / `short`. Binary markets use `Yes` / `No`. Never `Buy` / `Sell` as a position side. |
 | **Available balance** | Free balance in the Boost account (`profiles.balance`) |
-| **Total equity** | `Boost + Standard available` (`balance + spot_balance`). **Retired 2026-07-21:** "Trial bonus" field — the Trial Bonus wallet feature was fully sunset before mainnet launch; do not reintroduce copy that references it. |
+| **Balance / Total balance**（2026-11-13 起，原 Total equity） | `Boost + Standard available` (`balance + spot_balance`)，不含持仓浮盈。Lite 面统一叫 Balance：桌面顶栏余额托盘（无标签，悬浮卡标题 `Total balance`）、手机 Me 抽屉余额卡 `Balance`。key `common.equity` = Balance、`home.screen.HomeGreeting.total_equity` = Total balance（key 名不改）。`Equity` 只留给 Pro 风险语境（Account Equity / Risk Ratio = MM / Equity）。顶栏旁边常驻 `Deposit`（品牌渐变，原地弹 DepositDialog）。CPO 2026-11-13；旧说明： **Retired 2026-07-21:** "Trial bonus" field — the Trial Bonus wallet feature was fully sunset before mainnet launch; do not reintroduce copy that references it. |
 | **To win** | Pro CTA figure = net profit after 5% winning commission (same `netWin()` helper as Lite)。**Lite 合约卡 / 现货卡 CTA 右侧同词 `To win $X →`**（09-24 Liya：原来合约卡只印 `$X →`，用户不知道是什么数），与卡内 `If you're right, you win $X` 同一口径 | gross profit, `$X →` 裸数字 |
 | **Standard Account** | 现货账户在 Pro `/spot` 与余额提示中的名字 | Spot Account（已退役）|
 | **Boost usage** | Lite Boost check Details 里的比例行（= Pro Risk Ratio = MM / Equity）；条上 `Healthy · 7%` 取整 | Risk Ratio / Margin（Lite 禁） |

@@ -2064,7 +2064,7 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
             <CardDescription>
               Live component. Primary navigation header used on Events, Portfolio, Leaderboard and other
               main pages. It renders in the style-guide's own session state — signed out shows the Sign in
-              button where the green Equity chip sits when signed in.
+              button where the balance tray (wallet icon + balance + Deposit) sits when signed in.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -2104,9 +2104,9 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
                     <td className="py-2 text-muted-foreground">Active: bg-primary + glow shadow + 2px underline pip</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Equity chip</td>
-                    <td className="py-2 font-mono">"Equity:" + font-mono text-trading-green</td>
-                    <td className="py-2 text-muted-foreground">Total equity (Standard + Boost). HoverCard body = EquityHoverCardBody. Click → /wallet</td>
+                    <td className="py-2 font-medium">Balance tray（2026-11-13）</td>
+                    <td className="py-2 font-mono">h-10 rounded-[10px] bg-muted/70 p-[3px] · Wallet 16 muted + font-mono 14 bold foreground · Deposit = var(--gradient-button-primary)</td>
+                    <td className="py-2 text-muted-foreground">Balance = Standard + Boost（不含持仓浮盈）。点余额 → /wallet，悬浮卡 = EquityHoverCardBody（标题 Total balance）。点 Deposit → 原地弹 DepositDialog（不预选账户）。任何宽度都不写标签；只在登录态出现，手机品牌栏不放</td>
                   </tr>
                   <tr>
                     <td className="py-2 font-medium">Profile avatar</td>

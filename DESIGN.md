@@ -2571,3 +2571,13 @@ CPO 2026-11-12 在 mock 画布上逐条批过。交付 `docs/delivery/rewards-ta
 5. **页面上不写奖金数额**，也不放 How it works / Prizes 区块（CPO 定）；名次卡可选显示运营配的称号（`leaderboard.prizes[].label`），不显示金额。
 6. 奖励卡只显示本活动实际会发的单位；只有可重复任务的活动卡不显示进度条与 `Rewards up to`。
 
+## §Addendum 2026-11-13 · 桌面顶栏余额托盘 + Balance 命名（LOCKED）
+
+CPO 2026-11-13 画布「充值引导 mock」选定 A1 托盘 + 配色 ②。交付 `docs/delivery/deposit-ux-v1.md` §1 / §2。修订 §Addendum 2026-10-13 第 1 条右簇顺序里的 `Equity`。
+
+1. **桌面顶栏右簇（登录态）= `余额托盘 → 🔔 → 头像 → (交易页 Lite/Pro)`**。托盘 = `flex h-10 rounded-[10px] bg-muted/70 p-[3px] gap-0.5`，里面两件：余额按钮（`h-[34px] px-2.5 rounded-lg`，`Wallet` 16 / 1.75 muted + `font-mono text-sm font-bold text-foreground` 数字，hover `bg-muted`）与 Deposit（`h-[34px] px-3.5 rounded-lg text-sm font-semibold text-primary-foreground`，底 `var(--gradient-button-primary)`，与 Wallet 页 Deposit 同一渐变）。
+2. **数字白色，不再用 trading-green**：顶栏只留一个强调（Deposit 渐变），绿数字 + 蓝按钮并排会打架。
+3. **任何宽度都不写标签**（原 `Equity:` 在 xl 以上显示，退役）；窄屏托盘照常显示，不缩成图标。
+4. **手机品牌栏不放 Deposit**（CPO 选 D4-B），右槽仍 `[🔔][🌐]`。
+5. **命名**：Standard + Boost 的合计在 Lite 面一律叫 **Balance**（顶栏悬浮卡 `Total balance`、手机 Me 抽屉余额卡 `Balance`）；`Equity` 只留给 Pro 风险语境（Account Equity / Risk Ratio = MM / Equity，含浮盈）。
+

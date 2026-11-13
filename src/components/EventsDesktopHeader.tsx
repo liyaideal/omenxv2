@@ -17,6 +17,7 @@ import {
   ExternalLink,
   KeyRound,
   ArrowLeftRight,
+  Wallet,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,6 +39,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
+import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { HELP_CENTER_URL } from "@/lib/site";
 
@@ -55,7 +57,7 @@ const navItems = [
 // Language (CPO 2026-09-28, language-entry-v1 R1/R2; amended 2026-10-13 by the
 // Notifications round, plan A): guests keep ONE <LanguageChip> left of Sign In.
 // Signed-in users no longer see the chip — the bell takes that slot
-// (`Equity → 🔔 → avatar`) so the right cluster gains no element — and the
+// (`Balance tray → 🔔 → avatar`) so the right cluster gains no element — and the
 // language lives as a `Language · EN ▸` submenu row in the avatar menu, above
 // Settings (same list as the chip; Settings › Preferences stays the other entry).
 
@@ -119,6 +121,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { balance, spotBalance, user, username, avatarUrl } = useUserProfile();
   const [transferOpen, setTransferOpen] = useState(false);
+  const [depositOpen, setDepositOpen] = useState(false);
   const totalEquity = computeTotalEquity({ spotBalance, balance });
   const lang = useLanguagePick();
 
@@ -184,37 +187,52 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
           </nav>
         </div>
 
-        {/* Right: Custom Content + Equity + Profile */}
+        {/* Right: Custom Content + Balance tray + Profile */}
         <div className="flex min-w-0 items-center gap-2 xl:gap-4">
           {rightContent}
 
           {user ? (
             <>
-              <HoverCard openDelay={120} closeDelay={100}>
-                <HoverCardTrigger asChild>
-                  <button
-                    onClick={() => navigate("/wallet")}
-                    className="flex min-w-0 items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5 xl:px-4"
-                  >
-                    <span className="hidden text-sm text-muted-foreground xl:inline">
-                      {t("header.equity")}
-                    </span>
-                    <span className="font-mono text-sm font-bold text-trading-green">
-                      ${formatEquityUsd(totalEquity)}
-                    </span>
-                  </button>
-                </HoverCardTrigger>
-                <HoverCardContent align="end" className="w-[260px] p-3">
-                  <EquityHoverCardBody
-                    spotBalance={spotBalance}
-                    balance={balance}
-                    onTransfer={() => setTransferOpen(true)}
-                  />
-                </HoverCardContent>
-              </HoverCard>
+              {/* Balance tray (CPO 2026-11-13, deposit-ux ①, canvas A1 + tone ②): one muted tray
+                  holding wallet icon + balance (→ /wallet, hover card unchanged) and an always-on
+                  Deposit (brand gradient, opens the Deposit dialog in place). Replaces the
+                  "Equity: $x" chip; no label at any width. Signed-in only. */}
+              <div className="flex h-10 flex-shrink-0 items-center gap-0.5 rounded-[10px] bg-muted/70 p-[3px]">
+                <HoverCard openDelay={120} closeDelay={100}>
+                  <HoverCardTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/wallet")}
+                      aria-label={tt("common.equity")}
+                      className="flex h-[34px] items-center gap-1.5 rounded-lg px-2.5 transition-colors hover:bg-muted"
+                    >
+                      <Wallet className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} aria-hidden />
+                      <span className="font-mono text-sm font-bold text-foreground">
+                        ${formatEquityUsd(totalEquity)}
+                      </span>
+                    </button>
+                  </HoverCardTrigger>
+                  <HoverCardContent align="end" className="w-[260px] p-3">
+                    <EquityHoverCardBody
+                      spotBalance={spotBalance}
+                      balance={balance}
+                      onTransfer={() => setTransferOpen(true)}
+                    />
+                  </HoverCardContent>
+                </HoverCard>
+                <button
+                  type="button"
+                  onClick={() => setDepositOpen(true)}
+                  className="h-[34px] whitespace-nowrap rounded-lg px-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                  style={{ background: "var(--gradient-button-primary)" }}
+                >
+                  {t("common.deposit")}
+                </button>
+              </div>
+              <DepositDialog open={depositOpen} onOpenChange={setDepositOpen} />
               <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
 
-              {/* Notifications (CPO 2026-10-13, plan A): Equity → 🔔 → avatar. Signed-in only. */}
+              {/* Notifications (CPO 2026-10-13, plan A): Balance tray → 🔔 → avatar. Signed-in only. */}
               <NotificationBell variant="desktop" />
 
               <DropdownMenu>

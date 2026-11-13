@@ -1,14 +1,14 @@
 # 充值引导优化 — 交付说明 v1（2026-11-12）
 
 > 起因是 BD 在主站测充值流程的反馈：注册到充值是主要卡点，用户找不到充值入口。
-> 这份文档会随这个需求分批更新。目前落地两处：① Lite 交易页的下单卡在余额不到 $1 时，提示里的「Add money」变成可以点的链接（§3）；② Portfolio 的 Live 页没有持仓、两个账户加起来不到 $1 时，空态的主按钮变成「Deposit to start」（§4）。
-> 下单按钮、脚注、余额旁的 ⇄ 划转入口、有钱时的 Portfolio 空态都没动。
-> 先看 §0 知道去哪儿查，再看 §3 / §4。
+> 这份文档按批次更新，目前落地四处：① 桌面顶栏右上角原来的「Equity: $xx」换成一块余额托盘，里面是余额和一个常驻的 Deposit 按钮（§1）；② Equity 改叫 Balance（§2）；③ 下单卡余额不到 $1 时，提示里的「Add money」可以点（§3）；④ Portfolio 的 Live 页没持仓又没钱时，空态主按钮变成「Deposit to start」（§4）。
+> 手机品牌栏、下单按钮、余额旁的 ⇄、有钱时的 Portfolio 空态都没动。
+> 先看 §0 知道去哪儿查，再按章节看。
 
 ## 0. 查什么去哪儿
 
-- 长什么样 → 生产页：合约交易页 `/trade?event=…`、现货交易页 `/spot?event=…`、`/portfolio`（Live）——都要余额不到 $1 的账号才看得到
-- 什么时候变成什么样 → `/style-guide` → Lite → `交易页 ✅`（TR-30）、现货节（SP-20）、`Portfolio ✅`（PF-33b）
+- 长什么样 → 生产页：任何页面的桌面顶栏（登录后）；合约交易页 `/trade?event=…`、现货交易页 `/spot?event=…`、`/portfolio`（Live）——都要余额不到 $1 的账号才看得到
+- 什么时候变成什么样 → `/style-guide` → Common UI › EventsDesktopHeader（顶栏）；Lite → `交易页 ✅`（TR-30）、现货节（SP-20）、`Portfolio ✅`（PF-33b）
 - 字段名、文案、术语 → `docs/copy-dictionary.md` › Trading 表「Add money（Lite 下单卡余额不够提示里的链接）」、Portfolio (Lite) 表「Deposit to start」→ 本文
 - 交易口径的词（爆仓 / 杠杆 / 限价单……）在 Lite 里叫什么 → copy-dictionary 顶部「Lite 术语对照表」
 
@@ -22,6 +22,27 @@
 | 4 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=trade-tr30`、`?c=spot-sp20`、`?c=portfolio-lite-empty-nofunds`；加 `&lang=ru` 等可切语言 |
 
 只在字典看得到、alex_carter 凑不出的态：TR-30 / SP-20 / PF-33b（alex 有余额；演示账号 Mia 两个账户都是 0，用她登录可在生产页看到）。
+
+## 1. 桌面顶栏：余额托盘 + 常驻 Deposit
+
+| 规则 | 内容 |
+|---|---|
+| 什么时候出现 | 桌面顶栏，已登录。没登录的顶栏不变（语言 + Sign in） |
+| 长什么样 | 一块浅灰托盘（高 40、圆角 10），里面左边是钱包图标 + 余额数字（白色、等宽粗体），右边是 `Deposit` 按钮（品牌渐变绿到蓝，和 Wallet 页的 Deposit 同款）。不写「Balance」或「Equity」标签，任何宽度都一样，窄屏不缩 |
+| 余额是什么 | Standard + Boost 两个账户的可用余额相加，不含持仓浮盈（和原来的 Equity 同一个数） |
+| 点余额 | 进 `/wallet`；鼠标停上去出悬浮卡（两个账户分别多少 + 合计 + Transfer），标题改叫 `Total balance` |
+| 点 Deposit | 原地弹出充值弹窗，不预选账户（沿用用户上次选的；从没选过就先让他选） |
+| 手机 | 品牌栏不加 Deposit，保持 `[🔔][🌐]` |
+
+## 2. 命名：Equity 改叫 Balance
+
+| 位置 | 原来 | 现在 |
+|---|---|---|
+| 桌面顶栏 | `Equity: $xx` | 不写标签（见 §1） |
+| 顶栏悬浮卡标题 / 合计行 | `Total equity` | `Total balance` |
+| 手机 Me 抽屉余额卡 | `Equity` | `Balance` |
+
+key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘額 / 残高 / 잔액 / Баланс / Số dư（西语 Saldo）；`home.screen.HomeGreeting.total_equity` = Total balance / 总余额 / 總餘額 / 合計残高 / 총 잔액 / Общий баланс / Tổng số dư。繁中原来的「股權」是误译，一并改掉。Pro 风险相关的 Equity（Account Equity、Risk Ratio = MM / Equity）含浮盈，不改。
 
 ## 3. 下单卡余额不够：Add money 做成链接
 
@@ -67,13 +88,16 @@
 |---|---|---|
 | 链接本身、分叉判定 | 已做 | 照做；主站当前若还没有 11-05 那行提示，需要先做 1105 §1 |
 | 充值去处 | 桌面弹 `DepositDialog`（`initialAccount`），手机 `/deposit` 页 | 指向正式版对应的充值弹窗 / 充值页 |
+| 顶栏余额托盘、Balance 命名 | 已做 | 照做（§1 / §2） |
 | Portfolio 空态 Deposit to start | 已做 | 照做（判定见 §4） |
-| i18n | `low_balance_hint` ×2 改值、`low_balance_link` ×2 新增、`lite.live.deposit_to_start` 新增 | 同步进 OMENX-i18n 文案表 |
+| i18n | `low_balance_hint` ×2 改值、`low_balance_link` ×2 新增、`lite.live.deposit_to_start` 新增、`common.equity` / `HomeGreeting.total_equity` 改值 | 同步进 OMENX-i18n 文案表 |
 
 ## 代号 ↔ 章节
 
 | 代号 | 白话 | 章节 |
 |---|---|---|
+| deposit-ux ① | 顶栏余额托盘 + Deposit | §1 |
+| deposit-ux ② | Equity → Balance | §2 |
 | deposit-ux ③ | 下单卡 Add money 链接 | §3 |
 | deposit-ux ④ | Portfolio 空态 Deposit to start | §4 |
 | PF-33b | Portfolio Live 空态没钱的字典样张 | §0.1 |
