@@ -30,7 +30,7 @@
 | 什么时候出现 | 桌面顶栏，已登录。没登录的顶栏不变（语言 + Sign in） |
 | 长什么样 | 一块浅灰托盘（高 40、圆角 10），里面左边是钱包图标 + 余额数字（白色、等宽粗体），右边是 `Deposit` 按钮（品牌渐变绿到蓝，和 Wallet 页的 Deposit 同款）。不写「Balance」或「Equity」标签，任何宽度都一样，窄屏不缩 |
 | 余额是什么 | Standard + Boost 两个账户的可用余额相加，不含持仓浮盈（和原来的 Equity 同一个数） |
-| 点余额 | 进 `/wallet`；鼠标停上去出悬浮卡（两个账户分别多少 + 合计 + Transfer），标题改叫 `Total balance`（标题是小号大写眉行，屏幕上显示 TOTAL BALANCE） |
+| 点余额 | 进 `/wallet`；鼠标停上去出悬浮卡（两个账户分别多少 + 合计 + Transfer），合计那一行叫 `Total balance`；卡顶不再放标题（原来顶部眉行也写 TOTAL BALANCE，和合计行重复，CPO 2026-11-13 删掉） |
 | 点 Deposit | 原地弹出充值弹窗，不预选账户：沿用用户上次的账户——包括从下单卡「Add money」进充值时预选的那次（那次会记成偏好）；从来没有过才先让他选 |
 | 窄屏让位 | 导航不折行、不钻到托盘下面：1280 以下隐藏头像旁的用户名（交易页 1536 以下就隐藏，因为多一个 Lite/Pro 开关），托盘和导航内边距收紧（交易页再收一档）、导航字号 13，头像按钮不被压缩；钱包图标 1024 以下隐藏（交易页 1280 以下隐藏）。余额数字和 Deposit 任何宽度都在 |
 | 读屏 | 余额按钮念「Balance $x」 |
@@ -47,6 +47,15 @@
 
 key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘額 / 残高 / 잔액 / Баланс / Số dư（西语 Saldo）；`home.screen.HomeGreeting.total_equity` = Total balance / 总余额 / 總餘額 / 合計残高 / 총 잔액 / Общий баланс / Tổng số dư。繁中原来的「股權」是误译，一并改掉。
 
+**手机 Me 抽屉 · 账户行与 Transfer 统一译法**（2026-11-13）：
+
+| 词条 | 改动 |
+|---|---|
+| `header.accountsLine`（Me 抽屉余额下那行） | 原来各语言都是英文 `Standard $x · Boost $y`；现在 Standard 翻译、Boost 保持品牌词：标准 / 標準 / スタンダード / 스탠다드 / Стандарт；越南语保留 Standard |
+| Transfer（抽屉按钮 `nav › screen.navigation.bottom_navigation.transfer`、Wallet 页 `wallet.transfer`、悬浮卡 `header.transfer`） | 三处同一个词：日语 送金 → **振替**；简中抽屉 转账 → **划转**；繁中抽屉 轉帳 → **劃轉**、Wallet 划轉 → **劃轉**（简体字混入）；越南语三处统一 **Chuyển tiền** |
+
+**手机底部导航高亮**（2026-11-13）：在 Portfolio 页时 Portfolio 和 Me 两个 tab 曾同时高亮。现在 Me 只在它的抽屉打开时高亮，Portfolio 只在 Portfolio 页高亮。
+
 **日语导航换短译法**（2026-11-13，交易页 1024 宽时导航最后一项会压到托盘）：`nav.portfolio` ポートフォリオ → **ポジション**，`nav.insights` インサイト → **分析**。其他语言不变。Pro 风险相关的 Equity（Account Equity、Risk Ratio = MM / Equity）含浮盈，不改。
 
 ## 3. 下单卡余额不够：Add money 做成链接
@@ -57,8 +66,9 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 |---|---|
 | 什么时候出现 | 不变：已登录、不是对冲单、`floor(本账户余额) < 1`（沿用 [lite-polish-1105-v1 §1](./lite-polish-1105-v1.md)） |
 | 长什么样 | 那行提示整句不变，只有「Add money」那几个字变成链接：主色、下划线、加粗（semibold），字号行高跟整行一样 |
-| 点了去哪 | 另一个账户余额 > 0 → 打开划转（桌面弹窗 / 手机底部抽屉），方向是转进当前这个账户；另一个账户余额 = 0 → 打开充值：桌面直接弹出充值弹窗，账户预选成这张卡的账户（Boost 卡 → Boost，Standard 卡 → Standard）；手机进 `/deposit` 充值页，同样预选这张卡的账户 |
+| 点了去哪 | 另一个账户余额 ≥ $1（按整数美元算，`floor(余额) >= 1`）→ 打开划转（桌面弹窗 / 手机底部抽屉），方向是转进当前这个账户；不足 $1（含 $0 和几美分）→ 打开充值：桌面直接弹出充值弹窗，账户预选成这张卡的账户（Boost 卡 → Boost，Standard 卡 → Standard）；手机进 `/deposit` 充值页，同样预选这张卡的账户 |
 | 判定来源 | 跟余额不够时点下单弹的 toast 用同一个分叉，只有一份逻辑（`useInsufficientBalanceToast` 新增 `addMoney`） |
+| 点下单弹的 toast（2026-11-13） | 同一个 ≥ $1 分叉：够划转 → 按钮 `Transfer`（打开划转）；不够 → 按钮 `Add funds`，点了和 Add money 链接走同一个充值（桌面原地弹充值弹窗、预选这张卡的账户；手机进 `/deposit` 并预选）。原来 Add funds 在桌面跳 `/deposit`，实际只落到 Wallet 页，已改 |
 | 不变的 | 下单按钮、按钮下的脚注、余额旁的 ⇄、快捷金额置灰、输入框锁住 |
 
 **多语言**：每种语言词序不同，所以整句是一个带 `{{link}}` 占位的模板，链接那几个字单独一个词条：
@@ -94,6 +104,7 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 | 链接本身、分叉判定 | 已做 | 照做；主站当前若还没有 11-05 那行提示，需要先做 1105 §1 |
 | 充值去处 | 桌面弹 `DepositDialog`（`initialAccount`），手机 `/deposit` 页 | 指向正式版对应的充值弹窗 / 充值页 |
 | 顶栏余额托盘、Balance 命名 | 已做 | 照做（§1 / §2） |
+| 11-13 小改：≥ $1 才划转、toast Add funds 弹充值、悬浮卡去眉行、Me 抽屉译法、底部导航高亮 | 已做 | 照做（§1 / §2 / §3） |
 | Portfolio 空态 Deposit to start | 已做 | 照做（判定见 §4） |
 | i18n | `low_balance_hint` ×2 改值、`low_balance_link` ×2 新增、`lite.live.deposit_to_start` 新增、`common.equity` / `HomeGreeting.total_equity` 改值 | 同步进 OMENX-i18n 文案表 |
 

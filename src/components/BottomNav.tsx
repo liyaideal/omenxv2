@@ -133,7 +133,7 @@ export const BottomNav = () => {
               setProfileSheetOpen(true);
             }}
             className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-              location.pathname === "/portfolio"
+              profileSheetOpen
                 ? "text-primary scale-110" 
                 : "text-muted-foreground scale-100 hover:scale-105"
             }`}
@@ -145,7 +145,7 @@ export const BottomNav = () => {
               </AvatarFallback>
             </Avatar>
             <span className={`text-xs transition-all duration-300 ${
-              location.pathname === "/portfolio" ? "font-semibold" : "font-medium"
+              profileSheetOpen ? "font-semibold" : "font-medium"
             }`}>{t("common.nav_me")}</span>
           </button>
         ) : (

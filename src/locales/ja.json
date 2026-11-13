@@ -2732,7 +2732,7 @@
   "screen.navigation.bottom_navigation.help_and_support": "ヘルプとサポート",
   "screen.navigation.bottom_navigation.insights": "インサイト",
   "screen.navigation.bottom_navigation.sign_out": "サインアウト",
-  "screen.navigation.bottom_navigation.transfer": "送金",
+  "screen.navigation.bottom_navigation.transfer": "振替",
   "affiliate": "アフィリエイト",
   "affiliateProgram": "アフィリエイトプログラム"
  },
@@ -5684,7 +5684,7 @@
   "equityNotePro": "Boost + スタンダード · 未実現損益は含まない",
   "deposit": "入金",
   "withdraw": "出金",
-  "transfer": "送金",
+  "transfer": "振替",
   "standard": "スタンダード",
   "boost": "Boost",
   "available": "利用可能（USDC）",
@@ -6010,7 +6010,7 @@
   "equity": "資産：",
   "transfer": "振替 ›",
   "account": "アカウント",
-  "accountsLine": "Standard ${{standard}} · Boost ${{boost}}"
+  "accountsLine": "スタンダード ${{standard}} · Boost ${{boost}}"
  },
  "language": {
   "set": "言語を {{label}} に設定しました",

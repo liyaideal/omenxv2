@@ -80,9 +80,6 @@ export const EquityHoverCardBody = ({
   const total = computeTotalEquity({ spotBalance, balance });
   return (
     <>
-      <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
-        {tt("home.screen.HomeGreeting.total_equity")}
-      </div>
       <div className="space-y-1.5 text-xs">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">{tt("wallet.standardAccount")}</span>

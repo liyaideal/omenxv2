@@ -6103,7 +6103,7 @@
   "equity": "Капитал:",
   "transfer": "Перевод ›",
   "account": "Аккаунт",
-  "accountsLine": "Standard ${{standard}} · Boost ${{boost}}"
+  "accountsLine": "Стандарт ${{standard}} · Boost ${{boost}}"
  },
  "language": {
   "set": "Язык изменён на {{label}}",

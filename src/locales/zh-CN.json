@@ -2728,7 +2728,7 @@
   "screen.navigation.bottom_navigation.help_and_support": "帮助与支持",
   "screen.navigation.bottom_navigation.insights": "洞察",
   "screen.navigation.bottom_navigation.sign_out": "退出登录",
-  "screen.navigation.bottom_navigation.transfer": "转账",
+  "screen.navigation.bottom_navigation.transfer": "划转",
   "affiliate": "联盟",
   "affiliateProgram": "联盟计划"
  },
@@ -5989,7 +5989,7 @@
   "equity": "权益：",
   "transfer": "划转 ›",
   "account": "账户",
-  "accountsLine": "Standard ${{standard}} · Boost ${{boost}}"
+  "accountsLine": "标准 ${{standard}} · Boost ${{boost}}"
  },
  "language": {
   "set": "语言已切换为 {{label}}",

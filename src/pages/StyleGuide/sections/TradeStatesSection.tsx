@@ -115,7 +115,7 @@ const PANEL_CASES: SectionCase[] = [
     spec: [
       { state: "超过 Max", when: "user && !isNetting && parseFloat(input) > floor(balance)", visual: "输入框里的数直接变成 Max（静默，无提示）", source: "LiteContractOrderPanel setAmountCapped" },
       { state: "余额不够", when: "user && !isNetting && floor(balance) < 1", visual: "输入框锁住只显示占位 `0`；输入框下一行 `Add money to your Boost balance to make a call.`（text-xs，foreground/75），其中 `Add money` 是链接（primary、下划线、semibold）；$10/$25/$50/$100/Max 置灰不可点；CTA `Buy Yes · To win $0.00 →` 与脚注不变" , source: "LiteContractOrderPanel lowBalance · i18n trade.screen.lite.lite_contract_order_panel.low_balance_hint / low_balance_link" },
-      { state: "余额不够 · 点 Add money", when: "点提示里的 Add money", visual: "Standard 余额 > 0 → 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向 Standard → Boost）；Standard 余额 = 0 → 打开充值（桌面弹 DepositDialog 预选 Boost，手机进 /deposit）。与余额不够时点下单的 toast 同一分叉（useInsufficientBalanceToast.addMoney）", source: "useInsufficientBalanceToast · CPO 2026-11-12" },
+      { state: "余额不够 · 点 Add money", when: "点提示里的 Add money", visual: "Standard 余额 ≥ $1（floor）→ 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向 Standard → Boost）；不足 $1 → 打开充值（桌面弹 DepositDialog 预选 Boost，手机进 /deposit）。点下单弹的 toast 同一分叉：按钮 Transfer 或 Add funds，Add funds 走同一个充值（桌面弹窗，不再跳 /wallet）", source: "useInsufficientBalanceToast · CPO 2026-11-12 / 11-13" },
       { state: "对冲例外", when: "isNetting（买的是已持仓的另一边）", visual: "不封顶、不提示——这笔先用持仓换回的钱，钱包不是上限", source: "capApplies" },
       { state: "游客例外", when: "!user", visual: "不封顶、不提示——点 Buy 先拉起登录", source: "capApplies" },
     ],

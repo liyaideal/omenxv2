@@ -2741,7 +2741,7 @@
   "screen.navigation.bottom_navigation.help_and_support": "幫助與支持",
   "screen.navigation.bottom_navigation.insights": "洞察",
   "screen.navigation.bottom_navigation.sign_out": "退出",
-  "screen.navigation.bottom_navigation.transfer": "轉帳",
+  "screen.navigation.bottom_navigation.transfer": "劃轉",
   "affiliate": "聯盟",
   "affiliateProgram": "聯盟計劃"
  },
@@ -5676,7 +5676,7 @@
   "equityNotePro": "Boost + Standard · 不含未實現盈虧",
   "deposit": "充值",
   "withdraw": "提現",
-  "transfer": "划轉",
+  "transfer": "劃轉",
   "standard": "標準帳戶",
   "boost": "Boost 帳戶",
   "available": "可用餘額 (USDC)",
@@ -6002,7 +6002,7 @@
   "equity": "權益：",
   "transfer": "劃轉 ›",
   "account": "帳戶",
-  "accountsLine": "Standard ${{standard}} · Boost ${{boost}}"
+  "accountsLine": "標準 ${{standard}} · Boost ${{boost}}"
  },
  "language": {
   "set": "語言已切換為 {{label}}",

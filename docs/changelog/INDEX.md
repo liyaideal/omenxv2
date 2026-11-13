@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-13 | [充值引导优化 · 第三批小改（deposit-ux-v1 §2 / §3）](../delivery/deposit-ux-v1.md#3-下单卡余额不够add-money-做成链接) | Add money 与余额不够 toast：另一账户 ≥ $1 才划转，否则充值；toast `Add funds` 在桌面原地弹充值弹窗（原来跳到 Wallet）。顶栏悬浮卡去掉重复的 TOTAL BALANCE 眉行。手机 Me 抽屉账户行翻译 Standard、Transfer 各语言三处统一（日 振替 / 简 划转 / 繁 劃轉 / 越 Chuyển tiền）。手机底部导航在 Portfolio 页不再同时高亮 Me |
 | 2026-11-13 | [充值引导优化 · 第二批小改（deposit-ux-v1 §2）](../delivery/deposit-ux-v1.md#2-命名equity-改叫-balance) | Wallet 页头 `Est. Total Equity` → `Total balance`（7 语，key `wallet.equity`）；日语顶栏导航短译 ポジション / 分析（交易页 1024 宽不再压到托盘） |
 | 2026-11-13 | [充值引导优化 · 顶栏余额托盘 + Balance 命名（并入 deposit-ux-v1 §1 / §2）](../delivery/deposit-ux-v1.md#1-桌面顶栏余额托盘--常驻-deposit) | 桌面顶栏「Equity: $xx」换成浅灰余额托盘：钱包图标 + 白色余额（点了进 Wallet，悬浮卡标题 Total balance）+ 常驻 Deposit（品牌渐变，原地弹充值弹窗）；不写标签、窄屏不缩；手机品牌栏不加。`common.equity` → Balance、`total_equity` → Total balance（7 语，繁中「股權」误译一并修）。DESIGN §Addendum 2026-11-13 |
 | 2026-11-12 | [充值引导优化 · Portfolio 空态 Deposit to start（并入 deposit-ux-v1 §4）](../delivery/deposit-ux-v1.md#4-portfolio-live-空态没钱时引导充值) | Live 页没持仓、Standard + Boost < $1 时，空态主按钮 `Deposit to start`（桌面弹充值弹窗、手机进 `/deposit`），`Browse events` 降为次按钮；余额读取中按有钱处理。新 key `portfolio.lite.live.deposit_to_start`（7 语）。字典 PF-33b |

@@ -5683,7 +5683,7 @@
   "equityNotePro": "Boost + Standard · không gồm PnL chưa thực hiện",
   "deposit": "Nạp tiền",
   "withdraw": "Rút tiền",
-  "transfer": "Chuyển khoản",
+  "transfer": "Chuyển tiền",
   "standard": "Standard",
   "boost": "Boost",
   "available": "Khả dụng (USDC)",
@@ -6007,7 +6007,7 @@
  },
  "header": {
   "equity": "Vốn:",
-  "transfer": "Chuyển ›",
+  "transfer": "Chuyển tiền ›",
   "account": "Tài khoản",
   "accountsLine": "Standard ${{standard}} · Boost ${{boost}}"
  },

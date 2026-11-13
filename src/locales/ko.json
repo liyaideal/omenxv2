@@ -6009,7 +6009,7 @@
   "equity": "자산:",
   "transfer": "이체 ›",
   "account": "계정",
-  "accountsLine": "Standard ${{standard}} · Boost ${{boost}}"
+  "accountsLine": "스탠다드 ${{standard}} · Boost ${{boost}}"
  },
  "language": {
   "set": "언어가 {{label}}(으)로 설정되었습니다",
