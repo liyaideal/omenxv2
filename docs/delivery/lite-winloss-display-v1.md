@@ -22,7 +22,8 @@
 
 | 步 | 做什么 | 看到什么 |
 |---|---|---|
-| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | Lite 组节点 |
+| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 本次在 **Lite** 组四个节点：`交易页`（持仓卡 AC-T1 / AC-T1b / AC-T1c，1× 卡 TR-11 / TR-12）、`Portfolio`（Live 行与卡 PF-8、Boost check 说明 PF-7、单笔结算详情 PF-24 … PF-27）、`Events 列表` 里的首页 All 视图（HA-1）、`Wallet`（总余额与两张账户卡） |
+| 1b | 只在字典看得到的态 | 手机 Profit ⓘ 抽屉打开（AC-T1c）、结算详情自动平仓 / 全亏（PF-26 / PF-25）——演示账号未必凑得出，是既定状态不是 bug；下单 / 平仓提示是 toast，没有字典帧，下一单、平一单就能看到 |
 | 2 | 页头搜索框敲编号或 key | 例：`AC-T1b`、`portfolio-lite-detail-cashout` |
 | 3 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=<key>`，切语言加 `&lang=ru` |
 | 4 | 样张下面的表 | 「状态 / 触发条件 / 视觉 / 数据来源」 |
