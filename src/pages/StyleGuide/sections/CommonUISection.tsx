@@ -2115,7 +2115,7 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
                   </tr>
                   <tr>
                     <td className="py-2 font-medium">Nav tab</td>
-                    <td className="py-2 font-mono">rounded-lg px-3 py-2 text-sm (xl:px-4)</td>
+                    <td className="py-2 font-mono">rounded-lg px-2 py-2 text-[13px] whitespace-nowrap (xl:px-4 xl:text-sm)</td>
                     <td className="py-2 text-muted-foreground">Active: bg-primary + glow shadow + 2px underline pip</td>
                   </tr>
                   <tr>
