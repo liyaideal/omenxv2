@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { toast } from "sonner";
 import { TransferDrawer } from "@/components/wallet/TransferDrawer";
+import { formatEquityUsd } from "@/lib/equity";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -217,7 +218,7 @@ export const BottomNav = () => {
           </div>
           <div className="mt-3 flex items-center justify-between border-t border-trading-green/20 pt-3 text-xs">
             <span className="text-muted-foreground">
-              {t("header.accountsLine", { standard: spotBalance.toFixed(2), boost: balance.toFixed(2) })}
+              {t("header.accountsLine", { standard: formatEquityUsd(spotBalance), boost: formatEquityUsd(balance) })}
             </span>
             <button
               type="button"

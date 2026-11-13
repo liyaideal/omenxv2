@@ -35,7 +35,7 @@ export const BalanceTray = ({
       type="button"
       onClick={() => navigate("/wallet")}
       aria-label={`${t("common.equity")} ${amount}`}
-      className="flex h-[34px] items-center gap-1.5 whitespace-nowrap rounded-lg px-2 transition-colors hover:bg-muted xl:px-2.5"
+      className={`flex h-[34px] items-center gap-1.5 whitespace-nowrap rounded-lg transition-colors hover:bg-muted xl:px-2.5 ${compact ? "px-1.5" : "px-2"}`}
     >
       <Wallet className={`hidden h-4 w-4 shrink-0 text-muted-foreground ${compact ? "xl:block" : "lg:block"}`} strokeWidth={1.75} aria-hidden />
       <span className="font-mono text-sm font-bold text-foreground">{amount}</span>
@@ -56,7 +56,7 @@ export const BalanceTray = ({
       <button
         type="button"
         onClick={() => setDepositOpen(true)}
-        className="h-[34px] whitespace-nowrap rounded-lg px-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 xl:px-3.5"
+        className={`h-[34px] whitespace-nowrap rounded-lg text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 xl:px-3.5 ${compact ? "px-2" : "px-2.5"}`}
         style={{ background: "var(--gradient-button-primary)" }}
       >
         {t("common.deposit")}
