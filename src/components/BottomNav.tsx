@@ -216,9 +216,17 @@ export const BottomNav = () => {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>
           </div>
-          <div className="mt-3 flex items-center justify-between border-t border-trading-green/20 pt-3 text-xs">
-            <span className="text-muted-foreground">
-              {t("header.accountsLine", { standard: formatEquityUsd(spotBalance), boost: formatEquityUsd(balance) })}
+          <div className="mt-3 flex items-center justify-between gap-2 border-t border-trading-green/20 pt-3 text-xs">
+            <span className="min-w-0 text-muted-foreground">
+              {/* each "Account $x" stays on one line; a wrap may only fall at the " · " */}
+              {t("header.accountsLine", { standard: formatEquityUsd(spotBalance), boost: formatEquityUsd(balance) })
+                .split(" · ")
+                .map((part, i) => (
+                  <span key={i}>
+                    {i > 0 && " · "}
+                    <span className="whitespace-nowrap">{part}</span>
+                  </span>
+                ))}
             </span>
             <button
               type="button"
@@ -227,7 +235,7 @@ export const BottomNav = () => {
                 setProfileSheetOpen(false);
                 setTransferOpen(true);
               }}
-              className="inline-flex min-h-[44px] items-center gap-1 rounded-md px-2 py-1 text-primary hover:bg-primary/10"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-primary hover:bg-primary/10"
             >
               <ArrowLeftRight className="h-3 w-3" />
               {t("nav.screen.navigation.bottom_navigation.transfer")}
