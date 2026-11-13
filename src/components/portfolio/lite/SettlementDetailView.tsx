@@ -22,6 +22,8 @@ export interface SettlementTradeVM {
   action: string;
   total: number;
   price: number;
+  /** Trading fee on this fill — splits the Fees line into buy / sell. */
+  fee?: number;
 }
 
 export interface SettlementDetailVM {
@@ -60,13 +62,33 @@ export interface SettlementDetailActions {
 
 const HAIRLINE = "1px solid rgba(28,31,38,.8)";
 
+/**
+ * Buy / sell split of the trading fee (CPO 2026-11-13, row ⑥). The buy part
+ * is the fee on the opening-side fills, capped at the position's trading fee
+ * (fills can span a shared series ledger); the sell part is what is left.
+ */
+export const feeSplit = (vm: SettlementDetailVM) => {
+  const opening = vm.trades.filter((t) => t.action !== "Reduce");
+  const known = opening.some((t) => t.fee != null);
+  if (!known) return null;
+  const buy = Math.min(vm.tradingFee, opening.reduce((s, t) => s + (t.fee ?? 0), 0));
+  return { buy, sell: Math.max(0, vm.tradingFee - buy) };
+};
+
 /** Breakdown of the Fees row — trading fee always, commission only when charged. */
-const FeesSubLine = ({ vm }: { vm: SettlementDetailVM }) => (
-  <div className="pt-1 text-[11px] text-[#6B7280]">
-    Trading fee {money(vm.tradingFee)}
-    {vm.winningCommission > 0 ? ` · Winning commission ${money(vm.winningCommission)}` : ""}
-  </div>
-);
+const FeesSubLine = ({ vm }: { vm: SettlementDetailVM }) => {
+  const split = feeSplit(vm);
+  const trading =
+    split && split.sell >= 0.005
+      ? `Trading fee ${money(split.buy)} buy · ${money(split.sell)} sell`
+      : `Trading fee ${money(vm.tradingFee)}`;
+  return (
+    <div className="pt-1 text-[11px] text-[#6B7280]">
+      {trading}
+      {vm.winningCommission > 0 ? ` · Winning commission ${money(vm.winningCommission)}` : ""}
+    </div>
+  );
+};
 
 export const Row = ({ k, v, color }: { k: string; v: string; color?: string }) => (
   <div className="flex items-center justify-between border-b border-b-[rgba(28,31,38,.8)] py-3 text-[13px] last:border-b-0">
@@ -105,8 +127,12 @@ const resultSub = (vm: SettlementDetailVM) => {
   };
 };
 
-const sideLine = (vm: SettlementDetailVM) =>
-  [vm.sideWord, vm.leverage > 1 ? `${vm.leverage}× Boost` : ""].filter(Boolean).join(" · ");
+/** Side shows the side only — the Boost multiple lives on the Position row (CPO 2026-11-13). */
+const sideLine = (vm: SettlementDetailVM) => vm.sideWord;
+
+/** Position = what you put in × Boost. Shown only for Boost (> 1×) calls. */
+const positionLine = (vm: SettlementDetailVM) =>
+  `${money(vm.cost * vm.leverage)} · ${vm.leverage}× Boost`;
 
 const costSub = (vm: SettlementDetailVM) =>
   [
@@ -117,6 +143,12 @@ const costSub = (vm: SettlementDetailVM) =>
     .join(" · ");
 
 const activityRows = (vm: SettlementDetailVM) => vm.trades;
+
+/** Under a Boost buy: what was put in for it. */
+const activitySub = (vm: SettlementDetailVM, t: SettlementTradeVM) =>
+  vm.leverage > 1 && t.action !== "Reduce"
+    ? `${money(t.total / vm.leverage)} put in · ${vm.leverage}× Boost`
+    : null;
 
 const closingActivityLabel = (vm: SettlementDetailVM) =>
   vm.closeReason === "auto_close"
@@ -157,7 +189,8 @@ export const SettlementDetailMobile = ({
         <Row k="Avg price" v={centsLabel(vm.avgPrice)} />
         <Row k="Shares" v={`${Math.round(vm.shares)}`} />
         <Row k={exitRowLabel(vm.closeReason)} v={exitValueLine(vm)} color={exitValueColor(vm)} />
-        <Row k="Cost" v={money(vm.cost)} />
+        <Row k="Put in" v={money(vm.cost)} />
+        {vm.leverage > 1 && <Row k="Position" v={positionLine(vm)} />}
         <Row k="Fees" v={money(vm.fees)} />
         <FeesSubLine vm={vm} />
         <Row k="Payout" v={money(payout)} />
@@ -178,14 +211,19 @@ export const SettlementDetailMobile = ({
           {activityRows(vm).map((t) => (
             <div
               key={t.id}
-              className="flex items-center justify-between py-2.5 text-[12.5px]"
+              className="flex items-start justify-between py-2.5 text-[12.5px]"
               style={{ borderBottom: HAIRLINE }}
             >
               <span className="text-[#6B7280]">
                 {settledDayLabel(t.time)} · {t.action}
               </span>
-              <span className="font-mono text-[#C7CCD4]">
-                {money(t.total)} @ {centsLabel(t.price)}
+              <span className="text-right">
+                <span className="block font-mono text-[#C7CCD4]">
+                  {money(t.total)} @ {centsLabel(t.price)}
+                </span>
+                {activitySub(vm, t) && (
+                  <span className="mt-0.5 block text-[11px] text-[#6B7280]">{activitySub(vm, t)}</span>
+                )}
               </span>
             </div>
           ))}
@@ -308,7 +346,16 @@ export const SettlementDetailDesktop = ({
             sub={sub.text}
             subColor={sub.color}
           />
-          <KpiCard label={t("common.cost")} value={money(vm.cost)} sub={costSub(vm)} />
+          <KpiCard
+            label={t("common.put_in")}
+            value={money(vm.cost)}
+            sub={
+              <>
+                {costSub(vm)}
+                {vm.leverage > 1 && <div>{money(vm.cost * vm.leverage)} position</div>}
+              </>
+            }
+          />
           <KpiCard
             label={t("common.payout")}
             value={money(payout)}
@@ -325,6 +372,7 @@ export const SettlementDetailDesktop = ({
       <div className="mt-3 grid grid-cols-2 gap-3">
         <DetailCard title={t("portfolio.lite.boost.details")}>
           <Row k="Side" v={sideLine(vm)} />
+          {vm.leverage > 1 && <Row k="Position" v={positionLine(vm)} />}
           <Row k="Avg price" v={centsLabel(vm.avgPrice)} />
           <Row k="Shares" v={`${Math.round(vm.shares)}`} />
           <Row k={exitRowLabel(vm.closeReason)} v={exitValueLine(vm)} color={exitValueColor(vm)} />
@@ -345,14 +393,19 @@ export const SettlementDetailDesktop = ({
               {activityRows(vm).map((t) => (
                 <div
                   key={t.id}
-                  className="flex items-center justify-between py-3 text-[13px]"
+                  className="flex items-start justify-between py-3 text-[13px]"
                   style={{ borderBottom: HAIRLINE }}
                 >
                   <span className="text-[#6B7280]">
                     {settledDayLabel(t.time)} · {t.action}
                   </span>
-                  <span className="font-mono font-semibold text-[#C7CCD4]">
-                    {money(t.total)} @ {centsLabel(t.price)}
+                  <span className="text-right">
+                    <span className="block font-mono font-semibold text-[#C7CCD4]">
+                      {money(t.total)} @ {centsLabel(t.price)}
+                    </span>
+                    {activitySub(vm, t) && (
+                      <span className="mt-0.5 block text-[11px] text-[#6B7280]">{activitySub(vm, t)}</span>
+                    )}
                   </span>
                 </div>
               ))}

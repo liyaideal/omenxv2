@@ -24,7 +24,10 @@ Single source of truth for user-visible field names across the app.
 | 平仓 / Close position | **Cash out**（portfolio 单仓点击 → 跳该市场页完成；live 列表 `Select` 模式支持多选 / `Select all` 批量直接平仓） | Verb ruling |
 | 批量平仓入口 / 工具条 | **Select**（进入选择模式）→ **Select all** / **Clear** / **Cancel**，选中计数 `N selected` | Portfolio (Lite) live 列表 |
 | 批量平仓动作 / 确认 | **Cash out N**（动作条按钮）；确认层标题 `Cash out N positions`，列表逐行 `{event} · {side} · {now worth}`，合计行 `You get about`，免责 `Prices move while we close — the final amount can differ slightly.`，进度 `Closing i / N…` | Portfolio (Lite) live 列表 |
-| 本金 / Margin（金额） | **Put in**（交易页）/ **Cost**（portfolio） | Lite banned words |
+| 本金 / Margin（金额） | **Put in**（交易页、Portfolio、结算详情一律；2026-11-13 起 portfolio 也不再写 `Cost`） | Lite banned words；Portfolio (Lite) 节 |
+| 名义价值 / 仓位价值（投入 × 杠杆） | **Position** `$30.00 · 3× Boost`（只在 Boost > 1× 出现） | 结算详情 · 投入与仓位节 |
+| 单笔最大亏损（全仓） | **can lose up to $X**，X = 仓位 + 开仓手续费（`maxLossFor`）；与余额封顶的关系待 CTO 确认 | Portfolio (Lite) 节；`src/lib/liteWinLoss.ts` |
+| 赢了净赚 | **If it wins → +$X**，X = (1 − 价格) × 份数 − 开仓费 − 5% 佣金（`netWinIfRight`） | Portfolio (Lite) 节 |
 | 市值 / Notional | **Now worth** = `max(0, cost + profit)` | Portfolio (Lite) 节 |
 | 多轮同名事件 / 回合 | **Series**（≥2 条已结算记录聚合）/ **Round**（其中每一条）；日内事件写 `daily rounds` | Portfolio (Lite) 节 Series 行 |
 | 试玩仓 / 赠送仓 | **Voucher**（volt）/ **Airdrop**（pulse，含 welcome gift） | H2E 节；DESIGN.md Addendum 2026-08-26 A |
@@ -450,6 +453,8 @@ positives. Chip words come from the sibling event's `side_labels`.
 
 | Canonical | Meaning |
 |---|---|
+| **Bought {side} · ${putIn} at {N}× Boost · ${position} position** | Lite 下单成功 toast（Boost > 1×，2026-11-13 ②）；1× 时 `Bought {side} · ${putIn}` | `Bought … $30`（只写仓位不写投入） |
+| **Cashed out {side} · you lost ${X} on this call** | Lite 亏损平仓 toast（2026-11-13 ⑤）；X = 拿回 − 投入 − 开仓费；亏损时不自动弹海报 | 亏损也弹海报 |
 | **Entry** | Position entry price |
 | **Mark** | Current mark price |
 | **Size** | Contract count |
@@ -554,8 +559,10 @@ Pro 侧输入语义为 notional / 数量，两面各自 canonical，不互相迁
 
 | Canonical | Meaning | Banned variants |
 |---|---|---|
-| **If it wins you get $X** | Mobile live-card payout sentence | — |
-| **If it wins → $X** | Desktop live-row payout column | — |
+| **If it wins you get $X** | Mobile live-card payout sentence — Standard rows only | — |
+| **If it wins → $X** | Desktop live-row payout column — Standard rows only | — |
+| **If it wins → +$X · can lose up to $Y** | Boost live row / card（2026-11-13 ④）。X = `netWinIfRight`（扣开仓费与 5% 赢利佣金后的净赚），Y = `maxLossFor(仓位)`（仓位 + 开仓费）；level 态后接 ` · auto-close ≈{c}¢`。**桌面行**列窄，拆成三行：`If it wins → +$X` / `Can lose up to $Y` / `auto-close ≈{c}¢`（或 `None`） | `If it wins you get {shares×$1}`（Boost 行旧写法，把本金算成赚的） |
+| **Put in** | Portfolio Live KPI / 卡片 / 表头的投入金额（key `common.put_in`，2026-11-13 取代 `Cost`）| Cost, Stake, Margin |
 | **auto-close ≈{c}¢** | Auto-close value, level state (Boost only) | Liquidation, stop out, Liq. Price |
 | **None** | Auto-close value, none state — field is always present, never blank | `None at this balance` (retired), `—` |
 | **None · enter an amount** | Auto-close value in the order panel before an amount is typed | `—` |
@@ -564,8 +571,10 @@ Pro 侧输入语义为 notional / 数量，两面各自 canonical，不互相迁
 | **≈ {c}¢** | Auto-close value, level state on the trade surfaces (order panel row + position card). The `≈` is never dropped | `{c}¢`, `= {c}¢` |
 | **None · nothing borrowed** | Auto-close value, none state in the order panel when Boost is 1× (and the `Est. auto-close (new position)` partial-net row) | `None · loss capped` (retired), `None at this balance` (retired) |
 | **None · can't be reached** | Auto-close value, none state in the order panel when the level can't be hit between 0¢ and 100¢ | `None · loss capped` (retired) |
-| **Loss capped at your stake** | Sub-line under a `None` value on the trade-page position card | — |
+| **Can lose up to $X** | Sub-line under a `None` value on the trade-page position card（2026-11-13 ③）。X = 仓位 + 开仓费（`maxLossFor`），1× 时就是投入 + 开仓费 | `Loss capped at your stake`（退役：Boost 下最多亏的是整个仓位，不是投入） |
 | **Close to current price** / **close to entry** | Hot adverb (|mark − level| / mark ≤ 10%) — position-card sub-line / order-panel suffix, both rendered red | `near liquidation`, `close to liq` |
+| **Right after you buy, this starts a little below $0: you bought at {entry}, and selling right now gets {mark}. The {fee} trading fee was charged when you bought.** | 交易页持仓卡 Profit 标签旁 ⓘ 的说明（2026-11-13 ③；`profitNoteFor`） | — |
+| **All your Boost calls share your Boost balance. If it runs low, calls start closing automatically.** | Boost check 说明句（Portfolio 卡 / 抽屉；key `portfolio.lite.boost.description`，2026-11-13 ④） | `one pool of backing`（退役） |
 | **Moves with your other positions** | Permanent helper line beside `Est. auto-close ⓘ`; renders with the field, never conditionally | — |
 | **Deposit to start** | Live 页空态的主按钮，只在「两个分段都没持仓 + 已登录 + 余额已读完且没读错 + Standard + Boost < $1」时出现；旁边 `Browse events` 降为描边次按钮（手机竖排宽 240）。桌面原地弹充值弹窗，手机进 `/deposit`。key `portfolio.lite.live.deposit_to_start`。CPO 2026-11-12，字典 PF-33b | 有钱时也显示 |
 | ~~None at this balance~~ | RETIRED site-wide — never reintroduce | — |
@@ -822,6 +831,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | 已平仓（cashed） | 用户主动离场，金额已落袋 | 用户执行过平仓 |
 | 已结算（settled） | 事件出结果由系统结算 | 事件已结算 |
 | 盈亏方向 | 决定海报配色、插画、药丸与号召语 | 金额 ≥ 0 为盈，否则为亏；与形态无关 |
+| 海报金额口径 | 海报不扣手续费、也不扣赢利佣金（CPO 2026-11-13，为传播）；对账面（Portfolio、结算详情、钱包）一律净额 | 盈亏 = 价格结果（未扣费）；右格 = 投入 + 价格结果 |
 
 ---
 
@@ -889,6 +899,17 @@ Live 带钟点、Settled 列表只到日、详情带年份与钟点——三种�
 结果数（Won / Lost 后面那个钱数）= `PnL − Fees`，费后（2026-11-05 起 Settled 列表行、顶部 Net Profit、详情页、分享海报全部用这一个数，系列同理逐轮相加）；`Payout = max(0, Cost + 结果)`；为 0 时副行写 `nothing returned`。
 系列眉线为 `SERIES · WON {x} OF {n}`。
 
+### 结算详情 · 投入与仓位（2026-11-13 ⑥）
+
+| Canonical | 出现位置 | 规则 |
+|---|---|---|
+| **Side** · `{side}` | 结算详情 Details | 只写方向（如 `Magic`），Boost 倍数不放这里 |
+| **Put in** · `$X` | 手机 Details 行 / 桌面 KPI 卡标题（原 `Cost`） | X = 这笔投入（margin） |
+| **Position** · `$X · N× Boost` | 手机 Details（Put in 下一行）/ 桌面 Details（Side 下一行） | 只在 Boost > 1× 时出现；X = 投入 × N |
+| **$X position** | 桌面 PUT IN 卡副行第二行 | 同上，Boost > 1× 才有 |
+| **Trading fee $A buy · $B sell** | Fees 行副行 | A = 开仓侧成交（Open / Add）的手续费合计，封顶为该仓手续费；B = 手续费 − A。B < $0.005（到期结算没有卖出费）时整句退回 `Trading fee $X`；有赢利佣金时后接 ` · Winning commission $Y` |
+| **$X put in · N× Boost** | Activity 里 Open / Add 行的副行 | 只在 Boost > 1× 时出现；X = 该笔成交额 ÷ N |
+
 ### Close-reason remarks
 
 | Reason | Rendered remark |
@@ -932,7 +953,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **Delete address** | Destructive menu action | Remove, Delete wallet |
 | **Transfer to Boost / Transfer to Standard** | Outgoing transfer leg description | Transfer · Standard → Boost |
 | **Transfer from Boost / Transfer from Standard** | Incoming transfer leg description | Transfer · Boost → Standard |
-| **does not include open trade profit** | Lite note under the Wallet hero `Total balance`（原 Total equity） | excludes unrealized PnL |
+| **Cash in your accounts now. Open calls count once you close them.** | Lite note under the Wallet hero `Total balance`（2026-11-13 ⑦，单独一行，不再接 `Boost + Standard ·`） | `does not include open trade profit`（退役）, excludes unrealized PnL |
 | **does not include unrealized PnL** | Pro equity note (default) | — |
 | **Trading fee** | `fee` transaction description | Fees, Commission |
 | **Winning commission** | `winning_commission` 流水 label / 结算详情 Fees 副行 | Profit fee, Success fee |
@@ -957,8 +978,9 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **10% flat fee** | Recovery 说明 pill | 10% fee |
 | **3–7 business days** | Recovery 处理时长 pill（en dash） | 3-7 business days, 3 to 7 days |
 | **For {categories}.** | 两张账户卡底注的前半句，业务线；Boost 侧取 `category_boost_configs` 中 enabled 的品类，Standard 侧暂为常量（`STANDARD_CATEGORIES`） | — |
-| **Put in $100, buy $100 of shares.** | Standard 卡底注后半句 | — |
-| **Put in $100, trade like ${100 × maxBoost} — up to {maxBoost}×.** | Boost 卡底注后半句，金额随配置计算；maxBoost < 2 时整句退回 `Buy and sell shares at full price.` | — |
+| **Put in $100, buy $100 of shares — the most you can lose is what you put in.** | Standard 卡底注后半句（2026-11-13 ⑦）；前半句 `For stocks and Quick Play.`（`STANDARD_CATEGORIES = stocks, quickplay`） | — |
+| **Trade with leverage — Boost up to {maxBoost}×.** | Boost 卡底注后半句（2026-11-13 ⑦，CPO：不写吓人的话）；maxBoost < 2 时整句退回 `Buy and sell shares at full price.` | `Put in $100, trade like $500`（退役）, `you can lose more than you put in` |
+| **Cashed out: {event} · {side}** | Boost 平仓流水 description（2026-11-13 ⑦：去掉结尾 `· Won` / `· Lost`，金额正负已说明；旧流水前端显示时同样去掉） | `Cashed out: … · Lost` |
 | **Losses are amplified too, and a bad move can auto-close your position.** | Boost 卡 Available 弹层风险句（Lite）；Pro 分支为 `Losses are amplified too, and positions can be liquidated.` | — |
 
 已取代（2026-09-07，底注改版）：~~Buy and sell shares at full price.~~（Standard 卡旧底注，现仅作 Boost 全关时的回退句）、~~Put in a little to control a bigger trade — Boost up to {N}×~~（Boost 卡旧底注）。
@@ -1143,7 +1165,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **`{SYMBOL} {price} {±x.xx%}`** | 顶部行情 tape 单元（`HomeTape.tsx`） | 一个 cell 三段：symbol 粗体 `#F2F3F5`、price `#C9CED6`、涨跌%走盈亏色。cell 顺序固定 BTC→ETH→SOL→NVDA→TSLA→AAPL→MSFT→META，缺数据静默跳过、不留占位；全缺整条不渲染。 |
 | **● Live markets** | hero 徽标（桌面 / 移动同字） | 全大写由 `textTransform` 呈现，源串保持 `● Live markets`。禁用 `Live now` / `Open markets`。 |
 | **What do you think happens next?** | hero h1（桌面 44px / 移动 27px） | `happens next` 走 LIME 高亮，问号在高亮外。逐字不可改。 |
-| **Pick a topic. Tap Yes or No. That's it.** | hero 副标题 | 三句式逐字不可改；禁止改成 `Buy Yes or No`。 |
+| **Pick a topic, then pick a side.** | hero 副标题 / `how_to_trade`（2026-11-13 ⑧，CPO 批；桌面 `sub_v2` 前面保留 `Think you know what happens next?`） | `Tap Yes or No`（体育 / 盘口没有 Yes / No，退役）, `Buy Yes or No` |
 | **● Intraday · Rolling rounds** | Crypto 卡 eyebrow | 与目录 chips 的 `Intraday` 同源词。 |
 | **Will the price go up?** | Crypto 卡问题句 | 问句形态；禁用 `Up or down?`。 |
 | **ROUND** | Crypto 卡 dial 标签 | 时长选择器唯一用词（模块级，三卡同步）。禁用 `Round length` / `Timeframe` / `Interval`。 |

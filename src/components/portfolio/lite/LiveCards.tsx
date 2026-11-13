@@ -18,6 +18,7 @@ import { boostSuffix } from "@/lib/liteSideName";
 import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
 import { VOLT, RED, money, signedMoney, livePnlColor } from "./parts";
 import { ShareIconButton } from "@/components/lite/share/ShareIconButton";
+import { maxLossFor, netWinIfRight } from "@/lib/liteWinLoss";
 
 
 /** Navigate into a market while remembering where the reader was. */
@@ -43,6 +44,13 @@ const metaLine = (row: LiteLiveRow) => {
   const boost = boostSuffix(row.leverageNum);
   if (boost) parts.push(boost);
   return parts;
+};
+
+/** Boost row: net win if right + most it can lose (liteWinLoss). Value at entry = put in × Boost = shares × entry price. */
+const boostFigures = (row: LiteLiveRow) => {
+  const positionValue = row.cost * Math.max(1, row.leverageNum);
+  const entryPrice = row.ifWins > 0 ? positionValue / row.ifWins : 0;
+  return { win: netWinIfRight(entryPrice, row.ifWins), maxLoss: maxLossFor(positionValue) };
 };
 
 const winSentence = (row: LiteLiveRow) =>
@@ -91,12 +99,14 @@ export const LiveCard = ({
 
   const goToMarket = useGoToMarket();
   const hot = row.hot;
+  // Boost rows: net win + the most this call can lose (2026-11-13) — never "loss capped".
+  const boostSentence = `If it wins → ${signedMoney(boostFigures(row).win)} · can lose up to ${money(boostFigures(row).maxLoss)}`;
   const sentence =
     row.segment === "standard"
       ? winSentence(row)
       : row.autoClose.kind === "level"
-        ? `${winSentence(row)} · auto-close ≈${cents(row.autoClose.price)}`
-        : `${winSentence(row)} · no auto-close, loss capped`;
+        ? `${boostSentence} · auto-close ≈${cents(row.autoClose.price)}`
+        : boostSentence;
 
   const activate = () =>
     selectMode ? onToggleSelect?.(row) : goToMarket(row.tradePath);
@@ -151,7 +161,7 @@ export const LiveCard = ({
 
       <div className="mt-3 grid grid-cols-3 gap-2">
         {[
-          { k: "COST", v: money(row.cost), c: "#F2F3F5" },
+          { k: "PUT IN", v: money(row.cost), c: "#F2F3F5" },
           { k: "NOW WORTH", v: money(row.nowWorth), c: "#F2F3F5" },
           { k: "PROFIT", v: signedMoney(row.profit), c: livePnlColor(row.profit) },
         ].map((cell) => (
@@ -206,7 +216,7 @@ export const LiveRowHeader = ({ selectMode }: { selectMode?: boolean }) => (
     {selectMode && <span />}
     <span>{t("portfolio.lite.live.call")}</span>
     <span>{t("common.side")}</span>
-    <span>{t("common.cost")}</span>
+    <span>{t("common.put_in")}</span>
     <span>{t("common.now_worth")}</span>
     <span>{t("trade.screen.lite.lite_contract_sections.profit")}</span>
     <span>{t("portfolio.lite.live.auto_close_if_wins")}</span>
@@ -299,28 +309,37 @@ export const LiveRow = ({
       >
         {signedMoney(row.profit)}
       </div>
-      <div className="pr-3 text-[12px]" style={{ color: hot ? RED : "#6B7280" }}>
-        If it wins → {money(row.ifWins)}
-        {row.segment === "boost" && (
+      {/* Boost rows: three short lines so the narrow column never breaks mid-phrase (2026-11-13 ④). */}
+      <div className="pr-3 text-[12px] leading-[1.5]" style={{ color: hot ? RED : "#6B7280" }}>
+        {row.segment === "boost" ? (
           <>
-            {" · auto-close "}
-            <TooltipProvider delayDuration={150}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  {row.autoClose.kind === "level" ? (
-                    <span className="cursor-help border-b border-dotted border-[#4d5560]">
-                      ≈{cents(row.autoClose.price)}
-                    </span>
-                  ) : (
-                    <span className="cursor-help border-b border-dotted border-[#4d5560] text-[#4d5560]">{t("common.none")}</span>
-                  )}
-                </TooltipTrigger>
-                <TooltipContent side="top" className="p-3">
-                  <AutoCloseTooltipBody />
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div>If it wins → {signedMoney(boostFigures(row).win)}</div>
+            <div>
+              Can lose up to{" "}
+              <span className="font-mono text-[#F2F3F5]">{money(boostFigures(row).maxLoss)}</span>
+            </div>
+            <div>
+              {"auto-close "}
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {row.autoClose.kind === "level" ? (
+                      <span className="cursor-help border-b border-dotted border-[#4d5560]">
+                        ≈{cents(row.autoClose.price)}
+                      </span>
+                    ) : (
+                      <span className="cursor-help border-b border-dotted border-[#4d5560] text-[#4d5560]">{t("common.none")}</span>
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="p-3">
+                    <AutoCloseTooltipBody />
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </>
+        ) : (
+          <>If it wins → {money(row.ifWins)}</>
         )}
       </div>
 

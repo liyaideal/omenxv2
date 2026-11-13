@@ -82,7 +82,8 @@ export default function LiteSettlementDetail() {
   const fees = tradingFee + winningCommission;
 
   // 2026-11-05 · one number everywhere: the result is net of this position's
-  // fees (list row, Settled KPI, this page, the share poster all agree).
+  // fees (list row, Settled KPI, this page agree; the share poster shows the
+  // result before fees — CPO 2026-11-13).
   const netAfterFees = s.pnl - fees;
 
   const vm: SettlementDetailVM = {
@@ -108,18 +109,21 @@ export default function LiteSettlementDetail() {
       action: t.action,
       total: t.total,
       price: t.price,
+      fee: t.fee,
     })),
   };
 
+  // The poster takes no fee off (CPO 2026-11-13): price result before the
+  // trading fee and the winning commission. This page itself stays net.
   const shareSnap: LiteManualShareSnap = {
     state: "settled",
     eventId: s.eventId ?? "",
     eventName: s.event,
     sideLine: legTitle(resolveLegSide({ option: s.option, type: s.side }, { side_labels: s.sideLabels })),
-    pnl: netAfterFees,
-    pnlPercent: s.margin > 0 ? (netAfterFees / s.margin) * 100 : 0,
+    pnl: s.pnl,
+    pnlPercent: s.margin > 0 ? (s.pnl / s.margin) * 100 : 0,
     leftAmount: s.margin,
-    rightAmount: Math.max(0, s.margin + netAfterFees),
+    rightAmount: Math.max(0, s.margin + s.pnl),
     segment: segmentFromProductLine(s.productLine),
     dateISO: s.settledAt,
     settlementId: settlementId ?? null,

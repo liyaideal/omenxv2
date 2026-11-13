@@ -261,7 +261,8 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 （grid 2×1fr gap-3，bg #12151A、圆角 12、p-[14px_18px]；组标 10px/700 字距 1.4px muted；
 行 13px，label muted / 值 mono 600，底边框 rgba(28,31,38,.8)，末行无边框）。
 
-- 单仓 KPI：`RESULT`（值=净额 signedMoney，胜 #3DD68C / 负 #FF5C5C）/ `COST` / `PAYOUT`。
+- 单仓 KPI：`RESULT`（值=净额 signedMoney，胜 #3DD68C / 负 #FF5C5C）/ `PUT IN`（2026-11-13 起，原 `COST`；Boost > 1× 时副行第二行 `$X position`）/ `PAYOUT`。
+- 单仓 Details（2026-11-13）：`Side` 只写方向；Boost > 1× 时紧跟一行 `Position · $X · N× Boost`（手机放在 `Put in` 下一行）；Fees 副行拆 `Trading fee $A buy · $B sell`（没有卖出费时不拆）；Activity 的 Open / Add 行副行 `$X put in · N× Boost`（11px muted，值列右对齐两行）。
 - 系列 KPI：`NET` / `COST` / `PAYOUT`；双卡为 `DETAILS` + `ROUNDS`，每轮一行可点进单轮详情。
 
 **桌面详情页正文禁放返回文字链/面包屑——去程 = 站点导航 + 浏览器返回（同 Pro SettlementDetail 与 /settings/api 先例）。**

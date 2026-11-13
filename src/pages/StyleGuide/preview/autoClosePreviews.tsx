@@ -9,6 +9,7 @@ import { LiveCard, LiveRow, LiveRowHeader } from "@/components/portfolio/lite/Li
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import type { AutoCloseResult } from "@/lib/autoClosePrice";
+import { maxLossFor, usd } from "@/lib/liteWinLoss";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
 const inDays = (d: number, hour = 16, minute = 0) => {
@@ -156,6 +157,8 @@ export const AutoCloseMobileCardsPreview = () => (
 const positionCard = (extra: {
   nowWorth: number;
   profit: number;
+  profitNote?: string;
+  profitNoteOpen?: boolean;
   autoCloseText: string;
   autoCloseSub?: string;
   autoCloseHot?: boolean;
@@ -176,7 +179,7 @@ export const AutoClosePositionNonePreview = () => (
       nowWorth: 48.41,
       profit: 0,
       autoCloseText: "None",
-      autoCloseSub: "Loss capped at your stake",
+      autoCloseSub: `Can lose up to ${usd(maxLossFor(48.41 * 5))}`,
     })}
   </div>
 );
@@ -280,5 +283,20 @@ export const AutoCloseOrderPanelPartialNetPreview = () => (
       heldQty={40}
       fixture={{ remainderAutoClose: { kind: "none" } }}
     />
+  </div>
+);
+
+/** AC-T1b · Profit ⓘ open — why Profit starts a little below $0 right after buying (row ③, 2026-11-13). */
+export const AutoClosePositionProfitNotePreview = () => (
+  <div className="p-4 pt-36">
+    {positionCard({
+      nowWorth: 47.79,
+      profit: -0.62,
+      profitNote:
+        "Right after you buy, this starts a little below $0: you bought at 62¢, and selling right now gets 61¢. The $0.36 trading fee was charged when you bought.",
+      profitNoteOpen: true,
+      autoCloseText: "None",
+      autoCloseSub: `Can lose up to ${usd(maxLossFor(48.41 * 5))}`,
+    })}
   </div>
 );

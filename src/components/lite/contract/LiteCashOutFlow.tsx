@@ -126,16 +126,29 @@ export const LiteCashOutFlow = ({
       } else {
         await partialClosePosition(positionId, positionIndex, qty);
       }
-      toast.success(`Cashed out ≈ $${payout.toFixed(2)}`);
-      // Snapshot the realisation BEFORE positions refresh.
-      if (shareContext) {
-        const costPart = fraction * shareContext.putIn;
-        const pnl = payout - costPart;
+      // CPO 2026-11-13: a losing cash-out says what it cost (net of the fees,
+      // same as the settled record) and opens no poster; a winning one opens
+      // the poster, whose numbers take no fee off (price result only).
+      const costPart = fraction * (shareContext?.putIn ?? currentValue - (pnlAtPrice ?? 0));
+      // Spot flows pass no pnlAtPrice: fall back to what lands minus what was put in.
+      const priceResult = pnlAtPrice != null ? fraction * pnlAtPrice : payout - costPart;
+      const netResult = payout - costPart - fraction * (entryFee ?? 0);
+      if (priceResult > 0) {
+        toast.success(`Cashed out ≈ $${payout.toFixed(2)}`);
+      } else {
+        toast.success(
+          netResult < 0
+            ? `Cashed out ${sideLabel} · you lost $${Math.abs(netResult).toFixed(2)} on this call`
+            : `Cashed out ≈ $${payout.toFixed(2)}`,
+        );
+      }
+      // Snapshot the realisation BEFORE positions refresh — wins only.
+      if (shareContext && priceResult > 0) {
         const snap: CashOutShareSnapshot = {
-          pnl,
-          pnlPercent: costPart > 0 ? (pnl / costPart) * 100 : 0,
+          pnl: priceResult,
+          pnlPercent: costPart > 0 ? (priceResult / costPart) * 100 : 0,
           leftAmount: costPart,
-          rightAmount: payout,
+          rightAmount: costPart + priceResult,
           context: shareContext,
         };
         // A full close unmounts this flow — let the page host the card.

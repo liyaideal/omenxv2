@@ -19,6 +19,11 @@ interface Props {
   putIn: number;
   nowWorth: number;
   profit: number;
+  /** Explainer behind the Profit ⓘ (why it starts below $0 right after buying). */
+  profitNote?: string;
+  /** Style-guide fixture only: render the Profit ⓘ explainer already open.
+   *  Production never passes this. */
+  profitNoteOpen?: boolean;
   autoCloseText: string;
   /** Optional sub-line under the auto-close value. */
   autoCloseSub?: string;
@@ -43,6 +48,8 @@ export const LitePositionCard = ({
   putIn,
   nowWorth,
   profit,
+  profitNote,
+  profitNoteOpen,
   autoCloseText,
   autoCloseSub,
   autoCloseHot = false,
@@ -93,6 +100,20 @@ export const LitePositionCard = ({
         label={t("trade.screen.lite.lite_contract_sections.profit")}
         value={`${profit >= 0 ? "+" : "−"}$${Math.abs(profit).toFixed(2)}`}
         tone={profit >= 0 ? "up" : "down"}
+        labelExtra={
+          profitNote ? (
+            <Tooltip {...(profitNoteOpen ? { open: true } : {})}>
+              <TooltipTrigger asChild>
+                <button type="button" aria-label="About profit">
+                  <Info className="w-3 h-3 cursor-help" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-72 p-3 text-xs normal-case tracking-normal leading-relaxed text-muted-foreground">
+                {profitNote}
+              </TooltipContent>
+            </Tooltip>
+          ) : undefined
+        }
       />
       <PosCell
         label={compact ? "Auto-close" : "Est. auto-close"}

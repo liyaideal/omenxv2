@@ -9,9 +9,17 @@ const CASES: SectionCase[] = [
   {
     key: "autoclose-position-none",
     label: "AC-T1 · 持仓条 · None",
-    note: "mock7 v2 §3 上条：Yes · 5× Boost · PUT IN $48.41 / NOW WORTH $48.41 / PROFIT +$0.00 / EST. AUTO-CLOSE `None` + 副行 `Loss capped at your stake`。",
+    note: "mock7 v2 §3 上条：Yes · 5× Boost · PUT IN $48.41 / NOW WORTH $48.41 / PROFIT +$0.00 / EST. AUTO-CLOSE `None` + 副行 `Can lose up to $242.41`（= 仓位 + 开仓手续费；2026-11-13 改）。",
     spec: [
-      { state: "none", when: "autoClose.kind === 'none'（含 boost ≤ 1）", visual: "值 `None` 白字 + 灰副行 `Loss capped at your stake`", source: "LiteContractTrade.autoCloseDisplayFor" },
+      { state: "none", when: "autoClose.kind === 'none'（含 boost ≤ 1）", visual: "值 `None` 白字 + 灰副行 `Can lose up to $X`（X = maxLossFor(仓位) = 仓位 + 开仓手续费）", source: "LiteContractTrade.autoCloseDisplayFor" },
+    ],
+  },
+  {
+    key: "autoclose-position-profit-note",
+    label: "AC-T1b · 持仓条 · Profit ⓘ 打开",
+    note: "2026-11-13 Lite 展示 17 条 ③：Profit 标签旁 ⓘ，悬停 / 点按打开说明——刚买完 Profit 会略低于 $0（买入价 vs 现在卖出价 + 开仓手续费已扣）。帧里用 fixture prop `profitNoteOpen` 直接展开，生产从不传。",
+    spec: [
+      { state: "profit-note", when: "持仓卡有活价时总渲染 ⓘ", visual: "Tooltip `max-w-72 p-3 text-xs muted`：`Right after you buy, this starts a little below $0: you bought at {entry}, and selling right now gets {mark}. The {fee} trading fee was charged when you bought.`", source: "LiteContractTrade.profitNoteFor → LitePositionCard.profitNote" },
     ],
   },
   {
@@ -67,7 +75,7 @@ const SOLVER_ROWS: [string, string][] = [
 const MATRIX_ROWS: string[][] = [
   ["下单面板", "≈X¢", "红 ≈X¢ · close to entry", "None · nothing borrowed / None · can't be reached", "零单=None · enter an amount；加载=骨架", "Standard 无此行"],
   ["下单面板 partial-net 行", "≈X¢", "红", "None · nothing borrowed / None · can't be reached", "零单=None", "—"],
-  ["交易页持仓条", "≈ X¢", "红 + Close to current price", "None + Loss capped at your stake", "加载=骨架", "无此列"],
+  ["交易页持仓条", "≈ X¢", "红 + Close to current price", "None + Can lose up to $X", "加载=骨架", "无此列"],
   ["Portfolio 桌面行", "· auto-close ≈X¢", "整行红轨+红字", "· auto-close none", "加载=骨架", "不加段"],
   ["Portfolio 移动卡", "句尾 · auto-close ≈X¢", "红句", "· no auto-close, loss capped", "加载=骨架", "不加"],
   ["Pro 侧", "本轮不动（挂账④ 另轮统一到同一求解器）", "—", "—", "—", "—"],

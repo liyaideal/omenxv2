@@ -77,7 +77,7 @@
   },
   "events": {
     "screen.simple.events_simple_intro.what_do_you_think_happens_next": "¿Qué crees que pasará después?",
-    "screen.simple.home.home_hero.how_to_trade": "Elige un tema. Toca Sí o No. Eso es todo."
+    "screen.simple.home.home_hero.how_to_trade": "Elige un tema y luego un lado."
   },
   "header": {
     "account": "Cuenta",

@@ -203,8 +203,8 @@ const HERO_CASES: SectionCase[] = [
     spec: [
       {
         state: "Lite",
-        when: "surface === 'lite' → equityNote='does not include open trade profit'",
-        visual: "副行 'Boost + Standard · does not include open trade profit'",
+        when: "surface === 'lite' → equityNote=LITE_EQUITY_NOTE（2026-11-13）",
+        visual: "副行单独一句 'Cash in your accounts now. Open calls count once you close them.'（Lite 不再接 'Boost + Standard ·'；Pro 仍是 'Boost + Standard · does not include unrealized PnL'）",
         source: "Wallet.tsx equityNote={isLite ? … : undefined}；句子登记于 docs/copy-dictionary.md §Wallet",
       },
       {
@@ -465,7 +465,7 @@ const LAYOUT_CASES: SectionCase[] = [
       {
         state: "Total equity",
         when: "恒显",
-        visual: "Hero 主数 $15,885.23 + 副行 'Boost + Standard · does not include open trade profit'",
+        visual: "Hero 主数 $15,885.23 + 副行 'Cash in your accounts now. Open calls count once you close them.'",
         source: "computeTotalEquity = spot_balance + balance（src/lib/equity.ts）",
       },
       {

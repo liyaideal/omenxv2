@@ -36,6 +36,7 @@ import {
   SavedAddressRowView,
   SavedAddressActionsList,
   type SavedAddressView,
+  LITE_EQUITY_NOTE,
 } from "@/pages/Wallet";
 import { FIXTURE_WALLETS } from "./fundingPreviews";
 import {
@@ -230,7 +231,7 @@ const HeroDemo = ({ note }: { note?: string }) => {
 };
 
 
-export const HeroEquityNoteLitePreview = () => <HeroDemo note="does not include open trade profit" />;
+export const HeroEquityNoteLitePreview = () => <HeroDemo note={LITE_EQUITY_NOTE} />;
 
 /* ============================================================
  * Wallet audit round (2026-08-27) · W-1 … W-16
@@ -421,7 +422,7 @@ export const HeroEquityHiddenPreview = () => {
       onDeposit={noop}
       onWithdraw={noop}
       onTransfer={noop}
-      equityNote="does not include open trade profit"
+      equityNote={LITE_EQUITY_NOTE}
       compact={isMobile}
     />
 
@@ -662,7 +663,7 @@ export const WalletPageLayoutDesktopPreview = () => (
       onDeposit={noop}
       onWithdraw={noop}
       onTransfer={noop}
-      equityNote="does not include open trade profit"
+      equityNote={LITE_EQUITY_NOTE}
     />
     <section className="grid grid-cols-2 gap-6">
       <SpotAccountCard balance={LAYOUT_FIXTURE.spot} hidden={false} onTransfer={noop} />
@@ -701,7 +702,7 @@ export const WalletPageLayoutMobilePreview = () => (
       onWithdraw={noop}
       onTransfer={noop}
       compact
-      equityNote="does not include open trade profit"
+      equityNote={LITE_EQUITY_NOTE}
     />
     <section className="space-y-3">
       <SpotAccountCard balance={LAYOUT_FIXTURE.spot} hidden={false} onTransfer={noop} compact />

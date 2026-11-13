@@ -97,6 +97,9 @@ const XMotif = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
+/** Lite total-balance note (CPO 2026-11-13, row ⑦) — shown alone, replaces "Boost + Standard · …". */
+export const LITE_EQUITY_NOTE = "Cash in your accounts now. Open calls count once you close them.";
+
 const HERO_CTA_GRADIENT =
   "bg-[image:var(--gradient-button-primary)] text-primary-foreground hover:opacity-90";
 
@@ -175,7 +178,7 @@ export const HeroEquityCard = ({
           {hidden ? "••••••" : `$${formatEquityUsd(equity)}`}
         </div>
         <div className="text-[13px] text-muted-foreground mt-2.5">
-          Boost + Standard · {equityNote}
+          {equityNote === LITE_EQUITY_NOTE ? equityNote : `Boost + Standard · ${equityNote}`}
         </div>
       </div>
 
@@ -269,7 +272,8 @@ const formatCurrency = (value: number) =>
  * `category_boost_configs` only covers Boost. Replace this constant with real data
  * when the spot side gets one. The Boost card already reads live config.
  */
-const STANDARD_CATEGORIES = ["stocks"];
+// Quick Play is paid from Standard too (CPO 2026-11-13, wallet copy row ⑦).
+const STANDARD_CATEGORIES = ["stocks", "quickplay"];
 
 const CATEGORY_LABELS: Record<string, string> = {
   sports: "sports",
@@ -278,13 +282,14 @@ const CATEGORY_LABELS: Record<string, string> = {
   politics: "politics",
   social: "social",
   stocks: "stocks",
+  quickplay: "Quick Play",
 };
 
 /**
  * Display order for business lines — by product prominence, never alphabetical.
  * Unknown categories keep their incoming order and go last.
  */
-const CATEGORY_ORDER = ["sports", "crypto", "macro", "stocks", "politics", "social"];
+const CATEGORY_ORDER = ["sports", "crypto", "macro", "stocks", "quickplay", "politics", "social"];
 
 /** ["macro","sports","crypto"] → "sports, crypto and macro"; caps at 3 then "and more". */
 const formatCategoryLine = (categories: string[]): string => {
@@ -423,7 +428,7 @@ export const SpotAccountCard = ({
           <span className="text-foreground font-medium">For {formatCategoryLine(STANDARD_CATEGORIES)}.</span>{" "}
         </>
       )}
-      Put in $100, buy $100 of shares.
+      Put in $100, buy $100 of shares — the most you can lose is what you put in.
     </p>
   </AccountCardShell>
 );
@@ -474,7 +479,7 @@ export const FuturesAccountCard = ({
       <p className="text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
         {line && <><span className="text-foreground font-medium">For {line}.</span>{" "}</>}
         {boostMax && boostMax > 1
-          ? `Put in $100, trade like $${(100 * boostMax).toLocaleString("en-US")} — up to ${boostMax}×.`
+          ? `Trade with leverage — Boost up to ${boostMax}×.`
           : "Buy and sell shares at full price."}
       </p>
     </AccountCardShell>
@@ -752,8 +757,11 @@ export default function Wallet() {
     id: tx.id,
     type: tx.type as Transaction['type'],
     amount: tx.amount,
+    // Older cash-out rows end in "· Won" / "· Lost"; the amount already says it (CPO 2026-11-13).
     description:
-      tx.description ||
+      (tx.description?.startsWith("Cashed out:")
+        ? tx.description.replace(/ · (Won|Lost)$/, "")
+        : tx.description) ||
       (tx.type === "platform_credit" ? "Platform Credit"
         : tx.type === "deposit" ? "Deposit"
         : tx.type === "fiat_buy" ? "Card purchase"
@@ -910,7 +918,7 @@ export default function Wallet() {
             onDeposit={() => setDepositDialogOpen(true)}
             onWithdraw={() => setWithdrawDialogOpen(true)}
             onTransfer={() => openTransfer("to_spot")}
-            equityNote={isLite ? "does not include open trade profit" : undefined}
+            equityNote={isLite ? LITE_EQUITY_NOTE : undefined}
           />
 
           {/* Band 2 · Flat dark account cards with capsule tags (Signal DNA) */}
@@ -1069,7 +1077,7 @@ export default function Wallet() {
           onWithdraw={() => navigate("/withdraw")}
           onTransfer={() => openTransfer("to_spot")}
           compact
-          equityNote={isLite ? "does not include open trade profit" : undefined}
+          equityNote={isLite ? LITE_EQUITY_NOTE : undefined}
         />
 
         <section className="space-y-3">

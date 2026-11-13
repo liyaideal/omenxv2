@@ -337,6 +337,7 @@ export const previewRegistry: Record<string, Loader> = {
   "autoclose-standard-row": pick(autoClose, "AutoCloseStandardRowPreview"),
   "autoclose-mobile-cards": pick(autoClose, "AutoCloseMobileCardsPreview"),
   "autoclose-position-none": pick(autoClose, "AutoClosePositionNonePreview"),
+  "autoclose-position-profit-note": pick(autoClose, "AutoClosePositionProfitNotePreview"),
   "autoclose-position-hot": pick(autoClose, "AutoClosePositionHotPreview"),
   "autoclose-position-level": pick(autoClose, "AutoClosePositionLevelPreview"),
   "autoclose-order-panel-states": pick(autoClose, "AutoCloseOrderPanelStatesPreview"),

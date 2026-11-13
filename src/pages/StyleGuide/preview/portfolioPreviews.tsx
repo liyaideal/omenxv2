@@ -159,13 +159,14 @@ export const PortfolioGaugeBarPreview = () => (
 
 /* -------- PF-8 · Live 常规态（盈利 / 亏损 / 零盈亏 · 1×–5× 倍数梯度）-------- */
 const pf8Rows: LiteLiveRow[] = [
+  // ifWins = shares = put in × Boost ÷ 50¢ entry, so every row's win / max-loss line adds up.
   { ...base, id: "pf8-win", eventName: "Bitcoin above $70,000", profit: 38.4, nowWorth: 158.4, leverageNum: 2 },
   { ...base, id: "pf8-loss", eventName: "ETH above $4,000 today", profit: -42.1, nowWorth: 77.9, leverageNum: 2 },
   { ...base, id: "pf8-zero", eventName: "US CPI above 3% in September", categoryLabel: "Finance", settlesAt: inDays(6, 16), profit: 0, nowWorth: 120, leverageNum: 2 },
   { ...base, id: "pf8-2x", eventName: "Fed cuts in September", categoryLabel: "Finance", settlesAt: inDays(5, 16), profit: 22, nowWorth: 142, leverageNum: 2 },
-  { ...base, id: "pf8-4x", eventName: "NVIDIA closes above $190", categoryLabel: "Stocks", settlesAt: inDays(1, 16), profit: 61.5, nowWorth: 181.5, leverageNum: 4 },
-  { ...base, id: "pf8-5x", eventName: "Solana above $260 this week", categoryLabel: "Crypto", settlesAt: inDays(4, 16), profit: -12.75, nowWorth: 107.25, leverageNum: 5 },
-  { ...base, id: "pf8-1x", eventName: "Arsenal to beat Liverpool", categoryLabel: "Soccer", settlesAt: inDays(0, 22), profit: 6.2, nowWorth: 126.2, leverageNum: 1, autoClose: { kind: "none" as const } },
+  { ...base, id: "pf8-4x", eventName: "NVIDIA closes above $190", categoryLabel: "Stocks", settlesAt: inDays(1, 16), profit: 61.5, nowWorth: 181.5, leverageNum: 4, ifWins: 960 },
+  { ...base, id: "pf8-5x", eventName: "Solana above $260 this week", categoryLabel: "Crypto", settlesAt: inDays(4, 16), profit: -12.75, nowWorth: 107.25, leverageNum: 5, ifWins: 1200 },
+  { ...base, id: "pf8-1x", eventName: "Arsenal to beat Liverpool", categoryLabel: "Soccer", settlesAt: inDays(0, 22), profit: 6.2, nowWorth: 126.2, leverageNum: 1, ifWins: 240, autoClose: { kind: "none" as const } },
 ];
 
 export const PortfolioLiveCardsPreview = () => (
@@ -547,8 +548,9 @@ const detailBase: SettlementDetailVM = {
   openedAt: daysAgoAt(34, 9, 12),
   closedAt: daysAgoAt(30, 14),
   trades: [
-    { id: "t1", time: daysAgoAt(34, 9, 12), action: "Open", total: 80, price: 0.33 },
-    { id: "t2", time: daysAgoAt(32, 11, 40), action: "Add", total: 40, price: 0.36 },
+    // total = position value of the fill (put in × Boost); fee = trading fee on it.
+    { id: "t1", time: daysAgoAt(34, 9, 12), action: "Open", total: 160, price: 0.33, fee: 0.8 },
+    { id: "t2", time: daysAgoAt(32, 11, 40), action: "Add", total: 80, price: 0.36, fee: 0.4 },
   ],
 };
 
@@ -558,7 +560,9 @@ const detailAutoClosed: SettlementDetailVM = {
   closeReason: "auto_close",
   net: -110,
   cost: 60,
-  fees: 5,
+  fees: 0.54,
+  tradingFee: 0.54,
+  winningCommission: 0,
   shares: 300,
   avgPrice: 0.6,
   exitPrice: 0.25,
@@ -568,27 +572,30 @@ const detailAutoClosed: SettlementDetailVM = {
   openedAt: daysAgoAt(22, 10),
   closedAt: daysAgoAt(19, 16, 45),
   trades: [
-    { id: "t1", time: daysAgoAt(22, 10), action: "Open", total: 30, price: 0.6 },
-    { id: "t2", time: daysAgoAt(21, 12), action: "Add", total: 30, price: 0.6 },
+    { id: "t1", time: daysAgoAt(22, 10), action: "Open", total: 90, price: 0.6, fee: 0.135 },
+    { id: "t2", time: daysAgoAt(21, 12), action: "Add", total: 90, price: 0.6, fee: 0.135 },
   ],
 };
 
 const detailCashout: SettlementDetailVM = {
   ...detailBase,
-  eventName: "Arsenal to beat Liverpool",
+  // The 2026-11-13 Lite win/loss case: $10 at 3× Boost, cashed out 1¢ lower.
+  eventName: "【NBA】Bucks vs. Magic",
   closeReason: "cashout",
-  net: 41,
-  cost: 150,
-  fees: 1.5,
-  shares: 410,
-  avgPrice: 0.37,
-  exitPrice: 0.48,
-  leverage: 2,
-  sideWord: "ARS +1.5",
+  net: -0.62,
+  cost: 10,
+  fees: 0.24,
+  tradingFee: 0.24,
+  winningCommission: 0,
+  shares: 38.46,
+  avgPrice: 0.78,
+  exitPrice: 0.77,
+  leverage: 3,
+  sideWord: "Magic",
   outcomeWon: false,
   openedAt: daysAgoAt(20, 18),
   closedAt: daysAgoAt(19, 20, 10),
-  trades: [{ id: "t1", time: daysAgoAt(20, 18), action: "Open", total: 150, price: 0.37 }],
+  trades: [{ id: "t1", time: daysAgoAt(20, 18), action: "Open", total: 30, price: 0.78, fee: 0.12 }],
 };
 
 const detailLost: SettlementDetailVM = {
@@ -597,7 +604,9 @@ const detailLost: SettlementDetailVM = {
   closeReason: "settlement",
   net: -100.9,
   cost: 100,
-  fees: 0.9,
+  fees: 0.15,
+  tradingFee: 0.15,
+  winningCommission: 0,
   shares: 240,
   avgPrice: 0.42,
   exitPrice: 0,
@@ -606,7 +615,7 @@ const detailLost: SettlementDetailVM = {
   outcomeWon: false,
   openedAt: daysAgoAt(17, 1, 40),
   closedAt: daysAgoAt(17, 8),
-  trades: [{ id: "t1", time: daysAgoAt(17, 1, 40), action: "Open", total: 100, price: 0.42 }],
+  trades: [{ id: "t1", time: daysAgoAt(17, 1, 40), action: "Open", total: 100, price: 0.42, fee: 0.15 }],
 };
 
 const seriesVm: SeriesDetailVM = {

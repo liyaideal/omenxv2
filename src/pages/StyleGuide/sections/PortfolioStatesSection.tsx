@@ -281,7 +281,7 @@ const DETAILS_SPEC: SectionCase["spec"] = [
     state: "说明句",
     when: "展开态",
     visual:
-      "`Boost calls share one pool of backing. If it runs out, positions start closing automatically.`",
+      "`All your Boost calls share your Boost balance. If it runs low, calls start closing automatically.`",
     source: "DETAILS_SENTENCE",
   },
   {

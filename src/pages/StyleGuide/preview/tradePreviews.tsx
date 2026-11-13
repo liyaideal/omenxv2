@@ -28,6 +28,7 @@ import { formatSignedLine } from "@/components/lite/sports/sportsData";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
 import { InReviewCard, IN_REVIEW_BADGE } from "@/components/lite/trade/InReviewCard";
+import { maxLossFor, usd } from "@/lib/liteWinLoss";
 
 /* ------------------------------ fixtures ------------------------------ */
 
@@ -250,7 +251,7 @@ export const Tr11Preview = () => {
         nowWorth={31.4}
         profit={6.4}
         autoCloseText="None"
-        autoCloseSub="Loss capped at your stake"
+        autoCloseSub={`Can lose up to ${usd(maxLossFor(25))}`}
         compact={!!isMobile}
         onCashOut={() => undefined}
       />
@@ -262,7 +263,7 @@ export const Tr11Preview = () => {
         nowWorth={36.2}
         profit={-3.8}
         autoCloseText="None"
-        autoCloseSub="Loss capped at your stake"
+        autoCloseSub={`Can lose up to ${usd(maxLossFor(40))}`}
         compact={!!isMobile}
         onCashOut={() => undefined}
       />
@@ -283,7 +284,7 @@ export const Tr12Preview = () => {
         nowWorth={13.6}
         profit={3.6}
         autoCloseText="None"
-        autoCloseSub="Loss capped at your stake"
+        autoCloseSub={`Can lose up to ${usd(maxLossFor(10))}`}
         voucherTag
         compact={!!isMobile}
         onCashOut={() => undefined}

@@ -11,6 +11,8 @@ export interface TradeRecord {
   qty: number;
   price: number;
   total: number;
+  /** Trading fee charged on this fill. */
+  fee: number;
 }
 
 export interface PricePoint {
@@ -145,6 +147,7 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         qty: Number(trade.quantity),
         price: Number(trade.price),
         total: Number(trade.amount),
+        fee: Number(trade.fee) || 0,
       }));
 
       const closeReason: SettlementData["closeReason"] =

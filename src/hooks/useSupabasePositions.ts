@@ -23,9 +23,7 @@ const recordCloseLedger = (args: {
         amount: args.realizedPnl,
         account: "futures",
         status: "completed",
-        description: `Cashed out: ${args.eventName} · ${args.optionLabel} · ${
-          args.realizedPnl >= 0 ? "Won" : "Lost"
-        }`,
+        description: `Cashed out: ${args.eventName} · ${args.optionLabel}`,
       },
     })
     .catch(() => {});

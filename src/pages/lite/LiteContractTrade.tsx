@@ -42,6 +42,7 @@ import { formatCents, estimateAutoClosePrice, isAutoCloseHot } from "@/lib/autoC
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { FUTURES_FEE_RATE } from "@/services/tradingService";
+import { usd } from "@/lib/liteWinLoss";
 import type { Tables } from "@/integrations/supabase/types";
 import {
   LiteContractChart,
@@ -1089,11 +1090,17 @@ const LiteContractTrade = () => {
       mode: "existing",
     });
 
-  // Two-state display: "≈ X¢" (hot → red + note) or "None · loss capped".
+  // Two-state display: "≈ X¢" (hot → red + note) or "None · can lose up to $X".
+  // None never means the loss is capped at what was put in (cross margin):
+  // the call can lose its whole value at entry plus the entry fee (2026-11-13).
   const autoCloseDisplayFor = (p: (typeof positions)[number]) => {
     const r = autoCloseFor(p);
     if (r.kind === "none")
-      return { text: "None", sub: "Loss capped at your stake", hot: false };
+      return {
+        text: "None",
+        sub: `Can lose up to ${usd(p.sizeNum * p.entryPriceNum + entryFeeFor(p))}`,
+        hot: false,
+      };
     const hot = isAutoCloseHot(r, p.markPriceNum);
     return {
       text: `≈ ${formatCents(r.price)}`,
@@ -1101,6 +1108,10 @@ const LiteContractTrade = () => {
       hot,
     };
   };
+
+  // Profit ⓘ: why a call reads a little below $0 right after buying (2026-11-13).
+  const profitNoteFor = (p: (typeof positions)[number], mark: number) =>
+    `Right after you buy, this starts a little below $0: you bought at ${formatCents(p.entryPriceNum)}, and selling right now gets ${formatCents(mark)}. The ${usd(entryFeeFor(p))} trading fee was charged when you bought.`;
 
   const heldAutoClose = heldPos != null ? autoCloseDisplayFor(heldPos) : null;
 
@@ -1260,6 +1271,7 @@ const LiteContractTrade = () => {
       putIn={heldPos.marginNum}
       nowWorth={heldNowWorth}
       profit={heldPnlNum}
+      profitNote={heldPos && heldLive ? profitNoteFor(heldPos, heldLive.mark) : undefined}
       autoCloseText={heldAutoClose?.text ?? "None"}
       autoCloseSub={heldAutoClose?.sub}
       autoCloseHot={heldAutoClose?.hot}
@@ -1390,6 +1402,7 @@ const LiteContractTrade = () => {
               putIn={p.marginNum}
               nowWorth={lv.nowWorth}
               profit={lv.pnl}
+              profitNote={profitNoteFor(p, lv.mark)}
               autoCloseText={ac.text}
               autoCloseSub={ac.sub}
               autoCloseHot={ac.hot}

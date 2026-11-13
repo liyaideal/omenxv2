@@ -271,7 +271,7 @@ export default function LitePortfolio() {
   const liveKpiMobile = (
     <KpiGrid cols={2}>
       <KpiCard
-        label={t("common.cost")}
+        label={t("common.put_in")}
         value={dash ? KPI_DASH : money(p.liveKpi.cost)}
         sub={`${p.liveKpi.count} ${p.liveKpi.count === 1 ? "call" : "calls"}`}
       />
@@ -287,7 +287,7 @@ export default function LitePortfolio() {
   const liveKpiDesktop = (
     <KpiGrid cols={3}>
       <KpiCard
-        label={t("common.cost")}
+        label={t("common.put_in")}
         value={dash ? KPI_DASH : money(p.liveKpi.cost)}
         sub={`${p.liveKpi.count} ${p.liveKpi.count === 1 ? "call" : "calls"}`}
       />

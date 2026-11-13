@@ -24,6 +24,7 @@ import {
   HeroEquityCard,
   SpotAccountCard,
   FuturesAccountCard,
+  LITE_EQUITY_NOTE,
 } from "@/pages/Wallet";
 import {
   TransactionHistory,
@@ -72,6 +73,7 @@ export const WalletEquityBandsPreview = () => {
           onDeposit={noop}
           onWithdraw={noop}
           onTransfer={noop}
+          equityNote={LITE_EQUITY_NOTE}
           compact
         />
         <section className="space-y-3">
@@ -83,7 +85,8 @@ export const WalletEquityBandsPreview = () => {
             marginInUse={1_240}
             unrealizedPnL={86.4}
             AvailableTooltip={DemoAvailableTooltip}
-            boostMax={10}
+            boostMax={5}
+            boostCategories={["sports", "crypto", "macro"]}
             compact
           />
         </section>
@@ -100,6 +103,7 @@ export const WalletEquityBandsPreview = () => {
         onDeposit={noop}
         onWithdraw={noop}
         onTransfer={noop}
+        equityNote={LITE_EQUITY_NOTE}
       />
       <section className="grid grid-cols-2 gap-6">
         <SpotAccountCard balance={DEMO.spot} hidden={hidden} onTransfer={noop} />
@@ -110,7 +114,8 @@ export const WalletEquityBandsPreview = () => {
           marginInUse={1_240}
           unrealizedPnL={86.4}
           AvailableTooltip={DemoAvailableTooltip}
-          boostMax={10}
+          boostMax={5}
+            boostCategories={["sports", "crypto", "macro"]}
         />
       </section>
     </div>

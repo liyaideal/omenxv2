@@ -226,7 +226,7 @@ const detailRows = (data: BoostCheckData) => [
 ];
 
 const DETAILS_SENTENCE =
-  "Boost calls share one pool of backing. If it runs out, positions start closing automatically.";
+  "All your Boost calls share your Boost balance. If it runs low, calls start closing automatically.";
 
 const DetailsDrawer = ({
   open,

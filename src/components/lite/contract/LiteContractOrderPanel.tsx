@@ -351,7 +351,11 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             : `Cashed out ${heldSideLabel ?? oppositeLabel}`,
         );
       } else {
-        toast.success(`Bought ${sideLabel} · ${money(amountSnapshot)}`);
+        toast.success(
+          boostSnapshot > 1
+            ? `Bought ${sideLabel} · ${money(amountSnapshot)} at ${boostSnapshot}× Boost · ${money(notionalSnapshot)} position`
+            : `Bought ${sideLabel} · ${money(amountSnapshot)}`,
+        );
       }
       onAmountChange("");
       onFilled?.();

@@ -1142,7 +1142,7 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
     recordSpotTx(
       realizedPnl >= 0 ? "trade_profit" : "trade_loss",
       round2(realizedPnl),
-      `Cashed out: ${v.eventName} · ${v.optionLabel} · ${realizedPnl >= 0 ? "Won" : "Lost"}`,
+      `Cashed out: ${v.eventName} · ${v.optionLabel}}`,
     );
     if (wc > 0) {
       recordSpotTx(
@@ -1468,7 +1468,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
   recordSpotTx(
     realizedPnl >= 0 ? "trade_profit" : "trade_loss",
     round2(realizedPnl),
-    `Cashed out: ${trade.event_name} · ${trade.option_label} · ${realizedPnl >= 0 ? "Won" : "Lost"}`,
+    `Cashed out: ${trade.event_name} · ${trade.option_label}}`,
   );
   if (wc > 0) {
     recordSpotTx(
