@@ -5658,7 +5658,7 @@
  },
  "wallet": {
   "request_failed": "钱包请求失败",
-  "equity": "预计总权益",
+  "equity": "总余额",
   "equityNoteLite": "Boost + Standard · 不含未平仓交易收益",
   "equityNotePro": "Boost + Standard · 不含未实现盈亏",
   "deposit": "充值",

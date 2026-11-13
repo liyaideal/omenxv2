@@ -5901,7 +5901,7 @@
   },
   "wallet": {
     "request_failed": "Wallet request failed",
-    "equity": "Est. Total Equity",
+    "equity": "Total balance",
     "equityNoteLite": "Boost + Standard · does not include open trade profit",
     "equityNotePro": "Boost + Standard · does not include unrealized PnL",
     "deposit": "Deposit",

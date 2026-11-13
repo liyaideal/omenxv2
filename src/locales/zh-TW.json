@@ -5671,7 +5671,7 @@
  },
  "wallet": {
   "request_failed": "錢包請求失敗",
-  "equity": "預計總權益",
+  "equity": "總餘額",
   "equityNoteLite": "Boost + Standard · 不含未平倉交易收益",
   "equityNotePro": "Boost + Standard · 不含未實現盈虧",
   "deposit": "充值",

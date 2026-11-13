@@ -5678,7 +5678,7 @@
  },
  "wallet": {
   "request_failed": "Yêu cầu ví không thành công",
-  "equity": "Tổng vốn dự kiến",
+  "equity": "Tổng số dư",
   "equityNoteLite": "Boost + Standard · không gồm lợi nhuận giao dịch đang mở",
   "equityNotePro": "Boost + Standard · không gồm PnL chưa thực hiện",
   "deposit": "Nạp tiền",

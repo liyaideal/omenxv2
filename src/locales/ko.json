@@ -5678,7 +5678,7 @@
  },
  "wallet": {
   "request_failed": "지갑 요청에 실패했습니다",
-  "equity": "예상 총 자산",
+  "equity": "총 잔액",
   "equityNoteLite": "Boost + 스탠다드 · 미체결 거래 수익 미포함",
   "equityNotePro": "Boost + 스탠다드 · 미실현 손익 미포함",
   "deposit": "입금",

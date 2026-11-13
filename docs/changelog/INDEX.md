@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-13 | [充值引导优化 · 第二批小改（deposit-ux-v1 §2）](../delivery/deposit-ux-v1.md#2-命名equity-改叫-balance) | Wallet 页头 `Est. Total Equity` → `Total balance`（7 语，key `wallet.equity`）；日语顶栏导航短译 ポジション / 分析（交易页 1024 宽不再压到托盘） |
 | 2026-11-13 | [充值引导优化 · 顶栏余额托盘 + Balance 命名（并入 deposit-ux-v1 §1 / §2）](../delivery/deposit-ux-v1.md#1-桌面顶栏余额托盘--常驻-deposit) | 桌面顶栏「Equity: $xx」换成浅灰余额托盘：钱包图标 + 白色余额（点了进 Wallet，悬浮卡标题 Total balance）+ 常驻 Deposit（品牌渐变，原地弹充值弹窗）；不写标签、窄屏不缩；手机品牌栏不加。`common.equity` → Balance、`total_equity` → Total balance（7 语，繁中「股權」误译一并修）。DESIGN §Addendum 2026-11-13 |
 | 2026-11-12 | [充值引导优化 · Portfolio 空态 Deposit to start（并入 deposit-ux-v1 §4）](../delivery/deposit-ux-v1.md#4-portfolio-live-空态没钱时引导充值) | Live 页没持仓、Standard + Boost < $1 时，空态主按钮 `Deposit to start`（桌面弹充值弹窗、手机进 `/deposit`），`Browse events` 降为次按钮；余额读取中按有钱处理。新 key `portfolio.lite.live.deposit_to_start`（7 语）。字典 PF-33b |
 | 2026-11-12 | [充值引导优化 — 交付说明 v1（第一批：下单卡 Add money 链接）](../delivery/deposit-ux-v1.md) | BD 反馈的充值卡点。Lite 合约卡 / 现货卡余额不到 $1 时，提示里的 `Add money` 可以点：另一个账户有钱开划转，另一个账户为 0 打开充值（桌面弹充值弹窗、手机进 `/deposit`）；下单按钮不变。i18n `low_balance_hint` 改成带 `{{link}}` 的模板 + 新增 `low_balance_link`（7 语）。字典 TR-30 / SP-20 加一行。顶栏 Deposit、Equity→Balance、Portfolio 空态等后续批次并入本文 |

@@ -43,8 +43,11 @@
 | 桌面顶栏 | `Equity: $xx` | 不写标签（见 §1） |
 | 顶栏悬浮卡标题 / 合计行 | `Total equity` | `Total balance` |
 | 手机 Me 抽屉余额卡 | `Equity` | `Balance` |
+| Wallet 页头大数标签（2026-11-13 第二批） | `Est. Total Equity` | `Total balance`（key `wallet.equity`；下面那行 `Boost + Standard · does not include open trade profit` 不变） |
 
-key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘額 / 残高 / 잔액 / Баланс / Số dư（西语 Saldo）；`home.screen.HomeGreeting.total_equity` = Total balance / 总余额 / 總餘額 / 合計残高 / 총 잔액 / Общий баланс / Tổng số dư。繁中原来的「股權」是误译，一并改掉。Pro 风险相关的 Equity（Account Equity、Risk Ratio = MM / Equity）含浮盈，不改。
+key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘額 / 残高 / 잔액 / Баланс / Số dư（西语 Saldo）；`home.screen.HomeGreeting.total_equity` = Total balance / 总余额 / 總餘額 / 合計残高 / 총 잔액 / Общий баланс / Tổng số dư。繁中原来的「股權」是误译，一并改掉。
+
+**日语导航换短译法**（2026-11-13，交易页 1024 宽时导航最后一项会压到托盘）：`nav.portfolio` ポートフォリオ → **ポジション**，`nav.insights` インサイト → **分析**。其他语言不变。Pro 风险相关的 Equity（Account Equity、Risk Ratio = MM / Equity）含浮盈，不改。
 
 ## 3. 下单卡余额不够：Add money 做成链接
 

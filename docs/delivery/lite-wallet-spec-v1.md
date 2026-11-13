@@ -72,7 +72,7 @@ Transfer 无独立路由，只有 Dialog / Drawer 两件。
 |---|---|
 | 卡面 | `relative overflow-hidden rounded-[18px] border border-border bg-card`，桌面内距 `p-[34px_36px]` |
 | 艺术底 | `heroThread`（`src/assets/wallet/hero-thread.webp`）`absolute inset-0 z-0 h-full w-full object-cover object-right`，`aria-hidden` + `pointer-events-none select-none`，`onError` 静默隐藏 |
-| 标签 | `Est. Total Equity`，`text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground` |
+| 标签 | `Total balance`（2026-11-13 起，原 `Est. Total Equity`，见 deposit-ux-v1 §2），`text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground` |
 | 眼睛开关 | `Eye` / `EyeOff` 4×4，`aria-label` 在 `Show balance` / `Hide balance` 间切换；隐藏态大数显示 `••••••` |
 | 大数 | `font-display font-bold tabular-nums`，桌面 `text-[60px] leading-[0.96]`，值 = `computeTotalEquity({ spotBalance, balance })` 经 `formatEquityUsd` |
 | 副注 | `Boost + Standard · {equityNote}`；Lite 传 `does not include open trade profit`，Pro 用默认 `does not include unrealized PnL` |
@@ -271,7 +271,7 @@ Recovery 费率固定 10%、3–7 business days，全人工处理，无自动化
 | Canonical | 含义 |
 |---|---|
 | `Standard` / `Boost` | 两个账户名（对应 `spot` / `futures`），账户全称 `Standard Account` / `Boost Account` |
-| `Est. Total Equity` | Hero 大数标签，值取 `computeTotalEquity` |
+| `Total balance`（原 `Est. Total Equity`） | Hero 大数标签，值取 `computeTotalEquity` |
 | `does not include open trade profit` / `does not include unrealized PnL` | Lite / Pro 的 equity 副注 |
 | `Available (USDC)` | 两张账户卡的余额标签 |
 | `Transfer to / from Boost｜Standard` | 转账两腿的方向式流水描述 |
