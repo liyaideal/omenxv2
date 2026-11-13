@@ -10,7 +10,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       position="top-center"
       theme={theme as ToasterProps["theme"]}
-      className="toaster group"
+      // pointer-events-auto: a modal sheet/dialog sets body{pointer-events:none}; without this a toast
+      // action (Transfer / Add funds) shown over an open order drawer cannot be clicked (2026-11-13).
+      className="toaster group pointer-events-auto"
       toastOptions={{
         classNames: {
           toast:
