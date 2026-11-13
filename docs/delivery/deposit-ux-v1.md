@@ -41,7 +41,7 @@
 | 位置 | 原来 | 现在 |
 |---|---|---|
 | 桌面顶栏 | `Equity: $xx` | 不写标签（见 §1） |
-| 顶栏悬浮卡标题 / 合计行 | `Total equity` | `Total balance` |
+| 顶栏悬浮卡合计行（卡顶标题 2026-11-13 已删） | `Total equity` | `Total balance` |
 | 手机 Me 抽屉余额卡 | `Equity` | `Balance` |
 | Wallet 页头大数标签（2026-11-13 第二批） | `Est. Total Equity` | `Total balance`（key `wallet.equity`；下面那行 `Boost + Standard · does not include open trade profit` 不变） |
 
@@ -52,9 +52,11 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 | 词条 | 改动 |
 |---|---|
 | `header.accountsLine`（Me 抽屉余额下那行） | 原来各语言都是英文 `Standard $x · Boost $y`；现在 Standard 翻译、Boost 保持品牌词：标准 / 標準 / スタンダード / 스탠다드 / Стандарт；越南语保留 Standard |
-| Transfer（抽屉按钮 `nav › screen.navigation.bottom_navigation.transfer`、Wallet 页 `wallet.transfer`、悬浮卡 `header.transfer`） | 三处同一个词：日语 送金 → **振替**；简中抽屉 转账 → **划转**；繁中抽屉 轉帳 → **劃轉**、Wallet 划轉 → **劃轉**（简体字混入）；越南语三处统一 **Chuyển tiền** |
+| Transfer（抽屉按钮 `nav › screen.navigation.bottom_navigation.transfer`、Wallet 页 `wallet.transfer`、悬浮卡 `header.transfer`） | 三处同一个词：日语 送金 → **振替**（划转弹窗里的按钮、成功 / 失败提示、记录也一起改；「送金元 / 送金先」与跨链充值共用一条 key，没改）；简中抽屉 转账 → **划转**；繁中抽屉 轉帳 → **劃轉**、Wallet 与划转弹窗里的「划轉」→ **劃轉**（简体字混入）；简中划转失败提示 转账失败 → 划转失败；越南语三处统一 **Chuyển tiền** |
 
-**手机底部导航高亮**（2026-11-13）：在 Portfolio 页时 Portfolio 和 Me 两个 tab 曾同时高亮。现在 Me 只在它的抽屉打开时高亮，Portfolio 只在 Portfolio 页高亮。
+**划转弹窗 / 抽屉补齐翻译**（2026-11-13，三方验收发现）：账户名用 `wallet.standardAccount` / `wallet.boostAccount`；「To」标签原来借用日期区间的 `market.date_to`（日语显示「〜」）→ 改 `wallet.to`（日语 振替先，`wallet.from` 振替元；跨链充值的「From」改用自己的 `wallet › screen.cross_chain_deposit.from`，不受影响）；`Available $x` → `wallet.availableAmount`；按钮 → `wallet.transfer` / `wallet.transferAmount` / `wallet.transferring`；余额不足提示新 key `wallet › transfer_insufficient`；成功 / 失败 toast → `wallet.transferSuccess` / `transferFailed`。方向切换里的 `Boost → Standard` 没动。
+
+**手机底部导航高亮**（2026-11-13）：在 Portfolio 页时 Portfolio 和 Me 两个 tab 曾同时高亮。现在 Me 只在它的抽屉打开时高亮；抽屉开着时其他 tab 都不亮，任何时候只亮一个。
 
 **日语导航换短译法**（2026-11-13，交易页 1024 宽时导航最后一项会压到托盘）：`nav.portfolio` ポートフォリオ → **ポジション**，`nav.insights` インサイト → **分析**。其他语言不变。Pro 风险相关的 Equity（Account Equity、Risk Ratio = MM / Equity）含浮盈，不改。
 
@@ -68,7 +70,8 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 | 长什么样 | 那行提示整句不变，只有「Add money」那几个字变成链接：主色、下划线、加粗（semibold），字号行高跟整行一样 |
 | 点了去哪 | 另一个账户余额 ≥ $1（按整数美元算，`floor(余额) >= 1`）→ 打开划转（桌面弹窗 / 手机底部抽屉），方向是转进当前这个账户；不足 $1（含 $0 和几美分）→ 打开充值：桌面直接弹出充值弹窗，账户预选成这张卡的账户（Boost 卡 → Boost，Standard 卡 → Standard）；手机进 `/deposit` 充值页，同样预选这张卡的账户 |
 | 判定来源 | 跟余额不够时点下单弹的 toast 用同一个分叉，只有一份逻辑（`useInsufficientBalanceToast` 新增 `addMoney`） |
-| 点下单弹的 toast（2026-11-13） | 同一个 ≥ $1 分叉：够划转 → 按钮 `Transfer`（打开划转）；不够 → 按钮 `Add funds`，点了和 Add money 链接走同一个充值（桌面原地弹充值弹窗、预选这张卡的账户；手机进 `/deposit` 并预选）。原来 Add funds 在桌面跳 `/deposit`，实际只落到 Wallet 页，已改 |
+| 点下单弹的 toast（2026-11-13） | 提示句 `Not enough balance — add funds to continue`（key `wallet › insufficient_toast.message`，7 语）。同一个 ≥ $1 分叉：够划转 → 按钮 `Transfer`（`wallet.transfer`，打开划转）；不够 → 按钮 `Add funds`（`wallet › insufficient_toast.add_funds`），点了和 Add money 链接走同一个充值（桌面原地弹充值弹窗、预选这张卡的账户；手机进 `/deposit` 并预选）。原来 Add funds 在桌面跳 `/deposit`，实际只落到 Wallet 页，已改 |
+| 手机：toast 盖在下单抽屉上（2026-11-13） | toast 按钮在下单抽屉打开时必须能点（Toaster `pointer-events-auto`）；点 toast 不算「点抽屉外面」，抽屉不关（划转抽屉挂在下单面板里，抽屉一关它就没了）。点 `Add funds` 时手机直接跳 `/deposit` |
 | 不变的 | 下单按钮、按钮下的脚注、余额旁的 ⇄、快捷金额置灰、输入框锁住 |
 
 **多语言**：每种语言词序不同，所以整句是一个带 `{{link}}` 占位的模板，链接那几个字单独一个词条：
@@ -106,7 +109,7 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 | 顶栏余额托盘、Balance 命名 | 已做 | 照做（§1 / §2） |
 | 11-13 小改：≥ $1 才划转、toast Add funds 弹充值、悬浮卡去眉行、Me 抽屉译法、底部导航高亮 | 已做 | 照做（§1 / §2 / §3） |
 | Portfolio 空态 Deposit to start | 已做 | 照做（判定见 §4） |
-| i18n | `low_balance_hint` ×2 改值、`low_balance_link` ×2 新增、`lite.live.deposit_to_start` 新增、`common.equity` / `HomeGreeting.total_equity` 改值 | 同步进 OMENX-i18n 文案表 |
+| i18n | `low_balance_hint` ×2 改值、`low_balance_link` ×2 新增、`lite.live.deposit_to_start` 新增、`common.equity` / `HomeGreeting.total_equity` 改值；11-13：`header.accountsLine`、`header.transfer`、`wallet.transfer`、`nav › …bottom_navigation.transfer`、划转弹窗内各条（ja 振替 / zh-TW 劃轉）改值，`wallet › insufficient_toast.message` / `.add_funds` 新增 | 同步进 OMENX-i18n 文案表 |
 
 ## 代号 ↔ 章节
 

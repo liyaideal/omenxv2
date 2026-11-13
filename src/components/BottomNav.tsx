@@ -97,7 +97,8 @@ export const BottomNav = () => {
     >
       <div className="flex justify-around items-end max-w-md mx-auto">
         {liteNavItems.map((item) => {
-          const active = isLiteActive(item.path);
+          // While the Me drawer is open only Me is lit (one highlighted tab at a time, CPO 2026-11-13).
+          const active = isLiteActive(item.path) && !profileSheetOpen;
           return (
             <button
               key={item.path}
@@ -217,14 +218,19 @@ export const BottomNav = () => {
             </div>
           </div>
           <div className="mt-3 flex items-center justify-between gap-2 border-t border-trading-green/20 pt-3 text-xs">
-            <span className="min-w-0 text-muted-foreground">
-              {/* each "Account $x" stays on one line; a wrap may only fall at the " · " */}
+            {/* Each "Account $x" stays on one line and a wrap may only fall between them.
+                The "·" sits in the column gap of every segment after the first; when a
+                segment wraps to the line start its dot falls left of the box and is clipped,
+                so a wrapped line never starts or ends with a stray "·". */}
+            <span className="flex min-w-0 flex-wrap gap-x-[1.1em] overflow-hidden text-muted-foreground">
               {t("header.accountsLine", { standard: formatEquityUsd(spotBalance), boost: formatEquityUsd(balance) })
                 .split(" · ")
                 .map((part, i) => (
-                  <span key={i}>
-                    {i > 0 && " · "}
-                    <span className="whitespace-nowrap">{part}</span>
+                  <span
+                    key={i}
+                    className={`relative whitespace-nowrap ${i > 0 ? "before:absolute before:-left-[0.75em] before:content-['·']" : ""}`}
+                  >
+                    {part}
                   </span>
                 ))}
             </span>

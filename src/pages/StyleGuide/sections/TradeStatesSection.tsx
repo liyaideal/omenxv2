@@ -111,7 +111,7 @@ const PANEL_CASES: SectionCase[] = [
     key: "trade-tr30",
     label: "TR-30 · 下单面板 · 余额不够下单（Max = 0）",
     note:
-      "CPO 2026-11-05。已登录用户输入的金额永远不超过 Max（= floor(Boost balance)）：手输或点快捷金额超过 Max 时直接变成 Max。Max 算出来是 0（余额不到 $1）时，卡片就地说明，不再显示一个点什么都没反应的 $0.00。下单按钮与脚注**不变**；提示里的 Add money 可点（2026-11-12）：另一个账户有钱开划转，另一个账户为 0 打开充值；余额旁的 ⇄ 照旧。手机抽屉同一张卡、同一行位。",
+      "CPO 2026-11-05。已登录用户输入的金额永远不超过 Max（= floor(Boost balance)）：手输或点快捷金额超过 Max 时直接变成 Max。Max 算出来是 0（余额不到 $1）时，卡片就地说明，不再显示一个点什么都没反应的 $0.00。下单按钮与脚注**不变**；提示里的 Add money 可点（2026-11-12）：另一个账户 ≥ $1（floor）开划转，不足 $1 打开充值（2026-11-13）；余额旁的 ⇄ 照旧。手机抽屉同一张卡、同一行位。",
     spec: [
       { state: "超过 Max", when: "user && !isNetting && parseFloat(input) > floor(balance)", visual: "输入框里的数直接变成 Max（静默，无提示）", source: "LiteContractOrderPanel setAmountCapped" },
       { state: "余额不够", when: "user && !isNetting && floor(balance) < 1", visual: "输入框锁住只显示占位 `0`；输入框下一行 `Add money to your Boost balance to make a call.`（text-xs，foreground/75），其中 `Add money` 是链接（primary、下划线、semibold）；$10/$25/$50/$100/Max 置灰不可点；CTA `Buy Yes · To win $0.00 →` 与脚注不变" , source: "LiteContractOrderPanel lowBalance · i18n trade.screen.lite.lite_contract_order_panel.low_balance_hint / low_balance_link" },

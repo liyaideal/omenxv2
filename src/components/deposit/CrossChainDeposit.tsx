@@ -175,7 +175,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
           wallet.connected ? "border-border/50 bg-muted/20" : "border-border/20 bg-muted/10 opacity-60"
         )}>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{t("wallet.from")}</span>
+            <span className="text-sm text-muted-foreground">{t("wallet.screen.cross_chain_deposit.from")}</span>
             {wallet.connected && (
               <button
                 onClick={() => setAmount(tokenBalance.toString())}

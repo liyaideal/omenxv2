@@ -8,10 +8,11 @@ import { TransferDrawer } from "./TransferDrawer";
 import type { TransferDirection } from "./TransferForm";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { useAccountPreference } from "@/hooks/useAccountPreference";
+import { t } from "@/i18n";
 
 /**
  * Insufficient-balance toast with an actionable follow-up.
- * If the other account still holds funds → "Transfer" (into `direction`'s
+ * If the other account holds at least $1 → "Transfer" (into `direction`'s
  * target account). Otherwise → "Add funds" (deposit flow).
  *
  * Fork (CPO 2026-11-13): the other account can actually fund a $1 order
@@ -20,7 +21,7 @@ import { useAccountPreference } from "@/hooks/useAccountPreference";
  *
  * `addMoney` is the same fork without the toast — the low-balance hint's
  * "Add money" link calls it directly (CPO 2026-11-12, deposit-ux ③): other
- * account has money → open Transfer; other account at 0 → deposit (desktop opens
+ * account ≥ $1 → open Transfer; under $1 → deposit (desktop opens
  * the Deposit dialog pre-set to this card's account — /deposit on desktop only
  * redirects to /wallet; mobile goes to the /deposit page with the same account
  * pre-selected).
@@ -59,12 +60,12 @@ export const useInsufficientBalanceToast = (direction: TransferDirection) => {
 
   const notify = useCallback(() => {
     if (hasOtherFunds) {
-      toast.error("Not enough balance — add funds to continue", {
-        action: { label: "Transfer", onClick: () => setOpen(true) },
+      toast.error(t("wallet.insufficient_toast.message"), {
+        action: { label: t("wallet.transfer"), onClick: () => setOpen(true) },
       });
     } else {
-      toast.error("Not enough balance — add funds to continue", {
-        action: { label: "Add funds", onClick: openDeposit },
+      toast.error(t("wallet.insufficient_toast.message"), {
+        action: { label: t("wallet.insufficient_toast.add_funds"), onClick: openDeposit },
       });
     }
   }, [hasOtherFunds, openDeposit]);

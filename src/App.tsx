@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -203,6 +204,16 @@ const ResolvedDetailRoute = () => <LiteSettledRedirect />;
  * "@/i18n" without subscribing; `useT()` stays available for hot re-render
  * inside overlays that must not lose state.
  */
+/**
+ * Resolves the site language once at the app root (profile → localStorage), so pages
+ * without a LanguagePicker in their header (e.g. mobile /trade) still follow the
+ * user's saved language on a fresh device. 2026-11-13.
+ */
+const LanguageRuntime = () => {
+  useLanguage();
+  return null;
+};
+
 const LanguageKeyed = ({ children }: { children: React.ReactNode }) => {
   const { code } = useT();
   return <div key={code} className="contents">{children}</div>;
@@ -223,6 +234,7 @@ const App = () => (
           <CampaignAttribution />
           <ClosedAccountGate />
           <NotificationsRuntime />
+          <LanguageRuntime />
           <LanguageKeyed>
           <Routes>
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}

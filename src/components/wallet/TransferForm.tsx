@@ -62,8 +62,8 @@ export const TransferForm = ({
 
   // From = Futures 时 Available 直接读 balance（Trial Bonus 已下线，无需拆分）
   const fromAvailable = direction === "to_spot" ? balance : spotBalance;
-  const fromLabel = direction === "to_spot" ? "Boost Account" : "Standard Account";
-  const toLabel = direction === "to_spot" ? "Standard Account" : "Boost Account";
+  const fromLabel = direction === "to_spot" ? t("wallet.boostAccount") : t("wallet.standardAccount");
+  const toLabel = direction === "to_spot" ? t("wallet.standardAccount") : t("wallet.boostAccount");
   const toCurrent = direction === "to_spot" ? spotBalance : balance;
 
   const amount = useMemo(() => {
@@ -82,13 +82,11 @@ export const TransferForm = ({
     const res = await transferBetweenAccounts(direction, amount);
     setSubmitting(false);
     if (res.success) {
-      toast.success(
-        `Transferred $${fmt(amount)} to ${direction === "to_spot" ? "Standard" : "Boost"}`,
-      );
+      toast.success(t("wallet.transferSuccess"));
       setAmountStr("");
       onSuccess?.();
     } else {
-      toast.error(res.error || "Transfer failed");
+      toast.error(res.error || t("wallet.transferFailed"));
     }
   };
 
@@ -143,7 +141,7 @@ export const TransferForm = ({
 
         <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
           <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-            {t("market.date_to")}
+            {t("wallet.to")}
           </div>
           <div className="mt-1 flex items-center justify-between">
             <span className="text-sm font-medium">{toLabel}</span>
@@ -159,7 +157,7 @@ export const TransferForm = ({
         <div className="flex items-baseline justify-between">
           <span className="text-xs text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span className="font-mono">Available ${fmt(fromAvailable)}</span>
+            <span className="font-mono">{t("wallet.availableAmount", { amount: fmt(fromAvailable) })}</span>
             <button
               type="button"
               onClick={handleMax}
@@ -181,7 +179,7 @@ export const TransferForm = ({
           )}
         />
         {insufficient && (
-          <p className="text-[11px] text-trading-red">Insufficient balance in {fromLabel}.</p>
+          <p className="text-[11px] text-trading-red">{t("wallet.transfer_insufficient", { account: fromLabel })}</p>
         )}
       </div>
 
@@ -205,7 +203,11 @@ export const TransferForm = ({
             className="flex-1 h-11"
           >
             {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
-            {submitting ? "Transferring…" : `Transfer${amount > 0 ? ` $${fmt(amount)}` : ""}`}
+            {submitting
+              ? t("wallet.transferring")
+              : amount > 0
+                ? t("wallet.transferAmount", { amount: `$${fmt(amount)}` })
+                : t("wallet.transfer")}
           </Button>
         </div>
       </MobileDrawerActions>
