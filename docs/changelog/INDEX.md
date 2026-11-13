@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-13 | [充值引导优化 · 交付研发（deposit-ux-v1 定稿）](../delivery/deposit-ux-v1.md) | 四批并成一份交付说明：开头补「原来 / 这次多了什么」与 BD 六条对应表；新增 §5 正式版跨链充值默认 USDC（Lovable 本来如此）、§6 顺手修的三处（toast 在抽屉上可点、App 根语言、Me 抽屉折行） |
 | 2026-11-13 | [充值引导优化 · 第三批小改（deposit-ux-v1 §2 / §3）](../delivery/deposit-ux-v1.md#3-下单卡余额不够add-money-做成链接) | Add money 与余额不够 toast：另一账户 ≥ $1 才划转，否则充值；toast `Add funds` 在桌面原地弹充值弹窗（原来跳到 Wallet）。顶栏悬浮卡去掉重复的 TOTAL BALANCE 眉行。手机 Me 抽屉账户行翻译 Standard、Transfer 各语言三处统一（日 振替 / 简 划转 / 繁 劃轉 / 越 Chuyển tiền）。手机底部导航任何时候只亮一个 tab。余额不够 toast 进 7 语；手机上 toast 按钮在下单抽屉打开时可点；划转弹窗 / 抽屉补齐 7 语（账户名、To 标签不再借用日期的「〜」、按钮、余额不足提示、成功失败提示）；站点语言在 App 根就按账号设置生效（手机直接打开交易页不再是英文） |
 | 2026-11-13 | [充值引导优化 · 第二批小改（deposit-ux-v1 §2）](../delivery/deposit-ux-v1.md#2-命名equity-改叫-balance) | Wallet 页头 `Est. Total Equity` → `Total balance`（7 语，key `wallet.equity`）；日语顶栏导航短译 ポジション / 分析（交易页 1024 宽不再压到托盘） |
 | 2026-11-13 | [充值引导优化 · 顶栏余额托盘 + Balance 命名（并入 deposit-ux-v1 §1 / §2）](../delivery/deposit-ux-v1.md#1-桌面顶栏余额托盘--常驻-deposit) | 桌面顶栏「Equity: $xx」换成浅灰余额托盘：钱包图标 + 白色余额（点了进 Wallet，悬浮卡标题 Total balance）+ 常驻 Deposit（品牌渐变，原地弹充值弹窗）；不写标签、窄屏不缩；手机品牌栏不加。`common.equity` → Balance、`total_equity` → Total balance（7 语，繁中「股權」误译一并修）。DESIGN §Addendum 2026-11-13 |
