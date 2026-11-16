@@ -408,7 +408,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Sign in to watch live** / **Live streams are for signed-in users.** / **Sign in** | `LiveStage` S10 游客卡（交易页）。key `…sports_streams.sign_in_to_watch` / `sign_in_to_watch_sub` / `sign_in_cta` |
 | **Stream at kickoff** | 赛前有流的描边芯片：Sports 品类页列表行；首页 Sports 段瓷砖（`HomeSportsSection`，旧 `HomeSportsCard` 已删） |
 | **Back to stage** | `LiveStage` 迷你窗回舞台 |
-| **Stream starts in** · `02:51:12`（手机 **Starts in**） | `LiveStage` S6 未开赛倒计时胶囊（2026-11-16）。桌面 key `…sports_streams.starts_in`（与 Sports 列表预告卡同一条），手机 key `events.screen.simple.sports_clock.starts_in_lead` |
+| **Stream starts in** · `02:51:12`（小胶囊 **Starts in**） | `LiveStage` S6 未开赛倒计时胶囊（2026-11-16）。舞台后面接的永远是时长（含 ≥ 24h 的 `2d 4h 12m`），所以只用 `in`，不用列表预告卡 ≥ 24h 时的 `Stream starts Fri 19:00` 写法。桌面 key `…sports_streams.starts_in`（与 Sports 列表预告卡同一条），手机 key `events.screen.simple.sports_clock.starts_in_lead` |
 | **Stream starting soon**（手机 **Starting soon**） | `LiveStage` S6d：开赛时间已过、比赛还没开打。key `…sports_streams.stream_starting_soon` / `…sports_streams.starting_soon` |
 | 舞台倒计时格式 `stageCountdown(ms)` | 定义：交易页直播舞台开赛前的倒计时数字。≥ 24h → `2d 4h 12m`；< 24h → `02:51:12`；< 1h → `51:12`；≤ 0 → 不显示数字（S6d）。与记分牌 `Starts in 2h 51m`（`startsIn`，到分钟）同读共享时钟 `useSharedNow`。出处 `LiveStage.tsx` |
 | 兜底海报 | 定义：开赛前舞台的画面，所有比赛同一张 `/assets/streams/live-soon.jpg`（常量 `STAGE_POSTER`）。判定：`matchPhase === "upcoming"` 且有 `stream_url` |

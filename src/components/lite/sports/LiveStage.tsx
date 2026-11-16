@@ -367,7 +367,17 @@ const SK = "events.screen.simple.sports_view.sports_streams";
  *  e.g. the 800–1023 desktop layout where the left column is ~360 wide. */
 const PREKICK_COMPACT_BELOW = 560;
 
-const Prekick = ({ isMobile: phone, clock }: { isMobile: boolean; clock: string | null }) => {
+/** Capsule label. Latin / Cyrillic caps get .16em tracking; CJK has no caps
+ *  and reads grey at that tracking, so zh / ja / ko get .04em and +1px. The
+ *  negative right margin cancels the tracking after the last glyph so the
+ *  dot→label and label→divider gaps match. */
+const STAGE_CD_CSS =
+  ".stage-cd-label{font-size:10.5px;font-weight:700;letter-spacing:.16em;margin-right:-.16em;text-transform:uppercase;color:rgba(255,255,255,.68);line-height:1}" +
+  ".stage-cd-label.is-compact{font-size:8px}" +
+  ":is(:lang(zh),:lang(ja),:lang(ko)) .stage-cd-label{letter-spacing:.04em;margin-right:-.04em;font-size:11.5px}" +
+  ":is(:lang(zh),:lang(ja),:lang(ko)) .stage-cd-label.is-compact{font-size:9px}";
+
+const Prekick = ({ clock }: { clock: string | null }) => {
   const soon = clock == null;
   const boxRef = useRef<HTMLDivElement | null>(null);
   const [narrow, setNarrow] = useState(false);
@@ -381,7 +391,9 @@ const Prekick = ({ isMobile: phone, clock }: { isMobile: boolean; clock: string 
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const isMobile = phone || narrow;
+  // Switch by the stage's own width, not by device: a 700px tablet stage
+  // (≥ 560) gets the full capsule, a 360px desktop column the compact one.
+  const isMobile = narrow;
   const label = soon
     ? t(isMobile ? `${SK}.starting_soon` : `${SK}.stream_starting_soon`)
     : isMobile
@@ -409,14 +421,14 @@ const Prekick = ({ isMobile: phone, clock }: { isMobile: boolean; clock: string 
         style={{
           position: "absolute",
           left: "50%",
-          top: "73%",
+          top: "72.5%",
           transform: "translate(-50%, -50%)",
           zIndex: 3,
           display: "flex",
           alignItems: "center",
-          gap: isMobile ? 7 : 12,
-          height: isMobile ? 24 : 42,
-          padding: isMobile ? "0 10px" : "0 18px",
+          gap: isMobile ? 6 : 12,
+          height: isMobile ? 20 : 42,
+          padding: isMobile ? "0 9px" : "0 18px",
           boxSizing: "border-box",
           borderRadius: 999,
           background: "rgba(0,0,0,.58)",
@@ -438,24 +450,13 @@ const Prekick = ({ isMobile: phone, clock }: { isMobile: boolean; clock: string 
             animation: soon ? "stage-bl 1.6s ease-in-out infinite" : undefined,
           }}
         />
-        <span
-          style={{
-            fontSize: isMobile ? 8.5 : 10.5,
-            fontWeight: 700,
-            letterSpacing: ".16em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,.68)",
-            lineHeight: 1,
-          }}
-        >
-          {label}
-        </span>
+        <span className={isMobile ? "stage-cd-label is-compact" : "stage-cd-label"}>{label}</span>
         {clock ? (
           <>
             <span
               style={{
                 width: 1,
-                height: isMobile ? 10 : 16,
+                height: isMobile ? 9 : 16,
                 background: "rgba(255,255,255,.2)",
                 display: "block",
                 flexShrink: 0,
@@ -464,7 +465,7 @@ const Prekick = ({ isMobile: phone, clock }: { isMobile: boolean; clock: string 
             <span
               style={{
                 fontFamily: MONO,
-                fontSize: isMobile ? 12.5 : 20,
+                fontSize: isMobile ? 12 : 20,
                 fontWeight: 700,
                 color: "#fff",
                 fontVariantNumeric: "tabular-nums",
@@ -531,8 +532,6 @@ export const LiveStage = ({
   const awaitingKick = !finished && matchPhase(event, wallNow) === "upcoming";
   const countdownFixture =
     fixture === "prekick" || fixture === "prekick-day" || fixture === "prekick-hour" || fixture === "starting";
-  const now = useSharedNow(fixture ? countdownFixture : !!src && awaitingKick);
-  const live = isFixtureLive(event, now);
 
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try {
@@ -552,6 +551,10 @@ export const LiveStage = ({
       return next;
     });
   };
+
+  // Folded on a phone ⇒ nothing on screen counts down, so stay on the slow clock.
+  const now = useSharedNow(fixture ? countdownFixture : !!src && awaitingKick && !(isMobile && collapsed));
+  const live = isFixtureLive(event, now);
 
   const slotRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -1171,7 +1174,7 @@ export const LiveStage = ({
             </>
           ) : null}
           {s === "prekick" ? (
-            <Prekick isMobile={isMobile} clock={prekickClock} />
+            <Prekick clock={prekickClock} />
           ) : null}
           {s === "error" ? (
             <Fail title="Stream unavailable" sub="Scores keep updating below" />
@@ -1262,7 +1265,7 @@ const StageShell = ({
       }
     }
   >
-    <style>{`@keyframes stage-bl{0%,100%{opacity:1}50%{opacity:.25}}@keyframes stage-sp{to{transform:translate(-50%,-50%) rotate(360deg)}}`}</style>
+    <style>{`@keyframes stage-bl{0%,100%{opacity:1}50%{opacity:.25}}@keyframes stage-sp{to{transform:translate(-50%,-50%) rotate(360deg)}}` + STAGE_CD_CSS}</style>
     {before}
     <div
       style={{
