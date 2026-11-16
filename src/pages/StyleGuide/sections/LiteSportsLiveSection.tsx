@@ -24,9 +24,22 @@ const BOARD_CASES: SectionCase[] = [
     spec: [
       {
         state: "upcoming",
-        when: "!live && kickoff > now",
-        visual: "UPCOMING 灰药丸，右上 `Starts in 2h 14m`，全部格子 `·`",
-        source: "buildModel status = upcoming",
+        when: 'matchPhase === "upcoming" && kickoff > now',
+        visual: "UPCOMING 灰药丸，右上 `Starts in 2h 14m`（≥ 24 小时也写小时 `Starts in 26h 12m`，2026-11-16 起，原 `1d 2h`），全部格子 `·`",
+        source: "buildModel status = upcoming · startsIn",
+      },
+    ],
+  },
+  {
+    key: "sports-live-m2b",
+    label: "M2b · 到了开赛时间、比赛还没开打",
+    note: "CPO 2026-11-16：以前这一态被算成「打完了」，显示 FINISHED · In review · result pending。现在按比赛状态（matchPhase）判断，仍是 UPCOMING，右上写 Starting soon，与舞台 S6d、下单卡 TR-29e 同一句。",
+    spec: [
+      {
+        state: "upcoming · late",
+        when: 'matchPhase === "upcoming" && kickoff ≤ now（match_status scheduled / postponed）',
+        visual: "UPCOMING 灰药丸，右上 `Starting soon`，全部格子 `·`",
+        source: "buildModel status（matchPhase）· startsIn ≤ 0",
       },
     ],
   },
@@ -347,25 +360,25 @@ const STAGE_CASES: SectionCase[] = [
         state: "prekick",
         when: 'matchPhase === "upcoming" && kickoff − now ∈ [1h, 24h)',
         visual:
-          "海报 + 居中玻璃胶囊（桌面 42 高 / 手机 24 高）：橙点 #FF8A3D · `STREAM STARTS IN`（手机 `STARTS IN`）· 竖线 · `02:51:12`（Space Grotesk 700，桌面 20 / 手机 12.5，tabular）",
+          "海报 + 居中玻璃胶囊（舞台 ≥ 560 宽 42 高 / 更窄 20 高）：橙点 #FF8A3D · `STREAM STARTS IN`（两种尺寸同一句，只缩字号）· 竖线 · `02:51:12`（Space Grotesk 700，20 / 12，tabular）",
         source: "LiveStage Prekick · stageCountdown · useSharedNow(true)",
       },
       {
         state: "格式分档",
         when: "stageCountdown(ms)",
-        visual: "≥ 24h `2d 4h 12m`（S6b）；< 24h `02:51:12`；< 1h `51:12`（S6c）；≤ 0 → S6d",
+        visual: "≥ 24h `26h 12m`（S6b，写小时不换算成天）；< 24h `02:51:12`；< 1h `51:12`（S6c）；≤ 0 → S6d",
         source: "stageCountdown",
       },
     ],
   },
   {
     key: "sports-stage-s6b",
-    label: "S6b · prekick · 超过 24 小时（天 时 分）",
+    label: "S6b · prekick · 超过 24 小时（时 分）",
     spec: [
       {
         state: "prekick · day",
         when: "kickoff − now ≥ 24h",
-        visual: "同 S6，数字 `2d 4h 12m`（到分钟，不显示秒）",
+        visual: "同 S6，数字 `52h 12m`（写小时不换算成天、到分钟，不显示秒；与首页 R5 同一写法）",
         source: "stageCountdown s ≥ 86400",
       },
     ],
@@ -386,7 +399,7 @@ const STAGE_CASES: SectionCase[] = [
     key: "sports-stage-s6d",
     label: "S6d · 已到开赛时间、还没开打（Stream starting soon）",
     note:
-      "开赛时间过了但比赛状态还是未开始（推迟 / 晚开）。以前这一态会掉进播放器外壳、左上还挂着 LIVE 标；现在留在海报上，胶囊只写 `STREAM STARTING SOON`（手机 `STARTING SOON`），橙点闪烁，不显示数字。比赛一开打（matchPhase 变 live）就换成直播画面。",
+      "开赛时间过了但比赛状态还是未开始（推迟 / 晚开）。以前这一态会掉进播放器外壳、左上还挂着 LIVE 标；现在留在海报上，胶囊只写 `STREAM STARTING SOON`（两种尺寸同一句），橙点闪烁，不显示数字。比赛一开打（matchPhase 变 live）就换成直播画面。同一时刻记分牌 M2b、下单卡 TR-29e、Sports 列表与首页都写 Starting soon（CPO 2026-11-16）。",
     spec: [
       {
         state: "starting",
@@ -534,6 +547,7 @@ export const LiteSportsLiveSection = () => (
             BOARD_CASES,
             "sports-live-m1",
             "sports-live-m2",
+            "sports-live-m2b",
             "sports-live-m3",
             "sports-live-m4",
             "sports-live-m5",

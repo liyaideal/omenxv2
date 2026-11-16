@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 // ============================================================
 // matchboardModel — the single source of truth for a fixture's
 // segment scores and decided-segment tally. Every surface that
@@ -6,7 +7,7 @@
 // ============================================================
 import { useMemo, useSyncExternalStore } from "react";
 import { SPORT_SEGMENTS, SPORT_FALLBACK, ordinal, type SegmentSpec } from "@/lib/sportSegments";
-import { fixtureMeta, isFixtureLive, type FixtureMeta } from "./sportsData";
+import { fixtureMeta, isFixtureLive, type FixtureMeta, matchPhase } from "./sportsData";
 import { formatGamePoints } from "./tennisScore";
 
 export interface MatchboardEvent {
@@ -86,12 +87,13 @@ export const elapsedText = (raw: number | null | undefined): string => {
 
 /** "Starts in 2h 14m" / "Starts in 5d 4h". */
 export const startsIn = (kickoff: number, now: number): string => {
-  const ms = Math.max(0, kickoff - now);
+  const ms = kickoff - now;
+  // Kickoff time passed, match not started (CPO 2026-11-16).
+  if (!(ms > 0)) return t("events.screen.simple.sports_clock.starting_soon");
   const mins = Math.floor(ms / 60_000);
-  const d = Math.floor(mins / 1440);
-  const h = Math.floor((mins % 1440) / 60);
+  // Past a day still in hours — `26h 12m`, never `1d 2h` (CPO 2026-11-16, same as home R5).
+  const h = Math.floor(mins / 60);
   const m = mins % 60;
-  if (d > 0) return `Starts in ${d}d ${h}h`;
   if (h > 0) return `Starts in ${h}h ${m}m`;
   return `Starts in ${m}m`;
 };
@@ -146,7 +148,7 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
       ? inBreak
         ? "break"
         : "live"
-      : Number.isFinite(kickoff) && kickoff > now
+      : matchPhase(event as Parameters<typeof matchPhase>[0], now) === "upcoming"
         ? "upcoming"
         : "finished";
 

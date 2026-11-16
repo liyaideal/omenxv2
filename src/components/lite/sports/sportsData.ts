@@ -55,6 +55,8 @@ export interface SportsMatch {
   awayTile?: string | null;
   volume: number;
   options: SportsOption[];
+  /** CPO 2026-11-16: the feed still says scheduled / postponed — not started, even past the kickoff time. */
+  notStarted?: boolean;
 }
 
 interface RawMeta {
@@ -507,6 +509,7 @@ export const useSportsMatches = () => {
           endDate,
           live: isLive,
           final: phaseNow === "final",
+          notStarted: meta.match_status === "scheduled" || meta.match_status === "postponed",
           minute: isLive ? liveMinute(kickoff, meta.sport) : null,
           liveLabel: isLive ? liveLabelFor(meta, liveMinute(kickoff, meta.sport)) : null,
           phase: meta.phase ?? null,
@@ -565,7 +568,14 @@ export const useSportsMatches = () => {
  * (when in play) or nowhere at all.
  */
 export const isUpcoming = (m: SportsMatch, now: number = Date.now()) =>
-  !!m.kickoff && m.kickoff.getTime() > now;
+  !!m.kickoff && (m.kickoff.getTime() > now || (!!m.notStarted && !m.final && !m.live));
+
+/**
+ * Kickoff time has passed but the match hasn't started (CPO 2026-11-16: every
+ * surface says "Starting soon" — stage, matchboard, order ticket, lists).
+ */
+export const isLateKickoff = (m: SportsMatch, now: number = Date.now()) =>
+  !!m.kickoff && m.kickoff.getTime() <= now && !!m.notStarted && !m.final && !m.live;
 
 /**
  * In play at `now`, re-derived every tick instead of only at fetch time, so a
@@ -577,6 +587,8 @@ export const isUpcoming = (m: SportsMatch, now: number = Date.now()) =>
 export const liveAt = (m: SportsMatch, now: number = Date.now()) => {
   if (m.live) return true;
   if (m.final) return false;
+  // Not started per the feed — a late kickoff is not "in play" (CPO 2026-11-16).
+  if (m.notStarted) return false;
   if (!m.kickoff || !m.endDate) return false;
   // Same rule as matchPhase: past the estimated end still counts, until the
   // watchdog. (A finished match never reaches here — the fetch drops it.)

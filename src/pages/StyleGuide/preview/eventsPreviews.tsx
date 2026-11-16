@@ -1251,6 +1251,9 @@ const STREAMS_SINGLE = [SL_SPI, SL_NFL, UP_JUV];
 const STREAMS_MULTI = [SL_SPI, SL_ARS, SL_T1, SL_LIV, SL_NFL, UP_BAR, UP_BLG, UP_MUN, UP_HLE, UP_NAVI, UP_JUV];
 const PREVIEW_ONE = [SL_SPI, SL_NFL, UP_BAR, UP_JUV];
 const PREVIEW_TWO = [SL_SPI, SL_NFL, UP_BAR, UP_BLG, UP_JUV];
+/* EV-42b · kickoff time passed, match not started (CPO 2026-11-16): stays first in the rail as "Starting soon". */
+const UP_LATE = sm({ id: "sg-up-late-hle-drx", league: "LCK", home: "Hanwha Life", away: "DRX", homeAbbr: "HLE", awayAbbr: "DRX", homeShort: "HLE", awayShort: "DRX", sport: "lol", format: "h2h", streamUrl: STREAM_SRC, volume: 1_100_000, live: false, notStarted: true,
+  options: [opt("sg-up-late-h", "HLE", 0.55), opt("sg-up-late-a", "DRX", 0.45)] }, -6);
 const PREVIEW_MANY = [SL_SPI, SL_NFL, UP_BAR, UP_BLG, UP_MUN, UP_HLE, UP_NAVI, UP_JUV];
 const PREVIEW_NO_LIVE_STREAM = [SL_NFL, UP_BAR, UP_BLG, UP_MUN, UP_JUV];
 
@@ -1337,6 +1340,7 @@ export const Ev39Preview = () => <Stage><StreamsDemo matches={STREAMS_SINGLE} st
 export const Ev40Preview = () => <Stage><StreamsDemo matches={PREVIEW_ONE} /></Stage>;
 export const Ev41Preview = () => <Stage><StreamsDemo matches={PREVIEW_TWO} /></Stage>;
 export const Ev42Preview = () => <Stage><StreamsDemo matches={PREVIEW_MANY} /></Stage>;
+export const Ev42bPreview = () => <Stage><StreamsDemo matches={[UP_LATE, UP_BAR, UP_BLG, UP_MUN]} /></Stage>;
 export const Ev43Preview = () => <Stage><StreamsDemo matches={PREVIEW_MANY} reminded={[UP_BAR.id, UP_MUN.id]} /></Stage>;
 export const Ev44Preview = () => <Stage><StreamsDemo matches={PREVIEW_NO_LIVE_STREAM} /></Stage>;
 /** EV-45 · guest taps Remind me → AuthDialog (desktop) / AuthSheet (mobile). */

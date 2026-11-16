@@ -79,6 +79,27 @@ export const M2Preview = () => (
   </Frame>
 );
 
+/** M2b — kickoff time passed, match not started (CPO 2026-11-16): still UPCOMING, `Starting soon`. */
+export const M2bPreview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-cs2-m2b",
+        {
+          ...cs2Base,
+          kickoff_at: at(-6),
+          match_status: "scheduled",
+          segment_index: null,
+          segment_results: [null, null, null],
+        },
+        { start_date: at(-6), end_date: at(180) },
+      )}
+    />
+  </Frame>
+);
+
 export const M3Preview = () => (
   <Frame>
     <LiveMatchboard

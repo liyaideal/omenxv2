@@ -373,9 +373,10 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 
 | Canonical | 出现位置 / 规则 |
 |---|---|
-| **Kicks off in 2h 10m** | Lite 下单卡 / 手机抽屉，开赛前（`kickoffInShort`：`2d 19h` / `2h 10m` / `38:12`；2026-11-16 由 `Starts in` 改） |
+| **Kicks off in 2h 10m** | Lite 下单卡 / 手机抽屉，开赛前（`kickoffInShort`：`26h 10m` / `2h 10m` / `38:12`；2026-11-16 由 `Starts in` 改；同日起 ≥ 24 小时也写小时，原 `2d 19h`） |
+| **Starting soon** | 开赛时间已过、比赛还没开打（`matchPhase === "upcoming"` 且 kickoff ≤ now）。下单卡 / 手机抽屉 / Pro 页头 / 赛事下拉 / 记分牌右上 / 首页舞台标签（`Biggest this week · starting soon`）/ 预告卡，全部同一句（CPO 2026-11-16）。key `events.screen.simple.sports_clock.starting_soon`、`…home_all.sports.biggest_starting_soon`；舞台胶囊用 `Stream starting soon` |
 | **Starts in** `02:10:00` | Pro 页头，开赛前（`kickoffInClock`） |
-| **Starts 2d 19h** / **Starts 38m** | 赛事下拉 / 抽屉 `Ends in` 列，开赛前 |
+| **Starts 26h 10m** / **Starts 38m** | 赛事下拉 / 抽屉 `Ends in` 列，开赛前（2026-11-16 起 ≥ 24 小时写小时，原 `2d 19h`） |
 | **● LIVE · P2 12:04** | 比赛中（含已过预计结束），时钟 = `liveLabelFor`；无时钟只写 `● LIVE` |
 | **● Live** | 赛事下拉 / 抽屉，比赛中 |
 | **Final · In review** | 打完等结果；Lite 卡为 `Final ·` + 胶囊 `IN REVIEW`；下拉只写 `Final` |
@@ -435,7 +436,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 |---|---|---|
 | `clockText(raw)` | `m:ss`（如 `1:07`） | 秒；`null`/`undefined` → `0:00`；钳在 `[0, 300]` |
 | `elapsedText(raw)` | `m:ss`（如 `24:10`） | 秒；**无上限**（对比 `clockText` 钳在 `[0, 300]`）；`null`/`undefined` → `0:00`；负数钳为 0 |
-| `startsIn(kickoff, now)` | `Starts in 5d 4h` / `Starts in 2h 14m` / `Starts in 9m` | 分钟粒度；负数钳为 0 → `Starts in 0m`；`d > 0` 只出 `d/h`，否则 `h > 0` 出 `h/m`，否则只出 `m` |
+| `startsIn(kickoff, now)` | `Starts in 52h 12m` / `Starts in 2h 14m` / `Starts in 9m` / `Starting soon` | 分钟粒度；≥ 1 小时写 `h/m`（超过 24 小时也写小时，不换算成天，2026-11-16）；< 1 小时只出 `m`；kickoff ≤ now（比赛仍未开始）→ `Starting soon`（原来钳成 `Starts in 0m`） |
 
 Signed lines always use a real minus sign (U+2212) for negatives and `+` for
 positives. Chip words come from the sibling event's `side_labels`.

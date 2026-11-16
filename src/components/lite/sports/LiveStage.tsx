@@ -17,7 +17,7 @@ import { t } from "@/i18n";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHlsVideo } from "@/hooks/useHlsVideo";
-import { fixtureMeta, isFixtureLive, matchPhase } from "./sportsData";
+import { fixtureMeta, matchPhase } from "./sportsData";
 import { useMatchboardModel, useSharedNow, type MatchboardEvent } from "./matchboardModel";
 import { setLiveStageState, useLiveStageState } from "./liveStageStore";
 import { useSignedIn } from "@/hooks/useSignedIn";
@@ -340,16 +340,15 @@ export const STAGE_POSTER = "/assets/streams/live-soon.jpg";
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
 /**
- * Stage countdown (CPO 2026-11-16). ≥ 24h → `2d 4h 12m`; < 24h → `02:51:12`;
+ * Stage countdown (CPO 2026-11-16). ≥ 24h → `26h 12m` (hours, never days —
+ * same as home R5); < 24h → `02:51:12`;
  * < 1h → `51:12`. Ticks every second off the shared clock. `null` once the
  * kickoff time has passed (→ "Stream starting soon").
  */
 export const stageCountdown = (ms: number): string | null => {
   if (!(ms > 0)) return null;
   const s = Math.floor(ms / 1000);
-  if (s >= 86_400) {
-    return `${Math.floor(s / 86_400)}d ${Math.floor((s % 86_400) / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
-  }
+  if (s >= 86_400) return `${Math.floor(s / 3600)}h ${pad2(Math.floor((s % 3600) / 60))}m`;
   if (s >= 3600) return `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor((s % 3600) / 60))}:${pad2(s % 60)}`;
   return `${pad2(Math.floor(s / 60))}:${pad2(s % 60)}`;
 };
@@ -394,11 +393,8 @@ const Prekick = ({ clock }: { clock: string | null }) => {
   // Switch by the stage's own width, not by device: a 700px tablet stage
   // (≥ 560) gets the full capsule, a 360px desktop column the compact one.
   const isMobile = narrow;
-  const label = soon
-    ? t(isMobile ? `${SK}.starting_soon` : `${SK}.stream_starting_soon`)
-    : isMobile
-      ? t("events.screen.simple.sports_clock.starts_in_lead")
-      : t(`${SK}.starts_in`);
+  // Same words on both capsule sizes — only the type shrinks (CPO 2026-11-16).
+  const label = soon ? t(`${SK}.stream_starting_soon`) : t(`${SK}.starts_in`);
   return (
     <div ref={boxRef} style={{ position: "absolute", inset: 0 }}>
       <img
@@ -554,7 +550,14 @@ export const LiveStage = ({
 
   // Folded on a phone ⇒ nothing on screen counts down, so stay on the slow clock.
   const now = useSharedNow(fixture ? countdownFixture : !!src && awaitingKick && !(isMobile && collapsed));
-  const live = isFixtureLive(event, now);
+  // CPO 2026-11-16 (#4): the stage follows the BROADCAST, not the match. Once
+  // the match is no longer "upcoming" — in play, finished but not settled yet,
+  // or with no kickoff time at all — the player shows while the stream is
+  // still on (stream_url present). When the broadcast ends the stream service
+  // clears stream_url and the stage leaves (the early return below, S9).
+  // Before: final-but-unsettled / no-kickoff fell into the player chrome with
+  // a LIVE pill and no video requested.
+  const onAir = !finished && matchPhase(event, now) !== "upcoming";
 
   const slotRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -617,7 +620,7 @@ export const LiveStage = ({
     };
   }, [isFullscreen]);
 
-  const hasSource = !!src && live && signedIn;
+  const hasSource = !!src && onAir && signedIn;
   useEffect(() => {
     setLiveStageState({ fixtureId: event.id, hasSource, inlineVisible });
   }, [event.id, hasSource, inlineVisible]);
@@ -701,7 +704,7 @@ export const LiveStage = ({
   // The video only attaches while the stage is reachable and the match is in
   // play. A dismissed mini player with the stage off screen unmounts it.
   const wantVideo =
-    !fixture && signedIn && !!src && live && !collapsed && !(dismissed && !inlineVisible);
+    !fixture && signedIn && !!src && onAir && !collapsed && !(dismissed && !inlineVisible);
   const { ref, state, muted, setMuted, play, pause } = useHlsVideo(src, wantVideo);
 
   const model = useMatchboardModel(event as unknown as MatchboardEvent);
@@ -719,7 +722,7 @@ export const LiveStage = ({
     );
   }
 
-  if (fixture === "guest" || (!fixture && !signedIn && live)) {
+  if (fixture === "guest" || (!fixture && !signedIn && onAir)) {
     return (
       <StageShell isMobile={isMobile} dark>
         <div style={{ position: "absolute", left: isMobile ? 10 : 16, top: isMobile ? 10 : 16, zIndex: 3 }}>

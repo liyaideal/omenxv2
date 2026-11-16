@@ -52,11 +52,11 @@
 
 | 位置 | 开赛前 | 比赛中（含加时、拖延） | 打完等结果 |
 |---|---|---|---|
-| Lite 桌面下单卡右上（原 `<倒计时> left`） | `Starts in 2h 10m`（≥1 天 `2d 19h`，<1 小时 `38:12` 按秒跳） | `● LIVE · P2 12:04` | `Final ·` + 描边胶囊 `IN REVIEW`；CTA 置灰 `In review`；页面挂 In review 卡（TR-18） |
+| Lite 桌面下单卡右上（原 `<倒计时> left`） | `Starts in 2h 10m`（≥ 24 小时也写小时 `26h 10m`，2026-11-16 起；<1 小时 `38:12` 按秒跳；开赛时间已过、比赛还没开打写 `Starting soon`） | `● LIVE · P2 12:04` | `Final ·` + 描边胶囊 `IN REVIEW`；CTA 置灰 `In review`；页面挂 In review 卡（TR-18） |
 | Lite 手机下单抽屉标题下一行 | `Starts in 2h 10m · 34% chance` | `● LIVE · P2 12:04 · 34% chance` | `Final · In review · 34% chance` |
 | Pro 桌面页头标题下一行（原 `Ends in 00:00:00`） | `Winner · Starts in 02:10:00`（无红点） | `● Winner · LIVE · P2 12:04`（红点脉动） | `Winner · Final · In review`（无红点） |
 | Pro 手机页头统计行 | 灰点 `Starts in 02:10:00` | 红点脉动 `LIVE · P2 12:04`（白字） | 灰点 `Final · In review` |
-| Pro 赛事下拉 / 手机抽屉 `Ends in` 列 | `Starts 2d 19h`（<1 小时 `Starts 38m`） | 红点 + `Live` | `Final`（行留在列表里，结算后才离开） |
+| Pro 赛事下拉 / 手机抽屉 `Ends in` 列 | `Starts 26h 10m`（<1 小时 `Starts 38m`；开赛时间已过未开打 `Starting soon`） | 红点 + `Live` | `Final`（行留在列表里，结算后才离开） |
 
 - 比赛时钟 = 记分牌同一个值（`liveLabelFor`：冰球 `P2 12:04` / `OT 3:21`、美式运动 `Q3 8:42`、足球 `63'`、电竞 `Map 2`、棒球 `▼ 7th`）；数据源没给时钟时只写 `● LIVE`。
 - 任何状态都不会出现 `00:00`、`Ended`。

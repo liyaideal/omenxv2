@@ -251,7 +251,8 @@ const EVENT_SELECTOR_SPORTS_CASES: SectionCase[] = [
     label: "ES-D5 · 体育行（开赛前 / 比赛中 / 已过预计结束 / 打完等结果）",
     note: "体育比赛（metadata.kickoff_at 存在）的 `Ends in` 列不写到预计结束的倒计时：比赛打没打完只听比赛状态（DESIGN §Addendum 2026-11-04b）。列头仍是 `Ends in`（下拉里混着其他事件），体育行的值本身写清楚。打完等结果的行留在列表里（Final），结算后才离开；其他事件仍是过了 end_date 就不列。Pro 页头同口径：`Winner · Starts in 02:10:00` / `● Winner · LIVE · P2 12:04` / `Winner · Final · In review`（DesktopTrading、MobileTradingLayout）。",
     spec: [
-      { state: "开赛前", when: 'matchPhase === "upcoming"', visual: "`Starts 2d 19h`（<1 小时写分钟 `Starts 38m`），muted", source: "SportsClockCell" },
+      { state: "开赛前", when: 'matchPhase === "upcoming"', visual: "`Starts 26h 10m`（≥ 24 小时也写小时，2026-11-16 起，原 `2d 19h`；<1 小时写分钟 `Starts 38m`），muted", source: "SportsClockCell" },
+      { state: "到点未开打", when: 'matchPhase === "upcoming" && kickoff ≤ now', visual: "`Starting soon`，muted（CPO 2026-11-16）", source: "SportsClockCell · sports_clock.starting_soon" },
       { state: "比赛中（含已过预计结束）", when: 'matchPhase === "live"', visual: "红点脉动 + `Live`，白字；本帧 Maple Leafs vs. Kraken 预计结束已过 20 分钟、数据源仍报在打", source: "SportsClockCell · matchPhase" },
       { state: "打完等结果", when: 'matchPhase === "final"', visual: "`Final`，muted；点进去下单区是 In review", source: "SportsClockCell · useEventSelector（sports 行按 matchPhase 留存）" },
     ],

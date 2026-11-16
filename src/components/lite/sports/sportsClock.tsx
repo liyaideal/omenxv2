@@ -63,13 +63,12 @@ export const useSportsClock = (event: ClockInput | null | undefined): SportsCloc
   return sports ? sportsClockAt(event, now) : null;
 };
 
-/** Lite wording: `2d 19h` · `2h 10m` · `38:12`. */
+/** Lite wording: `26h 10m` · `2h 10m` · `38:12`. Past a day still in hours
+ *  (CPO 2026-11-16, same as home R5 — never `1d 2h`). */
 export const kickoffInShort = (ms: number) => {
   const s = Math.floor(ms / 1000);
-  const d = Math.floor(s / 86_400);
-  const h = Math.floor((s % 86_400) / 3600);
+  const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
-  if (d > 0) return `${d}d ${h}h`;
   if (h > 0) return `${h}h ${pad(m)}m`;
   return `${pad(m)}:${pad(s % 60)}`;
 };
@@ -84,6 +83,7 @@ export const kickoffInClock = (ms: number) => {
 
 /** Plain text, for one-line slots (mobile drawer, mobile Pro header). */
 export const sportsClockText = (c: SportsClock, style: "lite" | "pro" = "lite"): string => {
+  if (c.phase === "upcoming" && c.kickoffInMs <= 0) return t(`${K}.starting_soon`);
   if (c.phase === "upcoming")
     return t(`${K}.starts_in`, { time: style === "pro" ? kickoffInClock(c.kickoffInMs) : kickoffInShort(c.kickoffInMs) });
   if (c.phase === "live") return c.liveClock ? `${t("common.live")} · ${c.liveClock}` : t("common.live");
@@ -107,6 +107,14 @@ export const SportsClockLabel = ({
   clock: SportsClock;
   variant: "card" | "line" | "header";
 }) => {
+  if (clock.phase === "upcoming" && clock.kickoffInMs <= 0) {
+    // Kickoff time passed, match not started (CPO 2026-11-16) — never `00:00`.
+    return (
+      <span className={variant === "card" ? "font-mono text-[11px] text-muted-foreground" : undefined}>
+        {t(`${K}.starting_soon`)}
+      </span>
+    );
+  }
   if (clock.phase === "upcoming") {
     return variant === "header" ? (
       <span className="inline-flex items-center gap-1.5">
@@ -167,6 +175,9 @@ export const SportsClockCell = ({ clock, compact }: { clock: SportsClock; compac
         {t(`${K}.live_word`)}
       </span>
     );
+  }
+  if (clock.phase === "upcoming" && clock.kickoffInMs <= 0) {
+    return <span className="text-muted-foreground">{t(`${K}.starting_soon`)}</span>;
   }
   if (clock.phase === "upcoming") {
     // Lists tick once a minute — under an hour say minutes, not a frozen mm:ss.

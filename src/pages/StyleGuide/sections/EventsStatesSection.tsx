@@ -715,10 +715,20 @@ const STREAM_CASES: SectionCase[] = [
       { state: "< 1 小时", when: "kickoff − now < 1h", visual: "`37:53` 按秒跳，橙色", source: "streamCountdown soon" },
       { state: "1–24 小时", when: "1h ≤ kickoff − now < 24h", visual: "`5h 20m`，白色", source: "streamCountdown" },
       { state: "≥ 24 小时", when: "kickoff − now ≥ 24h", visual: "lead 改 `STREAM STARTS`，值写开赛时间 `Tomorrow 13:20` / `Wed 22:20`", source: "streamCountdown" },
+      { state: "到点未开打", when: "kickoff ≤ now && 比赛仍未开始", visual: "见 EV-42b：`Starting soon`（橙）", source: "streamCountdown ms ≤ 0" },
       { state: "> 48 小时", when: "kickoff − now > 48h && streamUrl", visual: "不进预告排；列表行带描边 `▶ Stream at kickoff`", source: "upcomingStreams · StreamAtKickoffChip" },
       { state: "卡片按钮名", when: "始终", visual: "按位置取（option id 字典序）：第一个 = 主队缩写，最后一个 = 客队缩写，中间沿用选项原文（足球为 `Draw`）", source: "chipLabel" },
       { state: "列表不动", when: "始终", visual: "预告里的比赛照旧出现在下面列表（预告是挑出来重点展示，不是搬走）", source: SRC_STREAMS },
       { state: "手机列表长比赛名", when: "isMobile && 比赛名一行放不下", visual: "未开赛卡标题折成两行（`Barcelona vs Paris / Saint-Germain`），不用省略号；放得下的卡高度不变", source: "MobileSportsModule UpcomingMatchCard line-clamp-2" },
+    ],
+  },
+  {
+    key: "events-ev42b",
+    label: "EV-42b · 预告排 · 到了开赛时间、比赛还没开打（Starting soon）",
+    note: "CPO 2026-11-16：开赛时间过了但比赛状态仍是未开始（推迟 / 晚开）。这场不算正在打，不进直播舞台；留在预告排最前面，倒计时位置写橙色 `Starting soon`；下面列表也照常列出它。",
+    spec: [
+      { state: "到点未开打", when: "kickoff ≤ now && match_status scheduled / postponed（isLateKickoff）", visual: "预告卡倒计时位：不写 lead，值写 `Starting soon`（22px，橙）；排在最前", source: "upcomingStreams · streamCountdown ms ≤ 0" },
+      { state: "不算正在打", when: "同上", visual: "liveAt = false：不进 `Live on stream` 舞台、不计入 playing now / on stream 的数", source: "sportsData liveAt notStarted" },
     ],
   },
   {
@@ -818,7 +828,7 @@ export const EventsStatesSection = () => (
         />
         <div className="mt-6">
           <Pair
-            cases={byKey("events-ev40", "events-ev41", "events-ev42", "events-ev43", "events-ev44")}
+            cases={byKey("events-ev40", "events-ev41", "events-ev42", "events-ev42b", "events-ev43", "events-ev44")}
             desktopMin={1200}
             mobileMin={1400}
           />

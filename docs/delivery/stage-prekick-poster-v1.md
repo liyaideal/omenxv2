@@ -39,17 +39,17 @@
 |---|---|
 | 画面 | 兜底海报 `/assets/streams/live-soon.jpg`，铺满 16:9 舞台，所有比赛同一张。海报本身就是 16:9，不会被裁 |
 | 倒计时胶囊位置 | 水平居中，垂直中心在舞台高度 72.5%（海报 LIVE SOON 和 Who wins the match? 中间那条空黑带） |
-| 胶囊内容 | 橙点 → `STREAM STARTS IN`（小胶囊 `STARTS IN`）→ 竖线 → 数字 |
-| 尺寸 | 大胶囊高 42、数字 20px；小胶囊高 20、数字 12px、标签用短的 `STARTS IN`。**只按舞台宽度切换，不看设备**：舞台宽 < 560 用小胶囊（手机；800–1023 宽的桌面布局左栏约 360 宽时也是），≥ 560 用大胶囊（含 640–767 的平板）。中日韩标签字距收紧、字号 +1。细节见 DESIGN.md §Addendum 2026-11-16 |
+| 胶囊内容 | 橙点 → `STREAM STARTS IN`（大小胶囊同一句，只缩字号）→ 竖线 → 数字 |
+| 尺寸 | 大胶囊高 42、数字 20px；小胶囊高 20、数字 12px、标签字号 8px（文字和大胶囊一样）。**只按舞台宽度切换，不看设备**：舞台宽 < 560 用小胶囊（手机；800–1023 宽的桌面布局左栏约 360 宽时也是），≥ 560 用大胶囊（含 640–767 的平板）。中日韩标签字距收紧、字号 +1。细节见 DESIGN.md §Addendum 2026-11-16 |
 
 ## 3. 数字怎么显示
 
 | 离开赛 | 显示 | 例 |
 |---|---|---|
-| ≥ 24 小时 | 天 时 分，不显示秒 | `2d 4h 12m` |
+| ≥ 24 小时 | 写小时（不换算成天）+ 分，不显示秒 | `52h 12m` |
 | 1 – 24 小时 | 时:分:秒，每秒跳 | `02:51:12` |
 | < 1 小时 | 分:秒，每秒跳 | `51:12` |
-| 已到开赛时间、比赛还没开打 | 不显示数字，标签换成 `STREAM STARTING SOON`（手机 `STARTING SOON`），橙点闪烁 | — |
+| 已到开赛时间、比赛还没开打 | 不显示数字，标签换成 `STREAM STARTING SOON`（大小胶囊同一句），橙点闪烁 | — |
 
 比赛一开打（`matchPhase` 变成 `live`）模块就换成直播画面；用户不用刷新页面（舞台每秒重算一次）。
 
@@ -63,10 +63,10 @@
 
 | 用在哪 | key | en | zh-CN |
 |---|---|---|---|
-| 桌面标签 | `events.screen.simple.sports_view.sports_streams.starts_in`（已有，和 Sports 列表预告卡同一条） | Stream starts in | 距直播开始 |
-| 手机标签 | `events.screen.simple.sports_clock.starts_in_lead`（已有） | Starts in | 距开赛 |
-| 桌面 · 到点未开播 | `events.screen.simple.sports_view.sports_streams.stream_starting_soon`（新） | Stream starting soon | 直播即将开始 |
-| 手机 · 到点未开播 | `events.screen.simple.sports_view.sports_streams.starting_soon`（新） | Starting soon | 即将开始 |
+| 胶囊标签（大小同一句） | `events.screen.simple.sports_view.sports_streams.starts_in`（已有，和 Sports 列表预告卡同一条） | Stream starts in | 距直播开始 |
+| 胶囊 · 到点未开播 | `events.screen.simple.sports_view.sports_streams.stream_starting_soon`（新） | Stream starting soon | 直播即将开始 |
+| 记分牌 / 下单卡 / 列表 · 到点未开打 | `events.screen.simple.sports_clock.starting_soon`（新） | Starting soon | 即将开始 |
+| 首页舞台标签 · 到点未开打 | `events.screen.simple.home_all.sports.biggest_starting_soon`（新） | Biggest this week · starting soon | 本周最大一场 · 即将开赛 |
 
 数字里的 `d` `h` `m` 各语言都不翻译（与记分牌一致）。
 
@@ -90,10 +90,30 @@
 | # | 操作 | 应该看到 |
 |---|---|---|
 | 1 | 打开 `/trade?event=demo-prekick-cs2`（桌面） | 海报 + 居中胶囊 `● STREAM STARTS IN │ 0X:XX:XX`，秒在跳 |
-| 2 | 同上，手机宽度 | 胶囊缩小，标签 `STARTS IN`；下面 Hide stream 折叠条还在 |
+| 2 | 同上，手机宽度 | 胶囊缩小，标签仍是 `STREAM STARTS IN`；下面 Hide stream 折叠条还在 |
 | 3 | 对照下方记分牌 `Starts in …` | 分钟数和胶囊的分钟数一致 |
 | 4 | 退出登录再看 | 和登录时一样 |
-| 5 | 把一场有直播源的比赛 kickoff 改到 2 天后 | 数字 `2d …h …m`，不显示秒 |
+| 5 | 把一场有直播源的比赛 kickoff 改到 2 天后 | 数字 `4xh xxm`（写小时），不显示秒；记分牌 `Starts in 4xh xxm`、下单卡 `Kicks off in 4xh xxm` |
 | 6 | kickoff 改到 50 分钟后 | `50:xx` |
-| 7 | kickoff 改到过去、`match_status = scheduled` | `STREAM STARTING SOON`，橙点闪，没有数字；左上没有 LIVE 标 |
+| 7 | kickoff 改到过去、`match_status = scheduled` | 舞台 `STREAM STARTING SOON`，橙点闪，没有数字，左上没有 LIVE 标；记分牌 `UPCOMING` + `Starting soon`；下单卡 `Starting soon`；Sports 预告排排在最前写 `Starting soon`；首页 / 列表不算正在打 |
 | 8 | 切 7 种语言（俄语、越南语重点看） | 胶囊不折行、不溢出 |
+| 9 | `match_status = final`、未结算、end_date 未到、有 `stream_url` | 舞台是正常播放器（在播），不是黑底挂 LIVE |
+| 10 | 同上，把 `stream_url` 清空 | 舞台不出现，记分牌留在原位 |
+
+## 9. 2026-11-16 追加（CPO 批验收待定的四条）
+
+1. **到了开赛时间、比赛还没开打，整页一个说法**。判定只有一个：`matchPhase === "upcoming"` 且 kickoff ≤ now（数据源 `match_status` 仍是 scheduled / postponed）。
+
+   | 位置 | 以前 | 现在 |
+   |---|---|---|
+   | 交易页舞台 | 落进播放器外壳、挂 LIVE | `STREAM STARTING SOON`（本文 §3） |
+   | 记分牌 | 当成打完：`FINISHED` · `In review · result pending` | `UPCOMING` + 右上 `Starting soon` |
+   | 下单卡 / 手机抽屉 / Pro 页头 / 赛事下拉 | `Kicks off in 00:00` | `Starting soon` |
+   | 首页 Sports | 当成正在打，出 `Watch live`；舞台标签 `kicks off in 0s` | 不算正在打；舞台标签 `Biggest this week · starting soon`；眉行不写 next kickoff |
+   | Sports 品类页 | 当成正在打；从列表消失 | 不算正在打；预告排排在最前写橙色 `Starting soon`；列表照常列出 |
+
+   代码：`sportsData.ts` 行上新增 `notStarted`、`isLateKickoff()`，`liveAt` / `isUpcoming` 读它；`matchboardModel.ts` 的状态改读 `matchPhase`；`sportsClock.tsx`、`UpcomingStreams.tsx`、`HomeSportsSection.tsx` 处理 kickoff ≤ 0。字典 M2b / TR-29e / EV-42b。
+2. **超过 24 小时一律写小时**（`52h 12m`），不换算成天，和首页 R5 一致。改了舞台 `stageCountdown`、记分牌 `startsIn`、下单卡与赛事下拉 `kickoffInShort`。Pro 页头的 `kickoffInClock`（`2d 03:10:00`）没动。
+3. **大小胶囊同一句话**：小胶囊也写 `Stream starts in` / `Stream starting soon`，只缩字号。原来小胶囊借用的 `Starts in`（距开赛）不再用在舞台上；`sports_streams.starting_soon` 删除。
+4. **比赛不是「未开始」之后，舞台跟着直播走**：比赛在打、打完还没结算、或者没有开赛时间——只要 `stream_url` 还在就是正常播放器（会拉流）；直播结束由直播源服务清掉 `stream_url`，舞台随之不出现（原 S9 规则）。以前「打完未结算 / 没有开赛时间」是黑底播放器外壳 + LIVE 标，且不拉流。**正式版要求**：直播源服务在直播真正结束时清掉 `stream_url`（或给出等价的「直播已结束」字段），前端只认这一个信号。
+

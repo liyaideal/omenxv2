@@ -2521,7 +2521,7 @@ CPO 2026-11-04 批（11 条）。作用域 = 所有体育比赛（`metadata.kick
 1. **比赛打没打完只看比赛状态**：`matchPhase`（upcoming / live / final / settled）来自 `metadata.match_status`、lifecycle `REVIEW`、`is_resolved`；`end_date` 是预计结束，只用于排序 / 分组与兜底，不显示、不倒计时、不关交易。
 2. **交易开关**：开赛前与比赛中都能交易；`final` → In review（站内现有态，CTA 印 `In review`），`settled` → Settled。过了 `end_date` 不再印 `Closed`。
 3. **兜底**：`now > end_date + 3 小时` 仍未收到结束信号 → 按 `final` 处理。
-4. **开赛前**：Lite `Starts in 2h 10m`（≥1 天 `2d 19h`、<1 小时 `38:12`），mono 11 muted；Pro 页头 `Starts in` + `02:10:00`（mono 白），不带红点；下拉 `Starts 2d 19h`（<1 小时 `Starts 38m`）。
+4. **开赛前**：Lite `Starts in 2h 10m`（≥ 24 小时也写小时 `26h 10m`，2026-11-16 起，原 `2d 19h`；<1 小时 `38:12`），mono 11 muted；Pro 页头 `Starts in` + `02:10:00`（mono 白），不带红点；下拉 `Starts 26h 10m`（<1 小时 `Starts 38m`）。开赛时间已过、比赛还没开打：一律 `Starting soon`（见 §Addendum 2026-11-16 · 交易页直播舞台）。
 5. **比赛中（含已过预计结束）**：红点脉动 + `LIVE` + ` · ` + 比赛时钟（mono 白，记分牌同一个 `liveLabelFor` 值）；没有时钟只写 `● LIVE`。Lite 卡 11 / 600 白、`LIVE` 大写；Pro 页头沿用标题行原有的红点；手机 Pro 页头 `countdownUrgency="live"` = 红点脉动 + 白字；下拉 `● Live`。永不出现 `00:00` / `Ended`。
 6. **打完等结果**：Lite 卡 `Final ·` + 描边胶囊 `IN REVIEW`（10 / 大写 / `border-border`），muted；手机抽屉与 Pro 页头 `Final · In review`，不带红点；下拉 `Final`，行留到结算。
 7. **下拉列头不改**：仍叫 `Ends in`，体育行的值自带 `Starts` / `Live` / `Final`。
@@ -2599,9 +2599,11 @@ CPO 2026-11-13 画布「充值引导 mock」选定 A1 托盘 + 配色 ②。交�
 CPO 2026-11-16 在画布「Lite 交易页 · 直播模块未开赛态 mock」选定方案 A 并批 8 条。交付 `docs/delivery/stage-prekick-poster-v1.md`，字典 `Sports · Live` S6 / S6b / S6c / S6d。
 
 1. **不再是一块黑**：有直播源、比赛还没开打时，舞台铺一张兜底海报 `/assets/streams/live-soon.jpg`（所有比赛同一张，图自带 LIVE SOON / Who wins the match? / SPORTS · MATCH WINNERS 字样）。海报本身 16:9，与舞台同比例，`object-fit: cover` 不裁。
-2. **倒计时胶囊**：水平居中、垂直中心在舞台高度 72.5%（海报 LIVE SOON 与 Who wins the match? 之间的空黑带 65%–81%，视觉中心约 72.3%）。玻璃底 `rgba(0,0,0,.58)` + `1px rgba(255,255,255,.14)` + `blur(6px)`，圆角 999。大胶囊高 42、左右 18、间距 12；小胶囊高 20、左右 9、间距 6。**只按舞台宽度切换，不看设备**：舞台宽 < 560 用小胶囊和短标签（手机；800–1023 宽的桌面布局左栏约 360 宽时也是），≥ 560 用大胶囊（含 640–767 的平板，舞台已 ≥ 560）。原因：海报空白带只有舞台高的 16%，舞台 360 宽时约 32px，放不下 42 的大胶囊；小胶囊 20 高，上下各留约 6px。内容：橙点（#FF8A3D，大 7 / 小 5）→ 标签（`.stage-cd-label`：700、.16em、全大写、`rgba(255,255,255,.68)`，大 10.5 / 小 8；中日韩没有大写，字距改 .04em、字号 +1，即 11.5 / 9；标签右侧 `margin-right` 抵掉最后一个字后的字距，圆点→标签与标签→竖线间距相等）→ 1px 竖线（大 16 / 小 9 高）→ 数字（Space Grotesk 700、tabular-nums，大 20 / 小 12，白）。
-3. **数字三档**：≥ 24 小时 `2d 4h 12m`（到分钟）；24 小时内 `02:51:12`；1 小时内 `51:12`。每秒跳。
-4. **到点还没开播**（开赛时间已过、比赛状态仍是未开始）：标签换成 `Stream starting soon`（手机 `Starting soon`），橙点闪烁（`stage-bl` 1.6s），不画竖线和数字。
+2. **倒计时胶囊**：水平居中、垂直中心在舞台高度 72.5%（海报 LIVE SOON 与 Who wins the match? 之间的空黑带 65%–81%，视觉中心约 72.3%）。玻璃底 `rgba(0,0,0,.58)` + `1px rgba(255,255,255,.14)` + `blur(6px)`，圆角 999。大胶囊高 42、左右 18、间距 12；小胶囊高 20、左右 9、间距 6。**只按舞台宽度切换，不看设备**：舞台宽 < 560 用小胶囊和短标签（手机；800–1023 宽的桌面布局左栏约 360 宽时也是），≥ 560 用大胶囊（含 640–767 的平板，舞台已 ≥ 560）。原因：海报空白带只有舞台高的 16%，舞台 360 宽时约 32px，放不下 42 的大胶囊；小胶囊 20 高，上下各留约 6px。内容：橙点（#FF8A3D，大 7 / 小 5）→ 标签（`.stage-cd-label`，大小胶囊同一句 `Stream starts in`：700、.16em、全大写、`rgba(255,255,255,.68)`，大 10.5 / 小 8；中日韩没有大写，字距改 .04em、字号 +1，即 11.5 / 9；标签右侧 `margin-right` 抵掉最后一个字后的字距，圆点→标签与标签→竖线间距相等）→ 1px 竖线（大 16 / 小 9 高）→ 数字（Space Grotesk 700、tabular-nums，大 20 / 小 12，白）。
+3. **数字三档**：≥ 24 小时 `26h 12m`（写小时、到分钟，不换算成天——与首页 R5、记分牌、下单卡同一写法，2026-11-16 CPO）；24 小时内 `02:51:12`；1 小时内 `51:12`。每秒跳。
+4. **到点还没开播**（开赛时间已过、比赛状态仍是未开始）：标签换成 `Stream starting soon`（大小胶囊同一句，只缩字号——小胶囊也不换成短词，CPO 2026-11-16），橙点闪烁（`stage-bl` 1.6s），不画竖线和数字。
+4b. **整页同一个说法**（CPO 2026-11-16）：同一时刻记分牌仍是 `UPCOMING` + 右上 `Starting soon`（以前被算成打完、显示 In review），下单卡 / 手机抽屉 / Pro 页头 / 赛事下拉写 `Starting soon`（以前 `Kicks off in 00:00`），首页舞台标签 `Biggest this week · starting soon`、眉行不写 next kickoff，Sports 预告排把它排在最前、写橙色 `Starting soon`；**列表与首页都不把它算成正在打**（`liveAt` 读 `notStarted`）。判定只有一个：`matchPhase === "upcoming"` 且 kickoff ≤ now。
+4c. **比赛不是「未开始」之后，舞台跟着直播走，不跟着比赛走**（CPO 2026-11-16）：比赛在打、打完还没结算、或没有开赛时间——只要直播源 `stream_url` 还在，就是正常播放器；直播结束（直播源服务清掉 `stream_url`）舞台就不出现（S9）。以前「打完未结算 / 没有开赛时间」会显示播放器外壳 + LIVE 标、但不拉流。
 5. **一个时钟**：舞台倒计时与下方记分牌 `Starts in …` 读同一个共享时钟；舞台在场时共享时钟 1 秒一跳（平时 30 秒）。两处只是精度不同（秒 / 分钟），不会对不上。
 6. **未登录**：开赛前和登录用户看到的一样；开赛后仍是 S10「Sign in to watch live」。
 7. 手机舞台下方的 Hide stream 折叠条不变；直播中、加载、暂停、出错、地区不可看各态不变。

@@ -426,7 +426,7 @@ const SPORTS_CLOCK_CASES: SectionCase[] = [
     label: "TR-29 · 体育下单卡 · 开赛前（SportsClockLabel · upcoming）",
     note: "体育比赛（metadata.kickoff_at 存在，含让分 / 大小分子盘）的下单卡右上不再写倒计时（2026-11-16 起开赛前写 `Kicks off in …`，非体育见 TR-34）：比赛打没打完只听比赛状态，预计结束时间 end_date 不显示、不关交易。四态见 TR-29 … 29d；手机同一句在下单抽屉标题下一行（LiteContractTrade，line 变体），Pro 页头与赛事下拉同口径（ES-D5 / ES-M2）。",
     spec: [
-      { state: "开赛前", when: 'matchPhase(e) === "upcoming"（match_status scheduled / postponed，或 kickoff > now）', visual: "`Kicks off in 2h 10m`（2026-11-16 起，原 `Starts in`）（≥1 天 `2d 19h`、<1 小时 `38:12` 按秒跳），mono 11 muted；可以交易", source: "sportsClock.tsx kickoffInShort · " + SRC_CLOCK },
+      { state: "开赛前", when: 'matchPhase(e) === "upcoming"（match_status scheduled / postponed，或 kickoff > now）', visual: "`Kicks off in 2h 10m`（2026-11-16 起，原 `Starts in`）（≥ 24 小时也写小时 `26h 10m`，2026-11-16 起，原 `2d 19h`；<1 小时 `38:12` 按秒跳），mono 11 muted；可以交易", source: "sportsClock.tsx kickoffInShort · " + SRC_CLOCK },
     ],
   },
   {
@@ -451,6 +451,14 @@ const SPORTS_CLOCK_CASES: SectionCase[] = [
     spec: [
       { state: "打完等结果", when: 'matchPhase(e) === "final"（lifecycle REVIEW、match_status final / cancelled、或兜底）', visual: "右上 `Final ·` + 描边胶囊 `IN REVIEW`；CTA 置灰印 `In review`，页面下单区换成 InReviewCard（TR-18 同一张）", source: "LiteContractTrade inReview · contractGate" },
       { state: "已结算", when: "is_resolved", visual: "现有 Settled 结算卡，不变", source: "TR-15 / TR-16" },
+    ],
+  },
+  {
+    key: "trade-tr29e",
+    label: "TR-29e · 体育下单卡 · 到了开赛时间、比赛还没开打（Starting soon）",
+    note: "CPO 2026-11-16：整页说法统一——舞台 S6d、记分牌 M2b、下单卡、Sports 列表与首页都写 Starting soon，列表也不把它算成正在打。以前这里会写 `Kicks off in 00:00`。",
+    spec: [
+      { state: "到点未开打", when: 'matchPhase(e) === "upcoming" && kickoff ≤ now（match_status scheduled / postponed）', visual: "右上 `Starting soon`（mono 11 muted）；手机抽屉标题下同一句；Pro 页头同；可以交易", source: "SportsClockLabel · sports_clock.starting_soon" },
     ],
   },
 ];

@@ -155,7 +155,9 @@ const Stage = ({
     ? isMobile
       ? ht("sports.live_now")
       : `${ht("sports.live_now")} · ${(leagueCodeOf(m) || m.league).replace(/_/g, " ")}`
-    : ht("sports.biggest_kicks_off_in", { time: leftText(kickoffMs) });
+    : kickoffMs <= 0
+      ? ht("sports.biggest_starting_soon") // late kickoff (CPO 2026-11-16)
+      : ht("sports.biggest_kicks_off_in", { time: leftText(kickoffMs) });
   const labelTail = live && m.liveLabel ? `\u00a0·\u00a0${m.liveLabel}` : ""; // nbsp: a flex item would drop a plain leading space
   const label = labelHead + labelTail.replace(/\u00a0/g, " ");
   const badgeSize = isMobile ? 44 : 56;
@@ -611,7 +613,9 @@ export const HomeSportsSection = ({
   // is no longer counted, so N − ALL = the live count exactly.
   const total = model.live.length + model.upcoming.length;
   const liveCount = model.live.length;
-  const nextKick = model.upcoming[0]?.kickoff ? model.upcoming[0].kickoff.getTime() - now : null;
+  // A late kickoff has no "next kickoff in" — the tail is simply left out (CPO 2026-11-16).
+  const nextKickRaw = model.upcoming[0]?.kickoff ? model.upcoming[0].kickoff.getTime() - now : null;
+  const nextKick = nextKickRaw != null && nextKickRaw > 0 ? nextKickRaw : null;
   const eyebrow =
     liveCount > 0
       ? `● ${ht("sports.eyebrow_live", { count: total, live: liveCount })}`

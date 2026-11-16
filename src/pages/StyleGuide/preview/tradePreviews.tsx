@@ -214,6 +214,8 @@ const HOCKEY = { yesLabel: "Maple Leafs", noLabel: "Kraken" };
 export const Tr29Preview = () => <Panel {...HOCKEY} yesPrice={0.34} sportsClock={{ phase: "upcoming", kickoffInMs: (2 * 60 + 10) * 60_000, liveClock: null }} />;
 export const Tr29bPreview = () => <Panel {...HOCKEY} yesPrice={0.34} sportsClock={{ phase: "live", kickoffInMs: 0, liveClock: "P2 12:04" }} />;
 export const Tr29cPreview = () => <Panel {...HOCKEY} yesPrice={0.41} sportsClock={{ phase: "live", kickoffInMs: 0, liveClock: "OT 3:21" }} />;
+/** TR-29e · kickoff time passed, match not started (CPO 2026-11-16). */
+export const Tr29ePreview = () => <Panel {...HOCKEY} yesPrice={0.34} sportsClock={{ phase: "upcoming", kickoffInMs: 0, liveClock: null }} />;
 export const Tr29dPreview = () => <Panel {...HOCKEY} yesPrice={0.41} blocked blockedReason={IN_REVIEW_BADGE} sportsClock={{ phase: "final", kickoffInMs: 0, liveClock: null }} />;
 export const Tr6Preview = () => <Panel side0="no" amount0="25" />;
 export const Tr7Preview = () => <Panel amount0="25" boost0={7} boostTrayOpen />;

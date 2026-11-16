@@ -8,6 +8,7 @@
 // no preview stage. The ledger below is untouched (rows keep
 // `Stream at kickoff`); a preview also stays in its ledger row.
 // ============================================================
+import { isLateKickoff } from "./sportsData";
 import { useEffect, useState } from "react";
 import { getI18nLanguage, t } from "@/i18n";
 import type { SportsMatch } from "./sportsData";
@@ -29,7 +30,8 @@ export const upcomingStreams = (rows: SportsMatch[], now: number = Date.now()) =
         !m.live &&
         !!m.streamUrl &&
         !!m.kickoff &&
-        m.kickoff.getTime() > now &&
+        // A late kickoff stays in the rail as "Starting soon" (CPO 2026-11-16).
+        (m.kickoff.getTime() > now || isLateKickoff(m, now)) &&
         m.kickoff.getTime() - now <= PREVIEW_WINDOW_MS,
     )
     .sort(
@@ -56,6 +58,8 @@ const pad = (n: number) => String(n).padStart(2, "0");
  */
 export const streamCountdown = (kickoff: Date, now: number) => {
   const ms = Math.max(0, kickoff.getTime() - now);
+  // Kickoff time passed, match not started (CPO 2026-11-16).
+  if (ms <= 0) return { lead: "", value: t("events.screen.simple.sports_clock.starting_soon"), soon: true };
   const s = Math.floor(ms / 1000);
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
