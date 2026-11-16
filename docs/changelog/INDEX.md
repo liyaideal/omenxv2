@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-16 | [充值引导优化 + 客服入口 · 交付研发（deposit-ux-v1 定稿）](../delivery/deposit-ux-v1.md) | 客服入口并入同一份交付说明：标题、§0 / §0.1 加 Live chat 的查看位置（FT-TG1），§7 加「请研发跟智齿确认手机版链接」，代号表加 FT-TG1；STATUS 新增本需求十项 |
 | 2026-11-16 | [客服入口 Live chat（并入 deposit-ux-v1 §7）](../delivery/deposit-ux-v1.md#7-客服入口live-chat2026-11-16-同批加入) | 接入智齿在线客服：桌面头像下拉 Join Discord → Live chat；手机 Me 抽屉 Help & Support 下面加 Live chat；Footer 社交行加同款胶囊（手机邮箱挪到下一行）。新标签页打开 `SUPPORT_CHAT_URL`，暂不带用户身份。新 key `nav.live_chat`（7 语 + es）。DESIGN §Addendum 2026-11-16 |
 | 2026-11-13 | [充值引导优化 · 交付研发（deposit-ux-v1 定稿）](../delivery/deposit-ux-v1.md) | 四批并成一份交付说明：开头补「原来 / 这次多了什么」与 BD 六条对应表；新增 §5 正式版跨链充值默认 USDC（Lovable 本来如此）、§6 顺手修的三处（toast 在抽屉上可点、App 根语言、Me 抽屉折行） |
 | 2026-11-13 | [充值引导优化 · 第三批小改（deposit-ux-v1 §2 / §3）](../delivery/deposit-ux-v1.md#3-下单卡余额不够add-money-做成链接) | Add money 与余额不够 toast：另一账户 ≥ $1 才划转，否则充值；toast `Add funds` 在桌面原地弹充值弹窗（原来跳到 Wallet）。顶栏悬浮卡去掉重复的 TOTAL BALANCE 眉行。手机 Me 抽屉账户行翻译 Standard、Transfer 各语言三处统一（日 振替 / 简 划转 / 繁 劃轉 / 越 Chuyển tiền）。手机底部导航任何时候只亮一个 tab。余额不够 toast 进 7 语；手机上 toast 按钮在下单抽屉打开时可点；划转弹窗 / 抽屉补齐 7 语（账户名、To 标签不再借用日期的「〜」、按钮、余额不足提示、成功失败提示）；站点语言在 App 根就按账号设置生效（手机直接打开交易页不再是英文） |

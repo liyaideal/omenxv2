@@ -17,6 +17,21 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-11-16 — 充值引导优化 + 客服入口（[文档](../delivery/deposit-ux-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| 1 | 桌面顶栏余额托盘 + 常驻 Deposit（原地弹充值弹窗）、悬浮卡无标题 | ⬜ | §1 |
+| 2 | Equity → Balance 全站改名（顶栏、Me 抽屉、Wallet 页头，7 语） | ⬜ | §2 |
+| 3 | 手机 Me 抽屉账户行与 Transfer 译法统一；底部导航只亮一个 tab | ⬜ | §2 |
+| 4 | 下单卡余额不够 Add money 链接：另一账户 ≥ $1 开划转，否则开充值 | ⬜ | §3 |
+| 5 | 余额不够 toast：同一分叉，Add funds 桌面原地弹充值；7 语；手机抽屉上可点 | ⬜ | §3 / §6 |
+| 6 | Portfolio Live 空态没钱时 Deposit to start | ⬜ | §4 |
+| 7 | 跨链充值默认币 USDC | ⬜ | §5 · 只有正式版要改 |
+| 8 | 划转弹窗 / 抽屉补齐翻译 | ⬜ | §2 |
+| 9 | 客服入口 Live chat：头像下拉（替换 Join Discord）、Me 抽屉、Footer 胶囊 | ⬜ | §7 · 跟智齿确认手机版链接 |
+| 10 | 客服带用户身份（智齿 Sign 签名，服务端生成） | ➖ | 本次不做，等密钥 |
+
 ## 2026-11-10 — 首页 / Sports / Finance · 交叉验收待批项（[changelog](./2026-11-10-review-decisions.md) · [文档](../delivery/home-all-v1.md) C1 C2 C3 K2 K5 K6 E4 M2 R2 R5）
 
 | # | 项 | Status | Notes |

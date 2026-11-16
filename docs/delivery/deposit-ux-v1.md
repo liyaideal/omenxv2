@@ -1,6 +1,6 @@
-# 充值引导优化 — 交付说明 v1（2026-11-12 起，2026-11-13 定稿交付）
+# 充值引导优化 + 客服入口 — 交付说明 v1（2026-11-12 起，2026-11-16 定稿交付）
 
-> 起因是 BD 在主站测充值流程的反馈：注册到充值是主要卡点，用户找不到充值入口。
+> 起因是 BD 在主站测充值流程的反馈：注册到充值是主要卡点，用户找不到充值入口。同一批交付里还有一个小需求：接入智齿在线客服后，站内加客服入口（§7）。
 >
 > **原来**：桌面顶栏右上角是一个「Equity: $xx」胶囊，充值要先点它进 Wallet 再找按钮；下单卡余额不够时只有一行提示，没有去处；Portfolio 没钱时的空态只有 `Browse events`。
 >
@@ -31,7 +31,8 @@
 
 - 长什么样 → 生产页：任何页面的桌面顶栏（登录后）；合约交易页 `/trade?event=…`、现货交易页 `/spot?event=…`、`/portfolio`（Live）——都要余额不到 $1 的账号才看得到
 - 什么时候变成什么样 → `/style-guide` → Common UI › EventsDesktopHeader 卡里的「登录态右簇 · 余额托盘」（顶栏本身在字典里是未登录态）；Lite → `交易页 ✅`（TR-30）、现货节（SP-20）、`Portfolio ✅`（PF-33b）
-- 字段名、文案、术语 → `docs/copy-dictionary.md` › Trading 表「Add money（Lite 下单卡余额不够提示里的链接）」、Portfolio (Lite) 表「Deposit to start」→ 本文
+- 客服入口 Live chat 在哪看 → 生产页：桌面点右上角头像（登录后）的下拉菜单、手机点底栏 Me 打开的抽屉、任何页面最底下的 Footer（登录与否都有）；字典：Common UI › Site-wide Footer 的 FT-TG1（Footer 是真组件，胶囊直接能看到）
+- 字段名、文案、术语 → `docs/copy-dictionary.md` › Trading 表「Add money（Lite 下单卡余额不够提示里的链接）」、Portfolio (Lite) 表「Deposit to start」、「Live chat（客服入口）」→ 本文
 - 交易口径的词（爆仓 / 杠杆 / 限价单……）在 Lite 里叫什么 → copy-dictionary 顶部「Lite 术语对照表」
 
 ## 0.1 字典怎么看
@@ -42,8 +43,9 @@
 | 2 | 页头搜索框敲 `TR-30` / `SP-20` / `PF-33b`；顶栏托盘在 Common UI › EventsDesktopHeader 卡里 | 直接滚到那张样张；托盘可点（余额进 /wallet、Deposit 弹充值窗），鼠标停在余额上出悬浮卡 |
 | 3 | 样张上方编号行 + iframe 里的真组件（可以点 Add money；字典里没登录、两个账户都是 0，所以点了走充值分支——桌面宽度弹充值弹窗，手机宽度跳 `/deposit`，帧里会变成 `Missing preview key`，属预期，刷新即回；划转分支要在生产页用另一个账户有钱的账号看） | 下方表格「状态 / 触发条件 / 视觉 / 数据来源」，新增一行「余额不够 · 点 Add money」 |
 | 4 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=trade-tr30`、`?c=spot-sp20`、`?c=portfolio-lite-empty-nofunds`；加 `&lang=ru` 等可切语言 |
+| 5 | 客服入口：搜 `FT-TG1`（Common UI › Site-wide Footer） | 社交行 X · Discord · Telegram 后面那颗 Live chat 胶囊；头像下拉和 Me 抽屉要登录，字典里没有帧，看生产页 |
 
-只在字典看得到、alex_carter 凑不出的态：TR-30 / SP-20 / PF-33b（alex 有余额；演示账号 Mia 两个账户都是 0，用她登录可在生产页看到）。
+只在字典看得到、alex_carter 凑不出的态：TR-30 / SP-20 / PF-33b（alex 有余额；演示账号 Mia 两个账户都是 0，用她登录可在生产页看到）。反过来，头像下拉和 Me 抽屉里的 Live chat 只在生产页（登录后）看得到，字典里没有。
 
 ## 1. 桌面顶栏：余额托盘 + 常驻 Deposit
 
@@ -148,6 +150,8 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 
 Discord 入口只剩 Footer 社交行（移动首页顶栏的 Discord 图标没动）。
 
+**请研发跟智齿对接时确认**：这个链接是智齿的电脑版页面（路径 `chat/pc/v7`），手机上打开的也是它。智齿如果有手机版页面，手机端（Me 抽屉、手机 Footer）改用手机版链接；`sysnum` / `channelid` 正式版是否和这条一样，也一并确认。
+
 ## Lovable / 正式版
 
 | | Lovable | 正式版要做的 |
@@ -158,9 +162,9 @@ Discord 入口只剩 Footer 社交行（移动首页顶栏的 Discord 图标没�
 | 11-13 小改：≥ $1 才划转、toast Add funds 弹充值、悬浮卡去眉行、Me 抽屉译法、底部导航高亮 | 已做 | 照做（§1 / §2 / §3） |
 | Portfolio 空态 Deposit to start | 已做 | 照做（判定见 §4） |
 | 跨链充值默认币 | 本来就是 Ethereum + USDC | 改成一致（§5） |
-| 客服入口 Live chat | 已做（三处，不带身份） | 照做（§7）；之后带身份时，签名放在正式版后端生成 |
+| 客服入口 Live chat | 已做（三处，不带身份，电脑版链接） | 照做（§7）；跟智齿确认手机版链接与正式版的 sysnum / channelid；之后带身份时，签名放在正式版后端生成 |
 | toast 与划转弹窗翻译、toast 在抽屉上可点、App 根语言、Me 抽屉折行 | 已做 | 照做（§2 / §3 / §6）；toast 能不能点取决于正式版用的 toast 库和抽屉实现，同样要验手机 |
-| i18n | `low_balance_hint` ×2 改值、`low_balance_link` ×2 新增、`lite.live.deposit_to_start` 新增、`common.equity` / `HomeGreeting.total_equity` 改值；11-13：`header.accountsLine`、`header.transfer`、`wallet.transfer`、`nav › …bottom_navigation.transfer`、划转弹窗内各条（ja 振替 / zh-TW 劃轉）改值，`wallet › insufficient_toast.message` / `.add_funds` / `transfer_insufficient` 新增；ja `wallet.from` / `wallet.to` 改 振替元 / 振替先（跨链充值的 From 改用 `wallet › screen.cross_chain_deposit.from`） | 同步进 OMENX-i18n 文案表 |
+| i18n | 11-16：`nav.live_chat` 新增（7 语 + es），`nav.join_discord` 已无人使用，可从文案表下掉；`low_balance_hint` ×2 改值、`low_balance_link` ×2 新增、`lite.live.deposit_to_start` 新增、`common.equity` / `HomeGreeting.total_equity` 改值；11-13：`header.accountsLine`、`header.transfer`、`wallet.transfer`、`nav › …bottom_navigation.transfer`、划转弹窗内各条（ja 振替 / zh-TW 劃轉）改值，`wallet › insufficient_toast.message` / `.add_funds` / `transfer_insufficient` 新增；ja `wallet.from` / `wallet.to` 改 振替元 / 振替先（跨链充值的 From 改用 `wallet › screen.cross_chain_deposit.from`） | 同步进 OMENX-i18n 文案表 |
 
 ## 代号 ↔ 章节
 
@@ -174,3 +178,4 @@ Discord 入口只剩 Footer 社交行（移动首页顶栏的 Discord 图标没�
 | deposit-ux ⑦ | 客服入口 Live chat | §7 |
 | PF-33b | Portfolio Live 空态没钱的字典样张 | §0.1 |
 | TR-30 / SP-20 | 合约 / 现货卡余额不够的字典样张 | §0.1 |
+| FT-TG1 | Footer 社交行（含 Live chat 胶囊）的字典样张 | §0.1 |
