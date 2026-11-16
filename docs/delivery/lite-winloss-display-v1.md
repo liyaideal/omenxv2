@@ -29,7 +29,82 @@
 | 3 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=<key>`，切语言加 `&lang=ru` |
 | 4 | 样张下面的表 | 「状态 / 触发条件 / 视觉 / 数据来源」 |
 
-本轮受影响的样张见 §8。
+本轮受影响的样张见 §8；按条核对见 §0.2。
+
+## 0.2 研发核对清单（一条一行，做完一条勾一条）
+
+改动比较碎，按页面拆成 27 条。每条的完整规则在「详见」那一节，样子看「字典」那一列的 key（`/style-guide/preview?c=<key>`）。**「共用」标了 ⚠ 的条目，改一处会同时影响别的页面，别漏。**
+
+**① 交易页 · 下单面板**（桌面右侧下单卡 + 手机下单抽屉，同一个组件 `LiteContractOrderPanel`）
+
+| # | 改什么 | 详见 | 字典 |
+|---|---|---|---|
+| 1 | 「对了赢」改成净额（扣开仓费和 5% 赢利佣金），旁边加 ⓘ 说明；下单按钮 `To win $X →` 用同一个数 | §1、§1.1 | TR-31 |
+| 2 | 买对面抵掉旧仓位时：「对了赢」换成两行 `You'll get back ≈` + `Then if the rest is right, you win`；按钮上的 `To win` 只算新开部分 | §1.1 | — |
+| 3 | 新增「错了亏」一行：1× `If you're wrong, you lose`，Boost `… lose up to` + ⓘ；金额 = 仓位 + 开仓费，封顶 Boost 账户总值；部分抵掉只算新开部分，全部抵掉不显示 | §1、§1.1 | TR-31 / TR-32 |
+| 4 | 这一笔就能亏光时，亏损行下面红字 `That's everything you have in Boost.` | §1.1 | TR-32 |
+| 5 | 这一笔 + 其他 Boost 持仓可能亏光时，红框 `If this and your other Boost calls all go wrong, …` | §1.1 | TR-33 |
+| 6 | 「账户总值」「其他持仓还可能亏」两个新数（Lovable 在 `useRealtimeRiskMetrics` 前端算，正式版建议后端给，三处已知不准见 §9） | §1、§9 | — |
+| 7 | Auto-close 行：标题 `Auto-close`、副标 `Only if your Boost balance runs low`；None 的三种小字；离买入价近时红字 `close to entry`；部分抵掉时叫 `Auto-close (new position)` | §1.1 | AC-T4 |
+| 8 | 底注三种（1× 写具体金额 / Boost / 空金额）；**空金额时仍是原来的 `Want to place a limit order? Pro ›` 入口，不变** | §1.1 | TR-31 / TR-33 |
+| 9 | Boost 档位下面加一句 `Bigger Boost: bigger win if you're right, bigger loss if you're wrong.` | §1.1 | TR-31 |
+| 10 | 时间：桌面下单卡右上三种（`Kicks off in` / `Closes in` / `Expected to end in`，去掉原来结尾的 `left`）；比赛中沿用比赛时钟；长期事件过了预计结束日不显示 | §1.1 | TR-29 / TR-31 |
+| 11 | 手机下单抽屉顶部：选的那边 + 时间 + 概率（体育 `78% chance Magic wins`，其他 `64% chance`），四种写法 | §1.1 | TR-34 |
+| 12 | 下单按钮 `Buy {side}` / `{n}× BOOST` / `To win $X →` / `Market closed`、Boost 档位 `Custom` 接 7 语 | §10 | TR-33 |
+
+**② 下单成功提示**
+
+| # | 改什么 | 详见 | 字典 |
+|---|---|---|---|
+| 13 | toast 写清投入 · 几倍 · 仓位：`Bought {side} · $A at N× Boost · $P position`（1× 只写投入） | §2 | 无帧（toast） |
+
+**③ 交易页 · 持仓卡**
+
+| # | 改什么 | 详见 | 字典 |
+|---|---|---|---|
+| 14 | auto-close 为 None 时副行 `Can lose up to $X`，取代 `Loss capped at your stake` | §3 | AC-T1 |
+| 15 | Profit 旁加 ⓘ 解释刚买完为什么略低于 $0；**手机上 ⓘ 点开是底部抽屉**（同卡 auto-close ⓘ 也一起改） | §3 | AC-T1b / AC-T1c |
+| 16 | ⚠ 共用：auto-close 说明框（`AutoCloseTooltipBody`）None 那一段改写——下单面板、持仓卡、Portfolio 行等 5 处同时生效 | copy-dictionary「Auto-close tooltip（全站唯一）」 | AC-T4 |
+
+**④ Portfolio Live**
+
+| # | 改什么 | 详见 | 字典 |
+|---|---|---|---|
+| 17 | `Cost` → `Put in`（KPI、手机卡片格、桌面表头） | §4 | PF-4 / PF-8 |
+| 18 | 桌面表头 `IF IT WINS / RISK`，整排大写，列宽 150 → 180、按钮列 170 → 140 | §4 | PF-8 |
+| 19 | Boost 行：净赚 + 最多亏 + auto-close（手机一句，桌面三行）；Standard 行不变 | §4 | PF-8 |
+| 20 | Boost check 说明句换成人话（卡片 / 抽屉 / 桌面弹层） | §4 | PF-7 |
+
+**⑤ 平仓**
+
+| # | 改什么 | 详见 | 字典 |
+|---|---|---|---|
+| 21 | 亏了不自动弹海报，只出 toast `… you lost $X on this call` | §5 | 无帧（toast） |
+| 22 | 所有海报（自动弹出 / Settled 行 / 系列 / 单笔详情 Share）都不扣手续费和赢利佣金 | §5 | — |
+
+**⑥ 单笔结算详情（手机 + 桌面）**
+
+| # | 改什么 | 详见 | 字典 |
+|---|---|---|---|
+| 23 | Side 只写方向；`Cost` → `Put in`；新增 Position 行；手续费拆买 / 卖；Activity 金额与副行 | §6 | PF-24 … PF-27 |
+
+**⑦ 钱包 · ⑧ 首页**
+
+| # | 改什么 | 详见 | 字典 |
+|---|---|---|---|
+| 24 | Wallet 总余额下一行、Standard / Boost 两张卡底注改写，品类名接 7 语 | §7 | `wallet-lite-hero-note-lite`、`wallet-equity-bands` |
+| 25 | 平仓流水去掉结尾 `· Won` / `· Lost`（旧流水显示时也去掉） | §7 | — |
+| 26 | 首页标语 `Pick a topic, then pick a side.` | §7 | HA-1 |
+
+**其他页面顺带受影响**
+
+| # | 改什么 | 详见 | 字典 |
+|---|---|---|---|
+| 27 | ⚠ 共用：Lite 加密快轮页（`/spot?event=crypto-…-updown-…`，`LiteQuickTrade`）切到 Boost 时，下单卡右上倒计时也是 `Closes in …`（同一个下单组件）；Standard 那张卡仍是原来的 `12:30 left`，不动 | §1.1 | — |
+
+**这次没动的**（别顺手改）：Pro / 现货的下单卡和按钮（赢的 ⓘ 仍是原文案）；Pro 页头赛前倒计时仍是 `Starts in 02:10:00`；Standard 下单卡的 toast；系列详情（多轮）仍是 `Cost`；单笔结算详情的旧行名（Side、Avg price、Fees 等）仍是英文写死；赢亏和 auto-close 的计算方法本身。
+
+**只在正式站存在、Lovable 里已经对的问题**（赢多少公式、Boost check `$1.00`、结算 Payout 对不上等）另列给研发，不在这张清单里。
 
 ## 1. 数字口径（全部从一个文件出：`src/lib/liteWinLoss.ts`）
 
@@ -204,4 +279,4 @@ Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接�
 
 ## 11. 改动文件
 
-`src/lib/liteWinLoss.ts`（新）· `LiteContractOrderPanel` · `LiteContractTrade` · `LitePositionCard` · `LiveCards` · `LitePortfolio` · `parts.tsx` · `LiteCashOutFlow` · `liteSettledShare` · `LiteSettlementDetail` · `SettlementDetailView` · `useSettlementDetail` · `Wallet.tsx` · `tradingService` / `useSupabasePositions`（流水描述）· 7 语 locales · style-guide 预览与说明表。
+`src/lib/liteWinLoss.ts`（新）· `LiteContractOrderPanel` · `LiteOrderDrawerHeader`（新）· `LiteBoostSelector` · `LiteContractTrade` · `LiteQuickTrade` · `sportsClock` · `WinTooltipBody`（加可选 body，默认不变）· `AutoCloseTooltipBody` · `useRealtimeRiskMetrics`（新增 `boostAccountValue` / `openCallsCouldLose`）· `LitePositionCard` · `LiveCards` · `LitePortfolio` · `parts.tsx` · `LiteCashOutFlow` · `liteSettledShare` · `LiteSettlementDetail` · `SettlementDetailView` · `useSettlementDetail` · `Wallet.tsx` · `tradingService` / `useSupabasePositions`（流水描述）· 7 语 locales · style-guide 预览与说明表。

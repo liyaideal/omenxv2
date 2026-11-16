@@ -330,7 +330,8 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
   const orderPanelProps = {
     eventName: event.name,
     eventId: event.id,
-    countdownText: t("trade.screen.lite.lite_contract_order_panel.closes_in", { time: countdown }),
+    // Standard panel appends "left" itself — keep the bare clock here.
+    countdownText: countdown,
     yesLabel: "Up",
     noLabel: "Down",
     yesPrice: upPrice,
@@ -356,6 +357,8 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
 
   const contractPanelProps = {
     ...orderPanelProps,
+    // Boost order card takes a pre-worded time line (2026-11-16).
+    countdownText: t("trade.screen.lite.lite_contract_order_panel.closes_in", { time: countdown }),
     boost,
     onBoostChange: setBoost,
     boostEnabled: boostCfg.enabled,
