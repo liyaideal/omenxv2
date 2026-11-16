@@ -161,6 +161,10 @@ Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接�
 
 - 只在正式站存在、Lovable 里已经对的问题（赢多少公式、Boost check `$1.00`、结算 Payout 对不上等）单独列给研发，不在本文。
 - 结算详情的买 / 卖手续费拆分来自成交记录；同一事件同一选项的多轮共用一本账时，成交记录可能多算，所以买入部分封顶为该仓手续费。正式版建议后端直接给每仓的开仓费 / 平仓费。
+- ① 下单面板「Boost 账户总值」和「其他持仓还可能亏」在 Lovable 里是前端用持仓与实时价格算的，正式版建议后端给。三处已知不准，Lovable 没修，正式版请按后端口径做：
+  - 挂着没成交的限价单占用的钱没算进账户总值；
+  - 部分平仓以后，没有实时价格时用数据库里的盈亏兜底，这时可能多算一遍；
+  - 空单「还可能亏」按 份数 × (1 − 现价) 估。
 
 ## 10. 多语言（7 语：en / zh-CN / zh-TW / ja / ko / ru / vi）
 
@@ -188,6 +192,7 @@ Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接�
 | `trade.screen.lite.lite_contract_order_panel.{lose, lose_up_to, about_what_you_lose, lose_tooltip, lose_everything, over_account}` | ① 错了最多亏一行、两种红字（11-16） |
 | `trade.screen.lite.lite_contract_order_panel.{auto_close, ac_only_if_low, ac_nothing_borrowed, ac_balance_covers, ac_enter_amount, ac_close_to_entry, ac_new_position}` | ① Auto-close 行（11-16） |
 | `trade.screen.lite.lite_contract_order_panel.{get_back, rest_right_win}` | ① 买对面抵掉旧仓位时的两行（11-16） |
+| `trade.screen.lite.lite_contract_order_panel.{cta_to_win, cta_boost, market_closed}` | ① 下单按钮：`To win {{amount}} →`、`{{boost}}× BOOST`、`Market closed`（11-16；`Buy {{side}}` 复用已有 `lite_contract_trade_page.buy_side`，`Custom` 复用已有 `lite_contract_order_panel.custom`） |
 | `trade.screen.lite.lite_contract_order_panel.{footnote_boost, footnote_full, footnote_empty, boost_hint, win_tooltip}` | ① 底注、Boost 提示句、赢的 ⓘ 说明 |
 | `trade.screen.lite.lite_contract_order_panel.{closes_in, expected_to_end_in, chance, chance_side_wins}` · `events.screen.simple.sports_clock.kicks_off_in` | ① 时间与概率 |
 | `wallet.category.{sports,crypto,macro,stocks,quickplay,politics,social}` | `sports` … `Quick Play` … |

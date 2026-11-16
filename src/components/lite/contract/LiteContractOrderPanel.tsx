@@ -749,15 +749,21 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       >
         <span className="flex flex-col items-start leading-tight">
           <span className="text-sm">
-            {blocked ? blockedReason || "Market closed" : `Buy ${sideLabel}`}
+            {blocked
+              ? blockedReason || t("trade.screen.lite.lite_contract_order_panel.market_closed")
+              : t("trade.screen.lite.lite_contract_trade_page.buy_side", { side: sideLabel })}
           </span>
           {!blocked && boostEnabled && effBoost > 1 && (
-            <span className="font-mono text-[11px] opacity-80">{effBoost}× BOOST</span>
+            <span className="font-mono text-[11px] opacity-80">{t("trade.screen.lite.lite_contract_order_panel.cta_boost", { boost: effBoost })}</span>
           )}
         </span>
         {!blocked && (
           // 09-24 Liya: name the number — same `To win $X →` as the spot card and the Pro CTA.
-          <span className="font-mono text-sm">To win {money(isPartialNet ? remainderWinNet : potentialWinNet)} →</span>
+          <span className="whitespace-nowrap font-mono text-sm">
+            {t("trade.screen.lite.lite_contract_order_panel.cta_to_win", {
+              amount: money(isPartialNet ? remainderWinNet : potentialWinNet),
+            })}
+          </span>
         )}
       </button>
       {/* SW-2 · one footnote slot: doorway while the amount is empty, risk line once money is on the table. */}

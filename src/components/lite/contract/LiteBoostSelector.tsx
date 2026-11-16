@@ -86,7 +86,7 @@ export const LiteBoostSelector = ({
           aria-label={t("trade.screen.lite.lite_contract_order_panel.choose_a_custom_boost")}
           style={{ ...(isCustom ? SELECTED_STYLE : {}), width: customWidth }}
         >
-          {isCustom ? `${value}×` : "Custom"}
+          {isCustom ? `${value}×` : t("trade.screen.lite.lite_contract_order_panel.custom")}
           {trayOpen ? (
             <ChevronUp className="h-3.5 w-3.5" />
           ) : (
