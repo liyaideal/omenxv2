@@ -22,7 +22,9 @@ export const proWatchLiveTarget = (
   match: { id: string; metadata?: unknown } | null | undefined,
   phase: string | null | undefined,
 ): string | null => {
-  if (!match || phase !== "live") return null;
+  // Same as the Lite stage (CPO 2026-11-16 #4): in play, or finished but not
+  // settled yet — while the stream is on (stream_url present).
+  if (!match || (phase !== "live" && phase !== "final")) return null;
   return fixtureMeta(match).stream_url ? match.id : null;
 };
 

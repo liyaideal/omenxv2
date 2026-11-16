@@ -103,7 +103,7 @@ import {
 import { LiteBoardGroupHeader as GroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
 
 import { useTradeCountdown } from "@/components/lite/intraday/intradayData";
-import { SportsClockLabel, kickoffInShort, useSportsClock } from "@/components/lite/sports/sportsClock";
+import { SportsClockLabel, useSportsClock } from "@/components/lite/sports/sportsClock";
 import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { EmptyState } from "@/components/states";
 import { SeoFooter } from "@/components/seo/SeoFooter";
@@ -417,7 +417,9 @@ const LiteContractTrade = () => {
   // trading can go on past it. Sports use the match clock (sportsClock).
   const ticketTimeLabel = (() => {
     if (!Number.isFinite(countdownMs)) return "";
-    const time = kickoffInShort(countdownMs);
+    // Not a kickoff: a market's end can be weeks out, so days stay (`43d 0h`).
+    // kickoffInShort writes hours past a day (CPO 2026-11-16) and is for kickoffs only.
+    const time = endInShort(countdownMs);
     if (/UPDOWN/.test(String(event?.event_subtype ?? "")))
       return t("trade.screen.lite.lite_contract_order_panel.closes_in", { time });
     // Past the expected end the market may still trade — say nothing rather than "00:00".
@@ -1953,5 +1955,17 @@ const BuyButton = ({
     {boostLine && <span className="font-mono text-[10px] opacity-75">{boostLine}</span>}
   </button>
 );
+
+/** Time left to a market's end: `43d 0h` · `2h 10m` · `38:12`. */
+const endInShort = (ms: number) => {
+  const s = Math.floor(Math.max(0, ms) / 1000);
+  const d = Math.floor(s / 86_400);
+  const h = Math.floor((s % 86_400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const p = (n: number) => String(n).padStart(2, "0");
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${p(m)}m`;
+  return `${p(m)}:${p(s % 60)}`;
+};
 
 export default LiteContractTrade;

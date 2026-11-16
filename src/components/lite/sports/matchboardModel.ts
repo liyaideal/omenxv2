@@ -1,4 +1,4 @@
-import { t } from "@/i18n";
+import { t, useT } from "@/i18n";
 // ============================================================
 // matchboardModel — the single source of truth for a fixture's
 // segment scores and decided-segment tally. Every surface that
@@ -94,8 +94,8 @@ export const startsIn = (kickoff: number, now: number): string => {
   // Past a day still in hours — `26h 12m`, never `1d 2h` (CPO 2026-11-16, same as home R5).
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  if (h > 0) return `Starts in ${h}h ${m}m`;
-  return `Starts in ${m}m`;
+  const time = h > 0 ? `${h}h ${m}m` : `${m}m`;
+  return t("events.screen.simple.sports_clock.starts_in", { time });
 };
 
 export const buildModel = (event: MatchboardEvent, now: number): Model => {
@@ -333,5 +333,8 @@ export const useSharedNow = (fast = false): number =>
  *  score must read it from here — never recompute it locally. */
 export const useMatchboardModel = (event: MatchboardEvent): Model => {
   const now = useSharedNow();
-  return useMemo(() => buildModel(event, now), [event, now]);
+  // The model carries translated strings (startsIn); rebuild when the language
+  // or its catalog changes, not only on the next clock tick.
+  const { code } = useT();
+  return useMemo(() => buildModel(event, now), [event, now, code]);
 };

@@ -374,7 +374,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | Canonical | 出现位置 / 规则 |
 |---|---|
 | **Kicks off in 2h 10m** | Lite 下单卡 / 手机抽屉，开赛前（`kickoffInShort`：`26h 10m` / `2h 10m` / `38:12`；2026-11-16 由 `Starts in` 改；同日起 ≥ 24 小时也写小时，原 `2d 19h`） |
-| **Starting soon** | 开赛时间已过、比赛还没开打（`matchPhase === "upcoming"` 且 kickoff ≤ now）。下单卡 / 手机抽屉 / Pro 页头 / 赛事下拉 / 记分牌右上 / 首页舞台标签（`Biggest this week · starting soon`）/ 预告卡，全部同一句（CPO 2026-11-16）。key `events.screen.simple.sports_clock.starting_soon`、`…home_all.sports.biggest_starting_soon`；舞台胶囊用 `Stream starting soon` |
+| **Starting soon** | 开赛时间已过、比赛还没开打（`matchPhase === "upcoming"` 且 kickoff ≤ now）。下单卡 / 手机抽屉 / Pro 页头 / 赛事下拉 / 记分牌右上 / 首页舞台标签（`Biggest this week · starting soon`）/ 预告卡，全部同一句（CPO 2026-11-16）。key `events.screen.simple.sports_clock.starting_soon`、`…home_all.sports.biggest_starting_soon`；舞台胶囊用 `Stream starting soon`。译法避开同卡上 `UPCOMING` 药丸的译文（中文药丸是「即将开始」、俄语「Скоро」、越南语「Sắp diễn ra」）：简「随时开赛」/ 繁「隨時開賽」/ 日「まもなく開始」/ 韩「곧 시작」/ 俄「Вот-вот начнётся」/ 越「Chuẩn bị bắt đầu」 |
 | **Starts in** `02:10:00` | Pro 页头，开赛前（`kickoffInClock`） |
 | **Starts 26h 10m** / **Starts 38m** | 赛事下拉 / 抽屉 `Ends in` 列，开赛前（2026-11-16 起 ≥ 24 小时写小时，原 `2d 19h`） |
 | **● LIVE · P2 12:04** | 比赛中（含已过预计结束），时钟 = `liveLabelFor`；无时钟只写 `● LIVE` |

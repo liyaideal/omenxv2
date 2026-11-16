@@ -599,6 +599,12 @@ const DAY_MS = 86_400_000;
 const startOfDay = (d: Date) =>
   new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
+/** The day a row is listed under. A late kickoff (kickoff passed, match not
+ *  started) is listed under today, not under the day it was due — otherwise a
+ *  match due 23:50 that slips past midnight opens a "yesterday" group. */
+export const listDayOf = (m: SportsMatch, now: number = Date.now()): number =>
+  startOfDay(isLateKickoff(m, now) ? new Date(now) : (m.kickoff as Date));
+
 export interface DayBucket {
   id: string;
   label: string;
@@ -615,7 +621,7 @@ export const buildDayStrip = (
   const counts = new Map<number, number>();
   for (const r of future) {
     if (!r.kickoff) continue;
-    const k = startOfDay(r.kickoff);
+    const k = listDayOf(r, now);
     counts.set(k, (counts.get(k) || 0) + 1);
   }
   const out: DayBucket[] = [{ id: "all", label: "ALL", count: future.length }];
@@ -636,10 +642,10 @@ export const buildDayStrip = (
   return out;
 };
 
-export const matchesInBucket = (rows: SportsMatch[], bucket: string) => {
+export const matchesInBucket = (rows: SportsMatch[], bucket: string, now: number = Date.now()) => {
   if (bucket === "all") return rows;
   const k = Number(bucket);
-  return rows.filter((r) => r.kickoff && startOfDay(r.kickoff) === k);
+  return rows.filter((r) => r.kickoff && listDayOf(r, now) === k);
 };
 
 /** "Today 19:00" / "Tue 19:35" split into two lines. */
@@ -701,7 +707,7 @@ export const buildDayGroups = (
   const byDay = new Map<number, SportsMatch[]>();
   for (const r of rows) {
     if (!r.kickoff || !isUpcoming(r, now)) continue;
-    const k = startOfDay(r.kickoff);
+    const k = listDayOf(r, now);
     byDay.set(k, [...(byDay.get(k) || []), r]);
   }
   return [...byDay.entries()]

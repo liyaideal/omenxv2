@@ -59,7 +59,9 @@ const pad = (n: number) => String(n).padStart(2, "0");
 export const streamCountdown = (kickoff: Date, now: number) => {
   const ms = Math.max(0, kickoff.getTime() - now);
   // Kickoff time passed, match not started (CPO 2026-11-16).
-  if (ms <= 0) return { lead: "", value: t("events.screen.simple.sports_clock.starting_soon"), soon: true };
+  // lead = nbsp: the lead row keeps its height so the crests and the big line
+  // sit at the same y as the neighbouring cards.
+  if (ms <= 0) return { lead: "\u00a0", value: t("events.screen.simple.sports_clock.starting_soon"), soon: true };
   const s = Math.floor(ms / 1000);
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);

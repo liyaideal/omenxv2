@@ -440,7 +440,7 @@ const STAGE_CASES: SectionCase[] = [
     spec: [
       {
         state: "finished",
-        when: "比赛不在 live（matchPhase）|| 无 stream_url",
+        when: "已结算（is_resolved）|| 无 stream_url（直播结束由直播源服务清掉；2026-11-16 起预计结束时间不再让舞台消失）",
         visual: "生产：LiveStage 返回 null，记分牌留在原位",
         source: "LiveStage 早退分支",
       },

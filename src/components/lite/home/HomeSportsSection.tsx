@@ -15,14 +15,7 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  buildDayStrip,
-  compactVolume,
-  liveAt,
-  matchesInBucket,
-  shortName,
-  type SportsMatch,
-} from "@/components/lite/sports/sportsData";
+import { buildDayStrip, compactVolume, liveAt, matchesInBucket, shortName, type SportsMatch, isUpcoming } from "@/components/lite/sports/sportsData";
 import { leagueCodeOf, sportCodeOf } from "@/components/lite/sports/sportsFilters";
 import { StreamPreview } from "@/components/lite/sports/StreamPreview";
 import { usePlayStream } from "@/hooks/usePlayStream";
@@ -566,7 +559,8 @@ export const HomeSportsSection = ({
     const live = matches.filter((m) => liveAt(m, now));
     const liveSet = new Set(live.map((m) => m.id));
     const upcoming = matches
-      .filter((m) => !liveSet.has(m.id) && m.kickoff && m.kickoff.getTime() > now)
+      // isUpcoming keeps a late kickoff (kickoff passed, not started) — CPO 2026-11-16.
+      .filter((m) => !liveSet.has(m.id) && isUpcoming(m, now))
       .sort((a, b) => (a.kickoff?.getTime() ?? 0) - (b.kickoff?.getTime() ?? 0));
     // Same order as the Sports view stage (EV-37): biggest volume first, then earlier kickoff.
     const streams = live.filter((m) => !!m.streamUrl).sort((a, b) => b.volume - a.volume || (a.kickoff?.getTime() ?? 0) - (b.kickoff?.getTime() ?? 0));

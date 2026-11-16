@@ -519,9 +519,10 @@ export const LiveStage = ({
       ? new Date(event.start_date).getTime()
       : NaN;
   const wallNow = Date.now();
-  const finished =
-    !!event.is_resolved ||
-    (!!event.end_date && new Date(event.end_date).getTime() <= wallNow);
+  // Settled is the only "over" the stage listens to. end_date is just the
+  // estimated end — past it the match (overtime) or the broadcast can still be
+  // on; the broadcast's own end is stream_url being cleared (CPO 2026-11-16 #4).
+  const finished = !!event.is_resolved;
   // Before the match starts the stage shows a ticking countdown, so it reads
   // the shared clock at one-second resolution — the same now the matchboard's
   // "Starts in …" reads (CPO 2026-11-16: one number, one clock).

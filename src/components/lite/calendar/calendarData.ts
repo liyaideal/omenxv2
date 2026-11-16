@@ -132,7 +132,8 @@ export const buildCalendarItems = ({
     if (!m.kickoff) continue;
     const t = m.kickoff.getTime();
     if (!inWindow(t)) continue;
-    if (t <= now && !m.live) continue;
+    // A late kickoff (kickoff passed, match not started) stays listed — CPO 2026-11-16.
+    if (t <= now && !m.live && !m.notStarted) continue;
     out.push({
       kind: "sports",
       id: `s-${m.id}`,
