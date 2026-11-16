@@ -37,7 +37,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 type Side = "yes" | "no";
 
-import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
+import { FUTURES_FEE_RATE } from "@/services/tradingService";
+import { netWinIfRight } from "@/lib/liteWinLoss";
 import { LimitOrderHint } from "@/components/lite/shared/LimitOrderHint";
 
 const FEE_RATE = FUTURES_FEE_RATE;
@@ -71,8 +72,10 @@ export interface LiteContractOrderPanelProps {
   boostLoading?: boolean;
   boostMax: number;
   boostTiers: number[];
+  /** Desktop header time line for non-sports events, already worded
+   *  (`Closes in 12:30` / `Expected to end in 45d`). */
   countdownText: string;
-  /** Sports fixtures: replaces `<countdown> left` (Starts in / ● LIVE · clock / Final · In review). */
+  /** Sports fixtures: replaces the time line (Kicks off in / ● LIVE · clock / Final · In review). */
   timeSlot?: React.ReactNode;
   variant: "desktop" | "mobile";
   /** Style-guide only: force the `Want to place a limit order? Pro ›` line. */
@@ -112,6 +115,12 @@ export interface LiteContractOrderPanelProps {
     remainderAutoClose?: AutoCloseResult;
     /** Render the Boost "Custom" tray already expanded (TR-7). */
     boostTrayOpen?: boolean;
+    /** What the whole Boost account is worth (cash + open calls) — turns on the cap rules. */
+    boostAccountValue?: number;
+    /** What the other open Boost calls could still lose. */
+    openCallsCouldLose?: number;
+    /** Boost balance shown next to HOW MUCH (display only). */
+    balance?: number;
   };
 
 }
@@ -178,9 +187,10 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const notional = amountNum * effBoost;
   const fee = notional * FEE_RATE;
   const quantity = sidePrice > 0 ? notional / sidePrice : 0;
-  const potentialWin = (1 - sidePrice) * quantity;
-  // RT-1: every displayed win is NET of the winning commission (single helper).
-  const potentialWinNet = netWin(potentialWin, fee);
+  // Lite win/loss (CPO 2026-11-13 / CTO 2026-11-16): the win is what the
+  // settled record will show — after the entry fee AND the 5% commission.
+  // Settling at $1 charges no closing fee.
+  const potentialWinNet = netWinIfRight(sidePrice, quantity);
 
   // Netting display math — mirrors the engine, which nets by SHARE QUANTITY
   // (qtyToNet = min(orderQty, oppositeQty)). A dollar-for-dollar model diverges
@@ -191,11 +201,33 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const qtyNet = canEstimateNet ? Math.min(quantity, heldQtyNum) : 0;
   const getBack = canEstimateNet ? heldValue * (qtyNet / heldQtyNum) : 0;
   const remainderQty = canEstimateNet ? Math.max(0, quantity - qtyNet) : 0;
-  const remainderWin = (1 - sidePrice) * remainderQty;
   const isPartialNet = canEstimateNet && remainderQty > 0;
   const remainderMarginEst = effBoost > 0 ? (remainderQty * sidePrice) / effBoost : 0;
   const remainderFee = remainderMarginEst * effBoost * FEE_RATE;
-  const remainderWinNet = netWin(remainderWin, remainderFee);
+  const remainderWinNet = netWinIfRight(sidePrice, remainderQty);
+
+  // "If you're wrong" (CTO 2026-11-16). The price can only go to 0¢, so a
+  // call loses its position plus the entry fee — but never more than the
+  // whole Boost account (cash + open calls); nothing past that is clawed
+  // back. When the buy nets an opposite holding, only the newly opened part
+  // counts; a buy that only nets has no "wrong" row.
+  const accountValue = fixture?.boostAccountValue ?? (user ? risk.boostAccountValue : undefined);
+  const otherCallsCouldLose = fixture?.openCallsCouldLose ?? (user ? risk.openCallsCouldLose : 0);
+  const lossIfWrongRaw = canEstimateNet
+    ? remainderQty * sidePrice + remainderFee
+    : notional + fee;
+  const showLossRow = !canEstimateNet || isPartialNet;
+  const lossCapped = accountValue != null && amountNum > 0 && lossIfWrongRaw > accountValue;
+  const lossIfWrong = lossCapped ? Math.max(0, accountValue as number) : lossIfWrongRaw;
+  // Several calls together could take everything: only when this call alone
+  // does not already (that case has its own line).
+  const overAccount =
+    accountValue != null &&
+    amountNum > 0 &&
+    showLossRow &&
+    !lossCapped &&
+    otherCallsCouldLose > 0 &&
+    lossIfWrong + otherCallsCouldLose > accountValue;
 
   // 2026-11-05 · Max rule (CPO): a signed-in user's amount can never exceed what
   // Max would put in (floor of the Boost balance) — typing or a preset above it
@@ -409,11 +441,11 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   // truthfully un-closable — with a nudge to type an amount.
   const autoCloseRow =
     amountNum <= 0
-      ? { text: "None", sub: "enter an amount", hot: false }
+      ? { text: "None", sub: t("trade.screen.lite.lite_contract_order_panel.ac_enter_amount"), hot: false }
       : effBoost <= 1
-        ? { text: "None", sub: "nothing borrowed", hot: false }
+        ? { text: "None", sub: t("trade.screen.lite.lite_contract_order_panel.ac_nothing_borrowed"), hot: false }
         : autoClose.kind === "none"
-          ? { text: "None", sub: "can't be reached", hot: false }
+          ? { text: "None", sub: t("trade.screen.lite.lite_contract_order_panel.ac_balance_covers"), hot: false }
           : {
               text: `≈ ${formatCents(autoClose.price)}`,
               sub: isAutoCloseHot(autoClose, sidePrice) ? "close to entry" : undefined,
@@ -437,9 +469,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <h3 className="text-sm font-semibold">{t("trade.screen.lite.lite_contract_order_panel.make_your_call")}</h3>
           {timeSlot ?? (
-            <span className="font-mono text-[11px] text-muted-foreground">
-              {countdownText} left
-            </span>
+            <span className="font-mono text-[11px] text-muted-foreground">{countdownText}</span>
           )}
         </div>
       )}
@@ -479,7 +509,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
             {t("trade.screen.lite.lite_contract_order_panel.how_much")}
           </div>
-          <AccountBalanceLine label={t("trade.screen.lite.lite_contract_order_panel.boost_balance")} value={money(balance)} direction="to_futures" />
+          <AccountBalanceLine label={t("trade.screen.lite.lite_contract_order_panel.boost_balance")} value={money(fixture?.balance ?? balance)} direction="to_futures" />
         </div>
         <div className="rounded-xl bg-muted/40 p-3">
           <div className="flex items-baseline gap-2">
@@ -591,9 +621,11 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                   </span>
                   <span className="font-mono font-semibold text-muted-foreground">
                     {effBoost <= 1 || remainderAutoClose == null || remainderAutoClose.kind === "none"
-                      ? effBoost <= 1
-                        ? "None · nothing borrowed"
-                        : "None · can't be reached"
+                      ? `None · ${
+                          effBoost <= 1
+                            ? t("trade.screen.lite.lite_contract_order_panel.ac_nothing_borrowed")
+                            : t("trade.screen.lite.lite_contract_order_panel.ac_balance_covers")
+                        }`
                       : `≈ ${formatCents(remainderAutoClose.price)}`}
                   </span>
                 </div>
@@ -611,7 +643,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent className="p-3">
-                  <WinTooltipBody />
+                  <WinTooltipBody body={t("trade.screen.lite.lite_contract_order_panel.win_tooltip")} />
                 </TooltipContent>
               </Tooltip>
             </span>
@@ -620,10 +652,44 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             </span>
           </div>
         )}
+        {showLossRow && (
+          <div className="flex items-start justify-between gap-3 px-2 pt-0.5">
+            <div className="min-w-0">
+              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                {effBoost > 1
+                  ? t("trade.screen.lite.lite_contract_order_panel.lose_up_to")
+                  : t("trade.screen.lite.lite_contract_order_panel.lose")}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" aria-label={t("trade.screen.lite.lite_contract_order_panel.about_what_you_lose")}>
+                      <Info className="h-3 w-3 text-muted-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-72 p-3 text-xs leading-relaxed text-muted-foreground">
+                    {t("trade.screen.lite.lite_contract_order_panel.lose_tooltip")}
+                  </TooltipContent>
+                </Tooltip>
+              </span>
+              {lossCapped && (
+                <div className="mt-0.5 text-[11px] text-trading-red">
+                  {t("trade.screen.lite.lite_contract_order_panel.lose_everything")}
+                </div>
+              )}
+            </div>
+            <span className="shrink-0 whitespace-nowrap font-mono text-lg font-semibold text-foreground">
+              {money(amountNum > 0 ? lossIfWrong : 0)}
+            </span>
+          </div>
+        )}
+        {overAccount && (
+          <div className="mx-2 rounded-lg bg-trading-red/10 px-2.5 py-2 text-[11.5px] leading-normal text-trading-red">
+            {t("trade.screen.lite.lite_contract_order_panel.over_account")}
+          </div>
+        )}
         <div className="flex items-start justify-between gap-3 px-2 pt-0.5">
           <div className="min-w-0">
             <span className="inline-flex items-center gap-1 whitespace-nowrap text-muted-foreground">
-              {t("common.est_auto_close")}
+              {t("trade.screen.lite.lite_contract_order_panel.auto_close")}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button type="button" aria-label={t("trade.screen.lite.lite_contract_order_panel.about_auto_close")}>
@@ -636,7 +702,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
               </Tooltip>
             </span>
             <div className="text-[10px] text-muted-foreground/70">
-              {t("trade.screen.lite.lite_contract_order_panel.moves_with_your_other_positions")}
+              {t("trade.screen.lite.lite_contract_order_panel.ac_only_if_low")}
             </div>
           </div>
           {/* Value and its hint stack like the label and its subline on the left,
@@ -692,9 +758,11 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         amountEntered={amountNum > 0}
         fallback={
           <p className="text-center text-[10px] text-muted-foreground/70">
-            {amountNum > 0
-              ? `Not guaranteed. You can lose your full ${money(amountNum)}.`
-              : "Not guaranteed. You can lose everything you put in."}
+            {effBoost > 1
+              ? t("trade.screen.lite.lite_contract_order_panel.footnote_boost")
+              : amountNum > 0
+                ? t("trade.screen.lite.lite_contract_order_panel.footnote_full", { amount: money(lossIfWrong) })
+                : t("trade.screen.lite.lite_contract_order_panel.footnote_empty")}
           </p>
         }
       />

@@ -56,6 +56,7 @@ import {
 } from "@/components/lite/trade/InReviewCard";
 import { BOOST_LIMIT_REACHED } from "@/components/lite/contract/LiteContractOrderPanel";
 
+import { LiteOrderDrawerHeader } from "@/components/lite/contract/LiteOrderDrawerHeader";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import {
   TradeHeading,
@@ -102,7 +103,7 @@ import {
 import { LiteBoardGroupHeader as GroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
 
 import { useTradeCountdown } from "@/components/lite/intraday/intradayData";
-import { SportsClockLabel, useSportsClock } from "@/components/lite/sports/sportsClock";
+import { SportsClockLabel, kickoffInShort, useSportsClock } from "@/components/lite/sports/sportsClock";
 import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { EmptyState } from "@/components/states";
 import { SeoFooter } from "@/components/seo/SeoFooter";
@@ -410,7 +411,17 @@ const LiteContractTrade = () => {
 
   const endDate = event?.end_date ? new Date(event.end_date) : null;
   const freezeAt = event?.freeze_time ? new Date(event.freeze_time) : null;
-  const { text: countdown } = useTradeCountdown(freezeAt ?? endDate, { days: true });
+  const { text: countdown, diffMs: countdownMs } = useTradeCountdown(freezeAt ?? endDate, { days: true });
+  // Order-ticket time line (CTO 2026-11-16): a round really closes at its
+  // end; for long-running events the date is only the expected end and
+  // trading can go on past it. Sports use the match clock (sportsClock).
+  const ticketTimeLabel = (() => {
+    if (!Number.isFinite(countdownMs)) return "";
+    const time = kickoffInShort(countdownMs);
+    return /UPDOWN/.test(String(event?.event_subtype ?? ""))
+      ? t("trade.screen.lite.lite_contract_order_panel.closes_in", { time })
+      : t("trade.screen.lite.lite_contract_order_panel.expected_to_end_in", { time });
+  })();
   // Sports: Starts in / ● LIVE · clock / Final — never a countdown to the estimated end.
   const sportsClock = useSportsClock(event as Parameters<typeof useSportsClock>[0]);
 
@@ -1589,7 +1600,7 @@ const LiteContractTrade = () => {
     boostLoading,
     boostMax: boostCfg.maxBoost,
     boostTiers: tiers,
-    countdownText: countdown,
+    countdownText: ticketTimeLabel,
     timeSlot: sportsClock ? <SportsClockLabel clock={sportsClock} variant="card" /> : undefined,
     heldSideLabel: heldPos ? (heldIsYes ? yesLabel : noLabel) : null,
     heldCurrentValue: heldPos ? heldNowWorth : null,
@@ -1802,28 +1813,14 @@ const LiteContractTrade = () => {
             // Drops the shared bottom-sheet's pb-24 tail (per-usage override).
             className="pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
           >
-            <div className="mb-3">
-              <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    "rounded-md px-2 py-0.5 text-[11px] font-semibold",
-                    side === "yes" ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
-                  )}
-                >
-                  {side === "yes" ? panelProps.yesLabel : panelProps.noLabel}
-                </span>
-                <span className="truncate text-sm font-semibold">
-                  {orderContextLine}
-                </span>
-              </div>
-              <div className="mt-1 text-[11px] text-muted-foreground">
-                {sportsClock ? <SportsClockLabel clock={sportsClock} variant="line" /> : `${countdown} left`} ·{" "}
-                {Math.round(
-                  (side === "yes" ? panelProps.yesPrice : panelProps.noPrice) * 100,
-                )}
-                % chance
-              </div>
-            </div>
+            <LiteOrderDrawerHeader
+              side={side}
+              sideLabel={side === "yes" ? panelProps.yesLabel : panelProps.noLabel}
+              contextLine={orderContextLine}
+              sportsClock={sportsClock}
+              timeLabel={ticketTimeLabel}
+              sidePrice={side === "yes" ? panelProps.yesPrice : panelProps.noPrice}
+            />
             <LiteContractOrderPanel
               {...panelProps}
               variant="mobile"

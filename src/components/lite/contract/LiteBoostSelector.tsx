@@ -128,8 +128,7 @@ export const LiteBoostSelector = ({
       )}
 
       <p className="text-[10px] leading-relaxed text-muted-foreground">
-        Bigger Boost, bigger win if you're right — and an earlier auto-close if the
-        price moves against you.
+        {t("trade.screen.lite.lite_contract_order_panel.boost_hint")}
       </p>
     </div>
   );

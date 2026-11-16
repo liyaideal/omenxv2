@@ -563,7 +563,7 @@ const baseOrderProps = {
   boostEnabled: true,
   boostMax: 20,
   boostTiers: boostTiers(20),
-  countdownText: "02:14:09",
+  countdownText: "Expected to end in 2h 14m",
   variant: "desktop" as const,
   onRequestAuth: () => undefined,
 };
@@ -1555,7 +1555,7 @@ const MultiMarketStates = () => {
           boostEnabled
           boostMax={10}
           boostTiers={boostTiers(10)}
-          countdownText="09:51:19"
+          countdownText="Expected to end in 9h 51m"
           variant="desktop"
           onRequestAuth={() => undefined}
         />
@@ -1572,7 +1572,7 @@ const LiteSpotStates = ({ isMobile }: { isMobile: boolean }) => {
   const shared = {
     eventName: "AAPL daily up/down",
     eventId: "pg-spot",
-    countdownText: "01:02:03",
+    countdownText: "Expected to end in 1h 02m",
     yesLabel: "Up",
     noLabel: "Down",
     yesPrice: 0.54,

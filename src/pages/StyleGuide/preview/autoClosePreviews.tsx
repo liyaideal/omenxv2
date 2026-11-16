@@ -248,7 +248,7 @@ const OrderPanelCase = ({
       boostEnabled
       boostMax={20}
       boostTiers={[1, 2, 5, 10, 20]}
-      countdownText="02:14:09"
+      countdownText="Expected to end in 2h 14m"
       variant="desktop"
       blocked={false}
       side={side}

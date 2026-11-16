@@ -49,11 +49,11 @@ const CASES: SectionCase[] = [
   {
     key: "autoclose-order-panel-states",
     label: "AC-T4 · 下单面板 Est. auto-close 行 · 四态",
-    note: "视觉焦点 = Returns 块的 `Est. auto-close ⓘ` 行 + 常驻小字 `Moves with your other positions`。四个实例（2×2）逐字对照 mock7 v2 §4：① 零单 `None · enter an amount` ② `≈ 62¢` ③ `None · can't be reached` ④ 红 `≈ 89¢ · close to entry`。值由 fixture prop 驱动（生产从不传）。",
+    note: "视觉焦点 = Returns 块的 `Auto-close ⓘ` 行 + 常驻小字 `Only if your Boost balance runs low`（2026-11-16 起，原 `Est. auto-close` / `Moves with your other positions`）。四个实例（2×2）逐字对照 mock7 v2 §4：① 零单 `None · enter an amount` ② `≈ 62¢` ③ `None · your balance covers it` ④ 红 `≈ 89¢ · close to entry`。值由 fixture prop 驱动（生产从不传）。",
     spec: [
       { state: "零单（瞬态，不进值语法）", when: "amountNum <= 0", visual: "`None` 白 + 副词 `enter an amount`", source: "LiteContractOrderPanel.autoCloseRow" },
       { state: "level", when: "effBoost > 1 && autoClose.kind === 'level' && !hot", visual: "`≈ 62¢`", source: "estimateAutoClosePrice" },
-      { state: "none", when: "effBoost <= 1 → nothing borrowed；autoClose.kind === 'none' → can't be reached", visual: "`None · nothing borrowed` / `None · can't be reached`", source: "estimateAutoClosePrice" },
+      { state: "none", when: "effBoost <= 1 → nothing borrowed；autoClose.kind === 'none' → your balance covers it", visual: "`None · nothing borrowed` / `None · your balance covers it`", source: "estimateAutoClosePrice" },
       { state: "hot", when: "isAutoCloseHot(autoClose, sidePrice)", visual: "红 `≈ 89¢ · close to entry`", source: "isAutoCloseHot" },
       { state: "加载中", when: "数据未到达", visual: "骨架占位，不是文字值", source: "useRealtimeRiskMetrics" },
     ],
@@ -61,10 +61,10 @@ const CASES: SectionCase[] = [
   {
     key: "autoclose-order-panel-partial-net",
     label: "AC-T5 · 下单面板 · partial-net 新仓行",
-    note: "netting props（持仓在对侧、heldQty 小于本单 qty）使 `Est. auto-close (new position)` 行出现，语法与主行一致；fixture.remainderAutoClose = none → `None · can't be reached`。",
+    note: "netting props（持仓在对侧、heldQty 小于本单 qty）使 `Est. auto-close (new position)` 行出现，语法与主行一致；fixture.remainderAutoClose = none → `None · your balance covers it`。",
     spec: [
       { state: "partial-net 行出现", when: "isPartialNet === canEstimateNet && remainderQty > 0", visual: "Returns 块多出 `Est. auto-close (new position)` 行", source: "LiteContractOrderPanel.isPartialNet" },
-      { state: "none", when: "remainderAutoClose.kind === 'none' || effBoost <= 1", visual: "`None · nothing borrowed` / `None · can't be reached`", source: "remainderAutoClose" },
+      { state: "none", when: "remainderAutoClose.kind === 'none' || effBoost <= 1", visual: "`None · nothing borrowed` / `None · your balance covers it`", source: "remainderAutoClose" },
     ],
   },
 ];
@@ -77,12 +77,12 @@ const SOLVER_ROWS: [string, string][] = [
   ["boost ≤ 1", "恒 none（无借贷敞口，亏损封顶本金）"],
   ["equity ≤ 0", "level = markPrice，恒 hot 红态"],
   ["数据加载中", "不是值：骨架占位"],
-  ["恒等式", 'hot：|mark − level| / mark ≤ 10% → 红态；保留 "≈"；"Moves with your other positions" 随字段常驻'],
+  ["恒等式", 'hot：|mark − level| / mark ≤ 10% → 红态；保留 "≈"；"Only if your Boost balance runs low" 随字段常驻'],
 ];
 
 const MATRIX_ROWS: string[][] = [
-  ["下单面板", "≈X¢", "红 ≈X¢ · close to entry", "None · nothing borrowed / None · can't be reached", "零单=None · enter an amount；加载=骨架", "Standard 无此行"],
-  ["下单面板 partial-net 行", "≈X¢", "红", "None · nothing borrowed / None · can't be reached", "零单=None", "—"],
+  ["下单面板", "≈X¢", "红 ≈X¢ · close to entry", "None · nothing borrowed / None · your balance covers it", "零单=None · enter an amount；加载=骨架", "Standard 无此行"],
+  ["下单面板 partial-net 行", "≈X¢", "红", "None · nothing borrowed / None · your balance covers it", "零单=None", "—"],
   ["交易页持仓条", "≈ X¢", "红 + Close to current price", "None + Can lose up to $X", "加载=骨架", "无此列"],
   ["Portfolio 桌面行", "第三行 auto-close ≈X¢", "整行红轨+红字", "第三行 auto-close none", "加载=骨架", "不加段"],
   ["Portfolio 移动卡", "句尾 · auto-close ≈X¢", "红句", "句子停在 · can lose up to $Y", "加载=骨架", "不加"],

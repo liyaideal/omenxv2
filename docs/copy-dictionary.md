@@ -453,6 +453,14 @@ positives. Chip words come from the sibling event's `side_labels`.
 
 | Canonical | Meaning |
 |---|---|
+| **If you're right, you win $X** | Lite 合约下单卡「对了赢」（2026-11-16 起 X = 扣开仓费和 5% 佣金后的净赚，= 结算后 Portfolio Result） | 份数 × $1 − 佣金（正式版旧算法） |
+| **If you're wrong, you lose $X** / **If you're wrong, you lose up to $X** | 下单卡「错了最多亏」：1× 不带 up to，Boost 带；X = 仓位 + 开仓费，不超过 Boost 账户总值 | Max loss |
+| **That's everything you have in Boost.** | 下单卡：这一笔就能亏光时亏损行下的红字（不写余额数） | `… in your Boost balance.` |
+| **If this and your other Boost calls all go wrong, you could lose everything you have in Boost.** | 下单卡：几笔加起来可能亏光时的红框 | `… more than your $X Boost balance.` |
+| **Auto-close** · **Only if your Boost balance runs low** | 下单卡 auto-close 行标题 / 副标（原 `Est. auto-close` / `Moves with your other positions`）；None 子句 `nothing borrowed`（1×）/ `your balance covers it`（Boost，原 `can't be reached`）/ `enter an amount` | `can't be reached` |
+| **Not guaranteed. With Boost you can lose more than you put in.** | 下单卡 Boost 底注；1× 为 `Not guaranteed. You can lose your full $X.`（X = 最多亏） | — |
+| **Bigger Boost: bigger win if you're right, bigger loss if you're wrong.** | Boost 档位下的提示 | `… an earlier auto-close if the price moves against you.` |
+| **Kicks off in {time}** / **Closes in {time}** / **Expected to end in {time}** | 下单卡右上与手机抽屉顶部的时间：体育赛前 / 加密轮次（event_subtype 含 UPDOWN）/ 其他长期事件；手机抽屉后接 `{pct}% chance {side} wins`（体育）或 `{pct}% chance` | `{countdown} left`, `Starts in`（下单卡里） |
 | **Bought {side} · ${putIn} at {N}× Boost · ${position} position** | Lite 下单成功 toast（Boost > 1×，2026-11-13 ②）；1× 时 `Bought {side} · ${putIn}` | `Bought … $30`（只写仓位不写投入） |
 | **Cashed out {side} · you lost ${X} on this call** | Lite 亏损平仓 toast（2026-11-13 ⑤）；X = 拿回 − 投入 − 开仓费；亏损时不自动弹海报 | 亏损也弹海报 |
 | **Entry** | Position entry price |

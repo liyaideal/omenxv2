@@ -80,8 +80,8 @@ const PANEL_CASES: SectionCase[] = [
     spec: [
       { state: "tray 展开", when: "fixture.boostTrayOpen === true（生产为用户点击 Custom）", visual: "档位行下方展开输入托盘", source: "LiteBoostSelector.defaultTrayOpen" },
       { state: "自定义值", when: "!tiers.includes(value)", visual: "Custom 胶囊改显 `{value}×` 并高亮", source: "LiteBoostSelector.isCustom" },
-      { state: "Returns 区", when: "always", visual: "两行：`If you're right, you win` ⓘ + 净利金额（毛利 − 5% winning commission）；`Est. auto-close` 行不变；无 Max loss 行", source: "LiteContractOrderPanel Returns block · netWin()" },
-      { state: "auto-close = None 子态", when: "effBoost <= 1 → `None · nothing borrowed`；autoClose.kind === 'none' → `None · can't be reached`", visual: "灰色 None + 子文案", source: "autoCloseRow" },
+      { state: "Returns 区", when: "always", visual: "三行：`If you're right, you win` ⓘ + 净利（毛利 − 开仓费 − 5% 赢利佣金，2026-11-16 起也扣开仓费）；`If you're wrong, you lose`（1×）/ `… lose up to`（Boost）ⓘ + 金额；`Auto-close` 行。最多亏的封顶与红字见 TR-31 … TR-33", source: "LiteContractOrderPanel Returns block · netWinIfRight()" },
+      { state: "auto-close = None 子态", when: "effBoost <= 1 → `None · nothing borrowed`；autoClose.kind === 'none' → `None · your balance covers it`", visual: "灰色 None + 子文案", source: "autoCloseRow" },
       { state: "派生行渲染条件", when: "effBoost > 1 && amountNum > 0", visual: "金额输入框内右侧同基线挂 `= {$输入×Boost} position`（本 case 为 `= $175.00 position`）；1× 或空输入时零 DOM；恒中性灰，不进方向/盈亏色轴", source: "LiteContractOrderPanel 金额输入块" },
     ],
 
@@ -118,6 +118,45 @@ const PANEL_CASES: SectionCase[] = [
       { state: "余额不够 · 点 Add money", when: "点提示里的 Add money", visual: "Standard 余额 ≥ $1（floor）→ 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向 Standard → Boost）；不足 $1 → 打开充值（桌面弹 DepositDialog 预选 Boost，手机进 /deposit）。点下单弹的 toast 同一分叉：按钮 Transfer 或 Add funds，Add funds 走同一个充值（桌面弹窗，不再跳 /wallet）", source: "useInsufficientBalanceToast · CPO 2026-11-12 / 11-13" },
       { state: "对冲例外", when: "isNetting（买的是已持仓的另一边）", visual: "不封顶、不提示——这笔先用持仓换回的钱，钱包不是上限", source: "capApplies" },
       { state: "游客例外", when: "!user", visual: "不封顶、不提示——点 Buy 先拉起登录", source: "capApplies" },
+    ],
+  },
+  {
+    key: "trade-tr31",
+    label: "TR-31 · 下单面板赢亏 · 1×",
+    note: "CPO 2026-11-16（画布「Lite 交易展示 17 条」第 ① 排，CTO 回复后定稿）。1× 不写 up to：`If you're wrong, you lose $10.02`（投入 + 开仓费）；auto-close `None · nothing borrowed`；脚注 `Not guaranteed. You can lose your full $10.02.`。赢的数扣开仓费和 5% 佣金，与结算后 Portfolio 的 Result 是同一个数。",
+    spec: [
+      { state: "赢", when: "always", visual: "`If you're right, you win` ⓘ + netWinIfRight(价格, 份数)；CTA `To win $X →` 同一个数", source: "src/lib/liteWinLoss.ts" },
+      { state: "亏", when: "effBoost <= 1", visual: "`If you're wrong, you lose` ⓘ + 投入 + 开仓费", source: "lossIfWrong" },
+      { state: "空金额", when: "amountNum <= 0", visual: "两行都是 $0.00；脚注 `Not guaranteed. You can lose everything you put in.`", source: "footnote_empty" },
+    ],
+  },
+  {
+    key: "trade-tr32",
+    label: "TR-32 · 下单面板赢亏 · 这一笔就能亏光",
+    note: "最多亏 = 仓位 + 开仓费，但不超过 Boost 账户总值（现金 + 持仓投入 + 浮盈浮亏，CTO 2026-11-16）；超出部分不追缴。被封顶时金额写账户总值，下面一行红字 `That's everything you have in Boost.`——不写余额数，因为有持仓时账户总值和上方显示的 Boost balance 不是一个数。",
+    spec: [
+      { state: "封顶", when: "已登录 && 仓位 + 开仓费 > boostAccountValue", visual: "`If you're wrong, you lose up to` + `$25.00`；红字 11px trading-red", source: "lossCapped · risk.boostAccountValue" },
+      { state: "游客", when: "!user", visual: "不封顶、不出红字", source: "accountValue undefined" },
+    ],
+  },
+  {
+    key: "trade-tr33",
+    label: "TR-33 · 下单面板赢亏 · 几笔加起来超过",
+    note: "这一笔的最多亏 + 其他 Boost 持仓跌到底还会亏的钱（多：份数 × 现价；空：份数 × (1 − 现价)）> Boost 账户总值时，在亏损行下面出红框：`If this and your other Boost calls all go wrong, you could lose everything you have in Boost.`。这一笔自己已经被封顶（TR-32）时不再出红框，避免两句红字说同一件事。",
+    spec: [
+      { state: "超额", when: "已登录 && !lossCapped && openCallsCouldLose > 0 && lossIfWrong + openCallsCouldLose > boostAccountValue", visual: "红框 rounded-lg bg-trading-red/10 11.5px trading-red，左右与行对齐", source: "overAccount · risk.openCallsCouldLose" },
+      { state: "对冲部分平仓", when: "买对面、只抵掉一部分", visual: "最多亏只算新开那部分；全部抵掉时亏损行与红框都不出", source: "showLossRow · remainderQty" },
+    ],
+  },
+  {
+    key: "trade-tr34",
+    label: "TR-34 · 手机下单抽屉顶部的时间行",
+    note: "CTO 2026-11-16：体育倒数的是开赛（比赛中显示比赛时钟，逻辑不动）；加密轮次倒数的是本轮结束 `Closes in`；其他长期事件倒数的只是预计结束日期，过了还可能继续交易，所以写 `Expected to end in`。体育的概率写 `78% chance Magic wins`，其他写 `64% chance`。桌面下单卡右上同样的时间说法（不加概率，按钮上已有价格）。",
+    spec: [
+      { state: "体育赛前", when: "sportsClock.phase === 'upcoming'", visual: "`Kicks off in 16h 08m · 78% chance Magic wins`", source: "SportsClockLabel line · kicks_off_in" },
+      { state: "体育比赛中", when: "phase === 'live'", visual: "`● LIVE · Q3 04:12 · 78% chance Magic wins`", source: "SportsClockLabel line" },
+      { state: "加密轮次", when: "/UPDOWN/.test(event_subtype)", visual: "`Closes in 12:30 · 64% chance`", source: "LiteContractTrade ticketTimeLabel · LiteQuickTrade" },
+      { state: "长期事件", when: "其他", visual: "`Expected to end in 45d 3h · 31% chance`", source: "ticketTimeLabel" },
     ],
   },
 ];
@@ -331,7 +370,7 @@ const BOOST_CASES: SectionCase[] = [
     key: "trade-tr27b",
     label: "TR-27b · 同账号未进过 Pro · 已输入 $25 → 风险句顶替入口",
     spec: [
-      { state: "有金额", when: "amountNum > 0", visual: "`Not guaranteed. You can lose your full $25.00.`，入口消失；清空金额入口回来", source: "LimitOrderHint amountEntered" },
+      { state: "有金额", when: "amountNum > 0", visual: "1×：`Not guaranteed. You can lose your full $25.04.`（金额 = 最多亏，含开仓费）；Boost：`Not guaranteed. With Boost you can lose more than you put in.`；入口消失，清空金额入口回来", source: "LimitOrderHint amountEntered" },
     ],
   },
   {
@@ -385,9 +424,9 @@ const SPORTS_CLOCK_CASES: SectionCase[] = [
   {
     key: "trade-tr29",
     label: "TR-29 · 体育下单卡 · 开赛前（SportsClockLabel · upcoming）",
-    note: "体育比赛（metadata.kickoff_at 存在，含让分 / 大小分子盘）的下单卡右上不再写 `<倒计时> left`：比赛打没打完只听比赛状态，预计结束时间 end_date 不显示、不关交易。四态见 TR-29 … 29d；手机同一句在下单抽屉标题下一行（LiteContractTrade，line 变体），Pro 页头与赛事下拉同口径（ES-D5 / ES-M2）。",
+    note: "体育比赛（metadata.kickoff_at 存在，含让分 / 大小分子盘）的下单卡右上不再写倒计时（2026-11-16 起开赛前写 `Kicks off in …`，非体育见 TR-34）：比赛打没打完只听比赛状态，预计结束时间 end_date 不显示、不关交易。四态见 TR-29 … 29d；手机同一句在下单抽屉标题下一行（LiteContractTrade，line 变体），Pro 页头与赛事下拉同口径（ES-D5 / ES-M2）。",
     spec: [
-      { state: "开赛前", when: 'matchPhase(e) === "upcoming"（match_status scheduled / postponed，或 kickoff > now）', visual: "`Starts in 2h 10m`（≥1 天 `2d 19h`、<1 小时 `38:12` 按秒跳），mono 11 muted；可以交易", source: "sportsClock.tsx kickoffInShort · " + SRC_CLOCK },
+      { state: "开赛前", when: 'matchPhase(e) === "upcoming"（match_status scheduled / postponed，或 kickoff > now）', visual: "`Kicks off in 2h 10m`（2026-11-16 起，原 `Starts in`）（≥1 天 `2d 19h`、<1 小时 `38:12` 按秒跳），mono 11 muted；可以交易", source: "sportsClock.tsx kickoffInShort · " + SRC_CLOCK },
     ],
   },
   {

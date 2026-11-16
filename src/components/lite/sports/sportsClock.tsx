@@ -115,7 +115,8 @@ export const SportsClockLabel = ({
       </span>
     ) : (
       <span className={variant === "card" ? "font-mono text-[11px] text-muted-foreground" : undefined}>
-        {t(`${K}.starts_in`, { time: kickoffInShort(clock.kickoffInMs) })}
+        {/* Lite order ticket (CTO 2026-11-16): the countdown is to kick-off. */}
+        {t(`${K}.kicks_off_in`, { time: kickoffInShort(clock.kickoffInMs) })}
       </span>
     );
   }

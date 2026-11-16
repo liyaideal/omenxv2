@@ -1,7 +1,8 @@
-# Lite 赢亏展示 — 交付说明 v1（2026-11-13）
+# Lite 赢亏展示 — 交付说明 v1（2026-11-13，11-16 补下单面板）
 
 > **通俗导读**：起因是一个线上投诉——用户放 $50 开 3× Boost，下单卡写着「最多亏 $50」，结果两笔各亏了约 $150；另一位用户下单卡显示「赢 $24.17」，实际只赚 $4.09。**机制不改（仍是全仓），只改 Lite 的展示**，让新手看得懂自己放进去多少、仓位多大、赢了净赚多少、最多会亏多少。
-> 一共梳理出 17 处，分 8 排（画布「Lite 交易展示 17 条 · 改前改后」）。**本轮落地 ②–⑧**；① 下单面板等 CTO 确认赢亏规则后再做（见 §9）。
+> 一共梳理出 17 处，分 8 排（画布「Lite 交易展示 17 条 · 改前改后」），**全部落地**；① 下单面板的规则 CTO 在 11-16 确认（§1、§1.1）。
+> 0. ① 下单面板：写「对了赢多少」（扣开仓费和 5% 佣金，等于结算后 Portfolio 的 Result）和「错了最多亏多少」；最多亏不超过 Boost 账户里的钱，这一笔就够亏光、或几笔加起来可能亏光时各有一行红字；auto-close 行、底注、Boost 提示句讲人话；下单卡和手机抽屉顶部的时间改成「开赛 / 本轮结束 / 预计结束」三种说法。
 > 1. ② 下单成功提示写清「投入多少 · 几倍 · 仓位多大」。
 > 2. ③ 交易页持仓卡：`None` 下面写「最多会亏多少」；Profit 旁加 ⓘ，解释为什么刚买完 Profit 略低于 $0。
 > 3. ④ Portfolio Live：`Cost` 改 `Put in`；Boost 行的「赢了得多少」改成净赚，并写出最多会亏多少；桌面表头改 `IF IT WINS / RISK`；Boost check 说明句换成人话。
@@ -22,8 +23,8 @@
 
 | 步 | 做什么 | 看到什么 |
 |---|---|---|
-| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 本次在 **Lite** 组四个节点：`交易页`（持仓卡 AC-T1 / AC-T1b / AC-T1c，1× 卡 TR-11 / TR-12）、`Portfolio`（Live 行与卡 PF-8、Boost check 说明 PF-7、单笔结算详情 PF-24 … PF-27）、`Events 列表` 里的首页 All 视图（HA-1）、`Wallet`（总余额与两张账户卡） |
-| 1b | 只在字典看得到的态 | 手机 Profit ⓘ 抽屉打开（AC-T1c）、结算详情自动平仓 / 全亏（PF-26 / PF-25）——演示账号未必凑得出，是既定状态不是 bug；下单 / 平仓提示是 toast，没有字典帧，下一单、平一单就能看到 |
+| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 本次在 **Lite** 组四个节点：`交易页`（下单面板 TR-31 … TR-34、体育下单卡 TR-29；持仓卡 AC-T1 / AC-T1b / AC-T1c，1× 卡 TR-11 / TR-12）、`Portfolio`（Live 行与卡 PF-8、Boost check 说明 PF-7、单笔结算详情 PF-24 … PF-27）、`Events 列表` 里的首页 All 视图（HA-1）、`Wallet`（总余额与两张账户卡） |
+| 1b | 只在字典看得到的态 | 下单面板「这一笔就能亏光」「几笔加起来可能亏光」（TR-32 / TR-33，演示账号钱多凑不出）、手机 Profit ⓘ 抽屉打开（AC-T1c）、结算详情自动平仓 / 全亏（PF-26 / PF-25）——演示账号未必凑得出，是既定状态不是 bug；下单 / 平仓提示是 toast，没有字典帧，下一单、平一单就能看到 |
 | 2 | 页头搜索框敲编号或 key | 例：`AC-T1b`、`portfolio-lite-detail-cashout` |
 | 3 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=<key>`，切语言加 `&lang=ru` |
 | 4 | 样张下面的表 | 「状态 / 触发条件 / 视觉 / 数据来源」 |
@@ -42,8 +43,24 @@
 
 - 价格接近 $1 时，赢了的价格结果可能小于手续费，净赚会显示成负数（如 `If it wins → -$0.03`）；这时不收赢利佣金（佣金只对正利润收）。
 - 全仓：一笔亏过投入的部分从 Boost 余额里扣，所以「最多亏」写的是**仓位 + 开仓费**，不是投入。
-- **单笔最多亏是否再按余额封顶、几笔加起来超过余额怎么提示**——属于 ①，等 CTO 确认，本轮不做。
+- 下单面板的「最多亏」不超过 **Boost 账户总值**（现金 + 持仓投入 + 浮盈浮亏，`useRealtimeRiskMetrics().boostAccountValue`）；亏光后超出的部分由保险基金承担、**不向用户追缴**（CTO 2026-11-16）。
+- 到期按 $1 结算只收开仓费、不收平仓费，所以「赢了净赚」只减开仓费（CTO 2026-11-16）。
 - 海报口径与对账口径分开：海报（用户点 Share）**不扣手续费、不扣赢利佣金**；Portfolio、结算详情、钱包一律净额（2026-11-05 已统一）。
+
+## 1.1 ① 下单面板（桌面下单卡 + 手机下单抽屉，同一个组件 `LiteContractOrderPanel`）
+
+| 行 | 什么时候 | 写法 |
+|---|---|---|
+| 对了赢 | 始终（空金额为 $0.00） | `If you're right, you win` ⓘ + `netWinIfRight(价格, 份数)`；CTA `To win $X →` 同一个数。ⓘ 说明：`After the trading fee and the 5% winning commission on profit. This is the same number your Portfolio will show once it settles.` |
+| 错了最多亏 | 始终；买对面且全部抵掉旧仓位时不显示 | 1× `If you're wrong, you lose`，Boost `If you're wrong, you lose up to` ⓘ + 金额 M。M = 仓位 + 开仓费；买对面只抵掉一部分时只算新开那部分（CTO）。ⓘ 说明：`If you're wrong, the price goes to 0¢ and you lose the whole position plus the trading fee. With Boost, the part beyond what you put in comes out of your Boost balance.` |
+| 这一笔就能亏光 | 已登录，且 仓位 + 开仓费 > Boost 账户总值 | M 写账户总值；亏损行下面红字 `That's everything you have in Boost.` |
+| 几笔加起来可能亏光 | 已登录、这一笔没被封顶、有其他 Boost 持仓，且 M + 其他持仓还可能亏的钱 > 账户总值 | 亏损行下面红框 `If this and your other Boost calls all go wrong, you could lose everything you have in Boost.`。「其他持仓还可能亏」= 多：份数 × 现价；空：份数 × (1 − 现价)（`openCallsCouldLose`） |
+| Auto-close | 始终 | 标题 `Auto-close` ⓘ，副标 `Only if your Boost balance runs low`；值 `≈ 52¢`；None 时 1× `nothing borrowed`、Boost `your balance covers it`、空金额 `enter an amount`。估算算法不动 |
+| 底注 | 金额 > 0 | 1×：`Not guaranteed. You can lose your full $X.`（X = M）；Boost：`Not guaranteed. With Boost you can lose more than you put in.`；空金额：1× `… You can lose everything you put in.`、Boost 同 Boost 句 |
+| Boost 档位下的提示 | 始终 | `Bigger Boost: bigger win if you're right, bigger loss if you're wrong.` |
+| 时间（桌面卡右上 / 手机抽屉顶部） | — | 体育赛前 `Kicks off in 16h 08m`，比赛中沿用比赛时钟；加密轮次（`event_subtype` 含 `UPDOWN`）`Closes in 12:30`；其他长期事件 `Expected to end in 45d 3h`（倒数的是 Polymarket 预计结束日，过了可能还能交易）。手机抽屉后面接概率：体育 `78% chance Magic wins`，其他 `64% chance`；桌面不写概率 |
+
+红字里**不写余额数**：有持仓时账户总值和上方显示的 `Boost balance`（可用现金）不是一个数，写出来会对不上（CPO 2026-11-16）。游客不封顶、不出红字。
 
 ## 2. ② 下单成功提示
 
@@ -121,6 +138,9 @@ Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接�
 
 | 排 | key | 看什么 |
 |---|---|---|
+| ① | `trade-tr31` … `trade-tr33`（TR-31 … TR-33） | 下单面板：1×、这一笔就能亏光、几笔加起来可能亏光（桌面 1280 + 手机 375） |
+| ① | `trade-tr34`（TR-34） | 手机抽屉顶部四种时间写法 |
+| ① | `trade-tr29` | 体育下单卡右上 `Kicks off in …` |
 | ③ | `autoclose-position-none` | None 副行 `Can lose up to $242.41` |
 | ③ | `autoclose-position-profit-note`（新增 AC-T1b） | Profit ⓘ 打开态（桌面 tooltip） |
 | ③ | `autoclose-position-profit-note-mobile`（新增 AC-T1c） | Profit ⓘ 手机抽屉打开态 |
@@ -139,7 +159,6 @@ Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接�
 
 ## 9. 没做的 / 等确认的
 
-- **① 下单面板**（赢多少 / 最多亏多少 / 几笔加起来超过余额的提示）：等 CTO 回答（表格「Lite 下单面板赢亏规则 · 给 Jason」的「待确认」页）。
 - 只在正式站存在、Lovable 里已经对的问题（赢多少公式、Boost check `$1.00`、结算 Payout 对不上等）单独列给研发，不在本文。
 - 结算详情的买 / 卖手续费拆分来自成交记录；同一事件同一选项的多轮共用一本账时，成交记录可能多算，所以买入部分封顶为该仓手续费。正式版建议后端直接给每仓的开仓费 / 平仓费。
 
@@ -166,6 +185,10 @@ Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接�
 | `portfolio.lite.detail.position_sub` | `{{amount}} position` |
 | `portfolio.lite.detail.fee_split` | `Trading fee {{buy}} buy · {{sell}} sell` |
 | `portfolio.lite.detail.put_in_sub` | `{{amount}} put in · {{boost}}× Boost` |
+| `trade.screen.lite.lite_contract_order_panel.{lose, lose_up_to, about_what_you_lose, lose_tooltip, lose_everything, over_account}` | ① 错了最多亏一行、两种红字（11-16） |
+| `trade.screen.lite.lite_contract_order_panel.{auto_close, ac_only_if_low, ac_nothing_borrowed, ac_balance_covers, ac_enter_amount}` | ① Auto-close 行 |
+| `trade.screen.lite.lite_contract_order_panel.{footnote_boost, footnote_full, footnote_empty, boost_hint, win_tooltip}` | ① 底注、Boost 提示句、赢的 ⓘ 说明 |
+| `trade.screen.lite.lite_contract_order_panel.{closes_in, expected_to_end_in, chance, chance_side_wins}` · `events.screen.simple.sports_clock.kicks_off_in` | ① 时间与概率 |
 | `wallet.category.{sports,crypto,macro,stocks,quickplay,politics,social}` | `sports` … `Quick Play` … |
 | `wallet.category_list_two / _three / _more` | `{{a}} and {{b}}` / `{{a}}, {{b}} and {{c}}` / `{{a}}, {{b}} and more` |
 

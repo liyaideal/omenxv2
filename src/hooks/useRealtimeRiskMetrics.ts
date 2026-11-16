@@ -20,6 +20,15 @@ export interface RiskMetrics {
   distanceToLiquidation: number;
   unrealizedPnL: number;
   hasPositions: boolean;
+  /**
+   * Lite order ticket (CTO 2026-11-16): what the whole Boost account is worth
+   * right now — cash + what was put into open calls + their unrealized PnL.
+   * The most a user can ever lose; nothing past it is clawed back.
+   */
+  boostAccountValue: number;
+  /** Lite order ticket: what open Boost calls would still lose if each went to
+   *  the wrong end — long: shares × current price; short: shares × (1 − price). */
+  openCallsCouldLose: number;
 }
 
 /**
@@ -53,6 +62,29 @@ export function useRealtimeRiskMetrics(): RiskMetrics {
 
     // Maintenance Margin (MM) = MM_RATIO × IM (50%)
     const mmTotal = imTotal * MM_RATIO;
+
+    // Per-position unrealized PnL (live price when we have one, DB value otherwise).
+    const pnlOf = (pos: (typeof positions)[number]): number => {
+      if (pos.option_id) {
+        const { pnl, hasRealtimePrice } = calculateRealtimePnL({
+          event: pos.event_name,
+          option: pos.option_label,
+          optionId: pos.option_id,
+          type: pos.side as "long" | "short",
+          entryPrice: `$${pos.entry_price}`,
+          size: String(pos.size),
+          margin: `$${pos.margin}`,
+        });
+        if (hasRealtimePrice) return pnl;
+      }
+      return Number(pos.pnl) || 0;
+    };
+    const openCallsCouldLose = positions.reduce((sum, pos) => {
+      const size = Number(pos.size) || 0;
+      const entry = Number(pos.entry_price) || 0;
+      const atEntry = pos.side === "short" ? size * (1 - entry) : size * entry;
+      return sum + Math.max(0, atEntry + pnlOf(pos));
+    }, 0);
 
     // Calculate realtime unrealized PnL using live prices
     const unrealizedPnL = positions.reduce((sum, pos) => {
@@ -125,6 +157,8 @@ export function useRealtimeRiskMetrics(): RiskMetrics {
       distanceToLiquidation,
       unrealizedPnL,
       hasPositions: positions.length > 0,
+      boostAccountValue: Math.max(0, totalAssets + imTotal + unrealizedPnL),
+      openCallsCouldLose,
     };
   }, [positions, balance, calculateRealtimePnL]);
 }

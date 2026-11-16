@@ -274,6 +274,7 @@ const riskFixture = (ratio: number): RiskMetrics => {
     imRate: (imTotal / equity) * 100, mmRate: ratio, riskRatio: ratio, riskLevel,
     availableMargin: Math.max(equity - imTotal, 0), distanceToLiquidation: Math.max(equity - mmTotal, 0),
     unrealizedPnL: 417.43, hasPositions: true,
+    boostAccountValue: 1586.03 + imTotal + 417.43, openCallsCouldLose: imTotal * 8,
   };
 };
 

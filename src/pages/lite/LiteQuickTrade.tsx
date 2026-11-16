@@ -330,7 +330,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
   const orderPanelProps = {
     eventName: event.name,
     eventId: event.id,
-    countdownText: countdown,
+    countdownText: t("trade.screen.lite.lite_contract_order_panel.closes_in", { time: countdown }),
     yesLabel: "Up",
     noLabel: "Down",
     yesPrice: upPrice,

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 // ============================================================
 // /trade（合约与多市场）状态字典 previews — TR-1 … TR-24（mock11 终版编号）。
 // 铁律：只挂生产组件，数据一律 fixture 确定性注入（禁运行时 fetch），
@@ -15,6 +16,7 @@ import {
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteContractChart } from "@/components/lite/contract/LiteContractChart";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
+import { LiteOrderDrawerHeader } from "@/components/lite/contract/LiteOrderDrawerHeader";
 import { SportsClockLabel, type SportsClock } from "@/components/lite/sports/sportsClock";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import {
@@ -39,7 +41,7 @@ const RULE_BODY =
 const minsAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
 
 const Frame = ({ children }: { children: React.ReactNode }) => (
-  <div className="space-y-4 bg-background p-4">{children}</div>
+  <div className="space-y-4 p-4">{children}</div>
 );
 
 const Star_ = (
@@ -97,12 +99,16 @@ const Panel = ({
   heldCurrentValue,
   heldQty,
   remainderAutoCloseNone,
-  countdown = "02:14:09",
+  countdown = "Expected to end in 2h 14m",
   limitHint,
   lowBalance,
   yesLabel = "Yes",
   noLabel = "No",
   sportsClock,
+  accountValue,
+  couldLose,
+  balance,
+  autoCloseAt,
 }: {
   side0?: "yes" | "no";
   amount0?: string;
@@ -127,6 +133,14 @@ const Panel = ({
   noLabel?: string;
   /** TR-29：体育比赛的时间位（生产 SportsClockLabel card 变体）。 */
   sportsClock?: SportsClock;
+  /** TR-31…33：Boost 账户总值（现金 + 持仓现值）——传了才走封顶 / 超额规则。 */
+  accountValue?: number;
+  /** TR-33：其他 Boost 持仓跌到底还会亏的钱。 */
+  couldLose?: number;
+  /** HOW MUCH 旁显示的 Boost balance。 */
+  balance?: number;
+  /** 固定 auto-close 估算价（访客帧算不出真实账户的估算价）。 */
+  autoCloseAt?: number;
 }) => {
   const isMobile = useIsMobile();
   const [side, setSide] = useState<"yes" | "no">(side0);
@@ -166,6 +180,9 @@ const Panel = ({
         heldQty={heldQty}
         fixture={{
           ...(boostTrayOpen ? { boostTrayOpen: true } : null),
+          ...(accountValue != null ? { boostAccountValue: accountValue, openCallsCouldLose: couldLose ?? 0 } : null),
+          ...(balance != null ? { balance } : null),
+          ...(autoCloseAt != null ? { autoClose: { kind: "level" as const, price: autoCloseAt } } : null),
           ...(remainderAutoCloseNone
             ? { remainderAutoClose: { kind: "none" as const } }
             : null),
@@ -393,9 +410,9 @@ export const Tr17Preview = () => (
 
 /** TR-18 · In review（end_date 已过、is_resolved=false、lifecycle REVIEW）。 */
 export const Tr18Preview = () => (
-  <div className="space-y-4 bg-background p-4">
+  <div className="space-y-4 p-4">
     <InReviewCard sourceName="Nasdaq official close" holding />
-    <Panel amount0="" blocked blockedReason={IN_REVIEW_BADGE} countdown="00:00:00" />
+    <Panel amount0="" blocked blockedReason={IN_REVIEW_BADGE} countdown="Expected to end in 00:00" />
   </div>
 );
 
@@ -555,7 +572,7 @@ export const Tr22Preview = () => {
         compact={!!isMobile}
         hideHeader
       />
-      <Panel amount0="" blocked blockedReason="Closed" countdown="00:00:00" />
+      <Panel amount0="" blocked blockedReason="Closed" countdown="Expected to end in 00:00" />
     </div>
   );
 };
@@ -627,5 +644,28 @@ const BoostFrame = ({
       {label}
     </div>
     <Panel amount0="25" boost0={boost} boostTrayOpen={trayOpen} />
+  </div>
+);
+
+/* TR-31 … TR-34 · 下单面板赢亏（CPO 2026-11-16 画布第 ① 排，CTO 回复后定稿）。 */
+const MAGIC = { yesLabel: "Bucks", noLabel: "Magic", yesPrice: 0.22, side0: "no" as const, amount0: "10" };
+/** TR-31 · 1×：`If you're wrong, you lose $10.02`，auto-close `None · nothing borrowed`，脚注写满额。 */
+export const Tr31Preview = () => <Panel {...MAGIC} boost0={1} balance={999.38} accountValue={999.38} />;
+/** TR-32 · 3× · 这一笔就能亏光：Boost 里只有 $25，最多亏封顶 $25.00 + 红字。 */
+export const Tr32Preview = () => <Panel {...MAGIC} boost0={3} balance={25} accountValue={25} autoCloseAt={0.52} />;
+/** TR-33 · 3× · 几笔加起来超过：显示 $30 现金，账户总值 $66，另一笔跌到底还会亏 $96 → 红框。 */
+export const Tr33Preview = () => <Panel {...MAGIC} boost0={3} balance={30} accountValue={66} couldLose={96} autoCloseAt={0.61} />;
+
+/** TR-34 · 手机下单抽屉顶部的时间行（体育赛前 / 比赛中 / 加密轮次 / 长期事件）。 */
+export const Tr34Preview = () => (
+  <div className="space-y-4 p-4">
+    <LiteOrderDrawerHeader side="no" sideLabel="Magic" contextLine="【NBA】Bucks vs. Magic" sidePrice={0.78}
+      sportsClock={{ phase: "upcoming", kickoffInMs: (16 * 60 + 8) * 60_000, liveClock: null }} timeLabel="" />
+    <LiteOrderDrawerHeader side="no" sideLabel="Magic" contextLine="【NBA】Bucks vs. Magic" sidePrice={0.78}
+      sportsClock={{ phase: "live", kickoffInMs: 0, liveClock: "Q3 04:12" }} timeLabel="" />
+    <LiteOrderDrawerHeader side="yes" sideLabel="Up" contextLine="Bitcoin — up or down? 15:00–15:15" sidePrice={0.64}
+      sportsClock={null} timeLabel={t("trade.screen.lite.lite_contract_order_panel.closes_in", { time: "12:30" })} />
+    <LiteOrderDrawerHeader side="yes" sideLabel="Yes" contextLine="Fed cuts rates in December?" sidePrice={0.31}
+      sportsClock={null} timeLabel={t("trade.screen.lite.lite_contract_order_panel.expected_to_end_in", { time: "45d 3h" })} />
   </div>
 );
