@@ -142,7 +142,7 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 |---|---|
 | 桌面头像下拉 | 原来的 `Join Discord` 那一行换成 `Live chat`，位置不变（Help & Support 下面）。耳机图标（品牌蓝）+ 外链小箭头，和 Help & Support 同一种行。只有登录后才有这个菜单 |
 | 手机 Me 抽屉 | Help & Support 下面新加一行 `Live chat`（耳机图标），点了先收起抽屉再打开客服。手机没有头像下拉，这里是它的对应位置 |
-| Footer | 社交行 X · Discord · Telegram 后面加一颗同款 34px 描边胶囊：耳机图标 + `Live chat`。登录与否都显示。手机布局里邮箱原来和图标挤在一行，现在挪到社交行下面单独一行 |
+| Footer | 社交行 X · Discord · Telegram 后面加一颗同款 34px 描边胶囊：耳机图标 + `Live chat`。登录与否都显示。手机布局里邮箱原来和图标挤在一行，现在挪到社交行下面单独一行。社交行允许换行：长语言（越南语）在 768–830 宽时胶囊落到下一行，不挤出品牌栏 |
 | 文案 | key `nav.live_chat`：Live chat / 在线客服 / 線上客服 / ライブチャット / 실시간 상담 / Онлайн-чат / Trò chuyện trực tuyến（西语 Chat en vivo） |
 | 暂不带用户身份 | 现在链接里没有用户 ID / 邮箱，客服要在对话里问 UID 或邮箱。要带的话：智齿后台先开 Sign 校验，签名由服务端生成（密钥绝不能放前端），否则谁把链接里的 ID 改成别人的，就能冒充这个用户、看到他的聊天记录。智齿支持的身份参数有 `partnerid`（用户 ID）、`uname`、`email`、`locale` 等，具体以智齿文档和对接人为准 |
 

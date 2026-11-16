@@ -119,7 +119,9 @@ export const SeoFooter = ({ telegramPreview }: SeoFooterPreviewProps = {}) => {
   // X · Discord · Telegram (footer-telegram-v1 R1). Telegram opens a language picker:
   // a dropdown in the desktop layout, a bottom drawer in the mobile layout (R3/R4).
   const socialRow = (telegram: "menu" | "drawer") => (
-    <div className="flex items-center gap-3">
+    // flex-wrap: in long languages (vi) at 768–830px the Live chat pill drops to its own line
+    // instead of pushing past the brand column.
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
       {socialLinks.map((s) => (
         <a
           key={s.label}

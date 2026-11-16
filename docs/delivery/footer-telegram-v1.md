@@ -32,7 +32,7 @@
 
 | # | 规则 | 字典 |
 |---|---|---|
-| R1 | 社交行顺序 X · Discord · Telegram，Telegram 最后；桌面、手机一样（手机仍和 `support@omenx.com` 同一行） | FT-TG1 |
+| R1 | 社交行顺序 X · Discord · Telegram，Telegram 在三颗圆钮最后；桌面、手机一样。2026-11-16 起后面再跟一颗 Live chat 胶囊，手机的 `support@omenx.com` 挪到下一行（见 [deposit-ux-v1 §7](./deposit-ux-v1.md#7-客服入口live-chat2026-11-16-同批加入)） | FT-TG1 |
 | R2 | 图标 = 单色纸飞机，和 X / Discord 同一颗 34px 描边圆钮；不用登录方式那个蓝底 Telegram 图标 | FT-TG1 |
 | R3 | 桌面：点按钮在上方弹出 220px 下拉菜单，上方放不下自动往下；点外面或按 Esc 关闭；菜单开着时按钮保持"打开态"（描边提亮 + 底色加深） | FT-TG2 |
 | R4 | 手机：点按钮拉起底部抽屉，标题 + 一句说明，只有四个选项、没有按钮；点遮罩、下拉或右上 ✕ 关闭 | FT-TG3 |
@@ -81,5 +81,5 @@
 ## 6. 未变更项
 
 - footer 链接列、合规三行、移动端手风琴：不变
-- 头像下拉菜单「Join Discord」行、手机首页顶栏 Discord 图标：不变（本轮只改 footer）
+- 头像下拉菜单「Join Discord」行、手机首页顶栏 Discord 图标：不变（本轮只改 footer）。2026-11-16 起头像菜单那一行换成 Live chat，见 deposit-ux-v1 §7
 - 语言切换本身：不变；Telegram 选择不会改站点语言

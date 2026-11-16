@@ -2255,7 +2255,7 @@ const FOOTER_TELEGRAM_CASES: SectionCase[] = [
   {
     key: "footer-tg-default",
     label: "FT-TG1 · 社交行默认（X · Discord · Telegram · Live chat）",
-    note: "R1/R2：Telegram 排在社交行最后，单色纸飞机，与 X / Discord 同一颗 34px 描边圆钮（SOCIAL_CLASS）。悬停态（描边 border + 图标 foreground）与 X / Discord 一致，静态帧不展示，鼠标移上去看。",
+    note: "R1/R2：Telegram 排在三颗社交圆钮最后（2026-11-16 起其后跟 Live chat 胶囊，长语言窄宽度时胶囊换到下一行），单色纸飞机，与 X / Discord 同一颗 34px 描边圆钮（SOCIAL_CLASS）。悬停态（描边 border + 图标 foreground）与 X / Discord 一致，静态帧不展示，鼠标移上去看。",
     spec: [
       { state: "default", when: "始终", visual: "w-[34px] h-[34px] rounded-full border-border/30，图标 16px muted-foreground", source: "SeoFooter.tsx → TelegramGroupsMenu" },
       { state: "hover", when: "鼠标悬停", visual: "描边 border-border、图标 foreground（同 X / Discord）", source: "SOCIAL_CLASS" },

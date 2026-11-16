@@ -1222,7 +1222,7 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 
 | 栏位 | 内容 |
 |------|------|
-| Brand | `<Logo size="xl" showMainnetBadge={false} />` + tagline + 社交 pill（X / Discord / Telegram）+ `support@omenx.com`（Connect 已并入品牌区，不再独立成列） |
+| Brand | `<Logo size="xl" showMainnetBadge={false} />` + tagline + 社交行（X / Discord / Telegram 圆钮 + Live chat 胶囊，2026-11-16）+ `support@omenx.com`（Connect 已并入品牌区，不再独立成列） |
 | Platform | Events / Leaderboard / Insights；**Resolved 仅 Pro 面渲染**（Lite 无 Resolved 页） |
 | Learn | About / FAQ / Glossary / Methodology |
 | Resources | Developers / On-Chain Transparency |
@@ -1238,7 +1238,7 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 
 ### 移动端布局
 
-- Brand 区始终常驻（顶部），社交 pill + email 不折叠
+- Brand 区始终常驻（顶部），社交 pill + email 不折叠；email 在社交行下面单独一行（2026-11-16 起，社交行加了 Live chat 胶囊放不下）
 - 链接列折叠为手风琴（`<FooterAccordion />`）
 
 ### 官方账号清单（不允许任何页面自定义）
@@ -1252,12 +1252,13 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 | Telegram · Русский / CIS | `https://t.me/omenx_news_ru` |
 | Telegram · Tiếng Việt | `https://t.me/omenxvietnam` |
 | Email | `support@omenx.com` |
+| 在线客服（智齿，Live chat） | `https://sg.sobot.io/chat/pc/v7/index.html?sysnum=4f8d76dd446647548997f624fe6e2114&channelid=2`（代码常量 `SUPPORT_CHAT_URL`，`src/lib/site.ts`） |
 
 ### Telegram 入口（footer-telegram-v1 · 2026-11-04 · LOCKED）
 
 来源：CPO 2026-11-04 批 R1–R9 + 视觉 mock；规格 `docs/delivery/footer-telegram-v1.md`；字典 Common UI › Site-wide Footer **FT-TG1…3**。组件 `src/components/seo/TelegramGroupsMenu.tsx`（列表只此一份）。
 
-1. **位置**：社交行 X · Discord · Telegram，Telegram 最后；桌面与移动同。
+1. **位置**：社交行 X · Discord · Telegram，Telegram 在三颗圆钮最后；桌面与移动同。2026-11-16 起其后再跟一颗 Live chat 胶囊（§Addendum 2026-11-16）。
 2. **图标**：单色纸飞机（`TelegramGlyph`，`fill-current`），同 `SOCIAL_CLASS` 34px 描边圆钮；蓝底 `TelegramIcon`（登录方式用）不进 footer。
 3. **桌面**：点 pill → `DropdownMenu` `side="top" align="start" sideOffset=8` `w-[220px]`，上方不够时自动翻下；点外面 / Esc 关闭。眉标 `DropdownMenuLabel` 10px mono 大写 muted；行 = 灰色短码 `w-6 font-mono text-[11px]` + 本名 + （EN / RU）灰色地区 `text-[11px]` + `ArrowUpRight` 12px。开着时 pill = `text-foreground border-border bg-muted/40`。
 4. **移动**：点 pill → `MobileDrawer`（title + description），纯选择抽屉无 footer；行样式同 `LanguageDrawer`（`px-4 py-3 rounded-xl text-sm font-medium`，按下 `bg-muted`），右侧地区 `text-xs` + `ArrowUpRight` 16px。

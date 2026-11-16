@@ -227,7 +227,8 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52">
+                {/* w-56: ru "Помощь и поддержка" wrapped to two lines at w-52 (2026-11-16) */}
+                <DropdownMenuContent align="end" className="w-56">
                   {/* Account & activity */}
                   <DropdownMenuItem onClick={() => navigate("/rewards")}>
                     <Gift className="mr-2 h-4 w-4 text-primary" />
