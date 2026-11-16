@@ -2254,12 +2254,13 @@ const SettingsCardSection = () => {
 const FOOTER_TELEGRAM_CASES: SectionCase[] = [
   {
     key: "footer-tg-default",
-    label: "FT-TG1 · Telegram pill · 默认（X · Discord · Telegram）",
+    label: "FT-TG1 · 社交行默认（X · Discord · Telegram · Live chat）",
     note: "R1/R2：Telegram 排在社交行最后，单色纸飞机，与 X / Discord 同一颗 34px 描边圆钮（SOCIAL_CLASS）。悬停态（描边 border + 图标 foreground）与 X / Discord 一致，静态帧不展示，鼠标移上去看。",
     spec: [
       { state: "default", when: "始终", visual: "w-[34px] h-[34px] rounded-full border-border/30，图标 16px muted-foreground", source: "SeoFooter.tsx → TelegramGroupsMenu" },
       { state: "hover", when: "鼠标悬停", visual: "描边 border-border、图标 foreground（同 X / Discord）", source: "SOCIAL_CLASS" },
       { state: "open", when: "菜单或抽屉开着", visual: "描边 border-border + bg-muted/40 + 图标 foreground", source: "TelegramGroupsMenu PILL_OPEN" },
+      { state: "Live chat", when: "始终（登录与否都显示），排在 Telegram 后面", visual: "同款 34px 描边胶囊，耳机图标 14px + `Live chat`（12px / 500，muted；悬停 foreground）；点了新标签页打开智齿客服。手机布局里邮箱因此挪到社交行下面单独一行。CPO 2026-11-16", source: "SeoFooter LIVE_CHAT_CLASS · SUPPORT_CHAT_URL" },
     ],
   },
   {

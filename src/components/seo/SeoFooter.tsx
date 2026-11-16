@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Headset } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useT, t } from "@/i18n";
-import { HELP_CENTER_URL, HELP_FAQ_URL, HELP_GUIDE_URL } from "@/lib/site";
+import { HELP_CENTER_URL, HELP_FAQ_URL, HELP_GUIDE_URL, SUPPORT_CHAT_URL } from "@/lib/site";
 import type { LanguageCode } from "@/lib/languages";
 import { TelegramGroupsMenu } from "./TelegramGroupsMenu";
 
@@ -33,6 +33,9 @@ const socialLinks = [
 const COLUMN_HEADING =
   "font-display text-[13px] font-bold uppercase tracking-[0.10em] text-foreground mb-3";
 const LINK_CLASS = "text-xs text-muted-foreground hover:text-foreground transition-colors";
+// Live chat pill sits in the social row (CPO 2026-11-16): same 34px outline pill, icon + label.
+const LIVE_CHAT_CLASS =
+  "h-[34px] inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border/30 pl-3 pr-3.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors";
 const SOCIAL_CLASS =
   "w-[34px] h-[34px] inline-flex items-center justify-center rounded-full border border-border/30 text-muted-foreground hover:text-foreground hover:border-border transition-colors";
 
@@ -135,6 +138,10 @@ export const SeoFooter = ({ telegramPreview }: SeoFooterPreviewProps = {}) => {
         previewOpen={telegramPreview?.open === telegram}
         previewCode={telegramPreview?.code}
       />
+      <a href={SUPPORT_CHAT_URL} target="_blank" rel="noopener noreferrer" className={LIVE_CHAT_CLASS}>
+        <Headset className="h-3.5 w-3.5" aria-hidden="true" />
+        {t("nav.live_chat")}
+      </a>
     </div>
   );
 
@@ -190,12 +197,11 @@ export const SeoFooter = ({ telegramPreview }: SeoFooterPreviewProps = {}) => {
             <p className="text-xs text-muted-foreground leading-relaxed">
               {t("legal.footer.brand_description")}
             </p>
-            <div className="mt-4 flex items-center gap-4">
-              {socialRow("drawer")}
-              <a href="mailto:support@omenx.com" className={LINK_CLASS}>
-                {t("seo.screen.seo_footer.support_omenx_com")}
-              </a>
-            </div>
+            {/* Live chat joined the social row, so the email moves to its own line (CPO 2026-11-16). */}
+            <div className="mt-4">{socialRow("drawer")}</div>
+            <a href="mailto:support@omenx.com" className={`${LINK_CLASS} mt-3 inline-block`}>
+              {t("seo.screen.seo_footer.support_omenx_com")}
+            </a>
           </div>
 
           {/* Accordion links */}

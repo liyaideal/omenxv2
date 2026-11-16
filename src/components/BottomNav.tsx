@@ -1,10 +1,10 @@
 import { useState, useEffect, type CSSProperties } from "react";
-import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake, Globe, Bell } from "lucide-react";
+import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake, Globe, Bell, Headset } from "lucide-react";
 import { LanguageDrawer, useLanguagePick } from "@/components/language/LanguagePicker";
 import { useNotificationCounts } from "@/hooks/useNotifications";
 import { UnreadCountPill } from "@/components/notifications/NotificationBell";
 import { useT, t } from "@/i18n";
-import { HELP_CENTER_URL } from "@/lib/site";
+import { HELP_CENTER_URL, openSupportChat } from "@/lib/site";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -336,6 +336,16 @@ export const BottomNav = () => {
             onClick={() => {
               setProfileSheetOpen(false);
               window.open(HELP_CENTER_URL, "_blank", "noopener,noreferrer");
+            }}
+          />
+
+          {/* Live chat (CPO 2026-11-16): the mobile counterpart of the desktop avatar menu entry. */}
+          <MobileDrawerListItem
+            icon={Headset}
+            label={t("nav.live_chat")}
+            onClick={() => {
+              setProfileSheetOpen(false);
+              openSupportChat();
             }}
           />
 

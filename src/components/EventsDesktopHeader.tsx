@@ -13,7 +13,7 @@ import {
   Globe,
   HelpCircle,
   Shield,
-  MessageCircle,
+  Headset,
   ExternalLink,
   KeyRound,
   ArrowLeftRight,
@@ -39,7 +39,7 @@ import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
 import { BalanceTray } from "@/components/header/BalanceTray";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
-import { HELP_CENTER_URL } from "@/lib/site";
+import { HELP_CENTER_URL, openSupportChat } from "@/lib/site";
 
 
 // Main nav (4 items). Resolved is now an Events page tab. 2026-09-19 (CPO): Leaderboard
@@ -284,17 +284,10 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <span className="flex-1">{t("nav.screen.navigation.bottom_navigation.help_and_support")}</span>
                     <ExternalLink className="ml-2 h-3 w-3 text-muted-foreground" />
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      window.open(
-                        "https://discord.gg/qXssm2crf9",
-                        "_blank",
-                        "noopener,noreferrer"
-                      )
-                    }
-                  >
-                    <MessageCircle className="mr-2 h-4 w-4 text-[#5865F2]" />
-                    <span className="flex-1">{t("nav.join_discord")}</span>
+                  {/* Live chat replaces Join Discord (CPO 2026-11-16); Discord stays in the footer. */}
+                  <DropdownMenuItem onClick={openSupportChat}>
+                    <Headset className="mr-2 h-4 w-4 text-primary" />
+                    <span className="flex-1">{t("nav.live_chat")}</span>
                     <ExternalLink className="ml-2 h-3 w-3 text-muted-foreground" />
                   </DropdownMenuItem>
 

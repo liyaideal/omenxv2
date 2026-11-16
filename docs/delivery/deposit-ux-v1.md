@@ -10,6 +10,7 @@
 > - 下单卡余额不到 $1 时，提示里的 `Add money` 可以点：另一个账户有 ≥ $1 就打开划转，否则打开充值；点下单弹出的余额不够 toast 也走同一条规则（§3）
 > - Portfolio 的 Live 页没持仓又没钱时，空态主按钮变成 `Deposit to start`（§4）
 > - 正式版跨链充值默认币改回 USDC（§5，只有正式版要改）
+> - 客服入口 `Live chat`：桌面头像下拉里的 Join Discord 换成它，手机 Me 抽屉和 Footer 也各加一个，点了打开智齿在线客服（§7，2026-11-16 同批加入）
 >
 > **顺手修的**：手机 Me 抽屉的账户行和 Transfer 各语言统一译法、划转弹窗补齐翻译、手机底部导航任何时候只亮一个 tab、手机上 toast 按钮在下单抽屉打开时能点、没有语言切换器的页面也按账号语言显示（§2 / §3 / §6）。
 >
@@ -133,6 +134,20 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 | 没有语言切换器的页面也按账号语言显示 | 手机交易页没有页头，原来新设备直接打开是英文 | `App.tsx` 根挂 `LanguageRuntime`（调用一次 `useLanguage()`） |
 | 手机 Me 抽屉账户行折行时只在两个账户之间断，不留孤立的「·」；Transfer 按钮不折行 | 越南语、大额余额时会折坏 | `BottomNav.tsx` 余额卡 |
 
+## 7. 客服入口：Live chat（2026-11-16 同批加入）
+
+接入了智齿在线客服，三个地方加入口，点了都在新标签页打开同一个客服链接（`src/lib/site.ts` 里的 `SUPPORT_CHAT_URL`），当前页面不动。
+
+| 位置 | 规则 |
+|---|---|
+| 桌面头像下拉 | 原来的 `Join Discord` 那一行换成 `Live chat`，位置不变（Help & Support 下面）。耳机图标（品牌蓝）+ 外链小箭头，和 Help & Support 同一种行。只有登录后才有这个菜单 |
+| 手机 Me 抽屉 | Help & Support 下面新加一行 `Live chat`（耳机图标），点了先收起抽屉再打开客服。手机没有头像下拉，这里是它的对应位置 |
+| Footer | 社交行 X · Discord · Telegram 后面加一颗同款 34px 描边胶囊：耳机图标 + `Live chat`。登录与否都显示。手机布局里邮箱原来和图标挤在一行，现在挪到社交行下面单独一行 |
+| 文案 | key `nav.live_chat`：Live chat / 在线客服 / 線上客服 / ライブチャット / 실시간 상담 / Онлайн-чат / Trò chuyện trực tuyến（西语 Chat en vivo） |
+| 暂不带用户身份 | 现在链接里没有用户 ID / 邮箱，客服要在对话里问 UID 或邮箱。要带的话：智齿后台先开 Sign 校验，签名由服务端生成（密钥绝不能放前端），否则谁把链接里的 ID 改成别人的，就能冒充这个用户、看到他的聊天记录。智齿支持的身份参数有 `partnerid`（用户 ID）、`uname`、`email`、`locale` 等，具体以智齿文档和对接人为准 |
+
+Discord 入口只剩 Footer 社交行（移动首页顶栏的 Discord 图标没动）。
+
 ## Lovable / 正式版
 
 | | Lovable | 正式版要做的 |
@@ -143,6 +158,7 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 | 11-13 小改：≥ $1 才划转、toast Add funds 弹充值、悬浮卡去眉行、Me 抽屉译法、底部导航高亮 | 已做 | 照做（§1 / §2 / §3） |
 | Portfolio 空态 Deposit to start | 已做 | 照做（判定见 §4） |
 | 跨链充值默认币 | 本来就是 Ethereum + USDC | 改成一致（§5） |
+| 客服入口 Live chat | 已做（三处，不带身份） | 照做（§7）；之后带身份时，签名放在正式版后端生成 |
 | toast 与划转弹窗翻译、toast 在抽屉上可点、App 根语言、Me 抽屉折行 | 已做 | 照做（§2 / §3 / §6）；toast 能不能点取决于正式版用的 toast 库和抽屉实现，同样要验手机 |
 | i18n | `low_balance_hint` ×2 改值、`low_balance_link` ×2 新增、`lite.live.deposit_to_start` 新增、`common.equity` / `HomeGreeting.total_equity` 改值；11-13：`header.accountsLine`、`header.transfer`、`wallet.transfer`、`nav › …bottom_navigation.transfer`、划转弹窗内各条（ja 振替 / zh-TW 劃轉）改值，`wallet › insufficient_toast.message` / `.add_funds` / `transfer_insufficient` 新增；ja `wallet.from` / `wallet.to` 改 振替元 / 振替先（跨链充值的 From 改用 `wallet › screen.cross_chain_deposit.from`） | 同步进 OMENX-i18n 文案表 |
 
@@ -155,5 +171,6 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 | deposit-ux ③ | 下单卡 Add money 链接 | §3 |
 | deposit-ux ④ | Portfolio 空态 Deposit to start | §4 |
 | deposit-ux ⑤ | 正式版跨链默认 USDC | §5 |
+| deposit-ux ⑦ | 客服入口 Live chat | §7 |
 | PF-33b | Portfolio Live 空态没钱的字典样张 | §0.1 |
 | TR-30 / SP-20 | 合约 / 现货卡余额不够的字典样张 | §0.1 |

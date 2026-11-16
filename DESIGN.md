@@ -1265,7 +1265,7 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 6. **每行是真 `<a target="_blank" rel="noopener noreferrer">`**，点了新标签页打开、菜单 / 抽屉关闭。
 7. **推荐行**：站点语言 zh-CN / zh-TW → ZH，ru → RU，vi → VI，其余（en / ja / ko）→ EN；推荐行加底色（桌面 `bg-muted`、移动 `bg-muted/40`），**不打 ✓、不改顺序**（✓ 只表示"已选中的设置"）。
 8. **文案**：仅 `legal.footer.telegram.title` / `.description` 进 7 语词典。
-9. **作用域**：本轮只有 footer；头像菜单「Join Discord」行、移动首页顶栏 Discord 图标不变。将来别处要加 Telegram，复用 `TelegramGroupsMenu` / `TELEGRAM_GROUPS`，❌ 禁止手写第二份群列表。
+9. **作用域**：本轮只有 footer；头像菜单「Join Discord」行（2026-11-16 起换成 Live chat，见 §Addendum 2026-11-16）、移动首页顶栏 Discord 图标不变。将来别处要加 Telegram，复用 `TelegramGroupsMenu` / `TELEGRAM_GROUPS`，❌ 禁止手写第二份群列表。
 
 ### 底栏三行（牌照合规 FROZEN）
 
@@ -2583,4 +2583,12 @@ CPO 2026-11-13 画布「充值引导 mock」选定 A1 托盘 + 配色 ②。交�
 5. **命名**：Standard + Boost 的合计在 Lite 面一律叫 **Balance**（顶栏悬浮卡合计行 `Total balance`，卡顶无标题、手机 Me 抽屉余额卡 `Balance`）；`Equity` 只留给 Pro 风险语境（Account Equity / Risk Ratio = MM / Equity，含浮盈）。
 6. **可访问名**：余额按钮 `aria-label = "Balance $x"`（读屏念出金额）。
 7. **同页账户偏好同步**：`useAccountPreference` 在同一页内广播 `omenx:account-preference`，顶栏充值弹窗能看到别处刚选的账户，不用刷新。
+
+## §Addendum 2026-11-16 · 客服入口 Live chat（LOCKED）
+
+1. **三个入口，同一个去处**：桌面头像下拉（原 `Join Discord` 那一行，位置不变，在 Help & Support 下面）、手机 Me 抽屉（Help & Support 下面新加一行）、Footer 社交行（X · Discord · Telegram 之后）。点了都在新标签页打开智齿客服 `SUPPORT_CHAT_URL`（`src/lib/site.ts`），当前页不动。
+2. **样式**：菜单行 = 耳机图标（lucide `Headset`，品牌蓝）+ `Live chat` + 外链小箭头，和 Help & Support 同一种行；抽屉行 = `MobileDrawerListItem` + `Headset`。Footer = 与社交图标同款 34px 描边胶囊（图标 + 文字，muted，悬停 foreground），不在邮箱下面另起一行（CPO 画布批注：单独一行像后加的）。手机 Footer 因此把邮箱挪到社交行下面。
+3. **文案**：key `nav.live_chat` — Live chat / 在线客服 / 線上客服 / ライブチャット / 실시간 상담 / Онлайн-чат / Trò chuyện trực tuyến（西语 Chat en vivo）。
+4. **暂不带用户身份**：链接里还没有用户 ID / 邮箱。要带必须先在智齿后台开 Sign 校验、签名由服务端生成（密钥不进前端），否则改链接里的 ID 就能冒充别人看聊天记录。在那之前客服在对话里问 UID / 邮箱。
+5. Discord 入口只剩 Footer 社交行（以及移动首页顶栏的 Discord 图标，未改）。
 
