@@ -373,7 +373,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 
 | Canonical | 出现位置 / 规则 |
 |---|---|
-| **Starts in 2h 10m** | Lite 下单卡 / 手机抽屉，开赛前（`kickoffInShort`：`2d 19h` / `2h 10m` / `38:12`） |
+| **Kicks off in 2h 10m** | Lite 下单卡 / 手机抽屉，开赛前（`kickoffInShort`：`2d 19h` / `2h 10m` / `38:12`；2026-11-16 由 `Starts in` 改） |
 | **Starts in** `02:10:00` | Pro 页头，开赛前（`kickoffInClock`） |
 | **Starts 2d 19h** / **Starts 38m** | 赛事下拉 / 抽屉 `Ends in` 列，开赛前 |
 | **● LIVE · P2 12:04** | 比赛中（含已过预计结束），时钟 = `liveLabelFor`；无时钟只写 `● LIVE` |
@@ -550,7 +550,7 @@ Lite 合约下单面板 `/trade` 的「How much」输入框语义已定稿，规
 | 输入 | = margin = 用户掏的钱，切 Boost 恒不变（面板不再显示 Max loss 行） |
 | 赢的数字 | 净利 = 毛利 − 5% × max(毛利 − 开仓手续费, 0)，唯一实现 tradingService.netWin()；面板 win 行、CTA 同数 |
 | Winning commission | 5% 赢利佣金，只在 win 行 ⓘ 与 Wallet 流水出现，不上面板正文 |
-| auto-close None 子态 | 1× → `None · nothing borrowed`；碰不到线 → `None · can't be reached` |
+| auto-close None 子态 | 1× → `None · nothing borrowed`；Boost 余额兜得住 → `None · your balance covers it`（2026-11-16 取代 `can't be reached`） |
 | 仓位规模 | `notional = 输入 × Boost` |
 | 份数 | `qty = 输入 × Boost ÷ 价格` |
 | 手续费 | `fee = 输入 × Boost × 费率` |
@@ -578,25 +578,25 @@ Pro 侧输入语义为 notional / 数量，两面各自 canonical，不互相迁
 | **auto-close none** | Desktop portfolio row suffix for a Boost row with no level; `none` is inline lowercase with a dotted underline that opens the shared auto-close tooltip (see 「Auto-close tooltip（全站唯一）」) | `no auto-close`, `auto-close —` |
 | ~~no auto-close, loss capped~~ | RETIRED 2026-11-13 — Boost 移动卡 none 态句子停在 `· can lose up to $Y` | — |
 | **≈ {c}¢** | Auto-close value, level state on the trade surfaces (order panel row + position card). The `≈` is never dropped | `{c}¢`, `= {c}¢` |
-| **None · nothing borrowed** | Auto-close value, none state in the order panel when Boost is 1× (and the `Est. auto-close (new position)` partial-net row) | `None · loss capped` (retired), `None at this balance` (retired) |
-| **None · can't be reached** | Auto-close value, none state in the order panel when the level can't be hit between 0¢ and 100¢ | `None · loss capped` (retired) |
+| **None · nothing borrowed** | Auto-close value, none state in the order panel when Boost is 1× (and the `Auto-close (new position)` partial-net row) | `None · loss capped` (retired), `None at this balance` (retired) |
+| **None · your balance covers it** | Auto-close value, none state in the order panel when the level can't be hit between 0¢ and 100¢（2026-11-16） | `None · can't be reached` (retired 2026-11-16), `None · loss capped` (retired) |
 | **Can lose up to $X** | Sub-line under a `None` value on the trade-page position card（2026-11-13 ③）。X = 仓位 + 开仓费（`maxLossFor`），1× 时就是投入 + 开仓费 | `Loss capped at your stake`（退役：Boost 下最多亏的是整个仓位，不是投入） |
 | **Close to current price** / **close to entry** | Hot adverb (|mark − level| / mark ≤ 10%) — position-card sub-line / order-panel suffix, both rendered red | `near liquidation`, `close to liq` |
 | **Right after you buy, this starts a little below $0: you bought at {entry}, and selling right now gets {mark}. The {fee} trading fee was charged when you bought.** | 交易页持仓卡 Profit 标签旁 ⓘ 的说明（2026-11-13 ③；`profitNoteFor`） | — |
 | **All your Boost calls share your Boost balance. If it runs low, calls start closing automatically.** | Boost check 说明句（Portfolio 卡 / 抽屉；key `portfolio.lite.boost.description`，2026-11-13 ④） | `one pool of backing`（退役） |
-| **Moves with your other positions** | Permanent helper line beside `Est. auto-close ⓘ`; renders with the field, never conditionally | — |
+| **Only if your Boost balance runs low** | Permanent helper line under the order-panel `Auto-close ⓘ` title (2026-11-16) | `Moves with your other positions` (retired 2026-11-16) |
 | **Deposit to start** | Live 页空态的主按钮，只在「两个分段都没持仓 + 已登录 + 余额已读完且没读错 + Standard + Boost < $1」时出现；旁边 `Browse events` 降为描边次按钮（手机竖排宽 240）。桌面原地弹充值弹窗，手机进 `/deposit`。key `portfolio.lite.live.deposit_to_start`。CPO 2026-11-12，字典 PF-33b | 有钱时也显示 |
 | ~~None at this balance~~ | RETIRED site-wide — never reintroduce | — |
 
 ### Auto-close tooltip（全站唯一）
 
-唯一实现：`src/components/lite/shared/AutoCloseTooltipBody.tsx`（AC-TT1，CPO 已批）。五处引用：① 下单面板 `Est. auto-close ⓘ`（`LiteContractOrderPanel`，桌面卡与移动 drawer 体共用，partial-net 行共用本 ⓘ）② 交易页 Your call 卡 `Est. auto-close` / compact `Auto-close` 格 label 右侧 ⓘ（`LitePositionCard`）③ Portfolio 桌面行 level 值片段（虚线下划线触发）④ Portfolio 桌面行 none 值片段（同款触发）⑤ —— 移动卡零触发（第五处为「不挂」裁定）。**静态文案不插值，`≈ 62¢` 为冻结示例值，不是 live 数据**。全文：
+唯一实现：`src/components/lite/shared/AutoCloseTooltipBody.tsx`（AC-TT1，CPO 已批）。五处引用：① 下单面板 `Auto-close ⓘ`（`LiteContractOrderPanel`，桌面卡与移动 drawer 体共用，partial-net 行共用本 ⓘ）② 交易页 Your call 卡 `Est. auto-close` / compact `Auto-close` 格 label 右侧 ⓘ（`LitePositionCard`）③ Portfolio 桌面行 level 值片段（虚线下划线触发）④ Portfolio 桌面行 none 值片段（同款触发）⑤ —— 移动卡零触发（第五处为「不挂」裁定）。**静态文案不插值，`≈ 62¢` 为冻结示例值，不是 live 数据**。全文：
 
 > **Auto-close** — If your account runs low, Boost calls are closed automatically at this price to protect your remaining balance.
 >
 > `≈ 62¢` — The estimated auto-close price for this call. It's worked out across your whole account, so it shifts as your other positions move.
 >
-> `None` — This call can't be auto-closed — it's 1× (nothing borrowed), or prices only move between 0¢ and 100¢ and the line can't be reached. The most you can lose is what you put in.
+> `None` — This call won't be auto-closed — it's 1× (nothing borrowed), or your Boost balance covers it even if the price goes all the way against you.（2026-11-16 改：原句的「最多亏你投入的」在 Boost 下不成立）
 
 已删除定制文案（禁止回引）：`An estimate of the price at which this call would be closed automatically. It shifts as your other positions move.`；`No auto-close within this market's price range — your loss is capped at what you put in.`
 | **SIDE chip** | `{sideWord} {c}¢`；底色随方向：Yes/Up `#33D6FF` / No/Down `#CFFF4A`，黑字；`{c}¢` 为该腿自身轴 mark 价（No 腿 = 1 − yes）。多选腿 chip 只写 `Yes` / `No`，选项名另起一行置于 chip 下（`Charles Leclerc`）；side 词与方向来源 `resolveLegSide()`，`short` 视为 No | 全 volt chip、`Long`/`Short`、选项名塞进 chip |

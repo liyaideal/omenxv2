@@ -418,9 +418,10 @@ const LiteContractTrade = () => {
   const ticketTimeLabel = (() => {
     if (!Number.isFinite(countdownMs)) return "";
     const time = kickoffInShort(countdownMs);
-    return /UPDOWN/.test(String(event?.event_subtype ?? ""))
-      ? t("trade.screen.lite.lite_contract_order_panel.closes_in", { time })
-      : t("trade.screen.lite.lite_contract_order_panel.expected_to_end_in", { time });
+    if (/UPDOWN/.test(String(event?.event_subtype ?? "")))
+      return t("trade.screen.lite.lite_contract_order_panel.closes_in", { time });
+    // Past the expected end the market may still trade — say nothing rather than "00:00".
+    return countdownMs > 0 ? t("trade.screen.lite.lite_contract_order_panel.expected_to_end_in", { time }) : "";
   })();
   // Sports: Starts in / ● LIVE · clock / Final — never a countdown to the estimated end.
   const sportsClock = useSportsClock(event as Parameters<typeof useSportsClock>[0]);

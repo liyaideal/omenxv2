@@ -48,7 +48,7 @@ const CASES: SectionCase[] = [
   },
   {
     key: "autoclose-order-panel-states",
-    label: "AC-T4 · 下单面板 Est. auto-close 行 · 四态",
+    label: "AC-T4 · 下单面板 Auto-close 行 · 四态",
     note: "视觉焦点 = Returns 块的 `Auto-close ⓘ` 行 + 常驻小字 `Only if your Boost balance runs low`（2026-11-16 起，原 `Est. auto-close` / `Moves with your other positions`）。四个实例（2×2）逐字对照 mock7 v2 §4：① 零单 `None · enter an amount` ② `≈ 62¢` ③ `None · your balance covers it` ④ 红 `≈ 89¢ · close to entry`。值由 fixture prop 驱动（生产从不传）。",
     spec: [
       { state: "零单（瞬态，不进值语法）", when: "amountNum <= 0", visual: "`None` 白 + 副词 `enter an amount`", source: "LiteContractOrderPanel.autoCloseRow" },

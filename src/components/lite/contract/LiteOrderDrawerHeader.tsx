@@ -40,7 +40,13 @@ export const LiteOrderDrawerHeader = ({
         <span className="truncate text-sm font-semibold">{contextLine}</span>
       </div>
       <div className="mt-1 text-[11px] text-muted-foreground">
-        {sportsClock ? <SportsClockLabel clock={sportsClock} variant="line" /> : timeLabel} ·{" "}
+        {sportsClock ? (
+          <>
+            <SportsClockLabel clock={sportsClock} variant="line" /> ·{" "}
+          </>
+        ) : timeLabel ? (
+          `${timeLabel} · `
+        ) : null}
         {sportsClock
           ? t("trade.screen.lite.lite_contract_order_panel.chance_side_wins", { pct, side: sideLabel })
           : t("trade.screen.lite.lite_contract_order_panel.chance", { pct })}

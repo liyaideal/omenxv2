@@ -180,8 +180,11 @@ const Panel = ({
         heldQty={heldQty}
         fixture={{
           ...(boostTrayOpen ? { boostTrayOpen: true } : null),
-          ...(accountValue != null ? { boostAccountValue: accountValue, openCallsCouldLose: couldLose ?? 0 } : null),
-          ...(balance != null ? { balance } : null),
+          // Frames never read the viewer's own wallet: a signed-in viewer with
+          // $0 would otherwise see the low-balance / "lose everything" states.
+          boostAccountValue: accountValue ?? 10_000,
+          openCallsCouldLose: couldLose ?? 0,
+          balance: balance ?? (lowBalance ? 0 : 1_000),
           ...(autoCloseAt != null ? { autoClose: { kind: "level" as const, price: autoCloseAt } } : null),
           ...(remainderAutoCloseNone
             ? { remainderAutoClose: { kind: "none" as const } }

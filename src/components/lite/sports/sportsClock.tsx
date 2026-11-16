@@ -1,7 +1,7 @@
 // ============================================================
 // SPORTS CLOCK — what a sports fixture shows where other events
 // show a trading countdown (CPO 2026-11-04).
-//   upcoming  Starts in 2h 10m        (countdown to kickoff — accurate)
+//   upcoming  Starts in 2h 10m        (countdown to kickoff — accurate; the Lite order card / drawer say `Kicks off in`, 2026-11-16)
 //   live      ● LIVE · P2 12:04       (match clock; ● LIVE alone if none)
 //   final     Final · In review       (trading closed, result pending)
 //   settled   Settled

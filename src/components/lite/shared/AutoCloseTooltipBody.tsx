@@ -28,8 +28,8 @@ export const AutoCloseTooltipBody = () => (
         {t("common.none")}
       </span>
       <p className="text-muted-foreground">
-        This call can't be auto-closed — it's 1× (nothing borrowed), or prices
-        only move between 0¢ and 100¢ and the line can't be reached.
+        This call won't be auto-closed — it's 1× (nothing borrowed), or your
+        Boost balance covers it even if the price goes all the way against you.
       </p>
     </div>
   </div>

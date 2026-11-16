@@ -127,7 +127,7 @@ export const LiteBoostSelector = ({
         </div>
       )}
 
-      <p className="text-[10px] leading-relaxed text-muted-foreground">
+      <p className="text-pretty [word-break:auto-phrase] text-[10px] leading-relaxed text-muted-foreground">
         {t("trade.screen.lite.lite_contract_order_panel.boost_hint")}
       </p>
     </div>

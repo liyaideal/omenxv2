@@ -268,7 +268,7 @@ const OrderPanelCase = ({
 };
 
 export const AutoCloseOrderPanelStatesPreview = () => (
-  <div className="grid grid-cols-2 gap-4 bg-background p-4">
+  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 bg-background p-4">
     <OrderPanelCase amount0="" />
     <OrderPanelCase amount0="50" fixture={{ autoClose: { kind: "level", price: 0.62 } }} />
     <OrderPanelCase amount0="50" fixture={{ autoClose: { kind: "none" } }} />

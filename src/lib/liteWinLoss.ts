@@ -9,8 +9,8 @@
 //   most it can lose = P + F                     (the price can only go to 0¢)
 //
 // Cross margin: anything past what was put in comes out of the Boost
-// balance. The cap at the Boost balance (order ticket only) is pending
-// CTO confirmation and is not applied here.
+// balance. On the order ticket the loss is further capped at the whole
+// Boost account (CTO 2026-11-16) — see LiteContractOrderPanel.
 // ============================================================
 import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
 

@@ -119,7 +119,7 @@ export interface LiteContractOrderPanelProps {
     boostAccountValue?: number;
     /** What the other open Boost calls could still lose. */
     openCallsCouldLose?: number;
-    /** Boost balance shown next to HOW MUCH (display only). */
+    /** Style-guide only: the Boost balance the card uses (display + Max). */
     balance?: number;
   };
 
@@ -212,12 +212,18 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   // back. When the buy nets an opposite holding, only the newly opened part
   // counts; a buy that only nets has no "wrong" row.
   const accountValue = fixture?.boostAccountValue ?? (user ? risk.boostAccountValue : undefined);
-  const otherCallsCouldLose = fixture?.openCallsCouldLose ?? (user ? risk.openCallsCouldLose : 0);
+  // The opposite holding this buy nets away is not an "other call" any more.
+  const nettedAway = canEstimateNet && heldQtyNum > 0 ? heldValue * (qtyNet / heldQtyNum) : 0;
+  const otherCallsCouldLose = Math.max(
+    0,
+    (fixture?.openCallsCouldLose ?? (user ? risk.openCallsCouldLose : 0)) - nettedAway,
+  );
   const lossIfWrongRaw = canEstimateNet
     ? remainderQty * sidePrice + remainderFee
     : notional + fee;
   const showLossRow = !canEstimateNet || isPartialNet;
-  const lossCapped = accountValue != null && amountNum > 0 && lossIfWrongRaw > accountValue;
+  // A zero / negative value means the wallet hasn't loaded (or is already wiped) — no cap then.
+  const lossCapped = accountValue != null && accountValue > 0 && amountNum > 0 && lossIfWrongRaw >= accountValue;
   const lossIfWrong = lossCapped ? Math.max(0, accountValue as number) : lossIfWrongRaw;
   // Several calls together could take everything: only when this call alone
   // does not already (that case has its own line).
@@ -235,7 +241,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   // presets) instead of silently showing $0.00. Netting buys are exempt: the
   // held leg's cash funds them, so the wallet is not the limit. Guests are
   // exempt too — their buy asks them to sign in first.
-  const maxAmount = Math.max(0, Math.floor(balance));
+  // Style-guide frames pin the balance so a signed-in viewer's own wallet never leaks in.
+  const cardBalance = fixture?.balance ?? balance;
+  const maxAmount = Math.max(0, Math.floor(cardBalance));
   const capApplies = !!user && !isNetting;
   const lowBalance = !!previewLowBalance || (capApplies && maxAmount < 1);
   const setAmountCapped = (v: string) => {
@@ -441,14 +449,14 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   // truthfully un-closable — with a nudge to type an amount.
   const autoCloseRow =
     amountNum <= 0
-      ? { text: "None", sub: t("trade.screen.lite.lite_contract_order_panel.ac_enter_amount"), hot: false }
+      ? { text: t("common.none"), sub: t("trade.screen.lite.lite_contract_order_panel.ac_enter_amount"), hot: false }
       : effBoost <= 1
-        ? { text: "None", sub: t("trade.screen.lite.lite_contract_order_panel.ac_nothing_borrowed"), hot: false }
+        ? { text: t("common.none"), sub: t("trade.screen.lite.lite_contract_order_panel.ac_nothing_borrowed"), hot: false }
         : autoClose.kind === "none"
-          ? { text: "None", sub: t("trade.screen.lite.lite_contract_order_panel.ac_balance_covers"), hot: false }
+          ? { text: t("common.none"), sub: t("trade.screen.lite.lite_contract_order_panel.ac_balance_covers"), hot: false }
           : {
               text: `≈ ${formatCents(autoClose.price)}`,
-              sub: isAutoCloseHot(autoClose, sidePrice) ? "close to entry" : undefined,
+              sub: isAutoCloseHot(autoClose, sidePrice) ? t("trade.screen.lite.lite_contract_order_panel.ac_close_to_entry") : undefined,
               hot: isAutoCloseHot(autoClose, sidePrice),
             };
 
@@ -509,7 +517,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
             {t("trade.screen.lite.lite_contract_order_panel.how_much")}
           </div>
-          <AccountBalanceLine label={t("trade.screen.lite.lite_contract_order_panel.boost_balance")} value={money(fixture?.balance ?? balance)} direction="to_futures" />
+          <AccountBalanceLine label={t("trade.screen.lite.lite_contract_order_panel.boost_balance")} value={money(cardBalance)} direction="to_futures" />
         </div>
         <div className="rounded-xl bg-muted/40 p-3">
           <div className="flex items-baseline gap-2">
@@ -600,7 +608,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         {canEstimateNet ? (
           <>
             <div className="flex items-center justify-between px-2">
-              <span className="text-xs text-muted-foreground">You'll get back ≈</span>
+              <span className="text-xs text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.get_back")}</span>
               <span className="font-mono text-lg font-semibold text-foreground">
                 {money(getBack)}
               </span>
@@ -609,7 +617,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
               <>
                 <div className="flex items-center justify-between px-2 pt-0.5">
                   <span className="text-xs text-muted-foreground">
-                    Then if the rest is right, you win
+                    {t("trade.screen.lite.lite_contract_order_panel.rest_right_win")}
                   </span>
                   <span className="font-mono font-semibold text-foreground">
                     {money(remainderWinNet)}
@@ -617,11 +625,11 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                 </div>
                 <div className="flex items-center justify-between px-2 pt-0.5">
                   <span className="text-xs text-muted-foreground">
-                    Est. auto-close (new position)
+                    {t("trade.screen.lite.lite_contract_order_panel.ac_new_position")}
                   </span>
                   <span className="font-mono font-semibold text-muted-foreground">
                     {effBoost <= 1 || remainderAutoClose == null || remainderAutoClose.kind === "none"
-                      ? `None · ${
+                      ? `${t("common.none")} · ${
                           effBoost <= 1
                             ? t("trade.screen.lite.lite_contract_order_panel.ac_nothing_borrowed")
                             : t("trade.screen.lite.lite_contract_order_panel.ac_balance_covers")
@@ -655,7 +663,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         {showLossRow && (
           <div className="flex items-start justify-between gap-3 px-2 pt-0.5">
             <div className="min-w-0">
-              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              {/* h-7 = the 18px amount's line box, so the label sits on the amount's centre like the win row. */}
+              <span className="inline-flex h-7 items-center gap-1 text-xs text-muted-foreground">
                 {effBoost > 1
                   ? t("trade.screen.lite.lite_contract_order_panel.lose_up_to")
                   : t("trade.screen.lite.lite_contract_order_panel.lose")}
@@ -671,7 +680,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                 </Tooltip>
               </span>
               {lossCapped && (
-                <div className="mt-0.5 text-[11px] text-trading-red">
+                <div className="-mt-1 text-pretty [word-break:auto-phrase] text-[11px] text-trading-red">
                   {t("trade.screen.lite.lite_contract_order_panel.lose_everything")}
                 </div>
               )}
@@ -682,7 +691,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           </div>
         )}
         {overAccount && (
-          <div className="mx-2 rounded-lg bg-trading-red/10 px-2.5 py-2 text-[11.5px] leading-normal text-trading-red">
+          <div className="mx-2 text-pretty [word-break:auto-phrase] rounded-lg bg-trading-red/10 px-2.5 py-2 text-[11.5px] leading-normal text-trading-red">
             {t("trade.screen.lite.lite_contract_order_panel.over_account")}
           </div>
         )}
@@ -748,7 +757,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         </span>
         {!blocked && (
           // 09-24 Liya: name the number — same `To win $X →` as the spot card and the Pro CTA.
-          <span className="font-mono text-sm">To win {money(potentialWinNet)} →</span>
+          <span className="font-mono text-sm">To win {money(isPartialNet ? remainderWinNet : potentialWinNet)} →</span>
         )}
       </button>
       {/* SW-2 · one footnote slot: doorway while the amount is empty, risk line once money is on the table. */}
@@ -757,10 +766,10 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         previewForce={previewLimitHint}
         amountEntered={amountNum > 0}
         fallback={
-          <p className="text-center text-[10px] text-muted-foreground/70">
+          <p className="text-pretty [word-break:auto-phrase] text-center text-[10px] text-muted-foreground/70">
             {effBoost > 1
               ? t("trade.screen.lite.lite_contract_order_panel.footnote_boost")
-              : amountNum > 0
+              : amountNum > 0 && showLossRow
                 ? t("trade.screen.lite.lite_contract_order_panel.footnote_full", { amount: money(lossIfWrong) })
                 : t("trade.screen.lite.lite_contract_order_panel.footnote_empty")}
           </p>

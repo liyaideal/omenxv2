@@ -51,14 +51,14 @@
 
 | 行 | 什么时候 | 写法 |
 |---|---|---|
-| 对了赢 | 始终（空金额为 $0.00） | `If you're right, you win` ⓘ + `netWinIfRight(价格, 份数)`；CTA `To win $X →` 同一个数。ⓘ 说明：`After the trading fee and the 5% winning commission on profit. This is the same number your Portfolio will show once it settles.` |
+| 对了赢 | 始终（空金额为 $0.00）；买对面抵掉旧仓位时换成两行：`You'll get back ≈ $Y`（抵掉部分按现价拿回）+ `Then if the rest is right, you win $Z`（只算新开部分），全部抵掉时只有第一行 | `If you're right, you win` ⓘ + `netWinIfRight(价格, 份数)`；CTA `To win $X →` 同一个数（部分抵掉时 = 新开部分的 $Z）。ⓘ 说明：`After the trading fee and the 5% winning commission on profit. This is the same number your Portfolio will show once it settles.` |
 | 错了最多亏 | 始终；买对面且全部抵掉旧仓位时不显示 | 1× `If you're wrong, you lose`，Boost `If you're wrong, you lose up to` ⓘ + 金额 M。M = 仓位 + 开仓费；买对面只抵掉一部分时只算新开那部分（CTO）。ⓘ 说明：`If you're wrong, the price goes to 0¢ and you lose the whole position plus the trading fee. With Boost, the part beyond what you put in comes out of your Boost balance.` |
-| 这一笔就能亏光 | 已登录，且 仓位 + 开仓费 > Boost 账户总值 | M 写账户总值；亏损行下面红字 `That's everything you have in Boost.` |
-| 几笔加起来可能亏光 | 已登录、这一笔没被封顶、有其他 Boost 持仓，且 M + 其他持仓还可能亏的钱 > 账户总值 | 亏损行下面红框 `If this and your other Boost calls all go wrong, you could lose everything you have in Boost.`。「其他持仓还可能亏」= 多：份数 × 现价；空：份数 × (1 − 现价)（`openCallsCouldLose`） |
-| Auto-close | 始终 | 标题 `Auto-close` ⓘ，副标 `Only if your Boost balance runs low`；值 `≈ 52¢`；None 时 1× `nothing borrowed`、Boost `your balance covers it`、空金额 `enter an amount`。估算算法不动 |
-| 底注 | 金额 > 0 | 1×：`Not guaranteed. You can lose your full $X.`（X = M）；Boost：`Not guaranteed. With Boost you can lose more than you put in.`；空金额：1× `… You can lose everything you put in.`、Boost 同 Boost 句 |
+| 这一笔就能亏光 | 已登录，账户总值 > 0，且 仓位 + 开仓费 ≥ Boost 账户总值 | M 写账户总值；亏损行下面红字 `That's everything you have in Boost.` |
+| 几笔加起来可能亏光 | 已登录、这一笔没被封顶、有其他 Boost 持仓，且 M + 其他持仓还可能亏的钱 > 账户总值 | 亏损行下面红框 `If this and your other Boost calls all go wrong, you could lose everything you have in Boost.`。「其他持仓还可能亏」= 多：份数 × 现价；空：份数 × (1 − 现价)（`openCallsCouldLose`），买对面时减掉这一笔要抵掉的那部分旧仓位 |
+| Auto-close | 始终 | 标题 `Auto-close` ⓘ，副标 `Only if your Boost balance runs low`；值 `≈ 52¢`；None 时 1× `nothing borrowed`、Boost `your balance covers it`、空金额 `enter an amount`；离买入价 10% 以内后缀红字 `close to entry`。部分抵掉时这一行叫 `Auto-close (new position)`，只算新开部分。估算算法不动 |
+| 底注 | 金额 > 0 | 1×：`Not guaranteed. You can lose your full $X.`（X = M；全部抵掉、没有亏损行时用空金额那句）；Boost：`Not guaranteed. With Boost you can lose more than you put in.`；空金额：1× `… You can lose everything you put in.`、Boost 同 Boost 句 |
 | Boost 档位下的提示 | 始终 | `Bigger Boost: bigger win if you're right, bigger loss if you're wrong.` |
-| 时间（桌面卡右上 / 手机抽屉顶部） | — | 体育赛前 `Kicks off in 16h 08m`，比赛中沿用比赛时钟；加密轮次（`event_subtype` 含 `UPDOWN`）`Closes in 12:30`；其他长期事件 `Expected to end in 45d 3h`（倒数的是 Polymarket 预计结束日，过了可能还能交易）。手机抽屉后面接概率：体育 `78% chance Magic wins`，其他 `64% chance`；桌面不写概率 |
+| 时间（桌面卡右上 / 手机抽屉顶部） | — | 体育赛前 `Kicks off in 16h 08m`，比赛中沿用比赛时钟；轮次事件（`event_subtype` 含 `UPDOWN`，即全部 Up/Down 轮，不只加密）`Closes in 12:30`；其他长期事件 `Expected to end in 45d 3h`（倒数的是 Polymarket 预计结束日，过了可能还能交易，过了之后不显示时间）。手机抽屉后面接概率：体育 `78% chance Magic wins`，其他 `64% chance`；桌面不写概率 |
 
 红字里**不写余额数**：有持仓时账户总值和上方显示的 `Boost balance`（可用现金）不是一个数，写出来会对不上（CPO 2026-11-16）。游客不封顶、不出红字。
 
@@ -164,7 +164,7 @@ Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接�
 
 ## 10. 多语言（7 语：en / zh-CN / zh-TW / ja / ko / ru / vi）
 
-本文所有新文案都有 key，切语言即变；以下 key 是 **Lovable 2026-11-13 新增**，要回写平台 i18n 表（西语没有，回退英文）：
+本文所有新文案都有 key，切语言即变；以下 key 是 **Lovable 2026-11-13 / 11-16 新增**，要回写平台 i18n 表（西语没有，回退英文）：
 
 | key | en |
 |---|---|
@@ -186,7 +186,8 @@ Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接�
 | `portfolio.lite.detail.fee_split` | `Trading fee {{buy}} buy · {{sell}} sell` |
 | `portfolio.lite.detail.put_in_sub` | `{{amount}} put in · {{boost}}× Boost` |
 | `trade.screen.lite.lite_contract_order_panel.{lose, lose_up_to, about_what_you_lose, lose_tooltip, lose_everything, over_account}` | ① 错了最多亏一行、两种红字（11-16） |
-| `trade.screen.lite.lite_contract_order_panel.{auto_close, ac_only_if_low, ac_nothing_borrowed, ac_balance_covers, ac_enter_amount}` | ① Auto-close 行 |
+| `trade.screen.lite.lite_contract_order_panel.{auto_close, ac_only_if_low, ac_nothing_borrowed, ac_balance_covers, ac_enter_amount, ac_close_to_entry, ac_new_position}` | ① Auto-close 行（11-16） |
+| `trade.screen.lite.lite_contract_order_panel.{get_back, rest_right_win}` | ① 买对面抵掉旧仓位时的两行（11-16） |
 | `trade.screen.lite.lite_contract_order_panel.{footnote_boost, footnote_full, footnote_empty, boost_hint, win_tooltip}` | ① 底注、Boost 提示句、赢的 ⓘ 说明 |
 | `trade.screen.lite.lite_contract_order_panel.{closes_in, expected_to_end_in, chance, chance_side_wins}` · `events.screen.simple.sports_clock.kicks_off_in` | ① 时间与概率 |
 | `wallet.category.{sports,crypto,macro,stocks,quickplay,politics,social}` | `sports` … `Quick Play` … |
