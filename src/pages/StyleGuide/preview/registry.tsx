@@ -614,6 +614,8 @@ export const previewRegistry: Record<string, Loader> = {
   "spot-sp5": pick(spot, "Sp5Preview"),
   "spot-sp6": pick(spot, "Sp6Preview"),
   "spot-sp7": pick(spot, "Sp7Preview"),
+  "spot-sp7b": pick(spot, "Sp7bPreview"),
+  "spot-sp7c": pick(spot, "Sp7cPreview"),
   "spot-sp8": pick(spot, "Sp8Preview"),
   "spot-sp9": pick(spot, "Sp9Preview"),
   "spot-sp10": pick(spot, "Sp10Preview"),

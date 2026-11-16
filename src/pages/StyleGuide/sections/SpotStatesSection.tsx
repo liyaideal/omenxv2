@@ -126,7 +126,7 @@ const MARKET_CASES: SectionCase[] = [
     note:
       "切换规则：tab=stock 走灰线 #C9CED6 且 Y 轴为货币；tab=odds 时线色与 tab 文字随订单面板所选 side —— Up 走 --yes、Down 走 --no，且 Down 序列为 Up 的逐点补数（100 − Up）。两帧并列展示 side=yes 与 side=no。",
     spec: [
-      { state: "stock tab", when: "tab === 'stock'", visual: "标的价走势 + baseline 虚线，Y 轴 `{currency}x.xx`", source: "LiteStockChart.stockSeries" },
+      { state: "stock tab", when: "tab === 'stock'", visual: "加密涨跌轮：实时价走势 + 结算价横线（见 SP-7，2026-11-16）；股票日轮仍是标的价走势 + baseline 虚线，Y 轴 `{currency}x.xx`", source: "RoundPricePanel / LiteStockChart.stockSeries" },
       { state: "odds tab", when: "tab === 'odds'", visual: "赔率走势，Y 轴 `x¢`，标签为 `{sideLabel} odds ¢`", source: "oddsSeries / sideLabel" },
       { state: "side=no", when: "side === 'no'", visual: "序列取 100 − Up，线色改 --no，tab 文字改 `Down odds ¢`", source: "toSide()" },
       { state: "无真实历史", when: "upHistory 缺失或 < 4 点", visual: "确定性合成走势（seed 由 ticker 派生，跨挂载稳定）", source: "synth() · DEMO-STATE" },
@@ -135,11 +135,33 @@ const MARKET_CASES: SectionCase[] = [
   },
   {
     key: "spot-sp7",
-    label: "SP-7 · price-to-beat 虚线（chart 内 `Price to beat $61,569.07`）",
-    note: "在 stock tab 上切换可见；本 case 与 SP-6 同一组件、同一 fixture，仅规格聚焦 baseline。",
+    label: "SP-7 · 加密涨跌轮 · 价格页签（实时价走势 + 结算价横线）· 轮次前半、Down 领先",
+    note:
+      "CPO 2026-11-16（画布方案 B，起因：用户以为图上是交易所实时价，实际是 60 秒均价，看起来像延迟）。加密涨跌轮（5m / 15m / 1h / 4h / 1D）的价格页签：走势线画实时价；决定输赢的结算价（Chainlink 60 秒均价）画成一条白色横线带标签；Price to beat 仍是虚线（手机上也带文字）。图上方一行直接说现在谁领先，图下方一句说明结算价为什么比实时价慢。股票日轮不走这一套（按收盘价算，没有均价）。Lovable 的实时价是演示数据。",
     spec: [
-      { state: "有 base_price", when: "tab === 'stock' && basePrice != null", visual: "水平虚线 + 标签 `Price to beat {currency}{base}`", source: "LiteStockChart baseline" },
-      { state: "odds tab", when: "tab === 'odds'", visual: "baseline = null，虚线不渲染", source: "同上" },
+      { state: "走势线", when: "round 传入 && tab === 'stock'", visual: "白线 2.25px = 实时价，从轮次开始画到现在；X 轴跨整轮（本地时间）；线末端白点 + `Live price $x`", source: "RoundPricePanel · useRoundLivePrice（DEMO-STATE）" },
+      { state: "结算价横线", when: "始终", visual: "白色实线 1.5px + 白底标签 `Settlement price $x`；随 60 秒均价上下移动", source: "RoundPricePanel SettlementTag" },
+      { state: "Price to beat", when: "始终", visual: "灰虚线 + `Price to beat $x`（桌面 10.5 / 手机 9.5；手机原来不带字，这次带上）", source: "ReferenceLine priceToBeat" },
+      { state: "标签让位", when: "线末端在图的前 55% → 两个横线标签靠右；之后 → 靠左", visual: "结算价高于目标价：结算价标签在线上方、Price to beat 字在虚线下方；低于则相反——两个标签不会挤在一个角", source: "flip · up" },
+      { state: "结论行", when: "未结束", visual: "`Settlement price now` + 18px 粗体金额 + `$x below the price to beat ·` + `Down is ahead`（Down 柠檬 / Up 青，同选边色）", source: "data-round-status" },
+      { state: "底注", when: "始终", visual: "`The settlement price is a 60-second average of the price from Chainlink, so it follows the live price with a short delay. It decides Up or Down.`", source: "settlement_note（7 语）" },
+      { state: "悬停", when: "桌面 hover", visual: "提示框：本地时间 + `Live price $x`（只显示实时价）", source: "Tooltip" },
+      { state: "odds 页签", when: "tab === 'odds'", visual: "与原来一样（SP-6）", source: "LiteStockChart oddsSeries" },
+    ],
+  },
+  {
+    key: "spot-sp7b",
+    label: "SP-7b · 加密涨跌轮 · 价格页签 · 轮次后半、Up 领先（标签换到左边）",
+    spec: [
+      { state: "后半段", when: "线末端超过图宽 55%", visual: "结算价标签与 Price to beat 字都在左端；`Live price` 字翻到白点左边", source: "flip === true" },
+      { state: "Up 领先", when: "settlementPrice > priceToBeat", visual: "结论行 `… above the price to beat · Up is ahead`（青）；结算价标签在线上方", source: "up === true" },
+    ],
+  },
+  {
+    key: "spot-sp7c",
+    label: "SP-7c · 加密涨跌轮 · 价格页签 · 本轮结束",
+    spec: [
+      { state: "结束", when: "now ≥ end_date", visual: "结论行改 `Final settlement price $x · … · Up won`；线画满整轮", source: "settled" },
     ],
   },
   {
@@ -437,7 +459,7 @@ export const SpotStatesSection = () => (
     </SubSection>
 
     <SubSection title="③ 行情与图表（SP-5 … SP-8）">
-      <Pair cases={MARKET_CASES} desktopMin={1100} mobileMin={1300} />
+      <Pair cases={MARKET_CASES} desktopMin={2100} mobileMin={2500} />
     </SubSection>
 
     <SubSection title="④ 下单与持仓（SP-9 … SP-13）">

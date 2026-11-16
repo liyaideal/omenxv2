@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatLocalTime } from "@/lib/usStockSessions";
+import { RoundPricePanel, type RoundPriceProps } from "./RoundPricePanel";
 
 type Tab = "stock" | "odds";
 
@@ -51,6 +52,12 @@ interface Props {
    */
   todayChipLabel?: string;
   className?: string;
+  /**
+   * Crypto Up/Down rounds (CPO 2026-11-16): the price tab draws the live
+   * price with the settlement price as a tagged horizontal line. Absent ⇒
+   * the stock chart, byte-identical.
+   */
+  round?: RoundPriceProps;
 }
 
 // Deterministic pseudo-random walk. NOT random on every render — seeded by
@@ -106,6 +113,7 @@ export const LiteStockChart = ({
   currency = "$",
   todayChipLabel,
   className,
+  round,
 }: Props) => {
   const [tab, setTab] = useState<Tab>("stock");
   const narrow = useIsMobile();
@@ -204,6 +212,9 @@ export const LiteStockChart = ({
         </div>
       </div>
 
+      {round && tab === "stock" ? (
+        <RoundPricePanel {...round} upLabel={upLabel} downLabel={downLabel} currency={currency} />
+      ) : (
       <div className="h-[220px] w-full px-2 pb-3">
         {series.length === 0 ? (
           <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
@@ -270,6 +281,7 @@ export const LiteStockChart = ({
           </ResponsiveContainer>
         )}
       </div>
+      )}
     </div>
   );
 };

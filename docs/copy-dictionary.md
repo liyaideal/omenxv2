@@ -811,6 +811,18 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 
 ---
 
+
+### 走势图 · 实时价与结算价（2026-11-16）
+
+| 词 | 定义 / 规则 | 出处 |
+|---|---|---|
+| **Live price**（实时价） | 标的此刻的市场价。加密涨跌轮走势图的线、线末端 `Live price $x`、页头价格数字。不参与判输赢 | `RoundPricePanel` · key `spot.screen.lite_underlying_price_chart.live_tag` |
+| **Settlement price**（结算价） | 决定 Up / Down 的价格：Chainlink 的 60 秒平均价（= 最近 60 秒实时价的平均），所以比实时价慢一点。图上是白色横线 + 标签 `Settlement price $x`；结论行 `Settlement price now $x`，结束后 `Final settlement price $x` | key `…settlement_tag` / `settlement_now` / `settlement_final` |
+| **Price to beat**（目标价） | 本轮开盘那一刻的结算价（`base_price`）。结算价高于它 = Up，否则 Down | key `…price_to_beat_tag` |
+| **{amount} below / above the price to beat** | `abs(结算价 − Price to beat)`，两位小数 | key `…below_price_to_beat` / `above_price_to_beat` |
+| **Up is ahead / Down is ahead** · **Up won / Down won** | 判定：结算价 > Price to beat → Up，否则 Down；轮次结束前写 ahead，结束后写 won | key `…side_ahead` / `side_won` |
+| 底注 | `The settlement price is a 60-second average of the price from Chainlink, so it follows the live price with a short delay. It decides Up or Down.` | key `…settlement_note` |
+
 ## Share / 晒单（Lite）
 
 > 状态字典：`/style-guide` → Lite → Share（`share-sh1` … `share-sh8`）。规格文档：`docs/delivery/lite-share-v1.md`。

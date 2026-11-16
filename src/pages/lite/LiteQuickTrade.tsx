@@ -80,6 +80,7 @@ import {
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
 import { cn } from "@/lib/utils";
+import { useRoundLivePrice } from "@/components/lite/trade/roundLivePrice";
 import { isTableEnabled, isTableTimeframe } from "@/lib/tableMode";
 import { LiteQuickTable } from "@/pages/lite/LiteQuickTable";
 
@@ -177,8 +178,24 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
   const base = event?.base_price ?? null;
   const seed = event ? seedFromId(event.id) : 0;
   const price = derivedPrice(base, upPrice, seed, seconds);
-  const pct = base && price ? ((price - base) / base) * 100 : 0;
   const endDate = event?.end_date ? new Date(event.end_date) : null;
+  // CPO 2026-11-16: the chart line and the page-head number are the LIVE price;
+  // the settlement price (its 60-second average) decides the round and is the
+  // tagged horizontal line. Both are demo values here — the real-time feed and
+  // Chainlink's 60-second average in production.
+  const roundStartMs = event?.start_date ? new Date(event.start_date).getTime() : null;
+  const roundEndMs = endDate ? endDate.getTime() : null;
+  const live = useRoundLivePrice({
+    key: event?.id ?? "",
+    seed,
+    startMs: roundStartMs,
+    endMs: roundEndMs,
+    base,
+    upOdds: upPrice,
+  });
+  const livePrice = live.last ?? price;
+  const settlementPrice = live.settlement ?? price;
+  const pct = base && livePrice ? ((livePrice - base) / base) * 100 : 0;
   const remaining = endDate ? endDate.getTime() - Date.now() : 0;
   const countdown = formatCountdown(remaining);
 
@@ -377,7 +394,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
       title={event.name}
       headingRef={headingRef as unknown as React.Ref<HTMLHeadingElement>}
       isMobile={!!isMobile}
-      price={price}
+      price={livePrice}
       pct={pct}
       volText={compactUsd(event.volume)}
     />
@@ -425,6 +442,19 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
       endDate={event.end_date}
       startDate={event.start_date}
       currency="$"
+      round={
+        roundStartMs != null && roundEndMs != null
+          ? {
+              points: live.points,
+              livePrice,
+              settlementPrice,
+              priceToBeat: base,
+              startMs: roundStartMs,
+              endMs: roundEndMs,
+              settled: remaining <= 0,
+            }
+          : undefined
+      }
     />
   );
 

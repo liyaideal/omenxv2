@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { RoundTape } from "@/components/lite/shared/RoundTape";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
+import { demoLiveAt, demoSettlementAt } from "@/components/lite/trade/roundLivePrice";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import {
   SpotSentimentBar,
@@ -127,29 +128,61 @@ export const Sp6Preview = () => (
           startDate={ROUND_START}
           endDate={ROUND_END}
           currency="$"
+          round={roundFixture(140, 0.55)}
         />
       </div>
     ))}
   </Frame>
 );
 
-/** SP-7 · price-to-beat 虚线（stock tab 下的 baseline，值 = base_price）。 */
-export const Sp7Preview = () => (
+/* ---- SP-7 … SP-7c · round price tab (CPO 2026-11-16): live line + settlement line ---- */
+
+const R_START = new Date(ROUND_START).getTime();
+const R_END = new Date(ROUND_END).getTime();
+const R_BASE = 61569.07;
+const R_SEED = 3;
+
+/** Frozen fixture: the round as it looked `elapsedSec` in, with the Up odds at `upOdds`. */
+const roundFixture = (elapsedSec: number, upOdds: number, settled = false) => {
+  const points = [];
+  for (let s = 0; s <= elapsedSec; s += 1) {
+    points.push({ t: R_START + s * 1000, v: demoLiveAt(R_BASE, upOdds, R_SEED, Math.floor(R_START / 1000) + s) });
+  }
+  return {
+    points,
+    livePrice: points[points.length - 1].v,
+    settlementPrice: demoSettlementAt(R_BASE, upOdds, R_SEED, Math.floor(R_START / 1000) + elapsedSec),
+    priceToBeat: R_BASE,
+    startMs: R_START,
+    endMs: R_END,
+    settled,
+  };
+};
+
+const RoundChart = ({ elapsed, upOdds, settled }: { elapsed: number; upOdds: number; settled?: boolean }) => (
   <Frame>
     <LiteStockChart
       ticker="BTC"
-      basePrice={61569.07}
-      currentPrice={61712.4}
-      upOdds={0.55}
+      basePrice={R_BASE}
+      currentPrice={R_BASE}
+      upOdds={upOdds}
       side="yes"
       upLabel="Up"
       downLabel="Down"
       startDate={ROUND_START}
       endDate={ROUND_END}
       currency="$"
+      round={roundFixture(elapsed, upOdds, settled)}
     />
   </Frame>
 );
+
+/** SP-7 · early in the round, Down ahead — tags sit on the right. */
+export const Sp7Preview = () => <RoundChart elapsed={95} upOdds={0.34} />;
+/** SP-7b · late in the round, Up ahead — tags move to the left. */
+export const Sp7bPreview = () => <RoundChart elapsed={230} upOdds={0.66} />;
+/** SP-7c · round over — "Final settlement price … Up won". */
+export const Sp7cPreview = () => <RoundChart elapsed={300} upOdds={0.71} settled />;
 
 /* --------------------------- SP-8 / SP-14 rail --------------------------- */
 
