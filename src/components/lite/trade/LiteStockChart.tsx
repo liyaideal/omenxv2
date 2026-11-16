@@ -203,7 +203,8 @@ export const LiteStockChart = ({
             </button>
           )}
         </div>
-        <div className="hidden gap-1 text-[11px] text-muted-foreground sm:flex">
+        {/* 1H / Today / 1W are the stock day's chips — a round has one window (CPO canvas 2026-11-16 shows none). */}
+        <div className={cn("hidden gap-1 text-[11px] text-muted-foreground", !round && "sm:flex")}>
           <span className="rounded bg-muted/40 px-2 py-0.5">1H</span>
           <span className="rounded bg-foreground/10 px-2 py-0.5 text-foreground">
             {todayChipLabel ?? "Today"}

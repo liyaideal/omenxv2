@@ -1695,7 +1695,7 @@ Rules:
 - Any spec introducing a new category into the trade flow must first declare: which page it belongs to (contract or spot), which modules it inherits, and which modules it adds/removes.
 - Changes to shared blocks must keep **every** consumer (stock spot, quick rounds, contract) rendering correctly.
 
-**2026-08-03:** the quick-rounds trade view was rebased onto the spot-page skeleton — same chart (`LiteStockChart`), sentiment bar, settlement rail and position card as the stock spot page. `RoundPlot` remains **only** in the Intraday band tiles.
+**2026-08-03:** the quick-rounds trade view was rebased onto the spot-page skeleton — same chart card (`LiteStockChart`; since 2026-11-16 its price tab on crypto rounds is `RoundPricePanel`: live price line + settlement price line, see §Addendum 2026-11-16), sentiment bar, settlement rail and position card as the stock spot page. `RoundPlot` remains **only** in the Intraday band tiles.
 
 ## §Addendum 2026-08-04 · Calendar week ticket category identity (LOCKED)
 
@@ -2618,6 +2618,7 @@ CPO 2026-11-16 在画布「加密涨跌轮 · 走势图结算价 mock」比稿�
 4. **Price to beat** 仍是灰虚线 `#6B7280` 4 4 + 灰字；手机上也带字。
 5. **标签让位**：线末端在前 55% 时两个横线标签靠右，之后靠左；结算价高于目标价时结算价标签在其线上方、Price to beat 字在虚线下方，低于时相反。
 6. **结论行**（图上方）：`Settlement price now` 12px `#AEB4BD` + 金额 Space Grotesk 18 / 700 白 + `$x below|above the price to beat ·` + `Down|Up is ahead`（600，Down `--no` 柠檬 / Up `--yes` 青——这是选边轴，不是涨跌的红绿）。放不下自动换行。结束后 `Final settlement price … Up|Down won`。
+6b. 结算价与 Price to beat 印出来到分一样时算持平：`level with the price to beat · Down is ahead`（与结算规则一致，高于才算 Up）。卡片右上的 `1H / Today / 1W`（股票日图的档位）在涨跌轮上不显示。
 7. **底注**（图下方，常驻）：11.5px `#8B929B`，一句说明结算价是 Chainlink 60 秒平均价、比实时价慢一点、输赢按它算。不做成 ⓘ。
 8. **页头价格数字 = 实时价**（与线末端同一个数）。
 9. **一个结算价**：结论行、白色横线、最终判定用同一个数；实时价只画线和页头，不参与判定。

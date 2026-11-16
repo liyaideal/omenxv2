@@ -12,7 +12,7 @@ import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { RoundTape } from "@/components/lite/shared/RoundTape";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
-import { demoLiveAt, demoSettlementAt } from "@/components/lite/trade/roundLivePrice";
+import { demoLiveAt, demoRamp, demoSettlementAt } from "@/components/lite/trade/roundLivePrice";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import {
   SpotSentimentBar,
@@ -144,14 +144,16 @@ const R_SEED = 3;
 
 /** Frozen fixture: the round as it looked `elapsedSec` in, with the Up odds at `upOdds`. */
 const roundFixture = (elapsedSec: number, upOdds: number, settled = false) => {
+  const ramp = demoRamp(R_START, R_END);
+  const sec0 = Math.floor(R_START / 1000);
   const points = [];
   for (let s = 0; s <= elapsedSec; s += 1) {
-    points.push({ t: R_START + s * 1000, v: demoLiveAt(R_BASE, upOdds, R_SEED, Math.floor(R_START / 1000) + s) });
+    points.push({ t: R_START + s * 1000, v: demoLiveAt(R_BASE, upOdds, R_SEED, sec0 + s, ramp(sec0 + s)) });
   }
   return {
     points,
     livePrice: points[points.length - 1].v,
-    settlementPrice: demoSettlementAt(R_BASE, upOdds, R_SEED, Math.floor(R_START / 1000) + elapsedSec),
+    settlementPrice: demoSettlementAt(R_BASE, upOdds, R_SEED, sec0 + elapsedSec, ramp),
     priceToBeat: R_BASE,
     startMs: R_START,
     endMs: R_END,

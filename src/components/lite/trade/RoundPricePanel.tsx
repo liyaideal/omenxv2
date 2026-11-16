@@ -11,7 +11,7 @@
 //
 // Pure display: every number comes in through props.
 // ============================================================
-import { t } from "@/i18n";
+import { t, useT } from "@/i18n";
 import {
   ResponsiveContainer,
   LineChart,
@@ -74,7 +74,7 @@ const SettlementTag = ({
 }) => {
   const y = viewBox?.y ?? 0;
   const fs = small ? 9.5 : 10.5;
-  const w = Math.ceil(text.length * fs * 0.58) + 16;
+  const w = textW(text, fs) + 16;
   const x = atLeft ? (viewBox?.x ?? 0) + 4 : (viewBox?.x ?? 0) + (viewBox?.width ?? 0) - w - 4;
   const top = above ? y - 24 : y + 5;
   return (
@@ -87,15 +87,65 @@ const SettlementTag = ({
   );
 };
 
-/** "Live price $x" beside the line's last point; flips left past the middle. */
-const LiveTag = ({ viewBox, text, flip }: { viewBox?: VB; text: string; flip: boolean }) => {
+/** Text width estimate: full-width glyphs (CJK, kana, hangul) take an em, the rest about 0.6. */
+const textW = (text: string, fs: number) =>
+  // eslint-disable-next-line no-control-regex
+  Math.ceil(Array.from(text).reduce((n, ch) => n + (/[^\x00-\u024F\u0400-\u04FF]/.test(ch) ? 1 : 0.6), 0) * fs);
+
+/** Plot height: the 220px slot minus its bottom padding, chart margins and the X axis. */
+const PLOT_H = H - 8 - 10 - 4 - 30;
+
+interface LiveGeo {
+  /** px per price unit on the Y axis. */
+  ppu: number;
+  yAxisW: number;
+  /** 0…1 — how far along the round the last point is. */
+  frac: number;
+  live: number;
+  settlement: number;
+  priceToBeat: number;
+  /** Settlement above the price to beat (decides which side each horizontal label sits on). */
+  up: boolean;
+  /** Both horizontal labels at the left end. */
+  tagsLeft: boolean;
+  tagW: number;
+  ptbW: number;
+}
+
+/**
+ * "Live price $x" by the line's last point. It goes right of the dot when it
+ * fits, otherwise left, and steps up or down until it clears both horizontal
+ * lines and their labels (designer acceptance 2026-11-16: at 375 it sat on the
+ * settlement tag and on "Price to beat").
+ */
+const LiveTag = ({ viewBox, text, geo }: { viewBox?: VB; text: string; geo: LiveGeo }) => {
   const cx = (viewBox?.x ?? 0) + (viewBox?.width ?? 0) / 2;
   const cy = (viewBox?.y ?? 0) + (viewBox?.height ?? 0) / 2;
+  const w = textW(text, 10.5);
+  const plotW = geo.frac > 0.02 ? (cx - geo.yAxisW) / geo.frac : 9999;
+  const right = geo.yAxisW + plotW;
+  const toLeft = cx + 10 + w > right;
+  const x0 = toLeft ? cx - 10 - w : cx + 10;
+  const x1 = x0 + w;
+  const yS = cy + (geo.live - geo.settlement) * geo.ppu;
+  const yP = cy + (geo.live - geo.priceToBeat) * geo.ppu;
+  const endX0 = (wd: number) => (geo.tagsLeft ? geo.yAxisW + 4 : right - wd - 4);
+  // Things the text must not touch: [x0, x1, y0, y1].
+  const blocks: [number, number, number, number][] = [
+    [-1e4, 1e4, yS - 3, yS + 3],
+    [-1e4, 1e4, yP - 3, yP + 3],
+    [endX0(geo.tagW) - 4, endX0(geo.tagW) + geo.tagW + 4, geo.up ? yS - 26 : yS + 3, geo.up ? yS - 3 : yS + 26],
+    [endX0(geo.ptbW) - 4, endX0(geo.ptbW) + geo.ptbW + 4, geo.up ? yP + 2 : yP - 17, geo.up ? yP + 17 : yP - 2],
+  ];
+  const clear = (base: number) =>
+    blocks.every(([bx0, bx1, by0, by1]) => x1 < bx0 || x0 > bx1 || base + 3 < by0 || base - 9 > by1);
+  const steps = [0, -14, 16, -26, 28, -38, 40, -52, 54];
+  const dy = steps.find((d) => clear(cy + 3.5 + d) && cy + d > 14 && cy + d < 10 + PLOT_H - 4) ?? 0;
   return (
     <text
-      x={flip ? cx - 10 : cx + 10}
-      y={cy + 3.5}
-      textAnchor={flip ? "end" : "start"}
+      x={toLeft ? cx - 10 : cx + 10}
+      y={cy + 3.5 + dy}
+      textAnchor={toLeft ? "end" : "start"}
       fontSize={10.5}
       fill="#C9CED6"
       style={{ paintOrder: "stroke", stroke: "#14161B", strokeWidth: 4, strokeLinejoin: "round" }}
@@ -118,7 +168,8 @@ export const RoundPricePanel = ({
   currency = "$",
 }: RoundPriceProps) => {
   const narrow = !!useIsMobile();
-  const ready = points.length > 1 && livePrice != null && settlementPrice != null && priceToBeat != null;
+  useT(); // re-render when a language catalog lands (the tags are plain t() calls)
+  const ready = points.length > 0 && livePrice != null && settlementPrice != null && priceToBeat != null;
   if (!ready) {
     return (
       <div className="flex w-full items-center justify-center px-2 pb-3 text-xs text-muted-foreground" style={{ height: H }}>
@@ -127,7 +178,9 @@ export const RoundPricePanel = ({
     );
   }
 
-  const up = settlementPrice! > priceToBeat!;
+  // Compare what is printed: two prices that read the same to the cent are level (→ Down, like the settlement rule).
+  const level = Math.round(settlementPrice! * 100) === Math.round(priceToBeat! * 100);
+  const up = !level && settlementPrice! > priceToBeat!;
   const side = up ? upLabel : downLabel;
   const diff = Math.abs(settlementPrice! - priceToBeat!);
   const sideColor = up ? "hsl(var(--yes))" : "hsl(var(--no))";
@@ -140,6 +193,20 @@ export const RoundPricePanel = ({
   const pad = Math.max((hi - lo) * 0.24, Math.abs(hi) * 0.00016);
   const yFmt = (v: number) => money(currency, v);
   const yAxisW = Math.max(48, Math.ceil(yFmt(hi).length * 6.2) + 6);
+  const settlementText = t(`${K}.settlement_tag`, { price: money(currency, settlementPrice!) });
+  const ptbText = t(`${K}.price_to_beat_tag`, { price: money(currency, priceToBeat!) });
+  const geo: LiveGeo = {
+    ppu: PLOT_H / (hi + pad - (lo - pad)),
+    yAxisW,
+    frac: (last.t - startMs) / (endMs - startMs),
+    live: last.v,
+    settlement: settlementPrice!,
+    priceToBeat: priceToBeat!,
+    up,
+    tagsLeft: flip,
+    tagW: textW(settlementText, narrow ? 9.5 : 10.5) + 16,
+    ptbW: textW(ptbText, narrow ? 9.5 : 10.5),
+  };
   const tickN = narrow ? 3 : 6;
   const ticks: number[] = Array.from({ length: tickN }, (_, i) => startMs + ((endMs - startMs) * i) / (tickN - 1));
 
@@ -159,7 +226,10 @@ export const RoundPricePanel = ({
           {money(currency, settlementPrice!)}
         </span>
         <span>
-          {t(up ? `${K}.above_price_to_beat` : `${K}.below_price_to_beat`, { amount: money(currency, diff) })} ·
+          {level
+            ? t(`${K}.level_with_price_to_beat`)
+            : t(up ? `${K}.above_price_to_beat` : `${K}.below_price_to_beat`, { amount: money(currency, diff) })}{" "}
+          ·
         </span>
         <span style={{ color: sideColor, fontWeight: 600 }}>
           {t(settled ? `${K}.side_won` : `${K}.side_ahead`, { side })}
@@ -202,7 +272,7 @@ export const RoundPricePanel = ({
               strokeDasharray="4 4"
               // Phone too (CPO 2026-11-16): the two horizontal lines are compared, so both carry their name.
               label={{
-                value: t(`${K}.price_to_beat_tag`, { price: money(currency, priceToBeat!) }),
+                value: ptbText,
                 // recharts: insideTop* draws under the line, insideBottom* above it — keep the words on the far side from the settlement line.
                 position: up ? (flip ? "insideTopLeft" : "insideTopRight") : flip ? "insideBottomLeft" : "insideBottomRight",
                 fill: "#9AA1AC",
@@ -219,7 +289,7 @@ export const RoundPricePanel = ({
                   small={narrow}
                   atLeft={flip}
                   above={up}
-                  text={t(`${K}.settlement_tag`, { price: money(currency, settlementPrice!) })}
+                  text={settlementText}
                 />
               }
             />
@@ -229,7 +299,8 @@ export const RoundPricePanel = ({
               r={4}
               fill="#F2F4F7"
               stroke="none"
-              label={<LiveTag flip={flip} text={t(`${K}.live_tag`, { price: money(currency, livePrice!) })} />}
+              // Round over: the line has stopped, so the dot stays but "Live price" goes.
+              label={settled ? undefined : <LiveTag geo={geo} text={t(`${K}.live_tag`, { price: money(currency, livePrice!) })} />}
             />
           </LineChart>
         </ResponsiveContainer>

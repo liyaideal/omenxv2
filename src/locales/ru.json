@@ -5251,6 +5251,7 @@
   "screen.lite_underlying_price_chart.price_to_beat_tag": "Цена-ориентир {{price}}",
   "screen.lite_underlying_price_chart.below_price_to_beat": "на {{amount}} ниже цены-ориентира",
   "screen.lite_underlying_price_chart.above_price_to_beat": "на {{amount}} выше цены-ориентира",
+  "screen.lite_underlying_price_chart.level_with_price_to_beat": "на уровне цены-ориентира",
   "screen.lite_underlying_price_chart.side_ahead": "{{side}} впереди",
   "screen.lite_underlying_price_chart.side_won": "{{side}} победил",
   "screen.lite_underlying_price_chart.settlement_note": "Расчётная цена — это средняя цена Chainlink за 60 секунд, поэтому она следует за текущей ценой с небольшой задержкой. По ней определяется Up или Down.",

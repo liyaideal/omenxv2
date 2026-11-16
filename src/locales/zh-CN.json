@@ -5151,6 +5151,7 @@
   "screen.lite_underlying_price_chart.price_to_beat_tag": "目标价 {{price}}",
   "screen.lite_underlying_price_chart.below_price_to_beat": "比目标价低 {{amount}}",
   "screen.lite_underlying_price_chart.above_price_to_beat": "比目标价高 {{amount}}",
+  "screen.lite_underlying_price_chart.level_with_price_to_beat": "与目标价持平",
   "screen.lite_underlying_price_chart.side_ahead": "{{side}} 领先",
   "screen.lite_underlying_price_chart.side_won": "{{side}} 获胜",
   "screen.lite_underlying_price_chart.settlement_note": "结算价是 Chainlink 的 60 秒平均价，所以会比实时价慢一点跟上。涨跌按结算价判定。",

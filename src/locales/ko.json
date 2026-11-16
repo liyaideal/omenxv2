@@ -5166,6 +5166,7 @@
   "screen.lite_underlying_price_chart.price_to_beat_tag": "기준가 {{price}}",
   "screen.lite_underlying_price_chart.below_price_to_beat": "기준가보다 {{amount}} 낮음",
   "screen.lite_underlying_price_chart.above_price_to_beat": "기준가보다 {{amount}} 높음",
+  "screen.lite_underlying_price_chart.level_with_price_to_beat": "기준가와 같음",
   "screen.lite_underlying_price_chart.side_ahead": "{{side}} 우세",
   "screen.lite_underlying_price_chart.side_won": "{{side}} 승리",
   "screen.lite_underlying_price_chart.settlement_note": "정산가는 Chainlink의 60초 평균 가격이라 실시간 가격보다 조금 늦게 따라갑니다. Up / Down은 정산가로 결정됩니다.",

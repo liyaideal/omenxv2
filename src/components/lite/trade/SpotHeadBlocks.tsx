@@ -65,7 +65,7 @@ export const SpotCryptoHead = ({
     >
       <span style={{ color: "#F2F3F5", fontWeight: 700 }}>
         {price != null
-          ? `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+          ? `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
           : "—"}
       </span>
       <span style={{ color: "#6B7280" }}>·</span>

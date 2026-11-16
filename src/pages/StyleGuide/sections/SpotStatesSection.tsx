@@ -407,7 +407,7 @@ const Ledger = () => (
       head={["原文位置", "去向"]}
       rows={[
         ["Lite spot · Order card (states)（6 预设：coin flip / Up 72¢ / Down 68¢ / 5¢·95¢ 边缘 / Market frozen / In review）", "并入 SP-10 … SP-12；blocked 两态（Market frozen / In review）由 TR-8 与 TR-18 的 blocked 口径统辖（同一 blocked/blockedReason 分支），现货侧不重复立案"],
-        ["Lite spot · Chart toggle (odds follow the selected side)", "并入 SP-6（双 tab 与 side 联动）+ SP-7（price-to-beat 虚线）"],
+        ["Lite spot · Chart toggle (odds follow the selected side)", "并入 SP-6（双 tab 与 side 联动）+ SP-7 / 7b / 7c（加密涨跌轮：实时价走势 + 结算价横线 + price-to-beat 虚线，2026-11-16）"],
         ["Lite spot · Shared modules（LiteMarketActivity 与合约页同件；quick-round 页无法确定性渲染的说明）", "activity 归 TR-14（同一组件，现货不复演）；quick-round 页不可确定性渲染的原文升级为本节「缺口回报」表 SP-1 / SP-9 / SP-15 / SP-16 四行，附解法"],
         ["Lite spot · SpotBlocks（crowd bar · settlement rail · your position）", "并入 SP-5（crowd bar）、SP-8 + SP-14（rail 交易中 / 结算态）、SP-13（持仓盈亏两态）；旧节的 in-review rail 变体并入 TR-18"],
         ["Lite quick round · YOUR PICK card + buy-drawer header（含 compact SideButton 与「% say」禁用裁定）", "目标态 = SP-9 / SP-16，当前受阻（见缺口表）；其中「chips 必须是共享 SideButton size='compact'、单行 `Up 49¢`、禁止 `% say` 副标（与 crowd bar 重复）」的裁定原文在此存续，抽件后随 SP-9 落案"],

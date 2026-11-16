@@ -5167,6 +5167,7 @@
   "screen.lite_underlying_price_chart.price_to_beat_tag": "基準価格 {{price}}",
   "screen.lite_underlying_price_chart.below_price_to_beat": "基準価格より {{amount}} 低い",
   "screen.lite_underlying_price_chart.above_price_to_beat": "基準価格より {{amount}} 高い",
+  "screen.lite_underlying_price_chart.level_with_price_to_beat": "基準価格と同じ",
   "screen.lite_underlying_price_chart.side_ahead": "{{side}} がリード",
   "screen.lite_underlying_price_chart.side_won": "{{side}} の勝ち",
   "screen.lite_underlying_price_chart.settlement_note": "決済価格は Chainlink の 60 秒平均価格のため、リアルタイム価格に少し遅れて動きます。Up か Down かは決済価格で決まります。",

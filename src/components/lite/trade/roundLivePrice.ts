@@ -30,20 +30,33 @@ const MAX_POINTS = 360;
  * odds (so the price sits on the side the market favours), plus a fast and a
  * slow wave and a little jitter. Deterministic for a given round.
  */
-export const demoLiveAt = (base: number, upOdds: number, seed: number, tSec: number): number => {
-  const skew = (upOdds - 0.5) * 0.012;
+export const demoLiveAt = (base: number, upOdds: number, seed: number, tSec: number, ramp = 1): number => {
+  // `ramp` 0 → 1 over the first part of the round: the line starts ON the price to beat.
+  const skew = (upOdds - 0.5) * 0.012 * ramp;
   const fast = Math.sin(tSec / 4 + (seed % 7)) * 0.0007 + Math.sin(tSec / 9.3 + (seed % 5)) * 0.0006;
   const slow = Math.sin(tSec / 23 + (seed % 11)) * 0.0009;
   const x = Math.sin(seed * 41.13 + tSec * 7.79) * 10000;
   const jitter = (x - Math.floor(x) - 0.5) * 0.00022;
-  return base * (1 + skew + fast + slow + jitter);
+  return base * (1 + skew + (fast + slow) * (0.35 + 0.65 * ramp) + jitter);
 };
 
 /** The settlement price at `tSec`: the average of the live price over the last 60 seconds. */
-export const demoSettlementAt = (base: number, upOdds: number, seed: number, tSec: number): number => {
+export const demoSettlementAt = (
+  base: number,
+  upOdds: number,
+  seed: number,
+  tSec: number,
+  rampAt: (sec: number) => number = () => 1,
+): number => {
   let sum = 0;
-  for (let k = 0; k < 60; k += 1) sum += demoLiveAt(base, upOdds, seed, tSec - k);
+  for (let k = 0; k < 60; k += 1) sum += demoLiveAt(base, upOdds, seed, tSec - k, rampAt(tSec - k));
   return sum / 60;
+};
+
+/** 0 at round start → 1 a fifth of the way in (never more than 2 minutes). */
+export const demoRamp = (startMs: number, endMs: number) => {
+  const len = Math.min((endMs - startMs) * 0.2, 120_000);
+  return (sec: number) => Math.max(0, Math.min(1, (sec * 1000 - startMs) / len));
 };
 
 /**
@@ -75,7 +88,8 @@ export const useRoundLivePrice = ({
   const span = endMs - startMs;
   const step = Math.max(1000, Math.round(span / 300 / 1000) * 1000);
   const until = Math.min(now, endMs);
-  const at = (ms: number) => demoLiveAt(base, upOdds, seed, Math.floor(ms / 1000));
+  const ramp = demoRamp(startMs, endMs);
+  const at = (ms: number) => demoLiveAt(base, upOdds, seed, Math.floor(ms / 1000), ramp(Math.floor(ms / 1000)));
 
   if (!ref.current || ref.current.key !== key) {
     const points: LivePoint[] = [];
@@ -90,9 +104,15 @@ export const useRoundLivePrice = ({
     s.points.push({ t: lastT, v: at(lastT) });
     if (s.points.length > MAX_POINTS) s.points.shift();
   }
+  // The tip follows the clock every second even when the stored step is longer
+  // (a 1D round stores a point every ~5 minutes) — so the page-head price and
+  // the end of the line never sit still while the settlement price moves.
+  const stored = s.points;
+  const tipT = Math.floor(until / 1000) * 1000;
+  const points = tipT > stored[stored.length - 1].t ? [...stored, { t: tipT, v: at(tipT) }] : [...stored];
   return {
-    points: s.points,
-    last: s.points[s.points.length - 1].v,
-    settlement: demoSettlementAt(base, upOdds, seed, Math.floor(until / 1000)),
+    points,
+    last: points[points.length - 1].v,
+    settlement: demoSettlementAt(base, upOdds, seed, Math.floor(until / 1000), ramp),
   };
 };

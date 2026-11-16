@@ -5166,6 +5166,7 @@
   "screen.lite_underlying_price_chart.price_to_beat_tag": "Giá mục tiêu {{price}}",
   "screen.lite_underlying_price_chart.below_price_to_beat": "thấp hơn giá mục tiêu {{amount}}",
   "screen.lite_underlying_price_chart.above_price_to_beat": "cao hơn giá mục tiêu {{amount}}",
+  "screen.lite_underlying_price_chart.level_with_price_to_beat": "bằng giá mục tiêu",
   "screen.lite_underlying_price_chart.side_ahead": "{{side}} đang dẫn",
   "screen.lite_underlying_price_chart.side_won": "{{side}} thắng",
   "screen.lite_underlying_price_chart.settlement_note": "Giá thanh toán là giá trung bình 60 giây từ Chainlink nên đi sau giá trực tiếp một chút. Up hay Down được quyết định theo giá này.",
