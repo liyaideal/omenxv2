@@ -125,7 +125,8 @@
 .hall-m .hscroll{display:flex;gap:8px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none}
 .hall-m .hscroll::-webkit-scrollbar{display:none}
 .hall-m .panel{padding:18px 16px}
-.hall-m .lrow{grid-template-columns:40px minmax(0,1fr) 56px 56px;gap:6px;padding:11px 0}
+/* col 1 = two 24px badges (47px); 40px let them touch the team codes · 2026-11-16 */
+.hall-m .lrow{grid-template-columns:47px minmax(0,1fr) 56px 56px;gap:8px;padding:11px 0}
 .hall-m .lrow .tc-pill{height:30px;padding:0 6px;font-size:12px}
 /* phone table meta (kickoff · league) must fit WORLDS / LALIGA without an ellipsis */
 .hall-m .lrow .tc-meta{letter-spacing:.05em;font-size:10px}
