@@ -1109,6 +1109,8 @@
   "screen.simple.sports_view.sports_streams.remind_error_body": "Vui lòng thử lại.",
   "screen.simple.sports_view.sports_streams.watch_live": "Xem trực tiếp",
   "screen.simple.sports_view.sports_streams.stream_at_kickoff": "Phát từ lúc bắt đầu",
+  "screen.simple.sports_view.sports_streams.stream_starting_soon": "Sắp phát trực tiếp",
+  "screen.simple.sports_view.sports_streams.starting_soon": "Sắp bắt đầu",
   "screen.simple.sports_view.sports_streams.mute": "Tắt tiếng",
   "screen.simple.sports_view.sports_streams.unmute": "Bật tiếng",
   "screen.simple.sports_view.sports_streams.watch_live": "Xem trực tiếp",

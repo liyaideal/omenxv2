@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-16 | [Lite 交易页 · 直播模块未开赛态（兜底海报 + 倒计时）](../delivery/stage-prekick-poster-v1.md) | 交易页直播舞台开赛前不再一块黑：兜底海报 `live-soon.jpg` + 居中倒计时胶囊（≥24h `2d 4h 12m` / 24h 内 `02:51:12` / 1h 内 `51:12`，每秒跳）；到点还没开打显示 `Stream starting soon`（原来会掉进播放器外壳挂 LIVE）；与记分牌 `Starts in` 同读共享时钟；新 key 2 条 7 语；字典 S6 / S6b / S6c / S6d；DESIGN §Addendum 2026-11-16 |
 | 2026-11-16 | [充值引导优化 + 客服入口 · 交付研发（deposit-ux-v1 定稿）](../delivery/deposit-ux-v1.md) | 客服入口并入同一份交付说明：标题、§0 / §0.1 加 Live chat 的查看位置（FT-TG1），§7 加「请研发跟智齿确认手机版链接」，代号表加 FT-TG1；STATUS 新增本需求十项 |
 | 2026-11-16 | [客服入口 Live chat（并入 deposit-ux-v1 §7）](../delivery/deposit-ux-v1.md#7-客服入口live-chat2026-11-16-同批加入) | 接入智齿在线客服：桌面头像下拉 Join Discord → Live chat；手机 Me 抽屉 Help & Support 下面加 Live chat；Footer 社交行加同款胶囊（手机邮箱挪到下一行）。新标签页打开 `SUPPORT_CHAT_URL`，暂不带用户身份。新 key `nav.live_chat`（7 语 + es）。DESIGN §Addendum 2026-11-16 |
 | 2026-11-13 | [充值引导优化 · 交付研发（deposit-ux-v1 定稿）](../delivery/deposit-ux-v1.md) | 四批并成一份交付说明：开头补「原来 / 这次多了什么」与 BD 六条对应表；新增 §5 正式版跨链充值默认 USDC（Lovable 本来如此）、§6 顺手修的三处（toast 在抽屉上可点、App 根语言、Me 抽屉折行） |

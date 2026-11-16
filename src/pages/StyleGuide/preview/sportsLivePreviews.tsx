@@ -255,24 +255,33 @@ export const S2Preview = stage("loading");
 export const S3Preview = stage("buffering");
 export const S4Preview = stage("paused");
 export const S5Preview = stage("blocked");
-// S6's kickoff must live in the real future — the frozen NOW is in the past,
-// which collapsed the copy to "in 0m". 2h 14m matches the approved canvas.
-export const S6Preview = () => (
+// S6's kickoff must live in the real future — the frozen NOW is in the past.
+// CPO 2026-11-16: the prekick stage is the fallback poster + a ticking
+// countdown; each format band gets its own frame (canvas option A).
+const prekickStage = (fixture: StageFixture, secondsAhead: number) => () => (
   <Frame>
     <LiveStage
       event={{
         ...stageEvent,
         metadata: {
           ...cs2Base,
-          kickoff_at: new Date(Date.now() + 134 * 60_000).toISOString(),
+          kickoff_at: new Date(Date.now() + secondsAhead * 1000).toISOString(),
           segment_index: 2,
           stream_url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
         },
       }}
-      fixture="prekick"
+      fixture={fixture}
     />
   </Frame>
 );
+/** S6 · within 24h — `02:51:12`. */
+export const S6Preview = prekickStage("prekick", 2 * 3600 + 51 * 60 + 12);
+/** S6b · more than 24h out — `2d 4h 12m`. */
+export const S6bPreview = prekickStage("prekick-day", 2 * 86_400 + 4 * 3600 + 12 * 60 + 30);
+/** S6c · under an hour — `51:12`. */
+export const S6cPreview = prekickStage("prekick-hour", 51 * 60 + 12);
+/** S6d · kickoff time passed, match not started — "Stream starting soon". */
+export const S6dPreview = prekickStage("starting", -5 * 60);
 export const S7Preview = stage("error");
 export const S8Preview = stage("forbidden");
 export const S9Preview = stage("finished");

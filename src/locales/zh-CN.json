@@ -1100,6 +1100,8 @@
   "screen.simple.sports_view.sports_streams.remind_error_body": "请再试一次。",
   "screen.simple.sports_view.sports_streams.watch_live": "看直播",
   "screen.simple.sports_view.sports_streams.stream_at_kickoff": "开赛即直播",
+  "screen.simple.sports_view.sports_streams.stream_starting_soon": "直播即将开始",
+  "screen.simple.sports_view.sports_streams.starting_soon": "即将开始",
   "screen.simple.sports_view.sports_streams.mute": "静音",
   "screen.simple.sports_view.sports_streams.unmute": "取消静音",
   "screen.simple.sports_view.sports_streams.watch_live": "观看直播",

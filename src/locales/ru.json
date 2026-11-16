@@ -1143,6 +1143,8 @@
   "screen.simple.sports_view.sports_streams.remind_error_body": "Попробуйте ещё раз.",
   "screen.simple.sports_view.sports_streams.watch_live": "Смотреть",
   "screen.simple.sports_view.sports_streams.stream_at_kickoff": "Трансляция с начала",
+  "screen.simple.sports_view.sports_streams.stream_starting_soon": "Трансляция скоро начнётся",
+  "screen.simple.sports_view.sports_streams.starting_soon": "Скоро начало",
   "screen.simple.sports_view.sports_streams.mute": "Выключить звук",
   "screen.simple.sports_view.sports_streams.unmute": "Включить звук",
   "screen.simple.sports_view.sports_streams.watch_live": "Смотреть трансляцию",

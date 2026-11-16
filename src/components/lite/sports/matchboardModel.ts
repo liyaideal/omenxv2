@@ -275,13 +275,23 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
 let clockNow = Date.now();
 const clockListeners = new Set<() => void>();
 let clockTimer: number | null = null;
+let clockPeriod = 0;
+/** Subscribers that need a one-second tick (the stage countdown). While any
+ *  is mounted the whole shared clock ticks every second, so the matchboard's
+ *  "Starts in 2h 51m" and the stage's "02:51:12" are read off the same now. */
+let fastCount = 0;
+
+const tick = () => {
+  clockNow = Date.now();
+  clockListeners.forEach((l) => l());
+};
 
 const ensureClock = () => {
-  if (clockTimer != null) return;
-  clockTimer = window.setInterval(() => {
-    clockNow = Date.now();
-    clockListeners.forEach((l) => l());
-  }, 30_000);
+  const period = fastCount > 0 ? 1_000 : 30_000;
+  if (clockTimer != null && clockPeriod === period) return;
+  if (clockTimer != null) window.clearInterval(clockTimer);
+  clockPeriod = period;
+  clockTimer = window.setInterval(tick, period);
 };
 
 const subscribeClock = (cb: () => void) => {
@@ -296,13 +306,30 @@ const subscribeClock = (cb: () => void) => {
   };
 };
 
-/** The shared matchboard model. Every surface that shows a fixture's
- *  score must read it from here — never recompute it locally. */
-export const useMatchboardModel = (event: MatchboardEvent): Model => {
-  const now = useSyncExternalStore(
-    subscribeClock,
+const subscribeFastClock = (cb: () => void) => {
+  fastCount += 1;
+  const off = subscribeClock(cb);
+  ensureClock();
+  // Catch everyone up at once so nobody starts a second behind.
+  window.setTimeout(tick, 0);
+  return () => {
+    fastCount = Math.max(0, fastCount - 1);
+    off();
+    if (clockListeners.size > 0) ensureClock();
+  };
+};
+
+/** The shared clock. `fast` = this surface shows seconds (stage countdown). */
+export const useSharedNow = (fast = false): number =>
+  useSyncExternalStore(
+    fast ? subscribeFastClock : subscribeClock,
     () => clockNow,
     () => clockNow,
   );
+
+/** The shared matchboard model. Every surface that shows a fixture's
+ *  score must read it from here — never recompute it locally. */
+export const useMatchboardModel = (event: MatchboardEvent): Model => {
+  const now = useSharedNow();
   return useMemo(() => buildModel(event, now), [event, now]);
 };

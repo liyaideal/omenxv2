@@ -17,8 +17,8 @@ import { t } from "@/i18n";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHlsVideo } from "@/hooks/useHlsVideo";
-import { fixtureMeta, isFixtureLive } from "./sportsData";
-import { useMatchboardModel, type MatchboardEvent } from "./matchboardModel";
+import { fixtureMeta, isFixtureLive, matchPhase } from "./sportsData";
+import { useMatchboardModel, useSharedNow, type MatchboardEvent } from "./matchboardModel";
 import { setLiveStageState, useLiveStageState } from "./liveStageStore";
 import { useSignedIn } from "@/hooks/useSignedIn";
 import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
@@ -48,6 +48,12 @@ export type StageFixture =
   | "paused"
   | "blocked"
   | "prekick"
+  /** Prekick, more than 24h out — `2d 4h 12m`. */
+  | "prekick-day"
+  /** Prekick, under an hour — `51:12`. */
+  | "prekick-hour"
+  /** Kickoff time has passed but the match hasn't started — "Stream starting soon". */
+  | "starting"
   | "error"
   | "forbidden"
   | "finished"
@@ -328,15 +334,151 @@ const MuteBtn = ({
   </RoundBtn>
 );
 
-/** "2h 14m" / "5d 4h" — the tail of "Stream starts at kickoff · in …". */
-const untilText = (ms: number): string => {
-  const mins = Math.max(0, Math.floor(ms / 60_000));
-  const d = Math.floor(mins / 1440);
-  const h = Math.floor((mins % 1440) / 60);
-  const m = mins % 60;
-  if (d > 0) return `in ${d}d ${h}h`;
-  if (h > 0) return `in ${h}h ${m}m`;
-  return `in ${m}m`;
+/** Poster shown before kickoff (CPO 2026-11-16: one fallback image for every match). */
+export const STAGE_POSTER = "/assets/streams/live-soon.jpg";
+
+const pad2 = (n: number) => String(n).padStart(2, "0");
+
+/**
+ * Stage countdown (CPO 2026-11-16). ≥ 24h → `2d 4h 12m`; < 24h → `02:51:12`;
+ * < 1h → `51:12`. Ticks every second off the shared clock. `null` once the
+ * kickoff time has passed (→ "Stream starting soon").
+ */
+export const stageCountdown = (ms: number): string | null => {
+  if (!(ms > 0)) return null;
+  const s = Math.floor(ms / 1000);
+  if (s >= 86_400) {
+    return `${Math.floor(s / 86_400)}d ${Math.floor((s % 86_400) / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
+  }
+  if (s >= 3600) return `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor((s % 3600) / 60))}:${pad2(s % 60)}`;
+  return `${pad2(Math.floor(s / 60))}:${pad2(s % 60)}`;
+};
+
+const SK = "events.screen.simple.sports_view.sports_streams";
+
+/**
+ * S6 · prekick (CPO 2026-11-16, canvas option A). The fallback poster fills
+ * the 16:9 stage; the countdown capsule sits centred in the poster's empty
+ * band between "LIVE SOON" and "Who wins the match?" (65–81% of the height,
+ * centre 73%). The poster is 16:9 too, so object-fit: cover never crops it.
+ */
+/** Below this stage width the poster's empty band (16% of the height) is
+ *  shorter than the 42px capsule, so the compact (phone) capsule is used —
+ *  e.g. the 800–1023 desktop layout where the left column is ~360 wide. */
+const PREKICK_COMPACT_BELOW = 560;
+
+const Prekick = ({ isMobile: phone, clock }: { isMobile: boolean; clock: string | null }) => {
+  const soon = clock == null;
+  const boxRef = useRef<HTMLDivElement | null>(null);
+  const [narrow, setNarrow] = useState(false);
+  useLayoutEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const measure = () => setNarrow(el.getBoundingClientRect().width < PREKICK_COMPACT_BELOW);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const isMobile = phone || narrow;
+  const label = soon
+    ? t(isMobile ? `${SK}.starting_soon` : `${SK}.stream_starting_soon`)
+    : isMobile
+      ? t("events.screen.simple.sports_clock.starts_in_lead")
+      : t(`${SK}.starts_in`);
+  return (
+    <div ref={boxRef} style={{ position: "absolute", inset: 0 }}>
+      <img
+        src={STAGE_POSTER}
+        alt=""
+        draggable={false}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+          zIndex: 1,
+        }}
+      />
+      <div
+        role="timer"
+        aria-live="off"
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "73%",
+          transform: "translate(-50%, -50%)",
+          zIndex: 3,
+          display: "flex",
+          alignItems: "center",
+          gap: isMobile ? 7 : 12,
+          height: isMobile ? 24 : 42,
+          padding: isMobile ? "0 10px" : "0 18px",
+          boxSizing: "border-box",
+          borderRadius: 999,
+          background: "rgba(0,0,0,.58)",
+          border: "1px solid rgba(255,255,255,.14)",
+          backdropFilter: "blur(6px)",
+          whiteSpace: "nowrap",
+          maxWidth: "calc(100% - 20px)",
+        }}
+      >
+        <i
+          style={{
+            width: isMobile ? 5 : 7,
+            height: isMobile ? 5 : 7,
+            borderRadius: 999,
+            background: "#FF8A3D",
+            display: "block",
+            flexShrink: 0,
+            fontStyle: "normal",
+            animation: soon ? "stage-bl 1.6s ease-in-out infinite" : undefined,
+          }}
+        />
+        <span
+          style={{
+            fontSize: isMobile ? 8.5 : 10.5,
+            fontWeight: 700,
+            letterSpacing: ".16em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,.68)",
+            lineHeight: 1,
+          }}
+        >
+          {label}
+        </span>
+        {clock ? (
+          <>
+            <span
+              style={{
+                width: 1,
+                height: isMobile ? 10 : 16,
+                background: "rgba(255,255,255,.2)",
+                display: "block",
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: isMobile ? 12.5 : 20,
+                fontWeight: 700,
+                color: "#fff",
+                fontVariantNumeric: "tabular-nums",
+                letterSpacing: ".02em",
+                lineHeight: 1,
+              }}
+            >
+              {clock}
+            </span>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
 };
 
 
@@ -374,16 +516,23 @@ export const LiveStage = ({
   const openPrompt = useAuthFlowStore((st) => st.openPrompt);
   const meta = fixtureMeta(event);
   const src = meta.stream_url || null;
-  const now = Date.now();
-  const live = isFixtureLive(event, now);
   const kickoff = meta.kickoff_at
     ? new Date(meta.kickoff_at).getTime()
     : event.start_date
       ? new Date(event.start_date).getTime()
       : NaN;
+  const wallNow = Date.now();
   const finished =
     !!event.is_resolved ||
-    (!!event.end_date && new Date(event.end_date).getTime() <= now);
+    (!!event.end_date && new Date(event.end_date).getTime() <= wallNow);
+  // Before the match starts the stage shows a ticking countdown, so it reads
+  // the shared clock at one-second resolution — the same now the matchboard's
+  // "Starts in …" reads (CPO 2026-11-16: one number, one clock).
+  const awaitingKick = !finished && matchPhase(event, wallNow) === "upcoming";
+  const countdownFixture =
+    fixture === "prekick" || fixture === "prekick-day" || fixture === "prekick-hour" || fixture === "starting";
+  const now = useSharedNow(fixture ? countdownFixture : !!src && awaitingKick);
+  const live = isFixtureLive(event, now);
 
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try {
@@ -616,8 +765,13 @@ export const LiveStage = ({
     );
   }
 
-  const prekick = fixture ? fixture === "prekick" : !live && Number.isFinite(kickoff) && kickoff > now;
-  const s: string = fixture ?? (prekick ? "prekick" : state);
+  // Prekick covers every "not started yet" moment — including a kickoff time
+  // that has passed while the match is still scheduled (delayed start), which
+  // used to fall through to the player chrome with a LIVE pill.
+  const prekick = fixture ? countdownFixture : !finished && matchPhase(event, now) === "upcoming";
+  const s: string = prekick ? "prekick" : (fixture ?? state);
+  const prekickClock =
+    fixture === "starting" ? null : Number.isFinite(kickoff) ? stageCountdown(kickoff - now) : null;
   const dark = s === "prekick" || s === "error" || s === "forbidden";
 
   // ---- score facts, read from the shared matchboard model ----
@@ -1017,10 +1171,7 @@ export const LiveStage = ({
             </>
           ) : null}
           {s === "prekick" ? (
-            <Fail
-              title="Stream starts at kickoff"
-              sub={Number.isFinite(kickoff) ? untilText(kickoff - now) : ""}
-            />
+            <Prekick isMobile={isMobile} clock={prekickClock} />
           ) : null}
           {s === "error" ? (
             <Fail title="Stream unavailable" sub="Scores keep updating below" />

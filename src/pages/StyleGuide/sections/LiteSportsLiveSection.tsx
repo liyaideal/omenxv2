@@ -339,13 +339,60 @@ const STAGE_CASES: SectionCase[] = [
   },
   {
     key: "sports-stage-s6",
-    label: "S6 · prekick",
+    label: "S6 · prekick · 开赛前 24 小时内（时:分:秒）",
+    note:
+      "CPO 2026-11-16（画布方案 A）：未开赛不再是一块黑。兜底海报铺满 16:9 舞台（所有比赛同一张 `/assets/streams/live-soon.jpg`，图本身 16:9，cover 不裁）；倒计时胶囊居中放在海报「LIVE SOON」与「Who wins the match?」之间的空黑带（高度 73% 处）。每秒跳，读的是和记分牌同一个共享时钟——舞台在场时共享时钟改为 1 秒一跳，所以记分牌的 `Starts in 2h 51m` 与舞台 `02:51:12` 永远同源。未登录用户开赛前看到的也是这一态。",
     spec: [
       {
         state: "prekick",
-        when: "!live && kickoff > now",
-        visual: "暗底 #0C0F13，`Stream starts at kickoff` + `in 2h 14m`，无药丸无播控",
-        source: "LiveStage prekick",
+        when: 'matchPhase === "upcoming" && kickoff − now ∈ [1h, 24h)',
+        visual:
+          "海报 + 居中玻璃胶囊（桌面 42 高 / 手机 24 高）：橙点 #FF8A3D · `STREAM STARTS IN`（手机 `STARTS IN`）· 竖线 · `02:51:12`（Space Grotesk 700，桌面 20 / 手机 12.5，tabular）",
+        source: "LiveStage Prekick · stageCountdown · useSharedNow(true)",
+      },
+      {
+        state: "格式分档",
+        when: "stageCountdown(ms)",
+        visual: "≥ 24h `2d 4h 12m`（S6b）；< 24h `02:51:12`；< 1h `51:12`（S6c）；≤ 0 → S6d",
+        source: "stageCountdown",
+      },
+    ],
+  },
+  {
+    key: "sports-stage-s6b",
+    label: "S6b · prekick · 超过 24 小时（天 时 分）",
+    spec: [
+      {
+        state: "prekick · day",
+        when: "kickoff − now ≥ 24h",
+        visual: "同 S6，数字 `2d 4h 12m`（到分钟，不显示秒）",
+        source: "stageCountdown s ≥ 86400",
+      },
+    ],
+  },
+  {
+    key: "sports-stage-s6c",
+    label: "S6c · prekick · 1 小时内（分:秒）",
+    spec: [
+      {
+        state: "prekick · hour",
+        when: "kickoff − now < 1h",
+        visual: "同 S6，数字 `51:12`",
+        source: "stageCountdown s < 3600",
+      },
+    ],
+  },
+  {
+    key: "sports-stage-s6d",
+    label: "S6d · 已到开赛时间、还没开打（Stream starting soon）",
+    note:
+      "开赛时间过了但比赛状态还是未开始（推迟 / 晚开）。以前这一态会掉进播放器外壳、左上还挂着 LIVE 标；现在留在海报上，胶囊只写 `STREAM STARTING SOON`（手机 `STARTING SOON`），橙点闪烁，不显示数字。比赛一开打（matchPhase 变 live）就换成直播画面。",
+    spec: [
+      {
+        state: "starting",
+        when: 'matchPhase === "upcoming" && kickoff ≤ now（match_status scheduled / postponed）',
+        visual: "海报 + 胶囊：闪烁橙点（stage-bl 1.6s）· `STREAM STARTING SOON`；无竖线、无数字",
+        source: "LiveStage Prekick clock === null",
       },
     ],
   },
@@ -389,7 +436,7 @@ const STAGE_CASES: SectionCase[] = [
   {
     key: "sports-stage-s10",
     label: "S10 · guest（未登录 · Sign in to watch live）",
-    note: "CPO 2026-11-09「点了才播」R5：直播只对已登录用户开放。游客在交易页看到这张卡，直播流不请求、不出迷你窗；点 Sign in 打开站内登录框（桌面弹窗 / 手机抽屉），登录后就地开播。比赛没开打时照旧走 S6 prekick。",
+    note: "CPO 2026-11-09「点了才播」R5：直播只对已登录用户开放。游客在交易页看到这张卡，直播流不请求、不出迷你窗；点 Sign in 打开站内登录框（桌面弹窗 / 手机抽屉），登录后就地开播。比赛没开打时照旧走 S6 prekick（海报 + 倒计时，与登录用户一样）。",
     spec: [
       {
         state: "guest",
@@ -512,7 +559,7 @@ export const LiteSportsLiveSection = () => (
         <Pair cases={byKey(BOARD_CASES, "sports-live-b1", "sports-live-b2", "sports-live-t1", "sports-live-t2", "sports-live-t3", "sports-live-g1", "sports-live-nf1", "sports-live-nf2", "sports-live-bb1", "sports-live-bb2", "sports-live-hk1")} min={4400} />
       </SubSection>
 
-      <SubSection title="Ⓑ LiveStage（S1 … S10）">
+      <SubSection title="Ⓑ LiveStage（S1 … S10，含 S6 未开赛四态）">
         <Pair
           cases={byKey(
             STAGE_CASES,
@@ -522,12 +569,15 @@ export const LiteSportsLiveSection = () => (
             "sports-stage-s4",
             "sports-stage-s5",
             "sports-stage-s6",
+            "sports-stage-s6b",
+            "sports-stage-s6c",
+            "sports-stage-s6d",
             "sports-stage-s7",
             "sports-stage-s8",
             "sports-stage-s9",
             "sports-stage-s10",
           )}
-          min={2600}
+          min={3600}
         />
       </SubSection>
 

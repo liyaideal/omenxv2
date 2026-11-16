@@ -1146,6 +1146,8 @@
     "screen.simple.sports_view.sports_streams.remind_error_body": "Please try again.",
     "screen.simple.sports_view.sports_streams.watch_live": "Watch live",
     "screen.simple.sports_view.sports_streams.stream_at_kickoff": "Stream at kickoff",
+    "screen.simple.sports_view.sports_streams.stream_starting_soon": "Stream starting soon",
+    "screen.simple.sports_view.sports_streams.starting_soon": "Starting soon",
     "screen.simple.sports_view.sports_streams.mute": "Mute",
     "screen.simple.sports_view.sports_streams.unmute": "Unmute",
     "screen.simple.sports_view.sports_streams.watch_live": "Watch live",

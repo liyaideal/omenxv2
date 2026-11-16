@@ -1109,6 +1109,8 @@
   "screen.simple.sports_view.sports_streams.remind_error_body": "다시 시도해 주세요.",
   "screen.simple.sports_view.sports_streams.watch_live": "생중계 보기",
   "screen.simple.sports_view.sports_streams.stream_at_kickoff": "킥오프부터 생중계",
+  "screen.simple.sports_view.sports_streams.stream_starting_soon": "곧 생중계 시작",
+  "screen.simple.sports_view.sports_streams.starting_soon": "곧 시작",
   "screen.simple.sports_view.sports_streams.mute": "음소거",
   "screen.simple.sports_view.sports_streams.unmute": "음소거 해제",
   "screen.simple.sports_view.sports_streams.watch_live": "라이브 보기",
