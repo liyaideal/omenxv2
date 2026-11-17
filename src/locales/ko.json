@@ -1245,6 +1245,8 @@
   "screen.simple.finance_view.finance_vertical.session_open": "{{session}} 세션 개장",
   "screen.simple.finance_view.finance_vertical.closes_in": "{{time}} 마감 · {{remaining}}",
   "screen.simple.finance_view.finance_vertical.session_opens": "{{session}} {{time}} 개장",
+  "screen.simple.finance_view.finance_vertical.markets_open": "{{count}}개 시장 장중",
+  "screen.simple.finance_view.finance_vertical.markets_closed_opens": "휴장 중 · {{market}} {{time}} 후 개장",
   "screen.simple.finance_view.finance_vertical.asset_class": "자산 클래스",
   "screen.simple.finance_view.finance_vertical.region": "지역",
   "screen.simple.finance_view.finance_vertical.nothing_boosted_here_yet": "현재 Boost 시장이 없습니다. 잠시 후 다시 확인해 주세요.",

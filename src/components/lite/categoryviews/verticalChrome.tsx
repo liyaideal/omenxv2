@@ -43,12 +43,15 @@ export const VerticalHeader = ({
   title,
   subtitle,
   right,
+  below,
   compact,
 }: {
   eyebrow: string;
   title: string;
   subtitle: ReactNode;
   right?: ReactNode;
+  /** One more header line under the subtitle (phone Finance: the market status line). */
+  below?: ReactNode;
   compact?: boolean;
 }) => (
   <div className="flex items-end justify-between" style={{ gap: 24 }}>
@@ -66,6 +69,7 @@ export const VerticalHeader = ({
         {title}
       </span>
       <span style={{ fontSize: compact ? 12 : 13, color: "#9AA1AC" }}>{subtitle}</span>
+      {below}
     </div>
     {right}
   </div>

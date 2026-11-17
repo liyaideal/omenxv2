@@ -1235,6 +1235,8 @@
   "screen.simple.finance_view.finance_vertical.session_open": "{{session}} 场次开盘",
   "screen.simple.finance_view.finance_vertical.closes_in": "{{time}} 结束 · {{remaining}}",
   "screen.simple.finance_view.finance_vertical.session_opens": "{{session}} 于 {{time}} 开盘",
+  "screen.simple.finance_view.finance_vertical.markets_open": "{{count}} 个市场交易中",
+  "screen.simple.finance_view.finance_vertical.markets_closed_opens": "休市中 · {{market}} {{time}} 后开盘",
   "screen.simple.finance_view.finance_vertical.asset_class": "资产类别",
   "screen.simple.finance_view.finance_vertical.region": "地区",
   "screen.simple.finance_view.finance_vertical.nothing_boosted_here_yet": "这里暂时没有 Boost 市场，稍后再来看看。",

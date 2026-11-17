@@ -462,7 +462,7 @@ _Generated on 2026-08-05._
 | MobileRoundSwitcher | — | 390 端回合切换 |
 | Crest | 默认 / muted | 球队徽章唯一实现 |
 | LivePulse | 6px(intraday) / 5px(sports) / 4px(calendar compact) | 脉冲点唯一实现 |
-| SessionStatusChip | — | 开市状态胶囊 |
+| SessionStatusChip | — | 开市状态胶囊（2026-11-17 起 Finance 列表页头不再使用，改为市场页签 + 状态行，见 finance-list-market-tabs-v1） |
 | EmptyState | page 等 | 空态唯一实现 |
 
 **禁止新画**：以上对象在任何新需求中不得重新实现；密度差异用变体 prop 表达。

@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-17 | [Finance 列表页头：市场页签 + 一行开盘状态 — 交付说明 v1](../delivery/finance-list-market-tabs-v1.md) | 右上每个开盘市场一个胶囊改成首页 Stocks 模块的写法：带数量的市场页签（All / US / Hong Kong / Korea，开盘的带橙点）+ 一行状态；Region、Asset class 两排按钮不再显示；手机补上状态行。字典 EV-48 … 48e。 |
 | 2026-11-16 | [加密涨跌轮走势图：实时价 + 结算价 — 交付说明 v1](../delivery/crypto-round-chart-v1.md) | 用户反馈走势图像有延迟（图上是 60 秒均价）。价格页签改为：走势线画实时价、结算价画成白色横线带标签、Price to beat 虚线不变（手机也带字）；图上方结论行（现在谁领先）、图下方常驻说明；页头价格改实时价。范围 5m–1D 全部加密涨跌轮，股票日轮不改。新 key 11 条 7 语；字典 SP-7 / 7b / 7c；DESIGN §Addendum 2026-11-16 |
 | 2026-11-16 | [直播未开赛态 · 验收待定四条落地（stage-prekick-poster-v1 §9）](../delivery/stage-prekick-poster-v1.md#9-2026-11-16-追加cpo-批验收待定的四条) | 到点未开打整页统一 `Starting soon`（记分牌不再算打完、下单卡不再 00:00、首页 / 列表不再算正在打、预告排排最前）；开赛倒计时 ≥ 24 小时一律写小时（舞台 / 记分牌 / 下单卡 / 赛事下拉，同首页 R5）；舞台大小胶囊同一句；打完未结算 / 无开赛时间时舞台跟着直播走（有 stream_url 就正常播放）。字典 M2b / TR-29e / EV-42b；新 key 2 条 7 语 |
 | 2026-11-16 | [Lite 交易页 · 直播模块未开赛态（兜底海报 + 倒计时）](../delivery/stage-prekick-poster-v1.md) | 交易页直播舞台开赛前不再一块黑：兜底海报 `live-soon.jpg` + 居中倒计时胶囊（≥24h `2d 4h 12m` / 24h 内 `02:51:12` / 1h 内 `51:12`，每秒跳）；到点还没开打显示 `Stream starting soon`（原来会掉进播放器外壳挂 LIVE）；与记分牌 `Starts in` 同读共享时钟；新 key 2 条 7 语；字典 S6 / S6b / S6c / S6d；DESIGN §Addendum 2026-11-16 |

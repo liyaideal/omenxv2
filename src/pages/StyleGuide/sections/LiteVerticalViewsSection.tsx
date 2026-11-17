@@ -201,7 +201,8 @@ const usStock = (ticker: string, base: number, up: number): StockEventRow => ({
   name: `${ticker} — will it close higher today?`,
   base_price: base,
   start_date: iso(-210 * MIN),
-  end_date: iso(95 * MIN),
+  // ends at the New York close (16:00 ET = NOW + 280 min)
+  end_date: iso(280 * MIN),
   freeze_time: null,
   event_subtype: "US_STOCK_DAILY_UPDOWN_SPOT",
   upPrice: up,
@@ -213,12 +214,35 @@ const hkStock = (code: string, base: number, up: number): StockEventRow => ({
   name: `${code}.HK — will it close higher today?`,
   base_price: base,
   start_date: iso(-180 * MIN),
-  end_date: iso(60 * MIN),
+  // the round ends at the NEXT Hong Kong close (16:00 HKT on Aug 4), not during the night
+  end_date: iso(1000 * MIN),
   freeze_time: null,
   event_subtype: "HK_STOCK_DAILY_UPDOWN_SPOT",
   upPrice: up,
   downPrice: Number((1 - up).toFixed(2)),
 });
+
+/** Asia morning (NOW + 700 min = 2026-08-04 03:00 UTC): Hong Kong 11:00 and Seoul 12:00 are both in session. */
+const ASIA_AT = 700;
+const asiaStock = (prefix: "hk" | "kr", code: string, base: number, up: number): StockEventRow => ({
+  id: `${prefix}-${code}-updown-20260804`,
+  name: `${code}.${prefix.toUpperCase()} — will it close higher today?`,
+  base_price: base,
+  start_date: iso((ASIA_AT - 90) * MIN),
+  end_date: iso((ASIA_AT + (prefix === "hk" ? 300 : 210)) * MIN),
+  freeze_time: null,
+  event_subtype: prefix === "hk" ? "HK_STOCK_DAILY_UPDOWN_SPOT" : "KR_STOCK_DAILY_UPDOWN_SPOT",
+  upPrice: up,
+  downPrice: Number((1 - up).toFixed(2)),
+});
+const ASIA_ROWS: StockEventRow[] = [
+  asiaStock("kr", "005930", 196962, 0.56),
+  asiaStock("kr", "000660", 1110636, 0.63),
+  asiaStock("hk", "0700", 387.54, 0.56),
+  asiaStock("hk", "9988", 84.3, 0.48),
+];
+/** After the US close (NOW + 400 min = 22:00 UTC): nothing is in session; Hong Kong opens first. */
+const CLOSED_AT = 400;
 
 const STOCK_ROWS: StockEventRow[] = [
   usStock("AAPL", 224.8, 0.61),
@@ -251,14 +275,39 @@ const CRYPTO_PRESETS = [
   },
 ] as const;
 
-const FINANCE_PRESETS = [
-  { id: "all", label: "All classes · all regions", cls: "all", region: "all" },
-  { id: "us-stocks", label: "Stocks · US (open)", cls: "stocks", region: "us" },
-  { id: "hk-stocks", label: "Stocks · HK (asleep)", cls: "stocks", region: "hk" },
-  { id: "indices", label: "Indices · US", cls: "indices", region: "us" },
-  { id: "commodities", label: "Commodities · US", cls: "commodities", region: "us" },
-  { id: "kr", label: "Stocks · Korea (empty)", cls: "stocks", region: "kr" },
-] as const;
+type FinancePreset = { id: string; label: string; cls: string; region: string; at?: number; rows?: StockEventRow[] };
+const FINANCE_PRESETS: FinancePreset[] = [
+  { id: "all", label: "All · 1 market open", cls: "all", region: "all" },
+  { id: "all-2", label: "All · 2 markets open", cls: "all", region: "all", at: ASIA_AT, rows: ASIA_ROWS },
+  { id: "all-closed", label: "All · markets closed", cls: "all", region: "all", at: CLOSED_AT },
+  { id: "us-stocks", label: "US (open)", cls: "all", region: "us" },
+  { id: "kr-open", label: "Korea (open)", cls: "all", region: "kr", at: ASIA_AT, rows: ASIA_ROWS },
+  { id: "hk-stocks", label: "Hong Kong (not open)", cls: "all", region: "hk" },
+  { id: "kr", label: "Korea (no rounds today)", cls: "all", region: "kr" },
+  { id: "indices", label: "Indices · US (asset-class row hidden; filter kept)", cls: "indices", region: "us" },
+];
+
+/**
+ * One Finance-view preset as a standalone frame (dictionary EV-48 …): the frame's own width decides
+ * desktop / phone, the fixtures and the frozen clock are this file's.
+ */
+export const FinanceViewDemo = ({ preset, isMobile }: { preset: string; isMobile?: boolean }) => {
+  const finance = FINANCE_PRESETS.find((p) => p.id === preset) ?? FINANCE_PRESETS[0];
+  return (
+    <LiteFinanceView
+      key={`${finance.id}-${isMobile ? "m" : "d"}`}
+      stockRows={finance.rows ?? STOCK_ROWS}
+      tickSeconds={0}
+      sessionNow={finance.at ? new Date(NOW + finance.at * MIN) : FROZEN_DATE}
+      nowMs={NOW + (finance.at ?? 0) * MIN}
+      events={[]}
+      renderGrid={isMobile ? mobileGrid : grid}
+      isMobile={isMobile}
+      initialClass={finance.cls}
+      initialRegion={finance.region}
+    />
+  );
+};
 
 export const LiteVerticalViewsSection = () => {
   const [cryptoId, setCryptoId] = useState<string>(CRYPTO_PRESETS[0].id);
@@ -270,7 +319,7 @@ export const LiteVerticalViewsSection = () => {
     <SectionWrapper
       id="lite-verticals"
       title="Lite · Vertical views (Crypto / Finance)"
-      description="Assembly-only category views. Frozen clock FROZEN_NOW = 2026-08-03T15:20:00Z. Both filter rows use the Dimension pill (DimensionPill, sub-dimension rows); the top-level category row above the stage uses the Category pill (PILL_BASE). Coin tiles use Last8Strip (squares, 11px) and DirectionButton (split). Finance stock rows: Up / Down (never Not up), both buttons a fixed 112px so the price column lines up (#13, 2026-11-10)."
+      description="Assembly-only category views. Frozen clock FROZEN_NOW = 2026-08-03T15:20:00Z. The Crypto filter rows use the Dimension pill (DimensionPill, sub-dimension rows); the Finance view has market tabs in its header instead (2026-11-17); the top-level category row above the stage uses the Category pill (PILL_BASE). Coin tiles use Last8Strip (squares, 11px) and DirectionButton (split). Finance stock rows: Up / Down (never Not up), both buttons a fixed 112px so the price column lines up (#13, 2026-11-10)."
     >
       <SubSection title="Crypto view">
         <PresetRail presets={CRYPTO_PRESETS} activeId={cryptoId} onSelect={setCryptoId} />
@@ -323,17 +372,20 @@ export const LiteVerticalViewsSection = () => {
           onSelect={setFinanceId}
         />
         <Caption>
-          Row 1 is the asset-class pills, row 2 the region pills. Only Stocks carries the
-          session engine; other classes show the catalogue alone.
+          Header right (desktop): market tabs — All + one tab per market with rounds today, each with its
+          count, an orange dot on every market in session — and one status line under them. All: "N markets
+          open" / "Markets closed · X opens in …"; one market: the home Stocks module's line ("Market open ·
+          closes in … · settles in …" / "Market opens in … · settles in …"). The ASSET CLASS row is hidden
+          while only stocks carry markets (SHOW_ASSET_CLASS_ROW). 2026-11-17.
         </Caption>
         <Card>
           <CardContent className="bg-[#0A0B0D] p-5">
             <LiteFinanceView
               key={finance.id}
-              stockRows={STOCK_ROWS}
+              stockRows={finance.rows ?? STOCK_ROWS}
               tickSeconds={0}
-              sessionNow={FROZEN_DATE}
-              nowMs={NOW}
+              sessionNow={finance.at ? new Date(NOW + finance.at * MIN) : FROZEN_DATE}
+              nowMs={NOW + (finance.at ?? 0) * MIN}
               events={FINANCE_EVENTS}
               renderGrid={grid}
               initialClass={finance.cls}
@@ -341,16 +393,16 @@ export const LiteVerticalViewsSection = () => {
             />
           </CardContent>
         </Card>
-        <Caption>Mobile composition — single column, scrollable filter rows.</Caption>
+        <Caption>Mobile — the status line sits in the header under the subtitle (orange dot when a market is open); the market tabs follow as one row.</Caption>
         <Card>
           <CardContent className="bg-[#0A0B0D] p-4">
             <div style={{ width: 390, maxWidth: "100%" }}>
               <LiteFinanceView
                 key={`m-${finance.id}`}
-                stockRows={STOCK_ROWS}
+                stockRows={finance.rows ?? STOCK_ROWS}
                 tickSeconds={0}
-                sessionNow={FROZEN_DATE}
-                nowMs={NOW}
+                sessionNow={finance.at ? new Date(NOW + finance.at * MIN) : FROZEN_DATE}
+                nowMs={NOW + (finance.at ?? 0) * MIN}
                 events={FINANCE_EVENTS}
                 renderGrid={mobileGrid}
                 isMobile

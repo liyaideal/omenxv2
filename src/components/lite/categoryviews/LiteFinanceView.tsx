@@ -1,18 +1,20 @@
 // ============================================================
 // FINANCE VERTICAL VIEW — category chip "Finance".
-// ASSEMBLY ONLY: module header grammar, the session-aware stock rows
-// from the Intraday view (Trading / Asleep), and the frozen
-// LiteEventCard grid. Class + region options come from taxonomy.ts.
+// ASSEMBLY ONLY: module header grammar (market tabs + one status line,
+// 2026-11-17), the session-aware stock rows from the Intraday view
+// (Trading / Asleep), and the frozen LiteEventCard grid. Markets come from
+// taxonomy.ts FINANCE_REGIONS; the asset-class row is hidden for now.
 // ============================================================
-import { t } from "@/i18n";
+import { t, useT } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FINANCE_ASSET_CLASSES, FINANCE_REGIONS } from "@/lib/taxonomy";
 import type { EventRow } from "@/hooks/useMarketListData";
 import type { StockEventRow } from "@/components/lite/intraday/intradayData";
-import { resolveStockMarket } from "@/lib/usStockSessions";
+import { getMarketSession, resolveStockMarket, type StockMarket } from "@/lib/usStockSessions";
+import { ht, leftText } from "@/components/lite/home/homeAllShell";
 import {
   AsleepStockRow,
-  SessionStatusChip,
+  ORANGE,
   StockGroups,
   TradingStockRow,
   groupStockRows,
@@ -33,6 +35,71 @@ import {
 
 /** Stock rounds are equities only — the other classes have no engine. */
 const ENGINE_CLASS = "stocks";
+
+/**
+ * CPO 2026-11-17: only stocks have markets today, so the ASSET CLASS row is hidden (the list shows All).
+ * Flip this back on when indices / commodities / FX carry markets again — the row and its filter are intact.
+ */
+const SHOW_ASSET_CLASS_ROW = false;
+
+/** Settlement = official close + 15 min when the row carries no expected_settlement_time (same rule as the home module, K2). */
+const SETTLE_AFTER_CLOSE_MS = 15 * 60_000;
+
+const OpenDot = () => (
+  <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE, flex: "none" }} />
+);
+
+/**
+ * Market tabs — the home Stocks module's grammar (name + today's round count, lime underline on the
+ * selected one), plus an "All" tab and an orange dot on every market whose session is open.
+ */
+const MarketTabs = ({
+  tabs,
+  value,
+  onChange,
+  mobile,
+}: {
+  tabs: Array<{ key: string; label: string; count: number | null; open: boolean }>;
+  value: string;
+  onChange: (key: string) => void;
+  mobile?: boolean;
+}) => (
+  <div
+    className={mobile ? "flex items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" : "flex items-center"}
+    style={{ gap: mobile ? 18 : 22 }}
+    data-finance-market-tabs
+  >
+    {tabs.map((tab) => {
+      const on = tab.key === value;
+      return (
+        <button
+          key={tab.key}
+          type="button"
+          aria-pressed={on}
+          onClick={() => onChange(tab.key)}
+          className="font-display inline-flex flex-none items-center whitespace-nowrap"
+          style={{
+            gap: 5,
+            fontSize: 13,
+            fontWeight: 700,
+            color: on ? "#fff" : "#98A1AD",
+            padding: "6px 0",
+            border: 0,
+            borderBottom: `2px solid ${on ? "#CFFF4A" : "transparent"}`,
+            background: "none",
+            minHeight: mobile ? 44 : undefined,
+          }}
+        >
+          {tab.open ? <OpenDot /> : null}
+          {tab.label}
+          {tab.count != null ? (
+            <span style={{ color: "#6B7280", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{tab.count}</span>
+          ) : null}
+        </button>
+      );
+    })}
+  </div>
+);
 
 export const LiteFinanceView = ({
   stockRows,
@@ -67,6 +134,7 @@ export const LiteFinanceView = ({
    */
   scrollToEngine?: number;
 }) => {
+  useT(); // re-render on language change / catalog arrival (labels below are plain t() calls)
   const [cls, setCls] = useState<string>(initialClass);
   const [region, setRegion] = useState<string>(initialRegion);
   const engineRef = useRef<HTMLDivElement | null>(null);
@@ -84,7 +152,6 @@ export const LiteFinanceView = ({
   const trading = engineOn ? groups.trading.filter(inRegion) : [];
   const asleep = engineOn ? groups.asleep.filter((a) => inRegion(a.row)) : [];
   const shown = trading.length + asleep.length;
-  const totalNames = groups.trading.length + groups.asleep.length;
   const hasEngineRows = engineOn && shown > 0;
 
   useEffect(() => {
@@ -111,31 +178,123 @@ export const LiteFinanceView = ({
     [events, cls, region],
   );
 
-  const regionLabel =
-    region === "all"
-      ? "every region"
-      : (FINANCE_REGIONS.find((r) => r.code === region)?.label ?? region);
+  // ---- Market tabs + status line (CPO 2026-11-17: same grammar as the home Stocks module) ----
+  const now = sessionNow ?? new Date(nowMs ?? Date.now());
+  const names: StockEventRow[] = [...groups.trading, ...groups.asleep.map((a) => a.row)];
+  const byMarket = new Map<string, { market: StockMarket; rows: StockEventRow[] }>();
+  for (const r of names) {
+    const market = resolveStockMarket(r);
+    const hit = byMarket.get(market.key);
+    if (hit) hit.rows.push(r);
+    else byMarket.set(market.key, { market, rows: [r] });
+  }
+  const openKeys = new Set<string>(groups.openSessions.map((s) => s.market.key));
+  // A market shows as a tab when it has rounds today, or when the page was opened on it.
+  const marketTabs = FINANCE_REGIONS.filter((r) => byMarket.has(r.code) || r.code === region).map((r) => ({
+    key: r.code as string,
+    label: ht(`stocks.market_${r.code}`),
+    count: boostOnly ? null : (byMarket.get(r.code)?.rows.length ?? 0),
+    open: openKeys.has(r.code),
+  }));
+  // No stock rounds at all → no tabs (even when the page was opened on one market).
+  const tabs = marketTabs.length && names.length > 0
+    ? [{ key: "all", label: t("common.all"), count: boostOnly ? null : names.length, open: false }, ...marketTabs]
+    : [];
+
+  let statusText: string | null = null;
+  let statusOpen = false;
+  if (!boostOnly && byMarket.size > 0) {
+    if (region === "all") {
+      if (openKeys.size > 0) {
+        statusOpen = true;
+        statusText = t("events.screen.simple.finance_view.finance_vertical.markets_open", { count: openKeys.size });
+      } else {
+        // Nothing is open: name the market that opens first.
+        const next = [...byMarket.values()]
+          .map(({ market }) => ({ market, at: getMarketSession(market, now).nextOpenAt.getTime() }))
+          .sort((a, b) => a.at - b.at)[0];
+        statusText = t("events.screen.simple.finance_view.finance_vertical.markets_closed_opens", {
+          market: ht(`stocks.market_${next.market.key}`),
+          time: leftText(next.at - now.getTime()),
+        });
+      }
+    } else if (byMarket.has(region)) {
+      const { market, rows } = byMarket.get(region)!;
+      const session = getMarketSession(market, now);
+      statusOpen = openKeys.has(region) && !!session.closeAt;
+      const head = statusOpen
+        ? ht("stocks.open_closes_in", { time: leftText(session.closeAt!.getTime() - now.getTime()) })
+        : ht("stocks.opens_in", { time: leftText(session.nextOpenAt.getTime() - now.getTime()) });
+      const ends = rows
+        .map((r) =>
+          r.expected_settlement_time
+            ? new Date(r.expected_settlement_time).getTime()
+            : r.end_date
+              ? new Date(r.end_date).getTime() + SETTLE_AFTER_CLOSE_MS
+              : null,
+        )
+        .filter((x): x is number => x != null);
+      const ahead = ends.filter((x) => x > now.getTime());
+      const tail = ahead.length
+        ? ht("stocks.settles_in", { time: leftText(Math.min(...ahead) - now.getTime()) })
+        : ends.length
+          ? ht("stocks.settling_now")
+          : "";
+      statusText = `${head}${tail}`;
+    }
+  }
+  // "… Winning shares pay <payout>$1</payout>, losing shares pay $0." — the payout is the one white word.
+  const explainerParts = t("events.screen.simple.finance_view.finance_vertical_chrome.trading_explainer").split(/<\/?payout>/);
+  const explainer =
+    explainerParts.length === 3 ? (
+      <>
+        {explainerParts[0]}
+        <strong style={{ color: "#fff", fontWeight: 700 }}>{explainerParts[1]}</strong>
+        {explainerParts[2]}
+      </>
+    ) : (
+      explainerParts.join("")
+    );
+
+  const statusLine = statusText ? (
+    <span
+      className={isMobile ? "inline-flex items-start" : "inline-flex items-center"}
+      style={{ gap: 6, fontSize: isMobile ? 11.5 : 12.5, lineHeight: isMobile ? "16px" : undefined, color: "#98A1AD", marginTop: isMobile ? 6 : 0 }}
+      data-finance-market-status
+    >
+      {/* Phone only: the line sits in the header, so the dot tells it apart from the subtitle. */}
+      {isMobile && statusOpen ? (
+        // 16px line box → the 6px dot sits on the first line even when a long translation wraps.
+        <span className="inline-flex flex-none items-center" style={{ height: 16 }}>
+          <OpenDot />
+        </span>
+      ) : null}
+      <span className={isMobile ? undefined : "whitespace-nowrap"}>{statusText}</span>
+    </span>
+  ) : null;
 
   return (
     <div className="flex flex-col" style={{ marginTop: isMobile ? 18 : 20, gap: 22 }}>
       <VerticalHeader
         compact={isMobile}
-        eyebrow="Finance · daily closes"
+        eyebrow={t("events.screen.simple.finance_view.finance_vertical_chrome.finance_daily_closes")}
         title={t("events.screen.simple.finance_view.finance_vertical_chrome.which_way_does_it_close")}
-        subtitle={
-          <>
-            One round per trading day, settled at the closing bell. Winning shares pay{" "}
-            <strong style={{ color: "#fff", fontWeight: 700 }}>$1</strong>, losing
-            shares pay $0.
-          </>
-        }
+        subtitle={explainer}
+        below={isMobile ? statusLine : undefined}
         right={
-          isMobile ? undefined : <SessionStatusChip groups={groups} nowMs={nowMs} />
+          isMobile || (!tabs.length && !statusLine) ? undefined : (
+            <div className="flex flex-none flex-col items-end" style={{ gap: 10 }}>
+              {tabs.length ? <MarketTabs tabs={tabs} value={region} onChange={setRegion} /> : null}
+              {statusLine}
+            </div>
+          )
         }
       />
 
-      {/* Filters — row 1 ASSET CLASS, row 2 REGION. */}
-      <div className="flex flex-col" style={{ gap: 9 }}>
+      {isMobile && tabs.length ? <MarketTabs tabs={tabs} value={region} onChange={setRegion} mobile /> : null}
+
+      {/* ASSET CLASS row — hidden while only stocks carry markets (SHOW_ASSET_CLASS_ROW). Markets moved to the header tabs. */}
+      {SHOW_ASSET_CLASS_ROW && (
         <DimensionRow label={t("events.screen.simple.finance_view.finance_vertical.asset_class")} scroll={isMobile} labelWidth={88}>
           <DimensionPill
             label={t("common.all")}
@@ -153,24 +312,7 @@ export const LiteFinanceView = ({
             />
           ))}
         </DimensionRow>
-        <DimensionRow label={t("events.screen.simple.finance_view.finance_vertical.region")} scroll={isMobile} labelWidth={88}>
-          <DimensionPill
-            label="All regions"
-            active={region === "all"}
-            onSelect={() => setRegion("all")}
-            mobile={isMobile}
-          />
-          {FINANCE_REGIONS.map((r) => (
-            <DimensionPill
-              key={r.code}
-              label={r.label}
-              active={region === r.code}
-              onSelect={() => setRegion(r.code)}
-              mobile={isMobile}
-            />
-          ))}
-        </DimensionRow>
-      </div>
+      )}
 
       {/* Engine — session-aware daily rounds. */}
       {engineOn && (trading.length > 0 || asleep.length > 0) && (
@@ -204,16 +346,12 @@ export const LiteFinanceView = ({
               </div>
             </>
           )}
-          {(shown < totalNames || groups.wakeLabels.length > 0) && (
+          {/* The "Showing 2 of 4 … names" note went with the region pills — each market tab carries its own count now. */}
+          {groups.wakeLabels.length > 0 && (
             <div
               className="flex items-center"
               style={{ gap: 12, paddingTop: 12 }}
             >
-              {shown < totalNames && (
-                <span className="flex-none" style={{ fontSize: 11, color: "#6B7280" }}>
-                  {`Showing ${shown} of ${totalNames} ${region === "all" ? "" : `${regionLabel} `}names`}
-                </span>
-              )}
               <span style={{ flex: 1, height: 1, background: "#1D2026" }} />
               {groups.wakeLabels.length > 0 && (
                 <span

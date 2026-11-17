@@ -1245,6 +1245,8 @@
   "screen.simple.finance_view.finance_vertical.session_open": "Phiên {{session}} mở",
   "screen.simple.finance_view.finance_vertical.closes_in": "đóng {{time}} · {{remaining}}",
   "screen.simple.finance_view.finance_vertical.session_opens": "{{session}} mở lúc {{time}}",
+  "screen.simple.finance_view.finance_vertical.markets_open": "{{count}} thị trường đang giao dịch",
+  "screen.simple.finance_view.finance_vertical.markets_closed_opens": "Thị trường đóng cửa · {{market}} mở cửa sau {{time}}",
   "screen.simple.finance_view.finance_vertical.asset_class": "Loại tài sản",
   "screen.simple.finance_view.finance_vertical.region": "Khu vực",
   "screen.simple.finance_view.finance_vertical.nothing_boosted_here_yet": "Hiện chưa có thị trường Boost. Hãy quay lại sau.",

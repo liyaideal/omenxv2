@@ -4,6 +4,7 @@
 // LiteEventCard 是 FROZEN 件：这里只摆放，零改样式。
 // ============================================================
 import { useEffect, useMemo, useRef, useState } from "react";
+import { FinanceViewDemo } from "../sections/LiteVerticalViewsSection";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { EventRow } from "@/hooks/useMarketListData";
 import { FROZEN_NOW, frozenIso } from "../frozenClock";
@@ -1353,3 +1354,20 @@ export const Ev45Preview = () => (
     <AuthPromptHost previewStep="login" />
   </Stage>
 );
+
+/* ---- EV-48 … · Finance list header: market tabs + status line (2026-11-17) ---- */
+const FinanceFrame = ({ preset }: { preset: string }) => {
+  const isMobile = useIsMobile();
+  return (
+    <Stage>
+      <div style={{ padding: isMobile ? "0 16px" : "0 20px" }}>
+        <FinanceViewDemo preset={preset} isMobile={isMobile} />
+      </div>
+    </Stage>
+  );
+};
+export const Ev48Preview = () => <FinanceFrame preset="all" />;
+export const Ev48bPreview = () => <FinanceFrame preset="all-2" />;
+export const Ev48cPreview = () => <FinanceFrame preset="all-closed" />;
+export const Ev48dPreview = () => <FinanceFrame preset="kr-open" />;
+export const Ev48ePreview = () => <FinanceFrame preset="hk-stocks" />;

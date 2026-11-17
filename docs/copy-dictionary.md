@@ -1047,6 +1047,17 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **Closed ↑ / Closed ↓** | 仅结算空窗的结果徽章（客观结果色：↑ pulse、↓ volt，非盈亏语义）。`Closed` 不作它用。 |
 | **Last close {price}** | preSession 参照价前缀，整列 muted，且不显示涨跌%。禁用 `Prev close` / `Yesterday`。 |
 
+### Finance 列表页头 · 市场页签与状态行（2026-11-17）
+
+| Canonical | 出现位置 / 规则 |
+|---|---|
+| **All / US / Hong Kong / Korea** | Finance 列表右上的市场页签，后面跟该市场今天的股票轮数。市场名和首页 Stocks 模块页签同一组 key；不再写 `Hong Kong / China`、`All regions`、`Region`。 |
+| **{N} market(s) open** | 选 All、至少一个市场开盘时的状态行。只报数量，不写收盘时间。 |
+| **Markets closed · {market} opens in {time}** | 选 All、所有市场都没开盘时的状态行；报最先开盘的市场。 |
+| **Market open · closes in {time} · settles in {time}** / **Market opens in {time} · settles in {time}** | 选了某个市场时的状态行，与首页 Stocks 模块同一句同一组 key。 |
+| ~~{market} session open · closes HH:MM · X left~~ | 旧胶囊，Finance 页头不再使用。 |
+| **市场（market）** | 概念：一个交易所时区的股票轮集合（US / HK / KR）。判定：`resolveStockMarket(event).key`。出处：`src/lib/usStockSessions.ts`。页面上叫 market，不叫 region。 |
+
 ## Affiliate Program (`/affiliate`, 2026-09-19)
 
 页面文案冻结在 `src/components/affiliate/affiliateContent.ts`（09-14 起一字未改）。本节只登记 09-19 新增的状态文案与概念。

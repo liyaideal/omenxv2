@@ -1281,6 +1281,8 @@
   "screen.simple.finance_view.finance_vertical.session_open": "Сессия {{session}} открыта",
   "screen.simple.finance_view.finance_vertical.closes_in": "закрытие {{time}} · {{remaining}}",
   "screen.simple.finance_view.finance_vertical.session_opens": "{{session}} открывается {{time}}",
+  "screen.simple.finance_view.finance_vertical.markets_open": "Открыто рынков: {{count}}",
+  "screen.simple.finance_view.finance_vertical.markets_closed_opens": "Рынки закрыты · {{market}}: открытие через {{time}}",
   "screen.simple.finance_view.finance_vertical.asset_class": "Класс активов",
   "screen.simple.finance_view.finance_vertical.region": "Регион",
   "screen.simple.finance_view.finance_vertical.nothing_boosted_here_yet": "Пока нет рынков Boost. Загляните позже.",

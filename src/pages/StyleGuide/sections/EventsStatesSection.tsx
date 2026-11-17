@@ -732,6 +732,52 @@ const STREAM_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "events-ev48",
+    label: "EV-48 · Finance 列表页头 · All · 1 个市场开盘",
+    note: "CPO 2026-11-17：右上原来每个开盘市场一个胶囊（`KR session open closes 14:30 · 1h 5m left`），改成首页 Stocks 模块的写法——市场页签 + 一行状态。Asset class 一排先隐藏（只有股票有市场）。手机：状态行在页头副标题下面，页签单独一排。",
+    spec: [
+      { state: "页签", when: "今天有股票轮的市场各一个 + 最前面 `All`；从首页 Show all 带着某个市场进来时该市场即使 0 轮也显示", visual: "Space Grotesk 13/700，选中白字 + 柠檬色下划线，未选 #98A1AD；名字后灰色数字 = 该市场今天的股票轮数（All = 合计）", source: "LiteFinanceView MarketTabs / statusLine" },
+      { state: "橙点", when: "该市场正在开盘（有交易中的轮）", visual: "市场名前 6px 橙点；All 页签不带", source: "groupStockRows openSessions" },
+      { state: "状态行 · All · 有开盘", when: "region = all && 开盘市场数 ≥ 1", visual: "`1 market open` / `2 markets open`（只报数量，不写收盘时间）", source: "LiteFinanceView MarketTabs / statusLine" },
+      { state: "点页签", when: "点击", visual: "下面股票行和长期事件区按该市场筛选；状态行换成该市场那句（EV-48d / EV-48e）", source: "setRegion" },
+      { state: "Asset class 一排", when: "SHOW_ASSET_CLASS_ROW = false", visual: "不显示；列表按 All 显示。指数 / 商品 / 外汇有市场后把开关打开即可", source: "LiteFinanceView SHOW_ASSET_CLASS_ROW" },
+      { state: "Boost 开", when: "boostOnly", visual: "页签不带数字、不显示状态行", source: "LiteFinanceView MarketTabs / statusLine" },
+    ],
+  },
+  {
+    key: "events-ev48b",
+    label: "EV-48b · Finance 列表页头 · All · 2 个市场开盘",
+    note: "亚洲早盘：Hong Kong 和 Korea 都在开盘，两个页签都带橙点，状态行 `2 markets open`。",
+    spec: [
+      { state: "多个市场开盘", when: "开盘市场数 = N", visual: "`N markets open`；每个开盘市场页签带橙点", source: "LiteFinanceView MarketTabs / statusLine" },
+    ],
+  },
+  {
+    key: "events-ev48c",
+    label: "EV-48c · Finance 列表页头 · All · 都没开盘",
+    note: "所有市场都收盘：报最先开盘的那个市场和还有多久。",
+    spec: [
+      { state: "都没开盘", when: "region = all && 开盘市场数 = 0", visual: "`Markets closed · Hong Kong opens in 3h 30m`；页签都不带橙点；手机状态行前不带橙点", source: "getMarketSession nextOpenAt 最小者" },
+    ],
+  },
+  {
+    key: "events-ev48d",
+    label: "EV-48d · Finance 列表页头 · 选了一个市场 · 开盘中",
+    note: "和首页 Stocks 模块同一句（同一组文案 key）。",
+    spec: [
+      { state: "开盘中", when: "region = 某市场 && 该市场开盘", visual: "`Market open · closes in 3h 30m · settles in 3h 45m`；只写还剩多久，不写几点", source: "home_all.stocks.open_closes_in + settles_in" },
+      { state: "结算时间", when: "始终", visual: "= 该市场各轮 expected_settlement_time 里最近的一个；没有该字段时按收盘 + 15 分钟；都已过写 `· settling now`", source: "LiteFinanceView MarketTabs / statusLine" },
+    ],
+  },
+  {
+    key: "events-ev48e",
+    label: "EV-48e · Finance 列表页头 · 选了一个市场 · 没开盘",
+    note: "选中的市场没开盘：写多久后开盘。",
+    spec: [
+      { state: "没开盘", when: "region = 某市场 && 该市场未开盘", visual: "`Market opens in 10h 10m · settles in …`；页签不带橙点", source: "home_all.stocks.opens_in" },
+    ],
+  },
+  {
     key: "events-ev43",
     label: "EV-43 · Remind me · 已设提醒（RemindButton on）",
     note: "本帧 Barcelona vs PSG 与 Man United vs Tottenham 已设提醒（fixture，不碰库）。生产读 stream_reminders（本人行）；开赛时 notify_stream_reminders() 把提醒变成一条 `system.stream_live` 通知（消息中心 Updates，见 NT-22）。再点一次取消。",
@@ -835,6 +881,9 @@ export const EventsStatesSection = () => (
         </div>
         <div className="mt-6">
           <Pair cases={byKey("events-ev47")} desktopMin={900} mobileMin={1100} />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("events-ev48", "events-ev48b", "events-ev48c", "events-ev48d", "events-ev48e")} desktopMin={420} mobileMin={520} />
         </div>
         {/* EV-45 opens a fixed sign-in layer — its own frame so it can't cover the cases above. */}
         <div className="mt-6">

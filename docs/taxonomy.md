@@ -63,6 +63,8 @@ Two dimensions:
 - Asset classes: Indices, Stocks, Commodities, FX
 - Regions: US, Hong Kong / China, Korea
 
+> 2026-11-17: on the Finance list these two dimensions are no longer pill rows. Regions show as market tabs in the header (`All / US / Hong Kong / Korea`, with counts); the asset-class row is hidden while only stocks carry markets. The taxonomy itself is unchanged. See `docs/delivery/finance-list-market-tabs-v1.md`.
+
 ## Props buckets
 
 Each vertical (Sports, Crypto, Finance) also owns a **props bucket** — its
