@@ -66,7 +66,7 @@
 
 - 结算价 > Price to beat → `above` + `Up is ahead`（青色）；否则 `below` + `Down is ahead`（柠檬色）。颜色和选边按钮一致。
 - 两个价格印出来到分都一样时：`level with the price to beat · Down is ahead`（和结算规则一致：高于才算 Up），不写 `$0.00 below`。
-- `Up` / `Down` 两个词用的是页面选边按钮上的词（Lovable 这两个按钮目前是英文；正式版按钮是什么词这里就是什么词）。
+- `Up` / `Down` 两个词用的是页面选边按钮上的词（Lovable 这两个按钮目前是英文；正式版按钮是什么词这里就是什么词）。切到其他语言时这两个词保持现状、不另做处理（CPO 2026-11-17 定：先不动）。
 - 本轮结束后：`Final settlement price` + 金额 + `… ·` + `Up won` / `Down won`。
 
 ## 4. 图下方的说明
@@ -132,6 +132,6 @@
 | 位置 | 现状 | 说明 |
 |---|---|---|
 | 首页行情条、首页 / Crypto 品类页的币卡、手机 Intraday 模块 | 各自的演示价，和轮次页页头的实时价不是同一条 | Lovable 的演示数据各算各的；正式版这些地方和轮次页页头应接同一个实时行情 |
-| 百家乐桌面模式（`LiteQuickTable`，5m / 15m 开关打开时） | 仍是原来的走势，没有结算价横线 | 这次范围是普通轮次页；桌面模式要不要同样处理待定 |
-| 轮次页下方规则卡 `Settles Up if BTC's price at the end of the round is above the round open` | 没改 | 建议改成用 settlement price / price to beat 两个词，待 CPO 定文案 |
+| 百家乐桌面模式（`LiteQuickTable`，5m / 15m 开关打开时） | 仍是原来的走势，没有结算价横线 | 这次范围是普通轮次页；**桌面模式不加结算价横线**（CPO 2026-11-17 定），保持原样 |
+| 轮次页下方规则卡 `Settles Up if BTC's price at the end of the round is above the round open` | 没改 | **这次不改**（CPO 2026-11-17 定），规则卡保持现在的文案 |
 
