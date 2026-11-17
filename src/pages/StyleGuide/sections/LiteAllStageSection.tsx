@@ -756,7 +756,7 @@ const VIEW_7A_PRESETS = [
     // 11:25 ET — US regular session open, 23:25 HKT so HK is shut.
     sessionNow: new Date("2026-08-03T15:25:00Z"),
     caption:
-      "US session open — the 3 US names trade, the 3 HK names sit in the asleep group with \"Hong Kong opens …\".",
+      "US session open — the 3 US names trade, the 3 HK names sit in the asleep group. Header: market tabs (US dotted) + \"1 market open\" (2026-11-17).",
   },
   {
     id: "7a-hk",
@@ -765,7 +765,7 @@ const VIEW_7A_PRESETS = [
     // 11:00 HKT — HK open, 23:00 ET so New York is shut.
     sessionNow: new Date("2026-08-03T03:00:00Z"),
     caption:
-      "HK session open — inverse of the above; the session pill reads \"HK session open\" and prices use HK$.",
+      "HK session open — inverse of the above; the Hong Kong tab carries the orange dot and prices use HK$ (2026-11-17: no session pill).",
   },
   {
     id: "7a-none",
@@ -783,7 +783,7 @@ const VIEW_7A_PRESETS = [
     // 13:00 HKT / 14:00 KST — both Asian exchanges trade at once.
     sessionNow: new Date("2026-08-03T05:00:00Z"),
     caption:
-      "Overlapping sessions — one chip per open market, sorted by close time (Seoul closes before Hong Kong). Chips sit side by side and scroll horizontally when the header is narrow; the US names stay in the asleep group.",
+      "Overlapping sessions — both open markets carry the orange dot on their tab and the status line reads \"2 markets open\" (2026-11-17: tabs replace the chips); the US names stay in the asleep group.",
   },
 ] as const;
 

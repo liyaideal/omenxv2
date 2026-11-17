@@ -10,11 +10,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FINANCE_ASSET_CLASSES, FINANCE_REGIONS } from "@/lib/taxonomy";
 import type { EventRow } from "@/hooks/useMarketListData";
 import type { StockEventRow } from "@/components/lite/intraday/intradayData";
-import { getMarketSession, resolveStockMarket, type StockMarket } from "@/lib/usStockSessions";
-import { ht, leftText } from "@/components/lite/home/homeAllShell";
+import { resolveStockMarket } from "@/lib/usStockSessions";
+import { ht } from "@/components/lite/home/homeAllShell";
+import { MarketTabs, OpenDot, buildMarketHeader } from "./marketHeader";
 import {
   AsleepStockRow,
-  ORANGE,
   StockGroups,
   TradingStockRow,
   groupStockRows,
@@ -42,64 +42,8 @@ const ENGINE_CLASS = "stocks";
  */
 const SHOW_ASSET_CLASS_ROW = false;
 
-/** Settlement = official close + 15 min when the row carries no expected_settlement_time (same rule as the home module, K2). */
-const SETTLE_AFTER_CLOSE_MS = 15 * 60_000;
-
-const OpenDot = () => (
-  <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE, flex: "none" }} />
-);
-
-/**
- * Market tabs — the home Stocks module's grammar (name + today's round count, lime underline on the
- * selected one), plus an "All" tab and an orange dot on every market whose session is open.
- */
-const MarketTabs = ({
-  tabs,
-  value,
-  onChange,
-  mobile,
-}: {
-  tabs: Array<{ key: string; label: string; count: number | null; open: boolean }>;
-  value: string;
-  onChange: (key: string) => void;
-  mobile?: boolean;
-}) => (
-  <div
-    className={mobile ? "flex items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" : "flex items-center"}
-    style={{ gap: mobile ? 18 : 22 }}
-    data-finance-market-tabs
-  >
-    {tabs.map((tab) => {
-      const on = tab.key === value;
-      return (
-        <button
-          key={tab.key}
-          type="button"
-          aria-pressed={on}
-          onClick={() => onChange(tab.key)}
-          className="font-display inline-flex flex-none items-center whitespace-nowrap"
-          style={{
-            gap: 5,
-            fontSize: 13,
-            fontWeight: 700,
-            color: on ? "#fff" : "#98A1AD",
-            padding: "6px 0",
-            border: 0,
-            borderBottom: `2px solid ${on ? "#CFFF4A" : "transparent"}`,
-            background: "none",
-            minHeight: mobile ? 44 : undefined,
-          }}
-        >
-          {tab.open ? <OpenDot /> : null}
-          {tab.label}
-          {tab.count != null ? (
-            <span style={{ color: "#6B7280", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{tab.count}</span>
-          ) : null}
-        </button>
-      );
-    })}
-  </div>
-);
+/** Last scroll intent handled — the view remounts per market, so this lives outside it. */
+let handledScrollIntent = 0;
 
 export const LiteFinanceView = ({
   stockRows,
@@ -128,9 +72,8 @@ export const LiteFinanceView = ({
   /** Boost composes in place — engine hides until boost rounds exist. */
   boostOnly?: boolean;
   /**
-   * One-shot scroll intent: bumped by the caller when the user arrived from a
-   * "session open" row, so the rounds engine lands in view instead of below
-   * the header + filter chrome. Filters are never pre-set.
+   * One-shot scroll intent (a timestamp set by the caller when the user arrived from the home "Show all" or a
+   * "session open" row): the view scrolls its own header into view once, so the selected market tab is on screen.
    */
   scrollToEngine?: number;
 }) => {
@@ -156,7 +99,8 @@ export const LiteFinanceView = ({
   // Arriving from the home "Show all": land on the view's header, so the selected market tab is on screen
   // (CPO 2026-11-17 — it used to scroll past the header to the first stock row).
   useEffect(() => {
-    if (!scrollToEngine) return;
+    if (!scrollToEngine || scrollToEngine === handledScrollIntent) return;
+    handledScrollIntent = scrollToEngine;
     const id = window.requestAnimationFrame(() => {
       const el = rootRef.current;
       if (!el) return;
@@ -180,69 +124,12 @@ export const LiteFinanceView = ({
 
   // ---- Market tabs + status line (CPO 2026-11-17: same grammar as the home Stocks module) ----
   const now = sessionNow ?? new Date(nowMs ?? Date.now());
-  const names: StockEventRow[] = [...groups.trading, ...groups.asleep.map((a) => a.row)];
-  const byMarket = new Map<string, { market: StockMarket; rows: StockEventRow[] }>();
-  for (const r of names) {
-    const market = resolveStockMarket(r);
-    const hit = byMarket.get(market.key);
-    if (hit) hit.rows.push(r);
-    else byMarket.set(market.key, { market, rows: [r] });
-  }
-  const openKeys = new Set<string>(groups.openSessions.map((s) => s.market.key));
-  // A market shows as a tab when it has rounds today, or when the page was opened on it.
-  const marketTabs = FINANCE_REGIONS.filter((r) => byMarket.has(r.code) || r.code === region).map((r) => ({
-    key: r.code as string,
-    label: ht(`stocks.market_${r.code}`),
-    count: boostOnly ? null : (byMarket.get(r.code)?.rows.length ?? 0),
-    open: openKeys.has(r.code),
-  }));
-  // No stock rounds at all → no tabs (even when the page was opened on one market).
-  const tabs = marketTabs.length && names.length > 0
-    ? [{ key: "all", label: t("common.all"), count: boostOnly ? null : names.length, open: false }, ...marketTabs]
-    : [];
-
-  let statusText: string | null = null;
-  let statusOpen = false;
-  if (!boostOnly && byMarket.size > 0) {
-    if (region === "all") {
-      if (openKeys.size > 0) {
-        statusOpen = true;
-        statusText = t("events.screen.simple.finance_view.finance_vertical.markets_open", { count: openKeys.size });
-      } else {
-        // Nothing is open: name the market that opens first.
-        const next = [...byMarket.values()]
-          .map(({ market }) => ({ market, at: getMarketSession(market, now).nextOpenAt.getTime() }))
-          .sort((a, b) => a.at - b.at)[0];
-        statusText = t("events.screen.simple.finance_view.finance_vertical.markets_closed_opens", {
-          market: ht(`stocks.market_${next.market.key}`),
-          time: leftText(next.at - now.getTime()),
-        });
-      }
-    } else if (byMarket.has(region)) {
-      const { market, rows } = byMarket.get(region)!;
-      const session = getMarketSession(market, now);
-      statusOpen = openKeys.has(region) && !!session.closeAt;
-      const head = statusOpen
-        ? ht("stocks.open_closes_in", { time: leftText(session.closeAt!.getTime() - now.getTime()) })
-        : ht("stocks.opens_in", { time: leftText(session.nextOpenAt.getTime() - now.getTime()) });
-      const ends = rows
-        .map((r) =>
-          r.expected_settlement_time
-            ? new Date(r.expected_settlement_time).getTime()
-            : r.end_date
-              ? new Date(r.end_date).getTime() + SETTLE_AFTER_CLOSE_MS
-              : null,
-        )
-        .filter((x): x is number => x != null);
-      const ahead = ends.filter((x) => x > now.getTime());
-      const tail = ahead.length
-        ? ht("stocks.settles_in", { time: leftText(Math.min(...ahead) - now.getTime()) })
-        : ends.length
-          ? ht("stocks.settling_now")
-          : "";
-      statusText = `${head}${tail}`;
-    }
-  }
+  const { tabs, statusText, statusOpen } = buildMarketHeader({ groups, region, now, boostOnly });
+  // Every stock round is gone (so there are no tabs to pick from) while one market is selected → back to All.
+  const stuck = region !== "all" && tabs.length === 0;
+  useEffect(() => {
+    if (stuck) setRegion("all");
+  }, [stuck]);
   // "… Winning shares pay <payout>$1</payout>, losing shares pay $0." — the payout is the one white word.
   const explainerParts = t("events.screen.simple.finance_view.finance_vertical_chrome.trading_explainer").split(/<\/?payout>/);
   const explainer =
@@ -285,7 +172,8 @@ export const LiteFinanceView = ({
           isMobile || (!tabs.length && !statusLine) ? undefined : (
             <div className="flex flex-none flex-col items-end" style={{ gap: 10 }}>
               {tabs.length ? <MarketTabs tabs={tabs} value={region} onChange={setRegion} /> : null}
-              {statusLine}
+              {/* the slot keeps its height when there is no status line, so the tabs don't jump */}
+              <span className="flex items-center" style={{ minHeight: 18 }}>{statusLine}</span>
             </div>
           )
         }

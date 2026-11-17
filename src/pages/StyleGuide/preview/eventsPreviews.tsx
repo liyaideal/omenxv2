@@ -4,7 +4,7 @@
 // LiteEventCard 是 FROZEN 件：这里只摆放，零改样式。
 // ============================================================
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FinanceViewDemo } from "../sections/LiteVerticalViewsSection";
+import { FinanceViewDemo, IntradayStocksDemo } from "../sections/LiteVerticalViewsSection";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { EventRow } from "@/hooks/useMarketListData";
 import { FROZEN_NOW, frozenIso } from "../frozenClock";
@@ -1372,3 +1372,17 @@ export const Ev48cPreview = () => <FinanceFrame preset="all-closed" />;
 export const Ev48dPreview = () => <FinanceFrame preset="kr-open" />;
 export const Ev48ePreview = () => <FinanceFrame preset="hk-stocks" />;
 export const Ev48fPreview = () => <FinanceFrame preset="kr" />;
+
+/* ---- EV-49 … · Intraday list (desktop) · stock section: market tabs + status line (2026-11-17) ---- */
+const IntradayFrame = ({ preset }: { preset: string }) => (
+  <Stage>
+    <div style={{ padding: "0 20px" }}>
+      <IntradayStocksDemo preset={preset} />
+    </div>
+  </Stage>
+);
+export const Ev49Preview = () => <IntradayFrame preset="all" />;
+export const Ev49bPreview = () => <IntradayFrame preset="kr-open" />;
+export const Ev49cPreview = () => <IntradayFrame preset="hk-stocks" />;
+export const Ev49dPreview = () => <IntradayFrame preset="all-closed" />;
+export const Ev49ePreview = () => <IntradayFrame preset="kr" />;

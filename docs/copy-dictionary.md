@@ -1056,7 +1056,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **Markets closed · {market} opens in {time}** | 选 All、所有市场都没开盘时的状态行；报最先开盘的市场。 |
 | **Market open · closes in {time} · settles in {time}** / **Market opens in {time} · settles in {time}** | 选了某个市场时的状态行，与首页 Stocks 模块同一句同一组 key。 |
 | **No {market} stock rounds today** + **Pick another market above, or check back on the next trading day.** | 选中的市场今天没有股票轮（也没有长期事件可列）时的空态标题和提示，配猞猁兜底图。 |
-| ~~{market} session open · closes HH:MM · X left~~ | 旧胶囊，Finance 页头不再使用。 |
+| ~~{market} session open · closes HH:MM · X left~~ | 旧胶囊，Finance 页头和 Intraday 列表股票段都不再使用。 |
 | **市场（market）** | 概念：一个交易所时区的股票轮集合（US / HK / KR）。判定：`resolveStockMarket(event).key`。出处：`src/lib/usStockSessions.ts`。页面上叫 market，不叫 region。 |
 
 ## Affiliate Program (`/affiliate`, 2026-09-19)

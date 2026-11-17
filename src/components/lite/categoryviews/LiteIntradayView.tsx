@@ -1,6 +1,7 @@
 // ============================================================
 // INTRADAY CATEGORY VIEW (7A) — desktop, category chip "Intraday".
-// Pixel contract: docs/design-contracts/category-views-7.html #7a
+// Pixel contract: docs/design-contracts/category-views-7.html #7a — superseded for the stock section's
+// header and footer by DESIGN.md §Addendum 2026-11-17 (market tabs + status line; no session pill, no footer).
 // Plain cards (no orange rail), module-level round-length dial,
 // three coin tiles, then the full stock session list incl. asleep.
 // Every tile/row routes into the existing /spot trade page.
@@ -9,20 +10,20 @@
 // in ./verticalBlocks so the Crypto and Finance verticals reuse the very
 // same rendered pixels.
 // ============================================================
-import { t } from "@/i18n";
-import { useMemo, useState } from "react";
+import { t, useT } from "@/i18n";
+import { useEffect, useMemo, useState } from "react";
 import { COINS, QuickEvent, StockEventRow, Timeframe } from "@/components/lite/intraday/intradayData";
-import { formatLocalTime } from "@/lib/usStockSessions";
+import { resolveStockMarket } from "@/lib/usStockSessions";
 import {
   AsleepStockRow,
   CoinTile,
   ORANGE,
-  fmtLeft,
   RoundDial,
   StockGroups,
   TradingStockRow,
   groupStockRows,
 } from "./verticalBlocks";
+import { MarketTabs, buildMarketHeader, marketLabel } from "./marketHeader";
 import { EmptyState } from "@/components/states";
 import { LivePulse } from "@/components/lite/shared/primitives";
 
@@ -33,6 +34,7 @@ export const LiteIntradayView = ({
   tickSeconds,
   sessionNow,
   boostOnly,
+  initialMarket = "all",
 }: {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
@@ -42,15 +44,31 @@ export const LiteIntradayView = ({
   sessionNow?: Date;
   /** Boost composes in place — engine hides until boost rounds exist. */
   boostOnly?: boolean;
+  /** Style-guide only — open the stock section on one market tab. */
+  initialMarket?: string;
 }) => {
+  useT(); // re-render on language change / catalog arrival
   const [tf, setTf] = useState<Timeframe>("5m");
+  /** Stock section market tab — "all" or a market key (CPO 2026-11-17, same header as the Finance list). */
+  const [market, setMarket] = useState<string>(initialMarket);
 
   const groups: StockGroups = useMemo(
     () => groupStockRows(stockRows, sessionNow),
     [stockRows, tickSeconds, sessionNow],
   );
 
-  const total = groups.trading.length + groups.asleep.length;
+  const now = sessionNow ?? new Date();
+  const { tabs, statusText, count } = buildMarketHeader({ groups, region: market, now });
+  // Every stock round is gone (no tabs to pick from) while one market is selected → back to All.
+  const stuck = market !== "all" && tabs.length === 0;
+  useEffect(() => {
+    if (stuck) setMarket("all");
+  }, [stuck]);
+  const inMarket = (r: StockEventRow) => market === "all" || resolveStockMarket(r).key === market;
+  const trading = groups.trading.filter(inMarket);
+  const asleep = groups.asleep.filter((a) => inMarket(a.row));
+  // "… winning shares pay <payout>$1</payout>, losing shares pay $0." — the payout is the one white word.
+  const explainerParts = t("events.screen.simple.intraday_view.intraday_vertical.stock_round_explainer").split(/<\/?payout>/);
 
   return (
     <div className="flex flex-col" style={{ marginTop: 20, gap: 22 }}>
@@ -147,63 +165,37 @@ export const LiteIntradayView = ({
               {t("events.screen.simple.intraday_view.intraday_vertical.will_the_stock_finish_higher_than_it_opened")}
             </span>
             <span style={{ fontSize: 12, color: "#9AA1AC" }}>
-              One round per trading day. It settles at the closing bell — winning
-              shares pay <strong style={{ color: "#fff", fontWeight: 600 }}>$1</strong>,
-              losing shares pay $0.
+              {explainerParts.length === 3 ? (
+                <>
+                  {explainerParts[0]}
+                  <strong style={{ color: "#fff", fontWeight: 600 }}>{explainerParts[1]}</strong>
+                  {explainerParts[2]}
+                </>
+              ) : (
+                explainerParts.join("")
+              )}
             </span>
           </div>
-          {groups.openSessions.length > 0 && (
-            <span
-              className="flex flex-none items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              style={{ gap: 8, maxWidth: "100%" }}
-            >
-              {groups.openSessions.map(({ market, closeAt }) => (
-                <span
-                  key={market.key}
-                  className="flex flex-none items-center"
-                  style={{
-                    gap: 8,
-                    background: "#131519",
-                    border: "1px solid #23262D",
-                    borderRadius: 999,
-                    padding: "8px 14px",
-                  }}
-                >
-                  <span
-                    style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE }}
-                  />
-                  <span
-                    className="whitespace-nowrap"
-                    style={{ fontSize: 12, color: "#fff", fontWeight: 700 }}
-                  >
-                    {market.short} session open
-                  </span>
-                  <span
-                    className="whitespace-nowrap"
-                    style={{
-                      fontSize: 12,
-                      color: "#9AA1AC",
-                      fontVariantNumeric: "tabular-nums",
-                    }}
-                  >
-                    closes {formatLocalTime(new Date(closeAt))} ·{" "}
-                    {fmtLeft(closeAt - (sessionNow?.getTime() ?? Date.now()))}
-                  </span>
-                </span>
-              ))}
-            </span>
+          {tabs.length > 0 && (
+            <div className="flex flex-none flex-col items-end" style={{ gap: 10 }}>
+              <MarketTabs tabs={tabs} value={market} onChange={setMarket} />
+              {/* the slot keeps its height when there is no status line, so the tabs don't jump */}
+              <span className="flex items-center whitespace-nowrap" style={{ minHeight: 18, fontSize: 12.5, color: "#98A1AD" }}>
+                {statusText ? <span data-finance-market-status>{statusText}</span> : null}
+              </span>
+            </div>
           )}
         </div>
 
-        {groups.trading.length > 0 && (
+        {trading.length > 0 && (
           <div className="grid grid-cols-2" style={{ gap: 12 }}>
-            {groups.trading.map((r) => (
+            {trading.map((r) => (
               <TradingStockRow key={r.id} row={r} tickSeconds={tickSeconds} />
             ))}
           </div>
         )}
 
-        {groups.asleep.length > 0 && (
+        {asleep.length > 0 && (
           <>
             <div className="flex items-center" style={{ gap: 12, paddingTop: 8 }}>
               <span
@@ -219,32 +211,26 @@ export const LiteIntradayView = ({
                 {t("events.screen.simple.intraday_view.intraday_vertical.asleep_until_their_market_opens")}
               </span>
               <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
-              {groups.wakeLabel && (
-                <span
-                  className="whitespace-nowrap"
-                  style={{ fontSize: 12, color: "#9AA1AC" }}
-                >
-                  {groups.wakeLabel}
-                </span>
-              )}
+              {/* no "New York opens Tue 22:30" stamp here any more — the status line says how long until the open */}
             </div>
             <div className="grid grid-cols-2" style={{ gap: 12 }}>
-              {groups.asleep.map((a) => (
+              {asleep.map((a) => (
                 <AsleepStockRow key={a.row.id} row={a.row} nextOpen={a.nextOpen} />
               ))}
             </div>
           </>
         )}
 
-        <div
-          className="flex items-center justify-between"
-          style={{ borderTop: "1px solid #1D2026", paddingTop: 14 }}
-        >
-          <span style={{ fontSize: 12, color: "#6B7280" }}>
-            {total} names · {groups.trading.length} trading now, {groups.asleep.length}{" "}
-            asleep. Crypto rounds never stop.
-          </span>
-        </div>
+        {/* The selected market has no rounds today — lynx fallback instead of a blank section. */}
+        {market !== "all" && count(market) === 0 && (
+          <EmptyState
+            variant="page"
+            title={t("events.screen.simple.finance_view.finance_vertical.no_rounds_today", { market: marketLabel(market) })}
+            description={t("events.screen.simple.finance_view.finance_vertical.no_rounds_today_hint")}
+            illustrationSrc="/assets/desktop/empty-no-boost.png"
+          />
+        )}
+        {/* The "69 names · 19 trading now, 50 asleep" footer went (2026-11-17): the tabs carry the counts. */}
       </div>
       )}
     </div>

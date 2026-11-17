@@ -1,6 +1,6 @@
-# Finance 列表页头：市场页签 + 一行开盘状态 — 交付说明 v1（2026-11-17）
+# Finance 列表与 Intraday 列表：市场页签 + 一行开盘状态 — 交付说明 v1（2026-11-17）
 
-> **通俗导读**：Events 页 Finance 列表右上角，原来每个正在开盘的市场各占一个胶囊（`KR session open  closes 14:30 · 1h 5m left`），两个市场同时开盘就排两个，再加市场会更挤。这次改成和首页 Stocks 模块同一种写法：一组带数量的市场页签，下面一行开盘状态。原来 Asset class、Region 两排筛选按钮不再显示。
+> **通俗导读**：Events 页 Finance 列表右上角，原来每个正在开盘的市场各占一个胶囊（`KR session open  closes 14:30 · 1h 5m left`），两个市场同时开盘就排两个，再加市场会更挤。这次改成和首页 Stocks 模块同一种写法：一组带数量的市场页签，下面一行开盘状态。原来 Asset class、Region 两排筛选按钮不再显示。Intraday 列表（桌面）里股票那一段用的是同一种胶囊，也一起换成同一套页签和状态行。
 
 ## 改前改后
 
@@ -19,13 +19,17 @@
 | ⑨ | 页头小标题和副标题那句 | 切了语言仍是英文 | 跟着语言走（用的是已有的翻译） |
 | ⑩ | 从首页 Stocks 模块点 Show all 进来 | 页面滚到第一行股票，页头和选中的市场在屏幕上方看不到 | 页面滚到 Finance 页头，能看到选中的是哪个市场 |
 | ⑪ | 选中的市场今天一轮都没有 | 页签下面一片空白 | 猞猁兜底图 + No Korea stock rounds today + 一句提示 |
+| ⑫ | Intraday 列表 · 股票段右上（桌面） | 每个开盘的市场一个胶囊：HK session open closes 16:00 · 1h 22m left；所有市场的股票混在一起，不能按市场看 | 和 Finance 同一套：市场页签 + 一行状态；点页签只看该市场的股票 |
+| ⑬ | Intraday 列表 · 分隔线 ASLEEP UNTIL THEIR MARKET OPENS | 线右边写 New York opens Tue 22:30 | 分隔线保留，右边不再写字 |
+| ⑭ | Intraday 列表 · 股票段最底下一行 | 69 names · 19 trading now, 50 asleep. Crypto rounds never stop. | 不显示 |
+| ⑮ | Intraday 列表 · 股票段副标题那句 | 切了语言仍是英文 | 跟着语言走 |
 
 截图在 Lark 交付文档的同一节。
 
 ## 0. 查什么去哪儿
 
-- 长什么样 → 生产页：`/events?sector=finance`（Events 页顶部品类选 Finance）
-- 什么时候变成什么样 → `/style-guide` → Events 列表 · 状态字典 → `EV-48` / `EV-48b` / `EV-48c` / `EV-48d` / `EV-48e` / `EV-48f`
+- 长什么样 → 生产页：`/events?sector=finance`（Events 页顶部品类选 Finance）、`/events?sector=intraday`（选 Intraday，往下到股票那一段）
+- 什么时候变成什么样 → `/style-guide` → Events 列表 · 状态字典 → `EV-48` / `EV-48b` / `EV-48c` / `EV-48d` / `EV-48e` / `EV-48f`（Finance），`EV-49` / `EV-49b` / `EV-49c` / `EV-49d` / `EV-49e`（Intraday 股票段，只有桌面）
 - 字段、文案、术语 → `docs/copy-dictionary.md` 的「Stocks · 交易时段」一节末尾 → 本文；术语对照见词典顶部「Lite 术语对照表」
 - 规范 → `DESIGN.md` §Addendum 2026-11-17 · Finance 列表页头
 
@@ -38,7 +42,7 @@
 | 3 | 每张样张下面的表 | 「状态 / 触发条件 / 视觉 / 数据来源」 |
 | 4 | 单张看 | `/style-guide/preview?c=events-ev48`（另有 `events-ev48b` … `events-ev48f`） |
 
-五张的时间是定住的：EV-48 / 48e 是美股开盘、港股没开；EV-48b / 48d 是港股和韩股同时开盘；EV-48c 是都收盘；EV-48f 是选中 Korea、而当天 Korea 没有股票轮。
+这些样张的时间是定住的：EV-48 / 48e 是美股开盘、港股没开；EV-48b / 48d 是港股和韩股同时开盘；EV-48c 是都收盘；EV-48f 是选中 Korea、而当天 Korea 没有股票轮。
 
 ## 1. 市场页签
 
@@ -48,8 +52,8 @@
 | 数量 | 选中该页签后下面列出的股票行数：一只股票算一行（同一只股票有多轮时只算当前这一轮），已收盘还没换到下一轮的也算；`All` = 各市场合计 |
 | 橙点 | 市场正在开盘（有交易中的轮）时，名字前面一个 6px 橙点。`All` 不带 |
 | 点页签 | 下面的股票行、以及更下面「What else could the markets do?」的长期事件，都只留该市场的；状态那一行换成该市场那句 |
-| 默认 | `All`；从首页 Stocks 模块「Show all N」进来默认选中对应市场，页面滚到 Finance 页头（留出顶部导航的高度），不再滚到第一行股票 |
-| 一个股票轮都没有 | 页签和状态行都不出（即使是带着某个市场进来的） |
+| 默认 | `All`；从首页 Stocks 模块「Show all N」进来默认选中对应市场，页面滚到 Finance 页头（留出顶部导航的高度），不再滚到第一行股票。只滚这一次：之后再点顶部的 Finance 品类不会再滚。地址栏不带市场，刷新后回到 `All` |
+| 一个股票轮都没有 | 页签和状态行都不出；如果当时选着某个市场，自动回到 `All` |
 | 选中的市场今天 0 轮、别的市场有 | 该页签显示 0，没有状态行；下面放空态：猞猁兜底图（`empty-no-boost`）+ `No {{market}} stock rounds today` + `Pick another market above, or check back on the next trading day.`。该市场有长期事件可列时不出空态，直接列长期事件 |
 | Boost 开关打开 | 页签不带数量，不出状态行（Boost 模式下股票行本来就不显示）；开盘市场的橙点仍在 |
 
@@ -74,6 +78,21 @@
 |---|---|---|
 | 页签 | 页头右上，和标题同一块，右对齐 | 页头下面单独一排，左对齐，放不下可以横向滑 |
 | 状态行 | 页签下面，右对齐，12.5px 灰字，不带橙点 | 页头里、副标题下面，11.5px 灰字；有市场开盘时前面带橙点；放不下自动折行 |
+
+## 3.1 Intraday 列表里的股票段（桌面）
+
+Intraday 列表上半部分是加密涨跌轮（不改），下面一段是股票日轮，标题 `Will the stock finish higher than it opened?`。这一段右上换成和 Finance 完全相同的市场页签和状态行（同一个模块，规则见 §1、§2），不同的只有下面几点：
+
+| 项 | Intraday 股票段 |
+|---|---|
+| 默认 | 永远是 `All`（没有从别处带着市场进来的入口） |
+| 点页签 | 只筛这一段里的股票；上面的加密轮不受影响 |
+| 开盘 / 未开盘怎么排 | 开盘的股票在上；未开盘的在分隔线 `ASLEEP UNTIL THEIR MARKET OPENS` 下面。分隔线保留，线右边不再写 `New York opens Tue 22:30` |
+| 选中的市场没开盘 | 上面没有可下单的股票，分隔线就是这一段的第一行（CPO 确认可以） |
+| 选中的市场今天 0 轮 | 同一个猞猁空态（页签只列有股票轮的市场，所以只在选中后该市场的轮全部下架时出现） |
+| 底部 | `N names · N trading now, N asleep. Crypto rounds never stop.` 那一行取消 |
+| Boost 开关打开 | 整段不显示（原有行为） |
+| 手机 | 手机上 Intraday 是另一个模块（`MobileIntradayModule`），这次没动：它那行 `Hong Kong session open · 12 stock rounds` 还在，点了进 Finance 列表并停在页头 |
 
 ## 4. 文案（7 种语言已入 `src/locales/*.json`）
 
@@ -101,7 +120,9 @@
 
 | 内容 | 文件 |
 |---|---|
-| 市场页签、状态行、Asset class 开关 | `src/components/lite/categoryviews/LiteFinanceView.tsx` |
+| 市场页签、状态行的算法（Finance 和 Intraday 共用） | `src/components/lite/categoryviews/marketHeader.tsx`（`MarketTabs`、`buildMarketHeader`） |
+| Finance 列表装配、Asset class 开关、空态、落点 | `src/components/lite/categoryviews/LiteFinanceView.tsx` |
+| Intraday 列表股票段 | `src/components/lite/categoryviews/LiteIntradayView.tsx` |
 | 页头多一个「副标题下面」的位置（手机状态行用） | `src/components/lite/categoryviews/verticalChrome.tsx` 的 `VerticalHeader` `below` |
 | 开盘判定 | `src/components/lite/categoryviews/verticalBlocks.tsx` `groupStockRows`；`src/lib/usStockSessions.ts` `getMarketSession` |
 | 字典帧 | `src/pages/StyleGuide/preview/eventsPreviews.tsx`（`Ev48Preview` …）、`sections/EventsStatesSection.tsx`、夹具在 `sections/LiteVerticalViewsSection.tsx` |
@@ -122,5 +143,9 @@
 | 8 | 手机宽度 | 状态行在副标题下面；页签在它下面一排；有市场开盘时状态行前有橙点 |
 | 9 | 切 7 种语言（俄语、越南语重点看） | 桌面状态行不折行、不压到标题；手机状态行放不下时折成两行，橙点停在第一行 |
 | 10 | 打开 Boost 开关 | 页签没有数量、没有状态行 |
-| 11 | 选一个今天没有股票轮的市场（例如该市场休市日从首页带进来） | 页签写 0；下面是猞猁图 + `No … stock rounds today` + 提示句 |
+| 11 | 选一个今天没有股票轮的市场（生产上页签只列有股票轮的市场，所以要在选中某市场后把它的轮全部下架才能看到；平时看字典 EV-48f / EV-49e） | 页签写 0；下面是猞猁图 + `No … stock rounds today` + 提示句 |
 | 12 | 滚到股票列表最底 | 没有 `Showing … names`、`New York opens …` 那一行 |
+| 13 | 桌面打开 Events → Intraday，滚到股票那一段 | 右上是市场页签 + 一行状态，没有 `XX session open` 胶囊 |
+| 14 | 在这一段点一个市场页签 | 只剩该市场的股票；上面的加密轮不变；状态行换成该市场那句 |
+| 15 | 点一个没开盘的市场 | 第一行是 `ASLEEP UNTIL THEIR MARKET OPENS` 分隔线，线右边没有字；下面是未开盘的股票 |
+| 16 | 这一段滚到底 | 没有 `N names · N trading now…` 那一行 |

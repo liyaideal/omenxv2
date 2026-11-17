@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { LiteCryptoView } from "@/components/lite/categoryviews/LiteCryptoView";
 import { LiteFinanceView } from "@/components/lite/categoryviews/LiteFinanceView";
+import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import type { EventRow } from "@/hooks/useMarketListData";
 import {
@@ -305,6 +306,22 @@ export const FinanceViewDemo = ({ preset, isMobile }: { preset: string; isMobile
       isMobile={isMobile}
       initialClass={finance.cls}
       initialRegion={finance.region}
+    />
+  );
+};
+
+/** The Intraday list (desktop) on the same fixtures — dictionary EV-49 …: its stock section carries the market tabs too. */
+export const IntradayStocksDemo = ({ preset }: { preset: string }) => {
+  const finance = FINANCE_PRESETS.find((p) => p.id === preset) ?? FINANCE_PRESETS[0];
+  return (
+    <LiteIntradayView
+      key={finance.id}
+      currentFor={new Map()}
+      historyFor={new Map()}
+      stockRows={finance.rows ?? STOCK_ROWS}
+      tickSeconds={0}
+      sessionNow={finance.at ? new Date(NOW + finance.at * MIN) : FROZEN_DATE}
+      initialMarket={finance.region}
     />
   );
 };

@@ -787,6 +787,41 @@ const STREAM_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "events-ev49",
+    label: "EV-49 · Intraday 列表 · 股票段 · All · 1 个市场开盘",
+    note: "CPO 2026-11-17：Intraday 列表（桌面）里股票那一段，右上的 `HK session open closes 16:00 · 1h 22m left` 胶囊换成和 Finance 列表同一套——市场页签 + 一行状态（同一个模块 marketHeader）。手机 Intraday 模块这次不动。上面三个空的币卡是夹具没有给加密轮数据，不是本条内容。",
+    spec: [
+      { state: "页签 + 状态行", when: "有股票轮", visual: "同 EV-48：All + 各市场、数量、开盘带橙点；状态行 12.5px 右对齐。All 有开盘写 `N market(s) open`", source: "LiteIntradayView · marketHeader" },
+      { state: "点页签", when: "点击", visual: "只列该市场的股票（开盘的在上，未开盘的在分隔线下）", source: "LiteIntradayView · marketHeader" },
+      { state: "分隔线", when: "列出的股票里有未开盘的", visual: "`ASLEEP UNTIL THEIR MARKET OPENS` + 横线保留；线右边不再写 `New York opens Tue 22:30`", source: "LiteIntradayView" },
+      { state: "底部一行", when: "始终", visual: "`69 names · 19 trading now, 50 asleep. Crypto rounds never stop.` 取消", source: "LiteIntradayView" },
+    ],
+  },
+  {
+    key: "events-ev49b",
+    label: "EV-49b · Intraday 股票段 · 选了一个市场 · 开盘中",
+    note: "只列该市场，上面没有未开盘的股票所以没有分隔线。",
+    spec: [{ state: "开盘中", when: "market = 某市场 && 开盘", visual: "`Market open · closes in … · settles in …`", source: "LiteIntradayView · marketHeader" }],
+  },
+  {
+    key: "events-ev49c",
+    label: "EV-49c · Intraday 股票段 · 选了一个市场 · 没开盘",
+    note: "上面没有能下单的股票，分隔线就是这一段的第一行（CPO 确认可以）。",
+    spec: [{ state: "没开盘", when: "market = 某市场 && 未开盘", visual: "`Market opens in … · settles in …`；分隔线 + 未开盘行", source: "LiteIntradayView · marketHeader" }],
+  },
+  {
+    key: "events-ev49d",
+    label: "EV-49d · Intraday 股票段 · All · 都没开盘",
+    note: "所有股票都在分隔线下面。",
+    spec: [{ state: "都没开盘", when: "market = all && 开盘市场数 = 0", visual: "`Markets closed · Hong Kong opens in 3h 30m`", source: "LiteIntradayView · marketHeader" }],
+  },
+  {
+    key: "events-ev49e",
+    label: "EV-49e · Intraday 股票段 · 选中的市场今天没有股票轮（空态）",
+    note: "与 EV-48f 同一张猞猁兜底图、同一组文案。生产上页签只列有股票轮的市场，所以这个态只在夹具里能直接看到（生产：选中某市场后它的轮全部下架）。",
+    spec: [{ state: "空态", when: "market = 某市场 && 该市场股票行 = 0", visual: "EmptyState page + `No Korea stock rounds today` + 提示句", source: "LiteIntradayView · marketHeader" }],
+  },
+  {
     key: "events-ev43",
     label: "EV-43 · Remind me · 已设提醒（RemindButton on）",
     note: "本帧 Barcelona vs PSG 与 Man United vs Tottenham 已设提醒（fixture，不碰库）。生产读 stream_reminders（本人行）；开赛时 notify_stream_reminders() 把提醒变成一条 `system.stream_live` 通知（消息中心 Updates，见 NT-22）。再点一次取消。",
@@ -893,6 +928,10 @@ export const EventsStatesSection = () => (
         </div>
         <div className="mt-6">
           <Pair cases={byKey("events-ev48", "events-ev48b", "events-ev48c", "events-ev48d", "events-ev48e", "events-ev48f")} desktopMin={520} mobileMin={560} />
+        </div>
+        {/* EV-49 …: the Intraday list is the desktop view (phones use MobileIntradayModule, untouched), so desktop frames only. */}
+        <div className="mt-6">
+          <SectionFrame cases={byKey("events-ev49", "events-ev49b", "events-ev49c", "events-ev49d", "events-ev49e")} device="desktop" minHeight={760} />
         </div>
         {/* EV-45 opens a fixed sign-in layer — its own frame so it can't cover the cases above. */}
         <div className="mt-6">

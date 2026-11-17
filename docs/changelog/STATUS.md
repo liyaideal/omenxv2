@@ -17,7 +17,7 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
-## 2026-11-17 — Finance 列表页头：市场页签 + 一行开盘状态（[文档](../delivery/finance-list-market-tabs-v1.md)）
+## 2026-11-17 — Finance 列表与 Intraday 列表：市场页签 + 一行开盘状态（[文档](../delivery/finance-list-market-tabs-v1.md)）
 
 | # | 项 | Status | Notes |
 |---|---|---|---|
@@ -27,6 +27,8 @@
 | 4 | Region 一排取消、Asset class 一排隐藏、列表底部 Showing 取消 | ⬜ | 改前改后 ⑤⑥⑦ |
 | 5 | 新文案 2 条 7 语；市场名与状态句复用首页 key | ⬜ | §4 |
 | 6 | 橙点 / 状态行 / 股票行读同一个交易时段状态 | ⬜ | §5 |
+| 7 | 选中市场今天 0 轮的空态；Show all 落在 Finance 页头；列表底部脚注行取消 | ⬜ | §1 / 改前改后 ⑦⑩⑪ |
+| 8 | Intraday 列表（桌面）股票段换同一套页签 + 状态行；分隔线右侧文字、底部一行取消 | ⬜ | §3.1 |
 
 ## 2026-11-16 — 加密涨跌轮走势图：实时价 + 结算价（[文档](../delivery/crypto-round-chart-v1.md)）
 

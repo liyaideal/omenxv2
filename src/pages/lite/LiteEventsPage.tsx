@@ -164,8 +164,9 @@ const LiteEventsPage = () => {
   useEffect(() => {
     if (sector !== "finance") setFinanceRegion("all");
   }, [sector]);
-  // One-shot intent: the user tapped a "session open" row, so the Finance view
-  // should scroll its rounds engine into view once after landing.
+  // One-shot intent: the user arrived from the home "Show all" or a "session open" row, so the Finance view
+  // scrolls its header into view once after landing. The value is a timestamp — each intent is unique and the
+  // view remembers the last one it handled, so a later plain click on the Finance chip does not scroll again.
   const [scrollToEngine, setScrollToEngine] = useState(0);
 
   // Stage data — desktop only, and only for the views that render it.
@@ -460,7 +461,7 @@ const LiteEventsPage = () => {
               setFinanceRegion(m ?? "all");
               setSector("finance");
               // Land on the Finance header so the selected market tab is on screen (CPO 2026-11-17).
-              setScrollToEngine((n) => n + 1);
+              setScrollToEngine(Date.now());
             }}
           />
         )}
@@ -546,7 +547,7 @@ const LiteEventsPage = () => {
               setFinanceRegion(m ?? "all");
               setSector("finance");
               // Land on the Finance header so the selected market tab is on screen (CPO 2026-11-17).
-              setScrollToEngine((n) => n + 1);
+              setScrollToEngine(Date.now());
             }}
           />
         )}
@@ -564,7 +565,7 @@ const LiteEventsPage = () => {
               onOpenIntraday={() => setSector("intraday")}
             onOpenSession={() => {
               setSector("finance");
-              setScrollToEngine((n) => n + 1);
+              setScrollToEngine(Date.now());
             }}
               boostOnly={boostOnly}
             />

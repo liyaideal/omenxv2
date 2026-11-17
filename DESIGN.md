@@ -2625,14 +2625,15 @@ CPO 2026-11-16 在画布「加密涨跌轮 · 走势图结算价 mock」比稿�
 
 ## §Addendum 2026-11-17 · Finance 列表页头 · 市场页签 + 一行开盘状态（LOCKED）
 
-CPO 2026-11-17 在画布「Finance 列表 · 开盘状态标注 mock」上批。交付 `docs/delivery/finance-list-market-tabs-v1.md`，字典 EV-48 / 48b / 48c / 48d / 48e。起因：右上每个开盘市场一个胶囊，市场一多就排不下。
+CPO 2026-11-17 在画布「Finance 列表 · 开盘状态标注 mock」上批。交付 `docs/delivery/finance-list-market-tabs-v1.md`，字典 EV-48 … 48f（Finance）、EV-49 … 49e（Intraday 股票段）。起因：右上每个开盘市场一个胶囊，市场一多就排不下。
 
 1. **作用域**：Events 页 Finance 品类（`LiteFinanceView`）的页头，桌面 + 手机。首页 Stocks 模块是这套写法的出处，本条不改它。
 2. **市场页签**：沿用首页 Stocks 模块页签——Space Grotesk 13 / 700，选中白字 + 2px `#CFFF4A` 下划线，未选 `#98A1AD`，数量 `#6B7280` 600，页签间距桌面 22 / 手机 18；手机触控高度 44。比首页多两样：最前面的 `All`，以及开盘市场名前的 6px 橙点 `#FF8A3D`（与顶部品类导航 Intraday 前的点同义）。
 3. **状态行**：一行，`#98A1AD`，桌面 12.5px 右对齐在页签下方（间距 10）、不折行；手机 11.5px 在页头副标题下面、可折行，有市场开盘时行首带橙点（橙点固定在第一行）。
-4. **胶囊退役**：`{market} session open · closes HH:MM · X left` 的胶囊不再用于 Finance 页头。状态只写还剩多久，不写钟点。
+4. **胶囊退役**：`{market} session open · closes HH:MM · X left` 的胶囊不再用于 Finance 页头和 Intraday 列表股票段。状态只写还剩多久，不写钟点。
 5. **筛选排**：Region 一排由市场页签取代；Asset class 一排在只有股票有市场期间隐藏（`SHOW_ASSET_CLASS_ROW`），恢复时放回页头下方。Dimension pill 规范本身不变（Crypto 品类页仍在用）。
 6. **一个开盘判定**：橙点、状态行、股票行的交易中 / 未开盘，读同一个判定。
 7. **选中的市场今天 0 轮**：页签仍在（数量 0），下面用 EmptyState page + 猞猁兜底图 `empty-no-boost`，标题 `No {market} stock rounds today` + 一句提示；该市场有长期事件可列时不出空态。
 8. **列表底部不再有脚注行**（`Showing N of M names`、`{city} opens {weekday HH:MM}`）。
 9. **Show all 落点**：从首页带着市场进来，页面滚到 Finance 页头（顶部导航下 72px），选中的页签在屏幕内。
+10. **Intraday 列表（桌面）股票段同一套**：右上胶囊换成同一个市场页签 + 状态行（`marketHeader`）；`ASLEEP UNTIL THEIR MARKET OPENS` 分隔线保留、线右不再写开盘钟点；底部 `N names · …` 一行取消；手机 `MobileIntradayModule` 不在本条范围。
