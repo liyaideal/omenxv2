@@ -1371,3 +1371,4 @@ export const Ev48bPreview = () => <FinanceFrame preset="all-2" />;
 export const Ev48cPreview = () => <FinanceFrame preset="all-closed" />;
 export const Ev48dPreview = () => <FinanceFrame preset="kr-open" />;
 export const Ev48ePreview = () => <FinanceFrame preset="hk-stocks" />;
+export const Ev48fPreview = () => <FinanceFrame preset="kr" />;

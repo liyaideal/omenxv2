@@ -778,6 +778,15 @@ const STREAM_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "events-ev48f",
+    label: "EV-48f · Finance 列表 · 选中的市场今天没有股票轮（空态）",
+    note: "CPO 2026-11-17：从首页带着某个市场进来、而该市场今天一轮都没有时，原来页签下面是空白；现在放猞猁兜底图 + 一句话。",
+    spec: [
+      { state: "空态", when: "region = 某市场 && 该市场股票行 = 0 && 该市场也没有长期事件 && 不是 Boost", visual: "EmptyState page：猞猁兜底图（empty-no-boost）+ `No Korea stock rounds today` + `Pick another market above, or check back on the next trading day.`", source: "LiteFinanceView · EmptyState" },
+      { state: "页签", when: "同上", visual: "该市场页签仍显示、数量 0、选中；没有状态行", source: "LiteFinanceView MarketTabs" },
+    ],
+  },
+  {
     key: "events-ev43",
     label: "EV-43 · Remind me · 已设提醒（RemindButton on）",
     note: "本帧 Barcelona vs PSG 与 Man United vs Tottenham 已设提醒（fixture，不碰库）。生产读 stream_reminders（本人行）；开赛时 notify_stream_reminders() 把提醒变成一条 `system.stream_live` 通知（消息中心 Updates，见 NT-22）。再点一次取消。",
@@ -883,7 +892,7 @@ export const EventsStatesSection = () => (
           <Pair cases={byKey("events-ev47")} desktopMin={900} mobileMin={1100} />
         </div>
         <div className="mt-6">
-          <Pair cases={byKey("events-ev48", "events-ev48b", "events-ev48c", "events-ev48d", "events-ev48e")} desktopMin={420} mobileMin={520} />
+          <Pair cases={byKey("events-ev48", "events-ev48b", "events-ev48c", "events-ev48d", "events-ev48e", "events-ev48f")} desktopMin={520} mobileMin={560} />
         </div>
         {/* EV-45 opens a fixed sign-in layer — its own frame so it can't cover the cases above. */}
         <div className="mt-6">

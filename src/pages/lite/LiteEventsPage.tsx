@@ -459,6 +459,8 @@ const LiteEventsPage = () => {
             onOpenFinance={(m) => {
               setFinanceRegion(m ?? "all");
               setSector("finance");
+              // Land on the Finance header so the selected market tab is on screen (CPO 2026-11-17).
+              setScrollToEngine((n) => n + 1);
             }}
           />
         )}
@@ -543,6 +545,8 @@ const LiteEventsPage = () => {
             onOpenFinance={(m) => {
               setFinanceRegion(m ?? "all");
               setSector("finance");
+              // Land on the Finance header so the selected market tab is on screen (CPO 2026-11-17).
+              setScrollToEngine((n) => n + 1);
             }}
           />
         )}

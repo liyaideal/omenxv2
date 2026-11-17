@@ -1247,6 +1247,8 @@
   "screen.simple.finance_view.finance_vertical.session_opens": "{{session}} は {{time}} に開始",
   "screen.simple.finance_view.finance_vertical.markets_open": "{{count}} マーケットが取引中",
   "screen.simple.finance_view.finance_vertical.markets_closed_opens": "取引時間外 · {{market}} はあと {{time}} で取引開始",
+  "screen.simple.finance_view.finance_vertical.no_rounds_today": "本日、{{market}}の株式ラウンドはありません",
+  "screen.simple.finance_view.finance_vertical.no_rounds_today_hint": "上のタブで別のマーケットを選ぶか、次の取引日にまたご確認ください。",
   "screen.simple.finance_view.finance_vertical.asset_class": "資産クラス",
   "screen.simple.finance_view.finance_vertical.region": "地域",
   "screen.simple.finance_view.finance_vertical.nothing_boosted_here_yet": "現在、Boost の市場はありません。また後でご確認ください。",

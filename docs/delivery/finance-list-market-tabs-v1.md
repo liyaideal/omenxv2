@@ -14,16 +14,18 @@
 | ④ | 收盘时间的写法 | 写几点收盘 + 还剩多久（closes 14:30 · 1h 5m left） | 只写还剩多久 |
 | ⑤ | Region 一排按钮（All regions / US / Hong Kong / China / Korea） | 页头下面单独一排 | 没有了，换成右上的市场页签；Hong Kong / China 写成 Hong Kong |
 | ⑥ | Asset class 一排按钮（All / Indices / Stocks / Commodities / FX） | 页头下面单独一排 | 先隐藏（现在只有股票有市场），列表按 All 显示 |
-| ⑦ | 列表底部 Showing 2 of 4 Korea names | 选了某个地区时显示 | 不显示（页签上已有数量） |
+| ⑦ | 列表底部那一行（Showing 2 of 4 Korea names、New York opens Tue 22:30） | 显示 | 整行不显示（页签上已有数量，状态行已写多久后开盘） |
 | ⑧ | 手机 | 不显示任何开盘状态 | 状态那一行在页头副标题下面（有市场开盘时前面带橙点），页签在它下面单独一排 |
 | ⑨ | 页头小标题和副标题那句 | 切了语言仍是英文 | 跟着语言走（用的是已有的翻译） |
+| ⑩ | 从首页 Stocks 模块点 Show all 进来 | 页面滚到第一行股票，页头和选中的市场在屏幕上方看不到 | 页面滚到 Finance 页头，能看到选中的是哪个市场 |
+| ⑪ | 选中的市场今天一轮都没有 | 页签下面一片空白 | 猞猁兜底图 + No Korea stock rounds today + 一句提示 |
 
 截图在 Lark 交付文档的同一节。
 
 ## 0. 查什么去哪儿
 
 - 长什么样 → 生产页：`/events?sector=finance`（Events 页顶部品类选 Finance）
-- 什么时候变成什么样 → `/style-guide` → Events 列表 · 状态字典 → `EV-48` / `EV-48b` / `EV-48c` / `EV-48d` / `EV-48e`
+- 什么时候变成什么样 → `/style-guide` → Events 列表 · 状态字典 → `EV-48` / `EV-48b` / `EV-48c` / `EV-48d` / `EV-48e` / `EV-48f`
 - 字段、文案、术语 → `docs/copy-dictionary.md` 的「Stocks · 交易时段」一节末尾 → 本文；术语对照见词典顶部「Lite 术语对照表」
 - 规范 → `DESIGN.md` §Addendum 2026-11-17 · Finance 列表页头
 
@@ -32,11 +34,11 @@
 | 步 | 做什么 | 看到什么 |
 |---|---|---|
 | 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 左侧选「Events 列表 · 状态字典」 |
-| 2 | 页头搜索框敲 `EV-48` | 五张样张，桌面一排、手机一排 |
+| 2 | 页头搜索框敲 `EV-48` | 六张样张，桌面一排、手机一排 |
 | 3 | 每张样张下面的表 | 「状态 / 触发条件 / 视觉 / 数据来源」 |
-| 4 | 单张看 | `/style-guide/preview?c=events-ev48`（另有 `events-ev48b` … `events-ev48e`） |
+| 4 | 单张看 | `/style-guide/preview?c=events-ev48`（另有 `events-ev48b` … `events-ev48f`） |
 
-五张的时间是定住的：EV-48 / 48e 是美股开盘、港股没开；EV-48b / 48d 是港股和韩股同时开盘；EV-48c 是都收盘。
+五张的时间是定住的：EV-48 / 48e 是美股开盘、港股没开；EV-48b / 48d 是港股和韩股同时开盘；EV-48c 是都收盘；EV-48f 是选中 Korea、而当天 Korea 没有股票轮。
 
 ## 1. 市场页签
 
@@ -46,9 +48,9 @@
 | 数量 | 选中该页签后下面列出的股票行数：一只股票算一行（同一只股票有多轮时只算当前这一轮），已收盘还没换到下一轮的也算；`All` = 各市场合计 |
 | 橙点 | 市场正在开盘（有交易中的轮）时，名字前面一个 6px 橙点。`All` 不带 |
 | 点页签 | 下面的股票行、以及更下面「What else could the markets do?」的长期事件，都只留该市场的；状态那一行换成该市场那句 |
-| 默认 | `All`；从首页 Stocks 模块「Show all N」进来默认选中对应市场（原有行为，没改） |
+| 默认 | `All`；从首页 Stocks 模块「Show all N」进来默认选中对应市场，页面滚到 Finance 页头（留出顶部导航的高度），不再滚到第一行股票 |
 | 一个股票轮都没有 | 页签和状态行都不出（即使是带着某个市场进来的） |
-| 选中的市场今天 0 轮、别的市场有 | 该页签显示 0，没有状态行，下面没有股票行 |
+| 选中的市场今天 0 轮、别的市场有 | 该页签显示 0，没有状态行；下面放空态：猞猁兜底图（`empty-no-boost`）+ `No {{market}} stock rounds today` + `Pick another market above, or check back on the next trading day.`。该市场有长期事件可列时不出空态，直接列长期事件 |
 | Boost 开关打开 | 页签不带数量，不出状态行（Boost 模式下股票行本来就不显示）；开盘市场的橙点仍在 |
 
 ## 2. 状态那一行
@@ -81,6 +83,7 @@
 | 市场名 | `events.screen.simple.home_all.stocks.market_us` / `_hk` / `_kr`（已有，和首页同一组） | US / Hong Kong / Korea | 美股 / 港股 / 韩股 |
 | All · 有开盘 | `events.screen.simple.finance_view.finance_vertical.markets_open`（新；英文分 `_one` / `_other`） | {{count}} market open / {{count}} markets open | {{count}} 个市场交易中 |
 | All · 都没开盘 | `…finance_vertical.markets_closed_opens`（新） | Markets closed · {{market}} opens in {{time}} | 休市中 · {{market}} {{time}} 后开盘 |
+| 空态标题 / 提示 | `…finance_vertical.no_rounds_today` / `no_rounds_today_hint`（新） | No {{market}} stock rounds today / Pick another market above, or check back on the next trading day. | {{market}}今天没有股票轮 / 可以在上面换一个市场，或下个交易日再来看看。 |
 | 某市场 · 开盘 / 没开盘 / 结算 | `…home_all.stocks.open_closes_in` / `opens_in` / `settles_in` / `settling_now`（已有，和首页同一组） | Market open · closes in {{time}} / Market opens in {{time}} / · settles in {{time}} / · settling now | 交易中 · {{time}} 后收盘 / {{time}} 后开盘 / … |
 
 不再使用（key 留在文件里，没有地方引用）：`…finance_vertical.session_open`、`closes_in`、`time_left`、`session_opens`、`region`。
@@ -115,7 +118,9 @@
 | 4 | 点一个正在开盘的市场 | 状态行 `Market open · closes in … · settles in …`；下面只剩该市场的股票 |
 | 5 | 点一个没开盘的市场 | 状态行 `Market opens in … · settles in …`；该页签不带橙点；股票行是未开盘样式 |
 | 6 | 所有市场都收盘的时间打开 | All 状态行 `Markets closed · X opens in …`，X 是最先开盘的市场；没有橙点 |
-| 7 | 首页 Stocks 模块点「Show all N」 | 进 Finance 时对应市场的页签已选中 |
+| 7 | 首页 Stocks 模块点「Show all N」 | 进 Finance 时对应市场的页签已选中，页面停在 Finance 页头（标题和页签都在屏幕里） |
 | 8 | 手机宽度 | 状态行在副标题下面；页签在它下面一排；有市场开盘时状态行前有橙点 |
 | 9 | 切 7 种语言（俄语、越南语重点看） | 桌面状态行不折行、不压到标题；手机状态行放不下时折成两行，橙点停在第一行 |
 | 10 | 打开 Boost 开关 | 页签没有数量、没有状态行 |
+| 11 | 选一个今天没有股票轮的市场（例如该市场休市日从首页带进来） | 页签写 0；下面是猞猁图 + `No … stock rounds today` + 提示句 |
+| 12 | 滚到股票列表最底 | 没有 `Showing … names`、`New York opens …` 那一行 |

@@ -1294,6 +1294,8 @@
     "screen.simple.finance_view.finance_vertical.markets_open_one": "{{count}} market open",
     "screen.simple.finance_view.finance_vertical.markets_open_other": "{{count}} markets open",
     "screen.simple.finance_view.finance_vertical.markets_closed_opens": "Markets closed · {{market}} opens in {{time}}",
+    "screen.simple.finance_view.finance_vertical.no_rounds_today": "No {{market}} stock rounds today",
+    "screen.simple.finance_view.finance_vertical.no_rounds_today_hint": "Pick another market above, or check back on the next trading day.",
     "screen.simple.finance_view.finance_vertical.asset_class": "Asset class",
     "screen.simple.finance_view.finance_vertical.region": "Region",
     "screen.simple.finance_view.finance_vertical.nothing_boosted_here_yet": "Nothing boosted here yet — check back soon.",

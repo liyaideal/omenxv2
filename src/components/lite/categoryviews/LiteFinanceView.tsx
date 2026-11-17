@@ -137,7 +137,7 @@ export const LiteFinanceView = ({
   useT(); // re-render on language change / catalog arrival (labels below are plain t() calls)
   const [cls, setCls] = useState<string>(initialClass);
   const [region, setRegion] = useState<string>(initialRegion);
-  const engineRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const groups: StockGroups = useMemo(
     () => groupStockRows(stockRows, sessionNow),
@@ -152,21 +152,21 @@ export const LiteFinanceView = ({
   const trading = engineOn ? groups.trading.filter(inRegion) : [];
   const asleep = engineOn ? groups.asleep.filter((a) => inRegion(a.row)) : [];
   const shown = trading.length + asleep.length;
-  const hasEngineRows = engineOn && shown > 0;
 
+  // Arriving from the home "Show all": land on the view's header, so the selected market tab is on screen
+  // (CPO 2026-11-17 — it used to scroll past the header to the first stock row).
   useEffect(() => {
-    if (!scrollToEngine || !hasEngineRows) return;
+    if (!scrollToEngine) return;
     const id = window.requestAnimationFrame(() => {
-      const el = engineRef.current;
+      const el = rootRef.current;
       if (!el) return;
-      // Leave room for the sticky header so the first round row isn't tucked
-      // underneath it.
+      // Leave room for the sticky site header.
       const HEADER_OFFSET = 72;
       const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
       window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     });
     return () => window.cancelAnimationFrame(id);
-  }, [scrollToEngine, hasEngineRows]);
+  }, [scrollToEngine]);
 
   const catalogue = useMemo(
     () =>
@@ -274,7 +274,7 @@ export const LiteFinanceView = ({
   ) : null;
 
   return (
-    <div className="flex flex-col" style={{ marginTop: isMobile ? 18 : 20, gap: 22 }}>
+    <div ref={rootRef} className="flex flex-col" style={{ marginTop: isMobile ? 18 : 20, gap: 22 }}>
       <VerticalHeader
         compact={isMobile}
         eyebrow={t("events.screen.simple.finance_view.finance_vertical_chrome.finance_daily_closes")}
@@ -316,7 +316,7 @@ export const LiteFinanceView = ({
 
       {/* Engine — session-aware daily rounds. */}
       {engineOn && (trading.length > 0 || asleep.length > 0) && (
-        <div ref={engineRef} className="flex flex-col" style={{ gap: 12 }}>
+        <div className="flex flex-col" style={{ gap: 12 }}>
           {isMobile ? (
             <div className="flex flex-col" style={{ gap: 10 }}>
               {trading.map((row) => (
@@ -346,26 +346,22 @@ export const LiteFinanceView = ({
               </div>
             </>
           )}
-          {/* The "Showing 2 of 4 … names" note went with the region pills — each market tab carries its own count now. */}
-          {groups.wakeLabels.length > 0 && (
-            <div
-              className="flex items-center"
-              style={{ gap: 12, paddingTop: 12 }}
-            >
-              <span style={{ flex: 1, height: 1, background: "#1D2026" }} />
-              {groups.wakeLabels.length > 0 && (
-                <span
-                  className="flex-none whitespace-nowrap"
-                  style={{ fontSize: 11, color: "#6B7280" }}
-                >
-                  {groups.wakeLabels.join(" · ")}
-                </span>
-              )}
-            </div>
-          )}
+          {/* No footer line: the "Showing N of M names" note and the "New York opens Tue 22:30" stamps both went (2026-11-17) — the tabs carry the counts, the status line says how long until the open. */}
         </div>
       )}
 
+
+      {/* The selected market has no rounds today and nothing else to list — say so instead of a blank page. */}
+      {!boostOnly && region !== "all" && shown === 0 && catalogue.length === 0 && (
+        <EmptyState
+          variant="page"
+          title={t("events.screen.simple.finance_view.finance_vertical.no_rounds_today", {
+            market: FINANCE_REGIONS.some((r) => r.code === region) ? ht(`stocks.market_${region}`) : region,
+          })}
+          description={t("events.screen.simple.finance_view.finance_vertical.no_rounds_today_hint")}
+          illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
+        />
+      )}
 
       {/* Boost with nothing boosted — keep chrome, show the empty line. */}
       {boostOnly && catalogue.length === 0 && (

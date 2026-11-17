@@ -1283,6 +1283,8 @@
   "screen.simple.finance_view.finance_vertical.session_opens": "{{session}} открывается {{time}}",
   "screen.simple.finance_view.finance_vertical.markets_open": "Открыто рынков: {{count}}",
   "screen.simple.finance_view.finance_vertical.markets_closed_opens": "Рынки закрыты · {{market}}: открытие через {{time}}",
+  "screen.simple.finance_view.finance_vertical.no_rounds_today": "Сегодня нет раундов по акциям: {{market}}",
+  "screen.simple.finance_view.finance_vertical.no_rounds_today_hint": "Выберите другой рынок выше или загляните в следующий торговый день.",
   "screen.simple.finance_view.finance_vertical.asset_class": "Класс активов",
   "screen.simple.finance_view.finance_vertical.region": "Регион",
   "screen.simple.finance_view.finance_vertical.nothing_boosted_here_yet": "Пока нет рынков Boost. Загляните позже.",

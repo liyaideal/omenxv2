@@ -1250,6 +1250,8 @@
   "screen.simple.finance_view.finance_vertical.session_opens": "{{session}} 於 {{time}} 開盤",
   "screen.simple.finance_view.finance_vertical.markets_open": "{{count}} 個市場交易中",
   "screen.simple.finance_view.finance_vertical.markets_closed_opens": "休市中 · {{market}} {{time}} 後開盤",
+  "screen.simple.finance_view.finance_vertical.no_rounds_today": "{{market}}今天沒有股票輪",
+  "screen.simple.finance_view.finance_vertical.no_rounds_today_hint": "可以在上面換一個市場，或下個交易日再來看看。",
   "screen.simple.finance_view.finance_vertical.asset_class": "資產類別",
   "screen.simple.finance_view.finance_vertical.region": "地區",
   "screen.simple.finance_view.finance_vertical.nothing_boosted_here_yet": "這裡暫時沒有 Boost 市場，稍後再來看看。",

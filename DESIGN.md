@@ -2633,4 +2633,6 @@ CPO 2026-11-17 在画布「Finance 列表 · 开盘状态标注 mock」上批。
 4. **胶囊退役**：`{market} session open · closes HH:MM · X left` 的胶囊不再用于 Finance 页头。状态只写还剩多久，不写钟点。
 5. **筛选排**：Region 一排由市场页签取代；Asset class 一排在只有股票有市场期间隐藏（`SHOW_ASSET_CLASS_ROW`），恢复时放回页头下方。Dimension pill 规范本身不变（Crypto 品类页仍在用）。
 6. **一个开盘判定**：橙点、状态行、股票行的交易中 / 未开盘，读同一个判定。
-
+7. **选中的市场今天 0 轮**：页签仍在（数量 0），下面用 EmptyState page + 猞猁兜底图 `empty-no-boost`，标题 `No {market} stock rounds today` + 一句提示；该市场有长期事件可列时不出空态。
+8. **列表底部不再有脚注行**（`Showing N of M names`、`{city} opens {weekday HH:MM}`）。
+9. **Show all 落点**：从首页带着市场进来，页面滚到 Finance 页头（顶部导航下 72px），选中的页签在屏幕内。
