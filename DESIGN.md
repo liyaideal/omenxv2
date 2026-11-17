@@ -2637,3 +2637,4 @@ CPO 2026-11-17 在画布「Finance 列表 · 开盘状态标注 mock」上批。
 8. **列表底部不再有脚注行**（`Showing N of M names`、`{city} opens {weekday HH:MM}`）。
 9. **Show all 落点**：从首页带着市场进来，页面滚到 Finance 页头（顶部导航下 72px），选中的页签在屏幕内。
 10. **Intraday 列表（桌面）股票段同一套**：右上胶囊换成同一个市场页签 + 状态行（`marketHeader`）；`ASLEEP UNTIL THEIR MARKET OPENS` 分隔线保留、线右不再写开盘钟点；底部 `N names · …` 一行取消；手机 `MobileIntradayModule` 不在本条范围。
+11. **股票行栅格**（Finance 列表 + Intraday 列表，桌面）：`repeat(auto-fill, minmax(540px, 1fr))`——每行至少 540px（头像 + 9 位代码 + 韩元价格 + 两个 112px 按钮所需），不足时落成一列；代码不折行、不截断。

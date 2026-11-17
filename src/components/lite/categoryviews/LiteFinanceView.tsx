@@ -15,6 +15,7 @@ import { ht } from "@/components/lite/home/homeAllShell";
 import { MarketTabs, OpenDot, buildMarketHeader } from "./marketHeader";
 import {
   AsleepStockRow,
+  STOCK_ROW_GRID,
   StockGroups,
   TradingStockRow,
   groupStockRows,
@@ -218,7 +219,7 @@ export const LiteFinanceView = ({
             <>
               <div
                 className="grid"
-                style={{ gap: 12, gridTemplateColumns: "1fr 1fr" }}
+                style={{ gap: 12, gridTemplateColumns: STOCK_ROW_GRID }}
               >
                 {trading.map((row) => (
                   <TradingStockRow key={row.id} row={row} tickSeconds={tickSeconds} />
@@ -226,7 +227,7 @@ export const LiteFinanceView = ({
               </div>
               <div
                 className="grid"
-                style={{ gap: 12, gridTemplateColumns: "1fr 1fr" }}
+                style={{ gap: 12, gridTemplateColumns: STOCK_ROW_GRID }}
               >
                 {asleep.map(({ row, nextOpen }) => (
                   <AsleepStockRow key={row.id} row={row} nextOpen={nextOpen} />

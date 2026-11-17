@@ -19,6 +19,7 @@ import {
   CoinTile,
   ORANGE,
   RoundDial,
+  STOCK_ROW_GRID,
   StockGroups,
   TradingStockRow,
   groupStockRows,
@@ -188,7 +189,7 @@ export const LiteIntradayView = ({
         </div>
 
         {trading.length > 0 && (
-          <div className="grid grid-cols-2" style={{ gap: 12 }}>
+          <div className="grid" style={{ gap: 12, gridTemplateColumns: STOCK_ROW_GRID }}>
             {trading.map((r) => (
               <TradingStockRow key={r.id} row={r} tickSeconds={tickSeconds} />
             ))}
@@ -213,7 +214,7 @@ export const LiteIntradayView = ({
               <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
               {/* no "New York opens Tue 22:30" stamp here any more — the status line says how long until the open */}
             </div>
-            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+            <div className="grid" style={{ gap: 12, gridTemplateColumns: STOCK_ROW_GRID }}>
               {asleep.map((a) => (
                 <AsleepStockRow key={a.row.id} row={a.row} nextOpen={a.nextOpen} />
               ))}

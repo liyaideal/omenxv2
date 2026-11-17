@@ -292,6 +292,14 @@ export const CoinTile = ({
   );
 };
 
+/**
+ * Grid for the desktop stock rows (Finance list + Intraday list). Two columns while each row keeps at least
+ * 540px — the width a row needs for avatar + a 9-character ticker ("005930.KR") + a won price + both 112px
+ * buttons; narrower containers (≈1024-wide desktops) fall back to one column instead of overprinting the
+ * ticker with the price (2026-11-17).
+ */
+export const STOCK_ROW_GRID = "repeat(auto-fill, minmax(540px, 1fr))";
+
 export const TradingStockRow = ({
   row,
   tickSeconds,
@@ -334,7 +342,7 @@ export const TradingStockRow = ({
       <span className="flex min-w-0 flex-1 items-center" style={{ gap: 12 }}>
         <AssetAvatar symbol={ticker} kind="equity" size={44} />
         <span className="flex min-w-0 flex-col" style={{ gap: 1 }}>
-          <span style={{ fontSize: 15, color: "#fff", fontWeight: 700 }}>{ticker}</span>
+          <span className="whitespace-nowrap" style={{ fontSize: 15, color: "#fff", fontWeight: 700 }}>{ticker}</span>
           <span className="truncate" style={{ fontSize: 12, color: "#6B7280" }}>
             {company}
           </span>
