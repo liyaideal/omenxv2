@@ -13,6 +13,7 @@ import { t } from "@/i18n";
 import { useCallback, useMemo, useState } from "react";
 import { Info } from "lucide-react";
 import { toast } from "sonner";
+import { showPlacedToast } from "@/components/lite/shared/placedToast";
 import { AccountBalanceLine } from "@/components/wallet/AccountBalanceLine";
 import { useInsufficientBalanceToast } from "@/components/wallet/useInsufficientBalanceToast";
 import { LowBalanceHint } from "@/components/lite/shared/LowBalanceHint";
@@ -391,15 +392,17 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             : `Cashed out ${heldSideLabel ?? oppositeLabel}`,
         );
       } else {
-        toast.success(
+        // CPO 2026-11-18: one line saying what was bought, the Boost detail on
+        // a second line, and a `View your call` action that jumps to the card.
+        showPlacedToast(
+          t("trade.screen.lite.winloss.toast_bought", { side: sideLabel, putIn: money(amountSnapshot) }),
           boostSnapshot > 1
-            ? t("trade.screen.lite.winloss.toast_bought_boost", {
-                side: sideLabel,
-                putIn: money(amountSnapshot),
+            ? t("trade.screen.lite.winloss.toast_boost_line", {
                 boost: boostSnapshot,
                 position: money(notionalSnapshot),
               })
-            : t("trade.screen.lite.winloss.toast_bought", { side: sideLabel, putIn: money(amountSnapshot) }),
+            : undefined,
+          optionIdSnapshot,
         );
       }
       onAmountChange("");

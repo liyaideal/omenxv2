@@ -466,7 +466,8 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Not guaranteed. With Boost you can lose more than you put in.** | 下单卡 Boost 底注；1× 为 `Not guaranteed. You can lose your full $X.`（X = 最多亏） | — |
 | **Bigger Boost: bigger win if you're right, bigger loss if you're wrong.** | Boost 档位下的提示 | `… an earlier auto-close if the price moves against you.` |
 | **Kicks off in {time}** / **Closes in {time}** / **Expected to end in {time}** | 下单卡右上与手机抽屉顶部的时间：体育赛前 / 加密轮次（event_subtype 含 UPDOWN）/ 其他长期事件；手机抽屉后接 `{pct}% chance {side} wins`（体育）或 `{pct}% chance` | `{countdown} left`, `Starts in`（下单卡里） |
-| **Bought {side} · ${putIn} at {N}× Boost · ${position} position** | Lite 下单成功 toast（Boost > 1×，2026-11-13 ②）；1× 时 `Bought {side} · ${putIn}` | `Bought … $30`（只写仓位不写投入） |
+| **Bought {side} · ${putIn}**（标题）＋ **{N}× Boost · ${position} position**（副行） | Lite 买入成功提示（2026-11-18 起拆成两行）。标题任何买入都有：`{side}` = 买的那一边，`${putIn}` = 投入金额（Standard = 用户输入的金额，含手续费）。副行只在 Boost ≥ 2× 时出现；1× 和 Standard 没有副行。停留 6 秒。i18n：`trade › screen.lite.winloss.toast_bought` / `toast_boost_line` | 一行写完 `Bought … at N× Boost · … position`（2026-11-13 ② 的写法，已退役）；Standard 的 `Bought N shares · {side}`（已退役） |
+| **View your call** | Lite 买入成功提示上的按钮（Boost / Standard / 加密快轮三种交易页都有）。点了：页面滚到这笔单的持仓卡并描边 1.5 秒（多盘口页滚到刚买的那一条）。平仓提示没有这个按钮。i18n：`toast_view_call`（查看我的预测 / 查看我的預測 / 予測を見る / 내 콜 보기 / Моя ставка / Xem lựa chọn）。CPO 2026-11-18 | View position / View order（Lite 不说 position / order） |
 | **Cashed out {side} · you lost ${X} on this call** | Lite 亏损平仓 toast（2026-11-13 ⑤）；X = 拿回 − 投入 − 开仓费；亏损时不自动弹海报 | 亏损也弹海报 |
 | **Entry** | Position entry price |
 | **Mark** | Current mark price |

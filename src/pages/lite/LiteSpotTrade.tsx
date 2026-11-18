@@ -565,6 +565,7 @@ const LiteSpotTrade = () => {
 
   const YourPosition = heldPos ? (
     <SpotYourPosition
+      anchorKey={heldPos.optionId ?? ""}
       isYesSide={
         heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
       }

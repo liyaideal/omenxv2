@@ -5441,6 +5441,8 @@
     "screen.lite.lite_contract_sections.profit": "Profit",
     "screen.lite.winloss.toast_bought_boost": "Bought {{side}} · {{putIn}} at {{boost}}× Boost · {{position}} position",
     "screen.lite.winloss.toast_bought": "Bought {{side}} · {{putIn}}",
+    "screen.lite.winloss.toast_boost_line": "{{boost}}× Boost · {{position}} position",
+    "screen.lite.winloss.toast_view_call": "View your call",
     "screen.lite.winloss.can_lose_up_to": "Can lose up to {{amount}}",
     "screen.lite.winloss.profit_note": "Right after you buy, this starts a little below $0: you bought at {{entry}}, and selling right now gets {{mark}}. The {{fee}} trading fee was charged when you bought.",
     "screen.lite.winloss.about_profit": "About profit",

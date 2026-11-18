@@ -5226,6 +5226,8 @@
   "screen.lite.lite_contract_sections.profit": "利益",
   "screen.lite.winloss.toast_bought_boost": "{{side}} を購入 · {{putIn}} を {{boost}}× Boost で · ポジション {{position}}",
   "screen.lite.winloss.toast_bought": "{{side}} を購入 · {{putIn}}",
+  "screen.lite.winloss.toast_boost_line": "{{boost}}× Boost · ポジション {{position}}",
+  "screen.lite.winloss.toast_view_call": "予測を見る",
   "screen.lite.winloss.can_lose_up_to": "最大損失 {{amount}}",
   "screen.lite.winloss.profit_note": "購入直後はここが $0 を少し下回ります。購入価格は {{entry}}、今売ると {{mark}} です。取引手数料 {{fee}} は購入時に差し引かれています。",
   "screen.lite.winloss.about_profit": "利益について",

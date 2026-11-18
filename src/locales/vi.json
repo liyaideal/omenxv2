@@ -5225,6 +5225,8 @@
   "screen.lite.lite_contract_sections.profit": "Lợi nhuận",
   "screen.lite.winloss.toast_bought_boost": "Đã mua {{side}} · bỏ vào {{putIn}}, {{boost}}× Boost · vị thế {{position}}",
   "screen.lite.winloss.toast_bought": "Đã mua {{side}} · {{putIn}}",
+  "screen.lite.winloss.toast_boost_line": "{{boost}}× Boost · vị thế {{position}}",
+  "screen.lite.winloss.toast_view_call": "Xem lựa chọn",
   "screen.lite.winloss.can_lose_up_to": "Có thể lỗ tới {{amount}}",
   "screen.lite.winloss.profit_note": "Ngay sau khi mua, con số này sẽ hơi dưới $0: bạn mua ở {{entry}}, bán ngay bây giờ được {{mark}}. Phí giao dịch {{fee}} đã bị trừ khi mua.",
   "screen.lite.winloss.about_profit": "Về lợi nhuận",

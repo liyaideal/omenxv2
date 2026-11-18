@@ -5210,6 +5210,8 @@
   "screen.lite.lite_contract_sections.profit": "盈利",
   "screen.lite.winloss.toast_bought_boost": "已买入 {{side}} · 投入 {{putIn}}，{{boost}}× Boost · 仓位 {{position}}",
   "screen.lite.winloss.toast_bought": "已买入 {{side}} · {{putIn}}",
+  "screen.lite.winloss.toast_boost_line": "{{boost}}× Boost · 仓位 {{position}}",
+  "screen.lite.winloss.toast_view_call": "查看我的预测",
   "screen.lite.winloss.can_lose_up_to": "最多可能亏 {{amount}}",
   "screen.lite.winloss.profit_note": "刚买完时这里会略低于 $0：你的买入价是 {{entry}}，现在卖出只能拿到 {{mark}}。{{fee}} 的手续费在买入时已经扣了。",
   "screen.lite.winloss.about_profit": "关于盈利",

@@ -1285,6 +1285,7 @@ const LiteContractTrade = () => {
 
   const YourPosition = heldPos ? (
     <LitePositionCard
+      anchorKey={heldPos.optionId ?? ""}
       sideLabel={heldIsYes ? yesLabel : noLabel}
       isYes={heldIsYes}
       boost={heldPos.leverageNum}
@@ -1416,6 +1417,7 @@ const LiteContractTrade = () => {
           return (
             <LitePositionCard
               key={p.id}
+              anchorKey={p.optionId ?? ""}
               sideLabel={title}
               isYes={isYesLeg}
               boost={1}

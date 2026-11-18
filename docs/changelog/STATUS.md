@@ -17,6 +17,16 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-11-18 — 下单成功提示 + View your call（[文档](../delivery/placed-toast-view-call-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| 1 | 买入成功提示：标题 + 副行（Boost ≥ 2×）+ `View your call` 按钮，Boost / Standard / 加密快轮三种 Lite 交易页 | ⬜ | §2 规则 1–2 |
+| 2 | 提示停留 6 秒 | ⬜ | §2 规则 3 |
+| 3 | 点按钮：滚到这笔单的持仓卡并描边 1.5 秒；多盘口页滚到刚买的那条 | ⬜ | §2 规则 4–6 |
+| 4 | 新文案 2 条 7 语 | ⬜ | §3 |
+| 5 | 平仓提示不变（没有按钮） | ➖ | §2 规则 7 |
+
 ## 2026-11-17 — Finance 列表与 Intraday 列表：市场页签 + 一行开盘状态（[文档](../delivery/finance-list-market-tabs-v1.md)）
 
 | # | 项 | Status | Notes |

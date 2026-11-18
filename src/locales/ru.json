@@ -5311,6 +5311,8 @@
   "screen.lite.lite_contract_sections.profit": "Прибыль",
   "screen.lite.winloss.toast_bought_boost": "Куплено {{side}} · {{putIn}} с {{boost}}× Boost · позиция {{position}}",
   "screen.lite.winloss.toast_bought": "Куплено {{side}} · {{putIn}}",
+  "screen.lite.winloss.toast_boost_line": "{{boost}}× Boost · позиция {{position}}",
+  "screen.lite.winloss.toast_view_call": "Моя ставка",
   "screen.lite.winloss.can_lose_up_to": "Можно потерять до {{amount}}",
   "screen.lite.winloss.profit_note": "Сразу после покупки здесь будет чуть ниже $0: вы купили по {{entry}}, а продать сейчас можно по {{mark}}. Комиссия {{fee}} была списана при покупке.",
   "screen.lite.winloss.about_profit": "О прибыли",

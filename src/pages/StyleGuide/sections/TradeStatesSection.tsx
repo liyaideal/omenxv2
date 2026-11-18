@@ -196,6 +196,41 @@ const POSITION_CASES: SectionCase[] = [
   },
 ];
 
+/* ---------------- ③b 下单成功提示 + 定位到持仓卡（TR-35 / TR-36 · CPO 2026-11-18） ---------------- */
+
+const PLACED_CASES: SectionCase[] = [
+  {
+    key: "trade-tr35",
+    label: "TR-35 · 下单成功提示 · Boost 2× 及以上（标题 + 副行 + View your call）",
+    note: "帧内静态还原 sonner 提示（PlacedToastBody，与 showPlacedToast() 共用同一组文案）。提示样式沿用全站现有提示：页面同色底 + 细边框 + 白色对勾，按钮是主色。Boost、Standard、加密快轮三种 Lite 交易页共用。",
+    spec: [
+      { state: "Boost ≥ 2×", when: "买入成交且 boost > 1", visual: "标题 `Bought {side} · {投入金额}`；副行 `{boost}× Boost · {仓位金额} position`；按钮 `View your call`", source: "LiteContractOrderPanel → showPlacedToast" },
+      { state: "停留时间", when: "任何一次买入成功", visual: "6 秒后自动消失（全站其他提示仍是默认约 4 秒）；点按钮即关闭", source: "PLACED_TOAST_MS" },
+      { state: "手机", when: "isMobile", visual: "下单抽屉先收起，提示出现在页面顶部，内容与桌面相同", source: "LiteContractTrade onFilled" },
+      { state: "不变", when: "平仓 / 反向买入把持仓平掉", visual: "仍是原来的 `Cashed out …` 提示，没有按钮", source: "LiteContractOrderPanel reduce / close 分支" },
+    ],
+  },
+  {
+    key: "trade-tr35b",
+    label: "TR-35b · 下单成功提示 · 1× 或 Standard（只有标题 + View your call）",
+    note: "1× 没有 Boost 可说，Standard 没有 Boost，这两种情况不出副行。",
+    spec: [
+      { state: "Boost 1×", when: "买入成交且 boost === 1", visual: "标题 `Bought {side} · {投入金额}`，无副行", source: "LiteContractOrderPanel → showPlacedToast" },
+      { state: "Standard", when: "Standard 交易页买入成交", visual: "标题 `Bought {side} · {投入金额}`（金额 = 用户输入的金额，含手续费），无副行。原来的 `Bought N shares · {side}` 退役", source: "LiteOrderPanel → showPlacedToast" },
+    ],
+  },
+  {
+    key: "trade-tr36",
+    label: "TR-36 · 点 View your call 之后 · 持仓卡描边 1.5 秒",
+    note: "fixture-only prop `flashOpen` 让卡片一直保持描边态；生产里描边由 focusYourCall 加上、1.5 秒后去掉。Standard 与加密快轮页的持仓卡（SpotYourPosition）是同一条规则。",
+    spec: [
+      { state: "点了按钮", when: "点提示上的 View your call", visual: "页面平滑滚动，把这笔单的持仓卡滚到视窗中间；卡片出现主色描边 + 一圈淡光，停留 1.5 秒后淡出", source: "focusYourCall" },
+      { state: "多盘口页", when: "boardMode 且有多条持仓", visual: "滚到刚买的那一条（按 option id 匹配）；匹配不到时滚到页面上第一张持仓卡", source: "data-lite-your-call = optionId" },
+      { state: "卡片还没出来", when: "成交后持仓列表还在刷新", visual: "最多等约 2 秒，卡片出现后再滚动描边；一直没有就不动", source: "focusYourCall retry" },
+    ],
+  },
+];
+
 /* ---------------- ④ 侧栏与账本（TR-13 / TR-14） ---------------- */
 
 const RAIL_CASES: SectionCase[] = [
@@ -467,7 +502,7 @@ export const TradeStatesSection = () => (
   <SectionWrapper
     id="trade-states"
     title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-30）"
-    description="24 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共三个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）与 LitePositionCard.voucherTag。"
+    description="24 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共四个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）、LitePositionCard.voucherTag 与 LitePositionCard.flashOpen（TR-36）。"
   >
     <SubSection title="① 页头与市场语境（TR-1 … TR-4）">
       <Pair cases={HEAD_CASES} desktopMin={420} mobileMin={480} />
@@ -479,6 +514,10 @@ export const TradeStatesSection = () => (
 
     <SubSection title="③ 持仓（TR-10 … TR-12）">
       <Pair cases={POSITION_CASES} desktopMin={420} mobileMin={520} />
+    </SubSection>
+
+    <SubSection title="③b 下单成功提示 + 定位到持仓卡（TR-35 / TR-36）">
+      <Pair cases={PLACED_CASES} desktopMin={300} mobileMin={360} />
     </SubSection>
 
     <SubSection title="④ 侧栏与账本（TR-13 / TR-14）">

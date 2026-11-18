@@ -170,7 +170,10 @@ export const SpotYourPosition = ({
   cashOutDisabledText,
   onCashOut,
   onShare,
+  anchorKey,
 }: {
+  /** Option id — lets the "View your call" toast action find this card. */
+  anchorKey?: string;
   sideLabel: string;
   isYesSide: boolean;
   sizeDisplay: string;
@@ -186,7 +189,7 @@ export const SpotYourPosition = ({
   /** Pure-display share entry (SH-b §1). Omitted = zero DOM change. */
   onShare?: () => void;
 }) => (
-  <div className="rounded-2xl border border-border bg-card p-4">
+  <div className="rounded-2xl border border-border bg-card p-4" data-lite-your-call={anchorKey ?? ""}>
     <div className="mb-3 flex items-start justify-between gap-2">
       <div className="flex items-center gap-2">
         <span

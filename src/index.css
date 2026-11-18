@@ -757,3 +757,13 @@
 @media (prefers-reduced-motion: reduce) {
   .lite-tape-rail { animation: none; }
 }
+
+/* "View your call" (CPO 2026-11-18): the position card the toast action jumps
+   to is outlined for 1.5 s. Toggled by focusYourCall in placedToast.tsx. */
+[data-lite-your-call] {
+  scroll-margin-top: 96px;
+  transition: box-shadow 0.3s ease;
+}
+[data-lite-your-call].lite-call-flash {
+  box-shadow: 0 0 0 1.5px hsl(var(--primary)), 0 0 0 5.5px hsl(var(--primary) / 0.18);
+}

@@ -5225,6 +5225,8 @@
   "screen.lite.lite_contract_sections.profit": "수익",
   "screen.lite.winloss.toast_bought_boost": "{{side}} 매수 · {{putIn}} 투입, {{boost}}× Boost · 포지션 {{position}}",
   "screen.lite.winloss.toast_bought": "{{side}} 매수 · {{putIn}}",
+  "screen.lite.winloss.toast_boost_line": "{{boost}}× Boost · 포지션 {{position}}",
+  "screen.lite.winloss.toast_view_call": "내 콜 보기",
   "screen.lite.winloss.can_lose_up_to": "최대 {{amount}}까지 잃을 수 있음",
   "screen.lite.winloss.profit_note": "매수 직후에는 이 값이 $0보다 조금 낮게 시작합니다. 매수가는 {{entry}}이고, 지금 팔면 {{mark}}입니다. 거래 수수료 {{fee}}는 매수할 때 이미 부과되었습니다.",
   "screen.lite.winloss.about_profit": "수익 안내",

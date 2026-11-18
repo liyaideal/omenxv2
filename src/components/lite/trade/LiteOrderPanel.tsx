@@ -10,6 +10,7 @@
 import { t } from "@/i18n";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { showPlacedToast } from "@/components/lite/shared/placedToast";
 import { AccountBalanceLine } from "@/components/wallet/AccountBalanceLine";
 import { useInsufficientBalanceToast } from "@/components/wallet/useInsufficientBalanceToast";
 import { LowBalanceHint } from "@/components/lite/shared/LowBalanceHint";
@@ -176,7 +177,12 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
       if (res.balanceDelta < 0) await deductSpotBalance(-res.balanceDelta);
       else if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
 
-      toast.success(`Bought ${qtySnapshot} shares · ${sideLabel}`);
+      // CPO 2026-11-18: same toast as Boost — what was bought + `View your call`.
+      showPlacedToast(
+        t("trade.screen.lite.winloss.toast_bought", { side: sideLabel, putIn: money(amountNum) }),
+        undefined,
+        optionIdSnapshot,
+      );
       onAmountChange("");
       onFilled?.();
     } catch (err) {

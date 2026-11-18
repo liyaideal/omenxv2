@@ -2653,3 +2653,17 @@ CPO 2026-11-17 在画布「Finance 列表 · 开盘状态标注 mock」上批。
 8. **「+N」小钮**：多档精选在桌面用 `.pmore`——36px 高、`0 11px`、1px `rgba(148,163,184,.25)` 描边、文字 `#98A1AD` 13px；同列两枚档位钮内边距收到 `0 12px`。两个选项名都很长放不下时才折行。手机不变（文字链接）。
 9. **1100 以下 Desk 眉行**：三列的「品类 · 时间」一律落到编号下面一行（间距 10px），不允许有的并排有的折行。
 10. **手机 More 眉行**：「closes in Xh」固定另起一行。
+
+## §Addendum 2026-11-18 · Lite 买入成功提示 + View your call（LOCKED）
+
+起因：新 BD 反馈下完单不知道单去哪了——提示是页面同色的一条字、没有可点的东西，持仓卡又在首屏以外。CPO 2026-11-18 在 mock 画布上批。
+
+1. **提示样式不新造**：沿用全站 sonner 提示（`bg-background` + `border-border` + 白色对勾 + 主色动作按钮，同「余额不够 → Transfer / Add funds」那条）。不许给这条提示单独换底色、换对勾颜色、加粗边框；要更显眼只能改全站提示（需另批）。
+2. **内容两行 + 一个按钮**：标题 `Bought {side} · {投入}`；副行 `{N}× Boost · {仓位} position`，仅 Boost ≥ 2×；按钮 `View your call`。1× 与 Standard 没有副行。
+3. **停留 6 秒**（`PLACED_TOAST_MS`），只这一条；其他提示仍是 sonner 默认。
+4. **点按钮**：平滑滚动把这笔单的持仓卡滚到视窗中间，卡片加 `lite-call-flash`（`box-shadow: 0 0 0 1.5px primary, 0 0 0 5.5px primary/18%`），1.5 秒后去掉。卡片靠 `data-lite-your-call="<optionId>"` 定位；多盘口页按 option id 找刚买的那条，找不到取第一张。
+5. **作用域**：Lite 三种交易页——Boost 事件页（`LitePositionCard`）、Standard 事件页与加密快轮页（`SpotYourPosition`）。平仓 / 反向买入平掉持仓的 `Cashed out …` 提示不变、没有按钮。Pro 终端、Quick Play 机柜、百家乐桌面模式不在范围内。
+6. **手机**：下单抽屉收起后提示出现在页面顶部，规则同桌面；不另做抽屉或弹窗。
+7. **不做首单庆祝弹窗**（CPO 2026-11-18：现在的问题是不入金，不是不交易）。
+
+字典：Lite › Trade 状态 TR-35 / TR-35b / TR-36。

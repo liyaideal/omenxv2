@@ -19,6 +19,7 @@ import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractO
 import { LiteOrderDrawerHeader } from "@/components/lite/contract/LiteOrderDrawerHeader";
 import { SportsClockLabel, type SportsClock } from "@/components/lite/sports/sportsClock";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
+import { PlacedToastBody } from "@/components/lite/shared/placedToast";
 import {
   LiteMarketActivity,
   type MarketActivityRow,
@@ -257,6 +258,48 @@ export const Tr10Preview = () => {
         compact={!!isMobile}
         onCashOut={() => undefined}
       />
+    </Frame>
+  );
+};
+
+/* TR-35 / TR-35b — success toast after a buy; TR-36 — the card it jumps to. */
+export const Tr35Preview = () => (
+  <Frame>
+    <div className="flex justify-center py-2">
+      <PlacedToastBody
+        title={t("trade.screen.lite.winloss.toast_bought", { side: "Spirit", putIn: "$20.00" })}
+        description={t("trade.screen.lite.winloss.toast_boost_line", { boost: 2, position: "$40.00" })}
+      />
+    </div>
+  </Frame>
+);
+
+export const Tr35bPreview = () => (
+  <Frame>
+    <div className="flex justify-center py-2">
+      <PlacedToastBody title={t("trade.screen.lite.winloss.toast_bought", { side: "Up", putIn: "$25.00" })} />
+    </div>
+  </Frame>
+);
+
+export const Tr36Preview = () => {
+  const isMobile = useIsMobile();
+  return (
+    <Frame>
+      <div className="p-2">
+        <LitePositionCard
+          sideLabel="Spirit"
+          isYes
+          boost={2}
+          putIn={20}
+          nowWorth={19.52}
+          profit={-0.48}
+          autoCloseText="34¢"
+          compact={!!isMobile}
+          flashOpen
+          onCashOut={() => undefined}
+        />
+      </div>
     </Frame>
   );
 };

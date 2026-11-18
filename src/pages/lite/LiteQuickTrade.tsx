@@ -570,6 +570,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
 
   const Position = heldPos ? (
     <SpotYourPosition
+      anchorKey={heldPos.optionId ?? ""}
       isYesSide={heldIsUp}
       sideLabel={heldIsUp ? "Up" : "Down"}
       sizeDisplay={heldPos.sizeDisplay}

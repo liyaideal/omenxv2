@@ -39,7 +39,11 @@ interface Props {
   onCashOut: () => void;
   /** Pure-display share entry (SH-b §1). Omitted = zero DOM change. */
   onShare?: () => void;
-
+  /** Option id — lets the "View your call" toast action find this card. */
+  anchorKey?: string;
+  /** Style-guide fixture only: render the card already outlined (TR-36).
+   *  Production never passes this — the outline is toggled by focusYourCall. */
+  flashOpen?: boolean;
 }
 
 export const LitePositionCard = ({
@@ -59,6 +63,8 @@ export const LitePositionCard = ({
   voucherTag = false,
   onCashOut,
   onShare,
+  anchorKey,
+  flashOpen = false,
 }: Props) => {
   const heading = (
     <>
@@ -79,7 +85,10 @@ export const LitePositionCard = ({
   );
 
   return (
-  <div className="rounded-2xl border border-border bg-card p-4">
+  <div
+    className={cn("rounded-2xl border border-border bg-card p-4", flashOpen && "lite-call-flash")}
+    data-lite-your-call={anchorKey ?? ""}
+  >
     {onShare ? (
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="text-sm font-semibold">{heading}</div>
