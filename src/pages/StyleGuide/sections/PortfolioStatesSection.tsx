@@ -428,7 +428,29 @@ const LIVE_CASES: SectionCase[] = [
       { state: "Voucher 标", when: "airdropTag === 'voucher'", visual: "volt #CFFF4A `Voucher`", source: "LiveCards VOLT" },
       { state: "Airdrop 标", when: "airdropTag === 'airdrop'", visual: "pulse #33D6FF `Airdrop`", source: "LiveCards PULSE" },
     ],
+  },  {
+    key: "portfolio-lite-voucher-rows",
+    label: "PF-13b · 券单行（桌面）",
+    note: "CPO 2026-11-18。券单没有本金也没有亏损，所以这一行不套普通持仓的算法：三行依次是 Boost 券单有浮盈 / Boost 券单现在是跌的 / Standard 券单。券兑在 Standard 事件上 = 按面值下的现货单，这一行进 Standard 页签，任何地方都不写倍数。",
+    spec: [
+      { state: "PUT IN", when: "isVoucher", visual: "券面值（如 `$2.00`），下一行小字 `voucher`", source: "LiveCards · portfolio.lite.live.voucher" },
+      { state: "NOW WORTH", when: "isVoucher", visual: "`—`（券单没有可取回的本金）", source: "LiveCards" },
+      { state: "PROFIT · 有浮盈", when: "voucherCredit > 0", visual: "`+$0.04` 绿色 = 现在平仓能拿到的钱（已按上限封顶）", source: "useLitePortfolio.voucherCredit ← voucherMath.voucherCredit" },
+      { state: "PROFIT · 没有浮盈", when: "voucherCredit === 0", visual: "`$0.00` 白色，不显示负数", source: "同上" },
+      { state: "赢了能拿", when: "isVoucher", visual: "只有 `If it wins → +$1.00`（= 上限），没有 you get / 回本那些词", source: "useLitePortfolio.voucherCap" },
+      { state: "自动平仓", when: "isVoucher", visual: "不显示自动平仓价与 Boost check（券单不占保证金）", source: "LiveCards" },
+      { state: "页签归属", when: "券所在事件的 product_lines 含 spot → Standard；否则 Boost", visual: "Standard 券单的 meta 行没有 `N× Boost`", source: "usePositions.productLine" },
+    ],
   },
+  {
+    key: "portfolio-lite-voucher-cards",
+    label: "PF-13b · 券单卡（手机）",
+    note: "与桌面同一套字段；点 Cash out 进该事件的交易页，在券卡上平仓（TR-39 / TR-40）。",
+    spec: [
+      { state: "三张", when: "同桌面三行", visual: "PUT IN `$2.00` + `voucher` / NOW WORTH `—` / PROFIT；下一行 `If it wins → +$1.00`", source: "LiveCard" },
+    ],
+  },
+
   {
     key: "portfolio-lite-settles-time",
     label: "PF-14 · settles 时间三分支 + 缺失",
@@ -1124,6 +1146,7 @@ export const PortfolioStatesSection = () => (
             "portfolio-lite-hot",
             "portfolio-lite-standard-live",
             "portfolio-lite-airdrop-tag-rows",
+            "portfolio-lite-voucher-rows",
             "portfolio-lite-settles-time",
           )}
           mobileCases={byKey(
@@ -1133,6 +1156,7 @@ export const PortfolioStatesSection = () => (
             "portfolio-lite-hot-mobile",
             "portfolio-lite-standard-live-mobile",
             "portfolio-lite-airdrop-tag-cards",
+            "portfolio-lite-voucher-cards",
             "portfolio-lite-settles-time-mobile",
           )}
           desktopMin={900}

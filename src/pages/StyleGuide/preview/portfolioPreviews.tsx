@@ -105,17 +105,43 @@ const hotRow: LiteLiveRow = {
 const voucherRow: LiteLiveRow = {
   ...base,
   id: "demo-voucher",
-  eventName: "ETH above $4,000 today",
-  categoryLabel: "Crypto",
+  eventName: "76ers vs. Raptors",
+  categoryLabel: "Sports",
   settlesAt: inDays(0, 23),
+  sideWord: "76ers",
   isVoucher: true,
   airdropTag: "voucher",
-  leverageNum: 1,
+  leverageNum: 5,
   autoClose: { kind: "none" as const },
-  profit: 12.5,
-  nowWorth: 62.5,
-  cost: 50,
-  ifWins: 125,
+  cost: 2,
+  profit: 0.04,
+  nowWorth: 2.04,
+  ifWins: 3,
+  voucherCredit: 0.04,
+  voucherCap: 1,
+};
+
+/** Voucher call that is down right now — PROFIT shows $0.00, never a minus. */
+const voucherDownRow: LiteLiveRow = {
+  ...voucherRow,
+  id: "demo-voucher-down",
+  profit: -0.2,
+  nowWorth: 1.8,
+  voucherCredit: 0,
+};
+
+/** Voucher redeemed on a Standard event — a spot-size call, no multiplier anywhere. */
+const voucherStandardRow: LiteLiveRow = {
+  ...voucherRow,
+  id: "demo-voucher-standard",
+  eventName: "Amazon (AMZN) — will it close higher today?",
+  categoryLabel: "Finance",
+  sideWord: "Down",
+  side: "no",
+  segment: "standard",
+  leverageNum: 1,
+  profit: 0.02,
+  voucherCredit: 0.02,
 };
 
 const standardRow: LiteLiveRow = {
@@ -833,6 +859,25 @@ export const PortfolioAirdropTagCardsPreview = () => (
     <LiveCard row={{ ...base, id: "tag-none-m", airdropTag: "none", isVoucher: false }} />
     <LiveCard row={voucherRow} />
     <LiveCard row={airdropTagRow} />
+  </div>
+);
+
+/* PF-13b · voucher rows (CPO 2026-11-18): PUT IN = face value + "voucher", NOW WORTH "—",
+ * PROFIT = what closing now credits, win column = "If it wins → +cap" only. */
+export const PortfolioVoucherRowsPreview = () => (
+  <div className="py-4">
+    <LiveRowHeader />
+    <LiveRow row={voucherRow} />
+    <LiveRow row={voucherDownRow} />
+    <LiveRow row={voucherStandardRow} />
+  </div>
+);
+
+export const PortfolioVoucherCardsPreview = () => (
+  <div className="flex flex-col gap-2 p-4">
+    <LiveCard row={voucherRow} />
+    <LiveCard row={voucherDownRow} />
+    <LiveCard row={voucherStandardRow} />
   </div>
 );
 

@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-11-18 | [用券之后：券单卡、平仓面板、平仓后引导 — 交付说明 v1](../delivery/lite-voucher-call-v1.md) | Lite 用券整条线重做：兑换提示带 View your call、交易页独立券卡、平仓面板两种样子（只能全平）、平仓后结果层 + 下一步按钮、Portfolio 券单行；Standard 事件上的券 = 面值现货单不写倍数；Add money 统一成 Top up；多盘口买入提示带选项名。新 key 27 条 7 语。 |
 | 2026-11-18 | [下单成功提示 + View your call — 交付说明 v1](../delivery/placed-toast-view-call-v1.md) | Lite 三种交易页（Boost / Standard / 加密快轮）买入成功提示从一行字改成「标题 + 副行 + View your call 按钮」，停留 6 秒；点按钮滚到这笔单的持仓卡并描边 1.5 秒。提示样式沿用全站现有提示；平仓提示不变；不做首单弹窗。新 key 2 条 7 语；字典 TR-35 / 35b / 36；DESIGN §Addendum 2026-11-18 |
 | 2026-11-18 | [首页 Editor's Desk 与 More 按设计稿换样式（home-all-v1 §9b）](../delivery/home-all-v1.md#9b-2026-11-18-editors-desk-与-more-按设计稿换样式cpo-批生产页已上) | Editor's Desk 整段变成描边圆角面板（头图带 + 猞猁插画 + 列间竖线）；More 桌面行把事件封面铺成底图、品类青色、Boost 变小标签；手机 Desk 同款面板、More 不变；内容规则不变（E1 / E3 / M2 / MB6 改写）；DESIGN.md §Addendum 2026-11-18 |
 | 2026-11-17 | [Finance 列表与 Intraday 列表：市场页签 + 一行开盘状态 — 交付说明 v1](../delivery/finance-list-market-tabs-v1.md) | Finance 列表页头和 Intraday 列表（桌面）股票段，右上每个开盘市场一个胶囊改成首页 Stocks 模块的写法：带数量的市场页签（All / US / Hong Kong / Korea，开盘的带橙点）+ 一行状态；Region、Asset class 两排按钮不再显示；手机补上状态行。选中市场无股票轮时出猞猁空态；Show all 落在页头。字典 EV-48 … 48f、EV-49 … 49e。 |

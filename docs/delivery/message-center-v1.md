@@ -270,7 +270,7 @@ RLS：`status = 'published'` 对 anon + authenticated 可读；写只给 admin �
 | # | mock | 实现 | 原因 |
 |---|---|---|---|
 | 1 | `reward.treasure_available`「A treasure box is waiting」 | `reward.treasure_opened`「Treasure box opened / +120 points」 | `treasure_drops` 行是开箱记录，没有"可开"状态可触发 |
-| 2 | `autoclose.tight / soon` 正文 `auto-close ≈{c}¢ · …` | `Boost usage 83% · add funds or cash out` | 账户级没有单一 auto-close 价；`Boost usage` 是 Portfolio 既有行词 |
+| 2 | `autoclose.tight / soon` 正文 `auto-close ≈{c}¢ · …` | `Boost usage 83% · top up or cash out` | 账户级没有单一 auto-close 价；`Boost usage` 是 Portfolio 既有行词 |
 | 3 | `reward.grant_claimable` 标题 `$40.00 ready to claim` | `$40 USDC ready to claim` / `$5 Voucher ready to claim` | 奖励双色规则：券与 USDC 必须分清 |
 | 4 | `reward.grant_expiring` 标题 `Claim $40.00 before Oct 14, 09:00` | `$40 USDC expires in 24h` / 正文带截止时间 | 375 宽标题被截掉截止时间 |
 | 5 | type 数 34 | 35（+5 = 40；2026-10-20 退役 treasure_opened → 39） | `account.2fa_on` / `2fa_off` 各一条 |

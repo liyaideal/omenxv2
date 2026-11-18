@@ -25,7 +25,7 @@
 | 1 | `!user` | 触发 `onRequestAuth()`（拉起登录） |
 | 2 | `blocked` | `toast.error(blockedReason \|\| "Market unavailable")` |
 | 3 | `amountNum <= 0` | `Enter an amount` |
-| 4 | `amountNum > spotBalance` | `Not enough balance — add funds to continue` |
+| 4 | `amountNum > spotBalance` | `Not enough balance — top up to continue` |
 | 5 | `qtySnapshot <= 0` | `Amount too small to buy 1 share` |
 
 - Buy 按钮禁用条件：`disabled={submitting \|\| blocked}`；被 block 时按钮文案变为 `blockedReason`，兜底 `Market closed`。
@@ -50,7 +50,7 @@ quantity  = notional / sidePrice
 | 2 | `blockNotice` | `toast.error(blockNotice)` |
 | 3 | `blocked` | `toast.error(blockedReason \|\| "Market unavailable")` |
 | 4 | `amountNum <= 0` | `Enter an amount` |
-| 5 | `cashNeeded + fee > balance` | `Not enough balance — add funds to continue` |
+| 5 | `cashNeeded + fee > balance` | `Not enough balance — top up to continue` |
 | 6 | `!(qtySnapshot > 0)` | `Amount too small` |
 
 - Buy 按钮禁用条件：`disabled={submitting \|\| blocked \|\| !!blockNotice}`。提交中按钮只是 disabled + `opacity-50`，**文案不变**。

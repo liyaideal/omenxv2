@@ -17,6 +17,20 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-11-18 — 用券之后：券单卡、平仓面板、平仓后引导（[文档](../delivery/lite-voucher-call-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| 1 | 兑换成功提示 `Bought … / Paid with your $X voucher` + `View your call` | ⬜ | §1.2 |
+| 2 | 交易页独立券卡（Boost / Standard / 加密涨跌轮） | ⬜ | §1.3 |
+| 3 | 平仓面板两种样子，只能全平 | ⬜ | §1.4 |
+| 4 | 平仓之后结果层 + 五种按钮组合 | ⬜ | §1.5 |
+| 5 | Portfolio 券单行；Standard 券单进 Standard 页签 | ⬜ | §1.6 |
+| 6 | 后端：Standard 事件上的券按面值下现货单 | ⬜ | §1.7、§2 |
+| 7 | Top up 6 条 × 7 语 | ⬜ | §1.8 |
+| 8 | 多盘口事件普通买入提示带选项名 | ⬜ | §1.9 |
+| 9 | 27 条新文案 7 语 | ⬜ | §3 |
+
 ## 2026-11-18 — 下单成功提示 + View your call（[文档](../delivery/placed-toast-view-call-v1.md)）
 
 | # | 项 | Status | Notes |

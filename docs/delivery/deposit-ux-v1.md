@@ -7,7 +7,7 @@
 > **这次多了什么**：
 > - 桌面顶栏：余额旁边常驻一个 `Deposit` 按钮，点了原地弹充值弹窗（§1）
 > - 全站把 Equity 改叫 Balance（§2）
-> - 下单卡余额不到 $1 时，提示里的 `Add money` 可以点：另一个账户有 ≥ $1 就打开划转，否则打开充值；点下单弹出的余额不够 toast 也走同一条规则（§3）
+> - 下单卡余额不到 $1 时，提示里的 `Top up` 可以点：另一个账户有 ≥ $1 就打开划转，否则打开充值；点下单弹出的余额不够 toast 也走同一条规则（§3）
 > - Portfolio 的 Live 页没持仓又没钱时，空态主按钮变成 `Deposit to start`（§4）
 > - 正式版跨链充值默认币改回 USDC（§5，只有正式版要改）
 > - 客服入口 `Live chat`：桌面头像下拉里的 Join Discord 换成它，手机 Me 抽屉和 Footer 也各加一个，点了打开智齿在线客服（§7，2026-11-16 同批加入）
@@ -25,14 +25,14 @@
 | 3. 登录后语言切换藏在头像菜单 | 不在本次（桌面登录后放头像菜单是 10-13 定的；手机品牌栏一直有地球） | — |
 | 4. 充值弹窗摩擦大（只收 Base USDC + 三个勾选） | 不在本次 | — |
 | 5. 跨链 tab 默认 AALON | 正式版改默认 USDC（Lovable 本来就是） | §5 |
-| 6. 余额为 0 时引导充值 | 做了：下单卡 Add money、Portfolio Deposit to start | §3 / §4 |
+| 6. 余额为 0 时引导充值 | 做了：下单卡 Top up、Portfolio Deposit to start | §3 / §4 |
 
 ## 0. 查什么去哪儿
 
 - 长什么样 → 生产页：任何页面的桌面顶栏（登录后）；合约交易页 `/trade?event=…`、现货交易页 `/spot?event=…`、`/portfolio`（Live）——都要余额不到 $1 的账号才看得到
 - 什么时候变成什么样 → `/style-guide` → Common UI › EventsDesktopHeader 卡里的「登录态右簇 · 余额托盘」（顶栏本身在字典里是未登录态）；Lite → `交易页 ✅`（TR-30）、现货节（SP-20）、`Portfolio ✅`（PF-33b）
 - 客服入口 Live chat 在哪看 → 生产页：桌面点右上角头像（登录后）的下拉菜单、手机点底栏 Me 打开的抽屉、任何页面最底下的 Footer（登录与否都有）；字典：Common UI › Site-wide Footer 的 FT-TG1（Footer 是真组件，胶囊直接能看到）
-- 字段名、文案、术语 → `docs/copy-dictionary.md` › Trading 表「Add money（Lite 下单卡余额不够提示里的链接）」、Portfolio (Lite) 表「Deposit to start」、「Live chat（客服入口）」→ 本文
+- 字段名、文案、术语 → `docs/copy-dictionary.md` › Trading 表「Top up（Lite 下单卡余额不够提示里的链接）」、Portfolio (Lite) 表「Deposit to start」、「Live chat（客服入口）」→ 本文
 - 交易口径的词（爆仓 / 杠杆 / 限价单……）在 Lite 里叫什么 → copy-dictionary 顶部「Lite 术语对照表」
 
 ## 0.1 字典怎么看
@@ -41,7 +41,7 @@
 |---|---|---|
 | 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 本次涉及 **Lite** 组 `交易页 ✅` 的 TR-30、现货节的 SP-20、`Portfolio ✅` 的 PF-33b |
 | 2 | 页头搜索框敲 `TR-30` / `SP-20` / `PF-33b`；顶栏托盘在 Common UI › EventsDesktopHeader 卡里 | 直接滚到那张样张；托盘可点（余额进 /wallet、Deposit 弹充值窗），鼠标停在余额上出悬浮卡 |
-| 3 | 样张上方编号行 + iframe 里的真组件（可以点 Add money；字典里没登录、两个账户都是 0，所以点了走充值分支——桌面宽度弹充值弹窗，手机宽度跳 `/deposit`，帧里会变成 `Missing preview key`，属预期，刷新即回；划转分支要在生产页用另一个账户有钱的账号看） | 下方表格「状态 / 触发条件 / 视觉 / 数据来源」，新增一行「余额不够 · 点 Add money」 |
+| 3 | 样张上方编号行 + iframe 里的真组件（可以点 Top up；字典里没登录、两个账户都是 0，所以点了走充值分支——桌面宽度弹充值弹窗，手机宽度跳 `/deposit`，帧里会变成 `Missing preview key`，属预期，刷新即回；划转分支要在生产页用另一个账户有钱的账号看） | 下方表格「状态 / 触发条件 / 视觉 / 数据来源」，新增一行「余额不够 · 点 Top up」 |
 | 4 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=trade-tr30`、`?c=spot-sp20`、`?c=portfolio-lite-empty-nofunds`；加 `&lang=ru` 等可切语言 |
 | 5 | 客服入口：搜 `FT-TG1`（Common UI › Site-wide Footer） | 社交行 X · Discord · Telegram 后面那颗 Live chat 胶囊；头像下拉和 Me 抽屉要登录，字典里没有帧，看生产页 |
 
@@ -55,7 +55,7 @@
 | 长什么样 | 一块浅灰托盘（高 40、圆角 10），里面左边是钱包图标 + 余额数字（白色、等宽粗体），右边是 `Deposit` 按钮（品牌渐变绿到蓝，和 Wallet 页的 Deposit 同款）。不写「Balance」或「Equity」标签，任何宽度都一样，窄屏不缩 |
 | 余额是什么 | Standard + Boost 两个账户的可用余额相加，不含持仓浮盈（和原来的 Equity 同一个数） |
 | 点余额 | 进 `/wallet`；鼠标停上去出悬浮卡（两个账户分别多少 + 合计 + Transfer），合计那一行叫 `Total balance`；卡顶不再放标题（原来顶部眉行也写 TOTAL BALANCE，和合计行重复，CPO 2026-11-13 删掉） |
-| 点 Deposit | 原地弹出充值弹窗，不预选账户：沿用用户上次的账户——包括从下单卡「Add money」进充值时预选的那次（那次会记成偏好）；从来没有过才先让他选 |
+| 点 Deposit | 原地弹出充值弹窗，不预选账户：沿用用户上次的账户——包括从下单卡「Top up」进充值时预选的那次（那次会记成偏好）；从来没有过才先让他选 |
 | 窄屏让位 | 导航不折行、不钻到托盘下面：1280 以下隐藏头像旁的用户名（交易页 1536 以下就隐藏，因为多一个 Lite/Pro 开关），托盘和导航内边距收紧（交易页再收一档）、导航字号 13，头像按钮不被压缩；钱包图标 1024 以下隐藏（交易页 1280 以下隐藏）。余额数字和 Deposit 任何宽度都在 |
 | 读屏 | 余额按钮念「Balance $x」 |
 | 手机 | 品牌栏不加 Deposit，保持 `[🔔][🌐]` |
@@ -84,28 +84,28 @@ key 名不变，只改值（7 语）：`common.equity` = Balance / 余额 / 餘�
 
 **日语导航换短译法**（2026-11-13，交易页 1024 宽时导航最后一项会压到托盘）：`nav.portfolio` ポートフォリオ → **ポジション**，`nav.insights` インサイト → **分析**。其他语言不变。Pro 风险相关的 Equity（Account Equity、Risk Ratio = MM / Equity）含浮盈，不改。
 
-## 3. 下单卡余额不够：Add money 做成链接
+## 3. 下单卡余额不够：Top up 做成链接
 
 适用：Lite 合约卡（Boost）+ Lite 现货卡（Standard），桌面右栏和手机下单抽屉是同一张卡。
 
 | 规则 | 内容 |
 |---|---|
 | 什么时候出现 | 不变：已登录、不是对冲单、`floor(本账户余额) < 1`（沿用 [lite-polish-1105-v1 §1](./lite-polish-1105-v1.md)） |
-| 长什么样 | 那行提示整句不变，只有「Add money」那几个字变成链接：主色、下划线、加粗（semibold），字号行高跟整行一样 |
+| 长什么样 | 那行提示整句不变，只有「Top up」那几个字变成链接：主色、下划线、加粗（semibold），字号行高跟整行一样 |
 | 点了去哪 | 另一个账户余额 ≥ $1（按整数美元算，`floor(余额) >= 1`）→ 打开划转（桌面弹窗 / 手机底部抽屉），方向是转进当前这个账户；不足 $1（含 $0 和几美分）→ 打开充值：桌面直接弹出充值弹窗，账户预选成这张卡的账户（Boost 卡 → Boost，Standard 卡 → Standard）；手机进 `/deposit` 充值页，同样预选这张卡的账户 |
 | 判定来源 | 跟余额不够时点下单弹的 toast 用同一个分叉，只有一份逻辑（`useInsufficientBalanceToast` 新增 `addMoney`） |
-| 点下单弹的 toast（2026-11-13） | 提示句 `Not enough balance — add funds to continue`（key `wallet › insufficient_toast.message`，7 语）。同一个 ≥ $1 分叉：够划转 → 按钮 `Transfer`（`wallet.transfer`，打开划转）；不够 → 按钮 `Add funds`（`wallet › insufficient_toast.add_funds`），点了和 Add money 链接走同一个充值（桌面原地弹充值弹窗、预选这张卡的账户；手机进 `/deposit` 并预选）。原来 Add funds 在桌面跳 `/deposit`，实际只落到 Wallet 页，已改 |
-| 手机：toast 盖在下单抽屉上（2026-11-13） | toast 按钮在下单抽屉打开时必须能点（Toaster `pointer-events-auto`）；点 toast 不算「点抽屉外面」，抽屉不关（划转抽屉挂在下单面板里，抽屉一关它就没了）。点 `Add funds` 时手机直接跳 `/deposit` |
+| 点下单弹的 toast（2026-11-13） | 提示句 `Not enough balance — top up to continue`（key `wallet › insufficient_toast.message`，7 语）。同一个 ≥ $1 分叉：够划转 → 按钮 `Transfer`（`wallet.transfer`，打开划转）；不够 → 按钮 `Top up`（`wallet › insufficient_toast.add_funds`），点了和 Top up 链接走同一个充值（桌面原地弹充值弹窗、预选这张卡的账户；手机进 `/deposit` 并预选）。原来 Top up 在桌面跳 `/deposit`，实际只落到 Wallet 页，已改 |
+| 手机：toast 盖在下单抽屉上（2026-11-13） | toast 按钮在下单抽屉打开时必须能点（Toaster `pointer-events-auto`）；点 toast 不算「点抽屉外面」，抽屉不关（划转抽屉挂在下单面板里，抽屉一关它就没了）。点 `Top up` 时手机直接跳 `/deposit` |
 | 不变的 | 下单按钮、按钮下的脚注、余额旁的 ⇄、快捷金额置灰、输入框锁住 |
 
 **多语言**：每种语言词序不同，所以整句是一个带 `{{link}}` 占位的模板，链接那几个字单独一个词条：
 
 | key | en | 说明 |
 |---|---|---|
-| `trade › screen.lite.lite_contract_order_panel.low_balance_hint` | `{{link}} to your Boost balance to make a call.` | 原 key，值改成模板 |
-| `trade › screen.lite.lite_contract_order_panel.low_balance_link` | `Add money` | 新增 |
-| `spot › screen.lite_spot_order_panel.low_balance_hint` | `{{link}} to your Standard balance to place an order.` | 原 key，值改成模板 |
-| `spot › screen.lite_spot_order_panel.low_balance_link` | `Add money` | 新增 |
+| `trade › screen.lite.lite_contract_order_panel.low_balance_hint` | `{{link}} your Boost balance to make a call.` | 原 key，值改成模板 |
+| `trade › screen.lite.lite_contract_order_panel.low_balance_link` | `Top up` | 新增 |
+| `spot › screen.lite_spot_order_panel.low_balance_hint` | `{{link}} your Standard balance to place an order.` | 原 key，值改成模板 |
+| `spot › screen.lite_spot_order_panel.low_balance_link` | `Top up` | 新增 |
 
 7 种语言都已写进 `src/locales/*.json`（链接词：添加资金 / 加入資金 / 資金を追加 / 자금을 추가 / Пополните / Nạp tiền）。西语目前没有这两条，回落英语。
 
@@ -159,7 +159,7 @@ Discord 入口只剩 Footer 社交行（移动首页顶栏的 Discord 图标没�
 | 链接本身、分叉判定 | 已做 | 照做；主站当前若还没有 11-05 那行提示，需要先做 1105 §1 |
 | 充值去处 | 桌面弹 `DepositDialog`（`initialAccount`），手机 `/deposit` 页 | 指向正式版对应的充值弹窗 / 充值页 |
 | 顶栏余额托盘、Balance 命名 | 已做 | 照做（§1 / §2） |
-| 11-13 小改：≥ $1 才划转、toast Add funds 弹充值、悬浮卡去眉行、Me 抽屉译法、底部导航高亮 | 已做 | 照做（§1 / §2 / §3） |
+| 11-13 小改：≥ $1 才划转、toast Top up 弹充值、悬浮卡去眉行、Me 抽屉译法、底部导航高亮 | 已做 | 照做（§1 / §2 / §3） |
 | Portfolio 空态 Deposit to start | 已做 | 照做（判定见 §4） |
 | 跨链充值默认币 | 本来就是 Ethereum + USDC | 改成一致（§5） |
 | 客服入口 Live chat | 已做（三处，不带身份，电脑版链接） | 照做（§7）；跟智齿确认手机版链接与正式版的 sysnum / channelid；之后带身份时，签名放在正式版后端生成 |
@@ -172,7 +172,7 @@ Discord 入口只剩 Footer 社交行（移动首页顶栏的 Discord 图标没�
 |---|---|---|
 | deposit-ux ① | 顶栏余额托盘 + Deposit | §1 |
 | deposit-ux ② | Equity → Balance | §2 |
-| deposit-ux ③ | 下单卡 Add money 链接 | §3 |
+| deposit-ux ③ | 下单卡 Top up 链接 | §3 |
 | deposit-ux ④ | Portfolio 空态 Deposit to start | §4 |
 | deposit-ux ⑤ | 正式版跨链默认 USDC | §5 |
 | deposit-ux ⑦ | 客服入口 Live chat | §7 |

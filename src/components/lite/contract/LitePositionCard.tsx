@@ -33,9 +33,6 @@ interface Props {
   compact?: boolean;
   /** When set, the Cash out button is disabled and shows this note instead. */
   cashOutDisabledText?: string;
-  /** Style-guide fixture only (TR-12): mark the leg as voucher-funded.
-   *  Production never passes this — pure display, no logic attached. */
-  voucherTag?: boolean;
   onCashOut: () => void;
   /** Pure-display share entry (SH-b §1). Omitted = zero DOM change. */
   onShare?: () => void;
@@ -60,7 +57,6 @@ export const LitePositionCard = ({
   autoCloseHot = false,
   compact = false,
   cashOutDisabledText,
-  voucherTag = false,
   onCashOut,
   onShare,
   anchorKey,
@@ -73,12 +69,6 @@ export const LitePositionCard = ({
         <span className="text-foreground">
           {" · "}
           <span className="font-mono">{boost}×</span> {t("trade.screen.lite.lite_contract_account_sections.boost")}
-        </span>
-      )}
-      {voucherTag && (
-        <span className="text-foreground">
-          {" · "}
-          <span style={{ color: "#CFFF4A" }}>{t("portfolio.lite.live.voucher")}</span>
         </span>
       )}
     </>

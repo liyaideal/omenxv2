@@ -111,11 +111,11 @@ const PANEL_CASES: SectionCase[] = [
     key: "trade-tr30",
     label: "TR-30 · 下单面板 · 余额不够下单（Max = 0）",
     note:
-      "CPO 2026-11-05。已登录用户输入的金额永远不超过 Max（= floor(Boost balance)）：手输或点快捷金额超过 Max 时直接变成 Max。Max 算出来是 0（余额不到 $1）时，卡片就地说明，不再显示一个点什么都没反应的 $0.00。下单按钮与脚注**不变**；提示里的 Add money 可点（2026-11-12）：另一个账户 ≥ $1（floor）开划转，不足 $1 打开充值（2026-11-13）；余额旁的 ⇄ 照旧。手机抽屉同一张卡、同一行位。",
+      "CPO 2026-11-05。已登录用户输入的金额永远不超过 Max（= floor(Boost balance)）：手输或点快捷金额超过 Max 时直接变成 Max。Max 算出来是 0（余额不到 $1）时，卡片就地说明，不再显示一个点什么都没反应的 $0.00。下单按钮与脚注**不变**；提示里的 Top up 可点（2026-11-12）：另一个账户 ≥ $1（floor）开划转，不足 $1 打开充值（2026-11-13）；余额旁的 ⇄ 照旧。手机抽屉同一张卡、同一行位。",
     spec: [
       { state: "超过 Max", when: "user && !isNetting && parseFloat(input) > floor(balance)", visual: "输入框里的数直接变成 Max（静默，无提示）", source: "LiteContractOrderPanel setAmountCapped" },
-      { state: "余额不够", when: "user && !isNetting && floor(balance) < 1", visual: "输入框锁住只显示占位 `0`；输入框下一行 `Add money to your Boost balance to make a call.`（text-xs，foreground/75），其中 `Add money` 是链接（primary、下划线、semibold）；$10/$25/$50/$100/Max 置灰不可点；CTA `Buy Yes · To win $0.00 →` 与脚注不变" , source: "LiteContractOrderPanel lowBalance · i18n trade.screen.lite.lite_contract_order_panel.low_balance_hint / low_balance_link" },
-      { state: "余额不够 · 点 Add money", when: "点提示里的 Add money", visual: "Standard 余额 ≥ $1（floor）→ 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向 Standard → Boost）；不足 $1 → 打开充值（桌面弹 DepositDialog 预选 Boost，手机进 /deposit）。点下单弹的 toast 同一分叉：按钮 Transfer 或 Add funds，Add funds 走同一个充值（桌面弹窗，不再跳 /wallet）", source: "useInsufficientBalanceToast · CPO 2026-11-12 / 11-13" },
+      { state: "余额不够", when: "user && !isNetting && floor(balance) < 1", visual: "输入框锁住只显示占位 `0`；输入框下一行 `Top up your Boost balance to make a call.`（text-xs，foreground/75），其中 `Top up` 是链接（primary、下划线、semibold）；$10/$25/$50/$100/Max 置灰不可点；CTA `Buy Yes · To win $0.00 →` 与脚注不变" , source: "LiteContractOrderPanel lowBalance · i18n trade.screen.lite.lite_contract_order_panel.low_balance_hint / low_balance_link" },
+      { state: "余额不够 · 点 Top up", when: "点提示里的 Top up", visual: "Standard 余额 ≥ $1（floor）→ 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向 Standard → Boost）；不足 $1 → 打开充值（桌面弹 DepositDialog 预选 Boost，手机进 /deposit）。点下单弹的 toast 同一分叉：按钮 Transfer 或 Top up，Top up 走同一个充值（桌面弹窗，不再跳 /wallet）", source: "useInsufficientBalanceToast · CPO 2026-11-12 / 11-13" },
       { state: "对冲例外", when: "isNetting（买的是已持仓的另一边）", visual: "不封顶、不提示——这笔先用持仓换回的钱，钱包不是上限", source: "capApplies" },
       { state: "游客例外", when: "!user", visual: "不封顶、不提示——点 Buy 先拉起登录", source: "capApplies" },
     ],
@@ -188,10 +188,10 @@ const POSITION_CASES: SectionCase[] = [
     key: "trade-tr12",
     label: "TR-12 · 交易页持仓条 · voucher 来源仓",
     note:
-      "voucher 来源无法从既有 props 推出 → 新增 **fixture-only 纯展示 prop `voucherTag`**（生产从不传）。徽标沿用 Portfolio 的 Volt 口径 `Voucher`（#CFFF4A），不新造视觉。",
+      "2026-11-18 起券单不再是「普通持仓卡 + Voucher 徽标」，改成独立的券卡 `LiteVoucherCard`（四格 VOUCHER / PROFIT NOW / MAX PROFIT / CLOSES BY）。本帧挂的就是那张券卡；全部状态见下面「③c 券单」TR-37 … TR-40。原来的 fixture prop `voucherTag` 已删除。",
     spec: [
-      { state: "voucher 仓", when: "position.source === voucher（生产由 vouchers 关联判定）", visual: "side 标签后追加 ` · Voucher`（Volt）", source: "LitePositionCard.voucherTag（fixture-only）" },
-      { state: "普通仓", when: "非 voucher", visual: "无徽标，其余排版一致", source: "同上" },
+      { state: "voucher 仓", when: "position.airdropSource === voucher", visual: "券卡（见 TR-37），不进普通持仓卡列表", source: "LiteVoucherLegs → LiteVoucherCard" },
+      { state: "普通仓", when: "非 voucher", visual: "普通持仓卡（TR-10 / TR-11）", source: "LitePositionCard" },
     ],
   },
 ];
@@ -636,7 +636,7 @@ export const TradeStatesSection = () => (
   <SectionWrapper
     id="trade-states"
     title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-40）"
-    description="58 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共五个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）、LitePositionCard.voucherTag 与 LitePositionCard.flashOpen（TR-36）。；VoucherLayer.inline（把券单弹层画在页面流里，TR-39 / TR-40）。"
+    description="58 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共四个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）、LitePositionCard.flashOpen（TR-36）、VoucherLayer.inline（把券单弹层画在页面流里，TR-39 / TR-40）。"
   >
     <SubSection title="① 页头与市场语境（TR-1 … TR-4）">
       <Pair cases={HEAD_CASES} desktopMin={420} mobileMin={480} />

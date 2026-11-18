@@ -58,6 +58,14 @@ Single source of truth for user-visible field names across the app.
 | **Trial Position Voucher** | 券类奖励的完整名称（chip 写 `$10 Trial Position Voucher`） | Trial voucher, Free position, Bonus voucher |
 | **USDC** | 现金类奖励币种，色 `#33D6FF`；券色 `#CFFF4A` | Cash, Dollars, Balance |
 | **Claim voucher** | 券任务达标后的白底主按钮 | Get reward, Redeem, Collect |
+| **Voucher call（Lite 券单）** | 用券开出来的那一笔单在 Lite 上的叫法。交易页有独立券卡（`LiteVoucherCard`），不进普通持仓卡。判定：`position.airdropSource === "voucher"`。出处：`lite-voucher-call-v1.md` | Trial position（Lite 面不用）, Voucher position |
+| **VOUCHER（标）** | 券卡 / 平仓面板标题后的 lime 小标，i18n `vouchers › lite.mark`，显示成大写 | Free, Trial |
+| **Profit now（券卡）** | 现在平仓能拿到的钱 = `clamp(份数 × (现价 − 买入价), 0, 最大利润)`；份数 = 面值 × 倍数 ÷ 买入价（Boost 事件 5，Standard 事件 1）。算法 `src/lib/voucherMath.ts › voucherCredit` | Now worth, PnL |
+| **Closes by（券卡）** | 券单最晚自动平仓的时间（券的 hold window 到点），本地时区 `Nov 21, 18:13` | Expires, Auto-close |
+| **Cash out · keep +$X** | 券卡与平仓面板的主按钮（有利润时）；没利润时券卡按钮只写 `Cash out` | Close position, Redeem |
+| **Bought {leg} / Paid with your $X voucher** | 兑换成功提示（标题 / 副行），按钮 `View your call`。`{leg}`：两方事件 = 那一边的名字；多盘口 = `{选项} · Yes\|No`（helper `legTitle`） | Voucher redeemed |
+| **Go to Vouchers / Use another voucher / Browse markets** | 券单平仓后结果层的按钮，组合见 `lite-voucher-call-v1.md` §1.5 | View earnings |
+| **Standard 事件上的券** | = 按面值下的一笔现货单（1×），任何地方不写倍数；判定看券所在事件 `product_lines` 是否含 `spot`（helper `voucherLineFor` / `voucherLeverageFor`） | — |
 | **Credited to Standard after review** | USDC 任务达标后的纯文字状态（无按钮） | Paid out, Pending payout |
 | **Claimed** | 已领取任务行状态 | Done, Collected |
 | **Not eligible** | 该奖励不归属当前用户（虚线灰行） | Ineligible, Locked, Unavailable |
@@ -487,7 +495,7 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Boost Account** | 合约账户卡（`/trade` 右栏、手机风险指示器）标题；行内容 Margin Mode / Account Equity / Risk Ratio / Initial · Maint. Margin 不变 | Unified Trading Account（2026-09-15 退役）|
 | **To win ⓘ** | 四个 Pro 下单面板（合约桌面/手机、现货桌面/手机）摘要末段统一为 `To win` 行 + ⓘ，tooltip 用共享 `WinTooltipBody`；不再在摘要下平铺说明句 | To win shows profit after the 5% winning commission.（句子退役）|
 | **⇄ Transfer（Available 旁）** | 每个 Pro 面板 `Available (USDC)` 右侧的划转入口（`TransferEntry`，⇄ 为全站唯一划转图标，与钱包 AccountBalanceLine 同款），桌面开 TransferDialog、手机开 TransferDrawer；合约面板预选 to_futures，现货 to_spot。执行 08-06 裁定"每个展示出来的余额都有划转入口" | + 充值（面板内退役，充值只在 Wallet）|
-| **Add money（Lite 下单卡余额不够提示里的链接）** | Lite 合约卡 / 现货卡（桌面右栏 + 手机抽屉）在 `floor(本账户余额) < 1` 时输入框下一行 `Add money to your Boost balance to make a call.` / `…Standard balance to place an order.`，其中 **Add money** 是链接（primary、下划线、semibold）。点了：另一个账户 `floor(余额) >= 1` → 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向转入本账户）；否则（$0 或不足 $1）→ 打开充值（桌面弹 DepositDialog，账户预选为这张卡的账户；手机进 `/deposit` 页）。余额不够时点下单弹的 toast 同一个分叉：提示句 `Not enough balance — add funds to continue`（`wallet › insufficient_toast.message`），按钮 `Transfer`（`wallet.transfer`）或 `Add funds`（`wallet › insufficient_toast.add_funds`：充值 / 儲值 / 入金 / 입금 / Пополнить / Nạp tiền），`Add funds` 走同一个充值（桌面弹窗，不跳页）。CPO 2026-11-13 改 ≥ $1 门槛与 toast 按钮。下单按钮与脚注不变。i18n：`low_balance_hint` 是带 `{{link}}` 的整句模板（各语言自己的词序），`low_balance_link` 是链接那几个字。CPO 2026-11-12 | 把下单按钮换成「去充值 / 去划转」（11-05 已否）|
+| **Top up（Lite 下单卡余额不够提示里的链接；2026-11-18 前叫 Add money，全站 Add money / add funds 统一成 Top up）** | Lite 合约卡 / 现货卡（桌面右栏 + 手机抽屉）在 `floor(本账户余额) < 1` 时输入框下一行 `Top up your Boost balance to make a call.` / `…Standard balance to place an order.`，其中 **Top up** 是链接（primary、下划线、semibold）。点了：另一个账户 `floor(余额) >= 1` → 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向转入本账户）；否则（$0 或不足 $1）→ 打开充值（桌面弹 DepositDialog，账户预选为这张卡的账户；手机进 `/deposit` 页）。余额不够时点下单弹的 toast 同一个分叉：提示句 `Not enough balance — top up to continue`（`wallet › insufficient_toast.message`），按钮 `Transfer`（`wallet.transfer`）或 `Top up`（`wallet › insufficient_toast.add_funds`：充值 / 儲值 / 入金 / 입금 / Пополнить / Nạp tiền），`Top up` 走同一个充值（桌面弹窗，不跳页）。CPO 2026-11-13 改 ≥ $1 门槛与 toast 按钮。下单按钮与脚注不变。i18n：`low_balance_hint` 是带 `{{link}}` 的整句模板（各语言自己的词序），`low_balance_link` 是链接那几个字。CPO 2026-11-12 | 把下单按钮换成「去充值 / 去划转」（11-05 已否）|
 | **Live chat（客服入口）** | 智齿在线客服的入口，三处同一个词、同一个去处：桌面头像下拉（替换原 `Join Discord`）、手机 Me 抽屉（Help & Support 下面）、Footer 社交行最后一颗胶囊。点了新标签页打开 `SUPPORT_CHAT_URL`。key `nav.live_chat`：Live chat / 在线客服 / 線上客服 / ライブチャット / 실시간 상담 / Онлайн-чат / Trò chuyện trực tuyến（西语 Chat en vivo）。暂不带用户身份（等智齿 Sign 密钥）。CPO 2026-11-16 | `Customer support`、`Contact us`、`Join Discord` |
 | **Holdings** | 现货终端底部页签与账户卡行名：现货持有的是份额，不叫 Positions；列 `Market · Outcome · Shares · Avg price · Price · Value · PnL`，空态 `No holdings yet`。行内不带 `SPOT` 标（那是 Portfolio 混排列表专用） | Positions（现货侧禁用）, Size (sh), Entry, Mark（现货侧禁用）|
 | **Avg price / Price（现货）** | 现货 Holdings 表的成本价 / 现价列名；`Entry` / `Mark` 是衍生品词，只留在合约 | Entry, Mark |
@@ -1329,7 +1337,7 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | Trading | `settled.loss` | `CircleCheck` muted | 结算 pnl < 0 | `{{event}} settled` | `{{session}}{{side}} · {{pnl}}` | 同上 | ✓ |
 | Trading | `settled.flat` | `CircleCheck` muted | 结算 pnl = 0 | `{{event}} settled` | `{{session}}{{side}} · your {{cost}} is back` | 同上 | ✓ |
 | Trading | `settled.round_batch` | `CircleCheck` net > 0 → volt · else muted | 同事件 ≥3 条同刻结算 | `{{series}} · {{n}} rounds settled` | `net {{net}}` | `/portfolio/settlements` | ✓ |
-| Trading | `autoclose.tight` | `TriangleAlert` yellow | Boost usage 进入 ≥ 80% | `Boost check: getting tight` | `Boost usage {{ratio}} · add funds or cash out` | `/portfolio` | ✓ |
+| Trading | `autoclose.tight` | `TriangleAlert` yellow | Boost usage 进入 ≥ 80% | `Boost check: getting tight` | `Boost usage {{ratio}} · top up or cash out` | `/portfolio` | ✓ |
 | Trading | `autoclose.soon` | `TriangleAlert` red | 进入 ≥ 95% | `Boost check: auto-close soon` | 同上 | `/portfolio` | ✓ |
 | Trading | `autoclose.done` | `TriangleAlert` red | `close_reason = auto_close` | `{{event}} auto-closed` | `{{session}}{{side}}{{boost}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
 | Trading | `trade.bought` | `ArrowLeftRight` muted | positions INSERT | `Bought {{side}} · {{cost}}`（cost = 本金 margin，**不含开仓手续费**，与 Portfolio 仓位 cost 同一个数；手续费在钱包账单单独一行——CPO 2026-10-21） | `{{event}}{{boost}}{{session}}`（session = ` · Oct 17 session`） | `/trade?event=` | — |

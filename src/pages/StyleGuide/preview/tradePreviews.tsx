@@ -453,28 +453,8 @@ export const Tr11Preview = () => {
   );
 };
 
-/** TR-12 · voucher 来源仓（fixture-only `voucherTag`，生产从不传）。 */
-export const Tr12Preview = () => {
-  const isMobile = useIsMobile();
-  return (
-    <Frame>
-      <LitePositionCard
-        sideLabel="Yes"
-        isYes
-        boost={1}
-        putIn={10}
-        nowWorth={13.6}
-        profit={3.6}
-        autoCloseText="None"
-        profitNote="Right after you buy, this starts a little below $0: you bought at 38¢, and selling right now gets 37¢. The $0.02 trading fee was charged when you bought."
-        autoCloseSub={`Can lose up to ${usd(maxLossFor(10))}`}
-        voucherTag
-        compact={!!isMobile}
-        onCashOut={() => undefined}
-      />
-    </Frame>
-  );
-};
+/** TR-12 · voucher 来源仓 — 2026-11-18 起券单有自己的卡（见 TR-37），这里挂同一张券卡。 */
+export const Tr12Preview = () => <VoucherCardFrame sideLabel="Yes" boost={5} credit={0.04} rawPnl={0.04} />;
 
 /* ------------------------------- TR-13 -------------------------------- */
 

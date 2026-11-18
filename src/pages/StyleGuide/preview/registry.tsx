@@ -317,6 +317,8 @@ export const previewRegistry: Record<string, Loader> = {
 
   "portfolio-lite-airdrop-tag-rows": pick(portfolio, "PortfolioAirdropTagRowsPreview"),
   "portfolio-lite-airdrop-tag-cards": pick(portfolio, "PortfolioAirdropTagCardsPreview"),
+  "portfolio-lite-voucher-rows": pick(portfolio, "PortfolioVoucherRowsPreview"),
+  "portfolio-lite-voucher-cards": pick(portfolio, "PortfolioVoucherCardsPreview"),
 
   /* -------- Portfolio 状态字典 Ⓓ–Ⓕ（M6a-② · PF-9…PF-18）-------- */
   "portfolio-lite-side-chip": pick(portfolio, "PortfolioSideChipPreview"),

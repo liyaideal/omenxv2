@@ -13,14 +13,14 @@ import { t } from "@/i18n";
 /**
  * Insufficient-balance toast with an actionable follow-up.
  * If the other account holds at least $1 → "Transfer" (into `direction`'s
- * target account). Otherwise → "Add funds" (deposit flow).
+ * target account). Otherwise → "Top up" (deposit flow).
  *
  * Fork (CPO 2026-11-13): the other account can actually fund a $1 order
  * (floor(other) >= 1) → Transfer; otherwise → deposit. A few cents in the
  * other account would leave the user still under $1 after transferring.
  *
  * `addMoney` is the same fork without the toast — the low-balance hint's
- * "Add money" link calls it directly (CPO 2026-11-12, deposit-ux ③): other
+ * "Top up" link calls it directly (CPO 2026-11-12, deposit-ux ③): other
  * account ≥ $1 → open Transfer; under $1 → deposit (desktop opens
  * the Deposit dialog pre-set to this card's account — /deposit on desktop only
  * redirects to /wallet; mobile goes to the /deposit page with the same account
@@ -41,7 +41,7 @@ export const useInsufficientBalanceToast = (direction: TransferDirection) => {
 
   const hasOtherFunds = Math.floor(sourceBalance) >= 1;
 
-  // Deposit leg shared by the hint link and the toast's "Add funds" (CPO 2026-11-13:
+  // Deposit leg shared by the hint link and the toast's "Top up" (CPO 2026-11-13:
   // the toast used to navigate to /deposit, which on desktop only lands on /wallet).
   const openDeposit = useCallback(() => {
     if (isMobile) {

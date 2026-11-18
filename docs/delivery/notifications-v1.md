@@ -181,7 +181,7 @@ alex_carter（`968a2b3a…`）已种 36 条 / 35 type（今天 5 条未读，其
 | # | mock | 实现 | 原因 |
 |---|---|---|---|
 | 1 | `reward.treasure_available`「A treasure box is waiting / open it in Rewards」 | `reward.treasure_opened`「Treasure box opened / +120 points」 | `treasure_drops` 行是开箱记录，没有"可开"状态可触发 |
-| 2 | `autoclose.tight / soon` 正文 `auto-close ≈{c}¢ · add funds or cash out` | `Boost usage 83% · add funds or cash out` | 账户级没有单一 auto-close 价（多仓）；`Boost usage` 是 Portfolio Boost check 既有行词 |
+| 2 | `autoclose.tight / soon` 正文 `auto-close ≈{c}¢ · top up or cash out` | `Boost usage 83% · top up or cash out` | 账户级没有单一 auto-close 价（多仓）；`Boost usage` 是 Portfolio Boost check 既有行词 |
 | 3 | `reward.grant_claimable` 标题 `$40.00 ready to claim` | `$40 USDC ready to claim` / `$5 Voucher ready to claim` | 奖励双色规则：券与 USDC 必须分清 |
 | 4 | `reward.grant_expiring` 标题 `Claim $40.00 before Oct 14, 09:00` | `$40 USDC expires in 24h` / 正文 `{campaign} · {task} · claim before Oct 14, 09:00` | 375 宽标题被截掉截止时间；改与 voucher / airdrop 到期句同构 |
 | 5 | type 数 34 | 35 | `account.2fa_on` / `2fa_off` 各一条 |

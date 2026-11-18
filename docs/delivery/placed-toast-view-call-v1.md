@@ -17,6 +17,7 @@
 |---|---|---|
 | Boost 2× 及以上 | `Bought Spirit · $20.00 at 2× Boost · $40.00 position`（一行） | 标题 `Bought Spirit · $20.00`，副行 `2× Boost · $40.00 position` |
 | Boost 1× | `Bought Spirit · $20.00` | 不变（多了按钮） |
+| 多盘口事件（一个事件多个选项，2026-11-18 追加） | `Bought Yes · $10.00` | `Bought ↑$1.5T · Yes · $10.00`（这一边写成「选项 · Yes / No」，字典 TR-35c） |
 | Standard（新开 / 加仓） | `Bought 48 shares · Up` | `Bought Up · $24.60`（金额 = 实际扣掉的钱） |
 | Standard 反向买入（把手里的持仓冲掉） | `Bought 48 shares · Down` | 不变，没有按钮 |
 | 按钮 | 没有 | `View your call` |

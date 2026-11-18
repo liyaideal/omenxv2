@@ -316,11 +316,11 @@ const SESSION_CASES: SectionCase[] = [
   {
     key: "spot-sp20",
     label: "SP-20 · 下单面板 · 余额不够下单（Max = 0）",
-    note: "CPO 2026-11-05，与合约 TR-30 同一条规则：已登录用户输入的金额永远不超过 Max（= floor(Standard balance)）；Max 为 0 时卡片就地说明。CTA 与脚注不变，提示里的 Add money 可点（2026-11-12）：另一个账户 ≥ $1（floor）开划转，不足 $1 打开充值（2026-11-13）；余额旁的 ⇄ 照旧。",
+    note: "CPO 2026-11-05，与合约 TR-30 同一条规则：已登录用户输入的金额永远不超过 Max（= floor(Standard balance)）；Max 为 0 时卡片就地说明。CTA 与脚注不变，提示里的 Top up 可点（2026-11-12）：另一个账户 ≥ $1（floor）开划转，不足 $1 打开充值（2026-11-13）；余额旁的 ⇄ 照旧。",
     spec: [
       { state: "超过 Max", when: "user && parseFloat(input) > floor(spotBalance)", visual: "输入框里的数直接变成 Max（静默）", source: "LiteOrderPanel setAmountCapped" },
-      { state: "余额不够", when: "user && floor(spotBalance) < 1", visual: "输入框锁住只显示占位 `0`；下一行 `Add money to your Standard balance to place an order.`，其中 `Add money` 是链接（primary、下划线、semibold）；快捷金额置灰不可点；CTA 不变", source: "LiteOrderPanel lowBalance · i18n spot.screen.lite_spot_order_panel.low_balance_hint / low_balance_link" },
-      { state: "余额不够 · 点 Add money", when: "点提示里的 Add money", visual: "Boost 余额 ≥ $1（floor）→ 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向 Boost → Standard）；不足 $1 → 打开充值（桌面弹 DepositDialog 预选 Standard，手机进 /deposit）。点下单弹的 toast 同一分叉：按钮 Transfer 或 Add funds，Add funds 走同一个充值（桌面弹窗，不再跳 /wallet）", source: "useInsufficientBalanceToast · CPO 2026-11-12 / 11-13" },
+      { state: "余额不够", when: "user && floor(spotBalance) < 1", visual: "输入框锁住只显示占位 `0`；下一行 `Top up your Standard balance to place an order.`，其中 `Top up` 是链接（primary、下划线、semibold）；快捷金额置灰不可点；CTA 不变", source: "LiteOrderPanel lowBalance · i18n spot.screen.lite_spot_order_panel.low_balance_hint / low_balance_link" },
+      { state: "余额不够 · 点 Top up", when: "点提示里的 Top up", visual: "Boost 余额 ≥ $1（floor）→ 打开划转（桌面 TransferDialog / 手机 TransferDrawer，方向 Boost → Standard）；不足 $1 → 打开充值（桌面弹 DepositDialog 预选 Standard，手机进 /deposit）。点下单弹的 toast 同一分叉：按钮 Transfer 或 Top up，Top up 走同一个充值（桌面弹窗，不再跳 /wallet）", source: "useInsufficientBalanceToast · CPO 2026-11-12 / 11-13" },
       { state: "游客例外", when: "!user", visual: "不封顶、不提示", source: "capApplies" },
     ],
   },
