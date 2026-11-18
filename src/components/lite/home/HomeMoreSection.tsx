@@ -188,7 +188,7 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
         )}
       </div>
     ) : (
-      <div className="row" style={{ gap: isMobile ? 14 : 22, justifyContent: isMobile ? "space-between" : "flex-end" }}>
+      <div className="row" style={{ gap: isMobile ? "10px 14px" : 22, justifyContent: "space-between", flexWrap: isMobile ? "wrap" : undefined }}>
         <span className="row" style={{ gap: 10, alignItems: "baseline" }}>
           <span className="m" style={{ fontSize: isMobile ? 30 : 36, fontWeight: 700, color: "#fff", lineHeight: 1, letterSpacing: "-.03em" }}>
             {Math.round(yesP * 100)}%

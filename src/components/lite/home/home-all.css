@@ -189,12 +189,14 @@
   .hall .stk2{grid-template-columns:minmax(0,1fr)}
   .hall .stk2-l{padding-right:0}
   .hall .stk2-r{border-left:0;padding-left:0}
-  /* the 520px outcome area no longer fits beside the title: stack it under (desktop sizes kept) */
-  .hall .morerow{grid-template-columns:minmax(0,1fr);gap:0}
-  .hall .more-right{padding-top:0}
-  .hall .more-left{padding-left:0}
   .hall .desk-art{opacity:.55}
-  .hall .morerow>:last-child{max-width:640px}
+}
+@media (max-width:1099px){
+  /* the 520px outcome area no longer fits beside the ~500px cover: stack it under (desktop sizes kept).
+     Was 1279 — with the cover as backdrop two columns hold down to 1100 (2026-11-18). */
+  .hall .morerow{grid-template-columns:minmax(0,1fr);gap:0}
+  .hall .more-right{padding-top:0;max-width:640px}
+  .hall .more-left{padding-left:0}
 }
 @media (min-width:1280px){.hall .stk2-l>.hr:last-child{border-bottom:0}}
 
