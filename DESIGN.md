@@ -2688,7 +2688,7 @@ CPO 2026-11-18 严令。Standard = 现货，没有杠杆。
 3. **标题**：Boost 面 `{leg} · 5× Boost` + 标；Standard 面 `{leg}` + 标（见上一条 Addendum，Standard 面不写倍数）。
 4. **leg 写法全程一致**：两方事件 = 那一边的名字；多盘口 = `{选项} · Yes|No`，颜色跟 Yes / No。
 5. **按钮**：有利润 `Cash out · keep +$X`，没利润 `Cash out`；按钮下不放说明句。
-6. **平仓面板**（`VoucherCashOutBody`）只有两态，按能拿到的钱是否 > 0：有利润 = 一句话 + 52px lime 大数字 + 一行「留着最多能拿」+ 一个主按钮；没利润 = 标题 + 说明 + `Keep it open`（主）/ `Close anyway`。**没有比例 chips、没有滑杆**（券单只能全平）。桌面 Dialog `max-w-[400px]`，手机 MobileDrawer。
+6. **平仓面板**（`VoucherCashOutBody`）只有两态，按能拿到的钱是否 > 0：有利润 = 一句话 + 52px lime 大数字 + 一行「留着最多能拿」+ 一个主按钮；没利润 = 标题 + 说明 + `Keep it open`（主色实心）/ `Close anyway`（描边）——留着是我们希望的动作，所以它最重（CPO 2026-11-18 验收后改，原 mock 是描边 + 灰底）。**没有比例 chips、没有滑杆**（券单只能全平）。桌面 Dialog `max-w-[400px]`，手机 MobileDrawer。
 7. **平仓后结果层**（`VoucherDoneBody`）：猞猁插画（有利润 `empty-celebrate`，没利润 `empty-no-boost`）+ 金额或 `Voucher call closed` + 引导句 + 最多两个按钮；按钮矩阵见交付文档 §1.5。有利润之后的文案不再提 voucher 规则，只引导下一步；不区分到账方式；不自动弹分享海报。
 8. **文案口味**（CPO 评论里定的）：句子能删就删；不按价格换措辞；按钮词要短（多语言不折行）；用 `Top up` 不用 `Add money`。
 9. **Portfolio 券单行**：PUT IN 下小字 `voucher`、NOW WORTH `—`、PROFIT 不为负、赢了那格只写 `If it wins → +{上限}`。

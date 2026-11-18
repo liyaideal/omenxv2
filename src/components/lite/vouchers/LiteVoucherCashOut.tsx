@@ -109,10 +109,10 @@ export const VoucherCashOutBody = ({
         {t("vouchers.lite.panel.no_profit_body")}
       </p>
       <div className="flex gap-2">
-        <Button variant="outline" className="h-11 flex-1" disabled={busy} onClick={onKeepOpen}>
+        <Button className="h-11 flex-1" disabled={busy} onClick={onKeepOpen}>
           {t("vouchers.lite.panel.keep_open")}
         </Button>
-        <Button variant="secondary" className="h-11 flex-1" disabled={busy} onClick={onConfirm}>
+        <Button variant="outline" className="h-11 flex-1" disabled={busy} onClick={onConfirm}>
           {t("vouchers.lite.panel.close_anyway")}
         </Button>
       </div>

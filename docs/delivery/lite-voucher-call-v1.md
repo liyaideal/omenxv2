@@ -127,8 +127,8 @@
 |---|---|---|
 | VOUCHER | 券面值 | 如 `$2.00` |
 | PROFIT NOW | 现在平仓能拿到的钱（见 §2） | 有利润绿色 `+$0.04`；没有写 `$0.00`，下面小字 `down right now`（仅当现在是亏的） |
-| MAX PROFIT | 这张券最多能拿的钱 | 如 `$1.00` |
-| CLOSES BY | 券单最晚自动平仓的时间 | 用户本地时区，`Nov 21, 18:13` |
+| MAX PROFIT | 这一笔最多能拿的钱 = 券的上限和「这一边全赢能赚到的数」里小的那个 | 一般是 `$1.00`；Standard 券单 80¢ 买入时全赢只有 $0.50，就写 `$0.50` |
+| CLOSES BY | 券单自己的最晚时间和事件结束时间里早的那个 | 用户本地时区，`Nov 21, 18:13`；Standard 页手机上日期、时间分两行 |
 
 4. 按钮：有利润 `Cash out · keep +$0.04`；没利润 `Cash out`。按钮下面没有说明句。
 4b. 券卡的骨架跟同一页的普通持仓卡一致：Boost 页——这一边是彩色文字，手机上四格排成两行两列；Standard 页和加密涨跌轮页——这一边是小色块，四格永远排成一行（手机也是），手机上 CLOSES BY 的日期和时间分两行。
@@ -146,7 +146,7 @@
 | 大字 | `+$0.04` | — |
 | 说明 | `Cash out now and it's yours.` | `on your {这一边} call` + `Close it now and you get nothing; your balance isn't touched. Keep it open and it can still end in profit before it settles.` |
 | 一行对比 | `Keep it open and it can earn up to` … `$1.00` | — |
-| 按钮 | `Cash out · keep +$0.04`（主色实心） | 两个并排、都不是主色：`Keep it open`（描边，关掉面板）+ `Close anyway`（灰底，继续平仓） |
+| 按钮 | `Cash out · keep +$0.04`（主色实心） | 两个并排：`Keep it open`（主色实心，关掉面板）+ `Close anyway`（描边，继续平仓） |
 
 3. 券单只能全平：没有 25 / 50 / 100、没有滑杆、文案不写百分比。
 4. 面板里的数字跟着价格实时变；最终入账以平仓那一刻的价格为准，可能和点按钮前看到的差几分钱。
@@ -175,7 +175,7 @@
 
 见「改前改后 ⑤」。补充：券单行不显示「最多会亏」；点 `Cash out` 进该事件的交易页，在券卡上平仓；Portfolio 的批量 Cash out 选不中券单行（券单只能在券卡上一张一张平）。
 
-Portfolio 顶部的汇总数（Put in / Now worth / Profit）这轮没动，仍把券单按普通持仓计入——是否剔除待定。
+Portfolio 顶部的汇总数（Put in / Now worth / Profit）不算券单（券不是用户的钱）；`N calls` 的笔数仍包含券单。
 
 ### 1.7 券兑在 Standard 事件上
 
@@ -207,7 +207,7 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）这轮没动，仍�
 ```
 份数     = 面值 × 倍数 ÷ 买入价          （Boost 事件倍数 = 5，Standard 事件倍数 = 1）
 浮动盈亏 = 份数 × (现价 − 买入价)         （买入价、现价都是买的那一边的价格）
-最大利润 = 券上写的上限；没写就是 面值 × 上限比例（默认 50%）
+最大利润 = min(券的上限, 这一边全赢时的浮动盈亏)；券的上限 = 券上写的数，没写就是 面值 × 上限比例（默认 50%）；全赢 = 份数 × (1 − 买入价)
 能拿到   = 浮动盈亏，小于 0 按 0，大于最大利润按最大利润
 ```
 
@@ -246,6 +246,7 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）这轮没动，仍�
 | 6 | 这一边的写法（多盘口 `{选项} · Yes/No`）全程一致 | §1.1 | TR-37d / TR-38b / TR-39c |
 | 7 | Portfolio 券单行；Standard 券单进 Standard 页签 | §1.6 | PF-13b |
 | 8 | ⚠ 后端：Standard 事件上的券按面值下现货单（不是 5×），结算与平仓入账同口径 | §1.7、§2 | — |
+| 8b | Portfolio 顶部汇总不算券单；MAX PROFIT 取上限与全赢里小的；CLOSES BY 取券到期与事件结束里早的 | §1.3、§1.6、§2 | TR-37 / PF-13b |
 | 9 | Top up 6 条 × 7 语 | §1.8 | TR-30 |
 | 10 | 多盘口事件普通买入提示带选项名 | §1.9 | TR-35c |
 | 11 | 27 条新文案 7 语 | §3 | — |
@@ -264,8 +265,7 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）这轮没动，仍�
 
 - 券页（`/rewards?tab=vouchers`）和兑换选事件页本身没改。
 - 没有首单 / 首券庆祝弹窗，没有自动分享海报。
-- 券卡上的 CLOSES BY 写的是券单自己的最晚时间；事件更早结算时券单会跟着事件结算（现有行为，没改）。
-- MAX PROFIT / `If it wins → +$1.00` 一律写券的上限；Standard 券单买入价很高时实际到不了上限（$2 券 80¢ 买入，全赢也只有 $0.50）——是否改成「能到的数」待定。
+- 「离结算太近的事件不能用券」的规则已取消（和正式版一致）；Lovable 里字段 `min_hours_to_settlement` 保留、值一律 0。
 - 开平仓手续费：券单不收（§2 里没有费用项）。
 
 ## 附：内部编号对照

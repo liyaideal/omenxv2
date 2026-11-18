@@ -38,7 +38,8 @@ export interface VoucherCredit {
   quantity: number;
   /** Unclamped PnL at the mark price. */
   rawPnl: number;
-  /** Most this voucher can ever pay out. */
+  /** Most this call can actually pay out: the voucher's cap, or less when even a
+   *  full win cannot reach it (a 1× call bought at 80¢ wins at most 25% of its face). */
   cap: number;
   /** What closing now would credit: clamp(rawPnl, 0, cap). */
   credit: number;
@@ -48,10 +49,13 @@ export function voucherCredit(i: VoucherCreditInput): VoucherCredit {
   const entry = Math.max(i.entryPrice, 0.0001);
   const quantity = (i.faceValue * i.leverage) / entry;
   const rawPnl = (i.markPrice - i.entryPrice) * quantity * (i.side === "short" ? -1 : 1);
-  const cap =
+  const voucherCap =
     i.redeemableCap != null
       ? i.redeemableCap
       : i.faceValue * (i.redeemableCapPct != null ? i.redeemableCapPct : VOUCHER_DEFAULT_CAP_PCT);
+  // PnL if this side wins outright (its price goes to $1; a short's reference price to $0).
+  const fullWin = quantity * (i.side === "short" ? entry : Math.max(0, 1 - entry));
+  const cap = Math.min(voucherCap, fullWin);
   return { quantity, rawPnl, cap, credit: Math.max(0, Math.min(rawPnl, cap)) };
 }
 

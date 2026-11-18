@@ -115,7 +115,7 @@
 | 事件级锁 | 该 event 已被本人任一券占用 | `One voucher per event — you already opened a trial position here.`（卡内展开："One voucher per event — you already opened a trial position here. The lock covers both product lines of this event."） |
 | 已结算 | `is_resolved` | `Event already resolved` |
 | 无结算时间 | `end_date` 为空 | `No end date` |
-| 结算过近 | 距结算 < `min_hours_to_settlement`（默认 12h） | `Vouchers can't open a position this close to settlement.` |
+| 结算过近（2026-11-18 起规则取消：与正式版一致，快结算的事件也能用券；字段保留、值一律 0，这一行不再出现） | 距结算 < `min_hours_to_settlement` | `Vouchers can't open a position this close to settlement.` |
 | 价格带 | option 价格需落在 `entry_price_min`–`entry_price_max`（默认 20¢–80¢） | `Priced outside the voucher band — pick another option.` |
 
 锁卡右上徽标文案：`Voucher already used`。锁的判定来源是 `usedEventIds`（本人全部券的 `redeemedEventId` 集合），跨 Boost / Standard 两条产品线生效。
@@ -155,7 +155,7 @@
 | `redeemable_cap_pct` | numeric default 0.5 | 最大利润比例 |
 | `max_holding_hours` | int default 72 | 持仓窗口 |
 | `entry_price_min` / `entry_price_max` | numeric default 0.20 / 0.80 | 价格带 |
-| `min_hours_to_settlement` | int default 12 | 距结算最小时长 |
+| `min_hours_to_settlement` | int default 0（2026-11-18 前 12） | 距结算最小时长——规则已取消，恒为 0 |
 | `status` | text | 见 §2.1 |
 | `payout_mode` | text | `instant` / `tiered` |
 | `instant_paid_at` | timestamptz | instant 入账时间 |

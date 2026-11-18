@@ -250,7 +250,7 @@ const VOUCHER_CASES: SectionCase[] = [
     note: "券单有自己的卡（LiteVoucherCard），不走普通持仓卡：没有 PUT IN / NOW WORTH / 自动平仓，也没有「最多会亏」那一行。数字全部来自 voucherCredit()（src/lib/voucherMath.ts）。",
     spec: [
       { state: "标题", when: "Boost 交易页上的券单", visual: "`{买的哪边} · 5× Boost` + VOUCHER 标（柠檬绿胶囊）。买的哪边按选边色（Yes 青 / No 柠檬绿）", source: "LiteVoucherLegs → LiteVoucherCard" },
-      { state: "四格", when: "任何券单", visual: "VOUCHER = 券面值；PROFIT NOW = 现在平仓能拿到的利润；MAX PROFIT = 这张券的利润上限；CLOSES BY = 券单到期时间", source: "voucherCredit / voucherExpiresAt" },
+      { state: "四格", when: "任何券单", visual: "VOUCHER = 券面值；PROFIT NOW = 现在平仓能拿到的利润；MAX PROFIT = 券的利润上限与「这一边全赢能赚到的数」里小的那个；CLOSES BY = 券到期与事件结束里早的那个", source: "voucherCredit / voucherClosesAt" },
       { state: "按钮 · 赚着", when: "现在平仓利润 > 0", visual: "`Cash out · keep +$0.04`", source: "CashOutKeepLabel" },
       { state: "可定位", when: "兑换后点提示上的 View your call", visual: "滚到这张卡并描边 1.5 秒（同 TR-36）", source: "data-lite-your-call = optionId" },
     ],
@@ -312,6 +312,7 @@ const VOUCHER_CASES: SectionCase[] = [
     label: "TR-39b · 券单平仓面板 · 没利润",
     note: "面板只有两种状态，只看一个条件：现在平仓能不能拿到利润。打平和亏着是同一版，文字不随价格变。",
     spec: [
+      { state: "按钮轻重", when: "没利润态", visual: "`Keep it open` 主色实心（关掉面板）；`Close anyway` 描边（继续平仓）", source: "CPO 2026-11-18" },
       { state: "主体", when: "现在平仓利润 = 0", visual: "大字 `No profit right now` → `on your {买的哪边} call` → 细线 → 说明：现在平什么都拿不到、余额不受影响；留着还有可能在结算前赚到", source: "VoucherCashOutBody" },
       { state: "按钮", when: "同上", visual: "`Keep it open`（关掉面板）/ `Close anyway`（整笔平掉）", source: "同上" },
     ],

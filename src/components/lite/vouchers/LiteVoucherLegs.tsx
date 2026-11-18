@@ -23,6 +23,17 @@ export const isVoucherLeg = (p: Pick<UnifiedPosition, "isAirdrop" | "airdropSour
   !!p.isAirdrop && p.airdropSource === "voucher";
 
 /** "Nov 21, 13:36" in the reader's language. */
+/** A voucher call ends at whichever comes first: its own hold window, or the event closing. */
+export const voucherClosesAt = (
+  voucherExpiresAt: string | null | undefined,
+  eventEndsAt: string | null | undefined,
+): string | null => {
+  const times = [voucherExpiresAt, eventEndsAt]
+    .map((v) => (v ? new Date(v).getTime() : NaN))
+    .filter((n) => !Number.isNaN(n));
+  return times.length ? new Date(Math.min(...times)).toISOString() : null;
+};
+
 export const formatVoucherClosesBy = (iso: string | null | undefined): string => {
   if (!iso) return "—";
   const d = new Date(iso);
@@ -37,9 +48,9 @@ export const formatVoucherClosesBy = (iso: string | null | undefined): string =>
 };
 
 interface Props {
-  event: { name: string; side_labels?: unknown };
+  event: { name: string; side_labels?: unknown; end_date?: string | null };
   /** Sibling line markets shown on the same page (sports fixtures). */
-  siblingEvents?: { name: string; side_labels?: unknown }[];
+  siblingEvents?: { name: string; side_labels?: unknown; end_date?: string | null }[];
   line: "futures" | "spot";
   /** Quick rounds reuse one event name every round — match the round by its
    *  option-id prefix (`{eventId}-`) instead of by name. */
@@ -70,7 +81,7 @@ export const LiteVoucherLegs = ({
   } | null>(null);
 
   const eventsByName = useMemo(() => {
-    const m = new Map<string, { name: string; side_labels?: unknown }>();
+    const m = new Map<string, { name: string; side_labels?: unknown; end_date?: string | null }>();
     m.set(event.name, event);
     (siblingEvents ?? []).forEach((s) => m.set(s.name, s));
     return m;
@@ -119,7 +130,7 @@ export const LiteVoucherLegs = ({
           credit={math.credit}
           rawPnl={math.rawPnl}
           cap={math.cap}
-          closesBy={formatVoucherClosesBy(p.voucherExpiresAt)}
+          closesBy={formatVoucherClosesBy(voucherClosesAt(p.voucherExpiresAt, eventsByName.get(p.event)?.end_date))}
           compact={isMobile}
           surface={line === "spot" ? "standard" : "boost"}
           onCashOut={() =>

@@ -282,12 +282,15 @@ export const useLitePortfolio = () => {
 
   /** KPI is ALWAYS whole-account (Boost + Standard) — segment chips never move it. */
   const liveKpi = useMemo(() => {
-    const cost = live.reduce((s, r) => s + r.cost, 0);
-    const profit = live.reduce((s, r) => s + r.profit, 0);
+    // Voucher calls are not the user's money — they stay out of the account totals
+    // (Put in / Now worth / Profit). The call count still includes them.
+    const own = live.filter((r) => !r.isVoucher);
+    const cost = own.reduce((s, r) => s + r.cost, 0);
+    const profit = own.reduce((s, r) => s + r.profit, 0);
     return {
       cost,
       // Sum of the per-position clamped values (clamp first, then add).
-      nowWorth: live.reduce((s, r) => s + r.nowWorth, 0),
+      nowWorth: own.reduce((s, r) => s + r.nowWorth, 0),
 
       profit,
       profitPercent: cost > 0 ? (profit / cost) * 100 : 0,
