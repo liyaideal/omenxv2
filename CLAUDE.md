@@ -40,6 +40,7 @@
 8. **Lite 面禁用交易黑话**与内部名（`.lovable/memory/design/lite-banned-words.md`）；图标用 Lucide，UI 里不出现 emoji。
 9. 移动端不是降级：内联面板走 MobileDrawer，"流程即页面"走全屏路由 + sticky CTA，抽屉不嵌套。
 10. 图片 / 插画 / 艺术底资产不由代理生成或改动，只给素材清单，由产品负责人上传。
+11. **Standard 是现货，没有杠杆。**（CPO 2026-11-18）任何 Standard 面——Standard 交易页、Standard 持仓卡、Standard 页上的券单、相关文案与文档——不许出现倍数（`N×`）、Boost、杠杆字样；倍数只属于 Boost 面。除非以后明确上线现货杠杆。
 
 ## 5. 本地开发
 

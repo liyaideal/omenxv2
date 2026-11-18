@@ -2667,3 +2667,14 @@ CPO 2026-11-17 在画布「Finance 列表 · 开盘状态标注 mock」上批。
 7. **不做首单庆祝弹窗**（CPO 2026-11-18：现在的问题是不入金，不是不交易）。
 
 字典：Lite › Trade 状态 TR-35 / TR-35b / TR-36。
+
+## §Addendum 2026-11-18 · Standard 面不展示杠杆（LOCKED）
+
+CPO 2026-11-18 严令。Standard = 现货，没有杠杆。
+
+1. Standard 面的任何组件——Standard 交易页（`/spot`）、`SpotYourPosition`、Standard 下单卡、Standard 页上的券单卡、Portfolio 的 Standard 行、以及对应的提示 / 弹层 / 文案——不许出现倍数（`N×`）、`Boost`、杠杆字样。
+2. 倍数只属于 Boost 面（`/trade`、`LitePositionCard`、Portfolio 的 Boost 行）。
+3. 券单标题：Boost 页 = `{side} · 5× Boost` + VOUCHER 标；Standard 页 = `{side}` + VOUCHER 标，不写倍数。
+4. 自查：改动涉及 Standard 面时，提交前在改动范围内搜一遍 `×` 与 `Boost`。
+5. 只有明确上线现货杠杆后本条才失效。
+
