@@ -4,13 +4,13 @@
 usage: lark-image.py <doc_id> <image_block_id> <local_image_path>
 
 Run on Liya's Mac (device_bash). Reads the user token the Lark CLI keeps in
-~/mnt/.lark/tokens.json (run any `lark doc …` command first so it is fresh).
+~/mnt/omenx/_lark/tokens.json (run any `lark doc …` command first so it is fresh).
 Never print the token.
 """
 import json, os, subprocess, sys
 
 doc, block, path = sys.argv[1:4]
-tok = json.load(open(os.path.expanduser("~/mnt/.lark/tokens.json")))["access_token"]
+tok = json.load(open(os.path.expanduser("~/mnt/omenx/_lark/tokens.json")))["access_token"]
 auth = "Authorization: Bearer " + tok
 base = "https://open.larksuite.com/open-apis"
 

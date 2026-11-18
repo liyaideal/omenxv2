@@ -86,7 +86,7 @@ description: 给研发交付一份功能/迭代说明文档时使用。输出中
 
 ## 推到 Lark（2026-11-16 Liya 立 · 每份交付文档收尾必做）
 
-- 通路：Liya Mac 上的 Lark CLI（`cd $HOME/mnt/.lark; set -a; . ./secret.env; set +a; export LARK_CONFIG_DIR=$HOME/mnt/.lark; ./bin/lark-linux doc …`，经 device_bash）。**不许把 secret.env / tokens.json 的内容打印出来。**
+- 通路：Liya Mac 上的 Lark CLI（`cd $HOME/mnt/omenx/_lark; set -a; . ./secret.env; set +a; export LARK_CONFIG_DIR=$HOME/mnt/omenx/_lark; ./bin/lark-linux doc …`，经 device_bash）。**不许把 secret.env / tokens.json 的内容打印出来。**
 - 文字：`doc append <doc_id> --markdown --index <n>`（或 `--after <block_id>`）。往中间插多段时**从最后一段往前插、都用同一个 index**。已知会丢的写法：引用块里的编号列表、列表里嵌表格、反引号里带引号——推之前改成平铺写法，推完 `doc get` / `doc blocks` 读回来核对。
 - 截图：CLI 的 `doc image-insert` 会建出空的图片块然后报 `parent node not exist`（它上传时没带文档路由参数）。做法：照样用 `image-insert` 在正确位置占位（报错不用管），再用本目录的 `lark-image.py <doc_id> <图片块 id> <本地图片>` 把图传进去；最后用 `doc blocks` 数一遍「空图片块 = 0」。偶发 `server internal error` 重试一次。
 - 图片先从云端经 `device_commit_files` 放到 `~/Developer/omenx/_lark-img/`，推完可删。
