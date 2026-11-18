@@ -17,6 +17,7 @@ import { HomeCryptoSection } from "@/components/lite/home/HomeCryptoSection";
 import { HomeStocksSection, type PrintMode } from "@/components/lite/home/HomeStocksSection";
 import { HomeDeskSection } from "@/components/lite/home/HomeDeskSection";
 import { HomeMoreSection } from "@/components/lite/home/HomeMoreSection";
+import { MORE_ART } from "@/components/lite/home/homeMoreArt";
 import { HomeStage } from "@/components/lite/home/HomeStage";
 import { LiteAllStageSkeleton, LiteMobileStageSkeleton } from "@/components/lite/skeletons/LiteEventsSkeletons";
 import {
@@ -493,6 +494,7 @@ const ev = (o: {
   expiryDays: number;
   children: MarketChildRow[];
   sideLabels?: { yes: string; no: string };
+  image?: string;
 }): EventRow => ({
   id: o.id,
   eventId: o.id,
@@ -504,7 +506,7 @@ const ev = (o: {
   eventSubtype: null,
   lifecycleStatus: "TRADING",
   basePrice: null,
-  imageUrl: null,
+  imageUrl: o.image ?? null,
   sideLabels: o.sideLabels,
   change1h: 0,
   change4h: 0,
@@ -523,12 +525,12 @@ const ev = (o: {
   children: o.children,
 });
 export const MORE_EVENTS: EventRow[] = [
-  ev({ id: "ha-more-1", name: "Will Anthropic's valuation hit __ by December 31?", category: "finance", categoryLabel: "Finance", volume: 82_100_000, expiryDays: 52,
+  ev({ id: "ha-more-1", name: "Will Anthropic's valuation hit __ by December 31?", category: "finance", categoryLabel: "Finance", volume: 82_100_000, expiryDays: 52, image: MORE_ART.anthropic,
     children: [child("a1", "↑ $1.5T", 0.71), child("a2", "↑ $1.75T", 0.47), child("a3", "↑ $2.0T", 0.28), child("a4", "↑ $2.5T", 0.12), child("a5", "↑ $3.0T", 0.05), child("a6", "↑ $4.0T", 0.02)] }),
-  ev({ id: "ha-more-2", name: "Fed decision at the December meeting", category: "macro", categoryLabel: "Macro", volume: 12_800_000, expiryDays: 31,
+  ev({ id: "ha-more-2", name: "Fed decision at the December meeting", category: "macro", categoryLabel: "Macro", volume: 12_800_000, expiryDays: 31, image: MORE_ART.fed,
     children: [child("f1", "Hold", 0.54), child("f2", "Cut 25 bps", 0.38), child("f3", "Cut 50 bps", 0.05), child("f4", "Hike 25 bps", 0.03)] }),
   ev({ id: "ha-more-3", name: "Will Bitcoin close 2026 above $100,000?", category: "crypto", categoryLabel: "Crypto", volume: 3_400_000, expiryDays: 52, children: [child("b1", "Yes", 0.34), child("b2", "No", 0.66)] }),
-  ev({ id: "ha-more-4", name: "Which party controls the US House after the 2026 midterms — and does the Speaker keep the gavel through January?", category: "politics", categoryLabel: "Politics", volume: 83_200_000, expiryDays: 1,
+  ev({ id: "ha-more-4", name: "Which party controls the US House after the 2026 midterms — and does the Speaker keep the gavel through January?", category: "politics", categoryLabel: "Politics", volume: 83_200_000, expiryDays: 1, image: MORE_ART.president,
     children: [child("p1", "Democrats", 0.37), child("p2", "Republicans", 0.61), child("p3", "Exact tie", 0.02)] }),
 ];
 const MoreDemo = ({ events }: { events: EventRow[] }) => {

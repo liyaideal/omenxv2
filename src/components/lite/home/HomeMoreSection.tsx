@@ -1,20 +1,28 @@
 // ============================================================
-// HOME · §4 MORE MARKETS (首页 All 改版 · L4 / B1 · M1–M5, 2026-11-09)
+// HOME · §4 MORE MARKETS (首页 All 改版 · L4 / B1 · M1–M5, 2026-11-09; cover-as-backdrop 2026-11-18)
+// 稿源: Figma omenx_lite 1537:8499 (desktop, 画布 1440, 段宽 1232, 1:1) /
+//       1537:9924 (mobile, 画布 390, 段宽 358, 1:1).
 // Eyebrow "More markets · N open" + "Will it happen?" (same 48px as the
 // other sections); no list entry, no explainer (M1). Long-dated events are
-// few, so they lay down one per row: cover 120×72 + "Category · N markets ·
-// Boost n×" + title (≤ 3 lines on desktop) + "Vol $x · settles date" on the left, a
-// 520px outcome area on the right (M2). Multi-outcome → one cyan / lime
-// Yes-No share bar per market + Yes n¢ / No n¢ 66px buttons, max 4 shown,
-// the rest "+N more outcomes →"; mutually exclusive sets carry one line
-// under the bars (M3). Binary → no bar: big "34%" + "chance of Yes" + Yes /
-// No 110px buttons (B1, M4). Near settlement the eyebrow says "closes in Xh"
-// (M5). Mobile (M-More): cover + title stacked, bars full width.
+// few, so they lay down one per row (M2).
+// Desktop row: the event cover is the row's backdrop — 497.5px wide, full row
+// height, 40% opacity, fading out left and right, with a bottom-up dark wash —
+// and on it, vertically centred: "CATEGORY (cyan) · N markets · [⚡ Boost n×]
+// chip" + title (≤ 3 lines) + "Vol $x · settles date". A 520px outcome area sits
+// on the right, vertically centred.
+// Mobile row: cover as a 96×58 thumbnail + the same text (Boost stays plain text
+// in the eyebrow), outcomes full width under it.
+// Multi-outcome → one cyan / lime Yes-No share bar per market + Yes n¢ / No n¢
+// 66px buttons, max 4 shown, the rest "+N more outcomes →"; mutually exclusive
+// sets carry one line under the bars (M3). Binary → no bar: big "34%" + "chance
+// of Yes" + Yes / No 110px buttons (B1, M4). Near settlement the eyebrow says
+// "closes in Xh" (M5).
 // ============================================================
 import { useNavigate } from "react-router-dom";
 import type { EventRow } from "@/hooks/useMarketListData";
 import { CATEGORY_IMAGE } from "@/components/lite/LiteEventCard";
 import { CY, LM, MU, SectionHead, cents, ht, rich, tradeLink, uiLocale } from "./homeAllShell";
+import { MORE_ART_BY_EVENT } from "./homeMoreArt";
 import { t, useT } from "@/i18n";
 
 const volTxt = (n: number) => (n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `$${(n / 1_000).toFixed(1)}K` : `$${Math.round(n)}`);
@@ -58,44 +66,74 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
     const boost = getBoostMax(m.category);
     const msLeft = m.expiry ? m.expiry.getTime() - now : null;
     const closesSoon = msLeft != null && msLeft > 0 && msLeft < 48 * 3_600_000; // M5: an expired event never reads "closes in 1h"
-    const meta = [
-      m.categoryLabel,
-      multi ? ht("more.markets", { count: m.children.length }) : ht("more.yes_no"),
-      boost && boost >= 2 ? t("events.screen.simple.event_card.boost_multiplier", { multiplier: boost }) : null,
-      closesSoon ? ht("more.closes_in_hours", { h: Math.max(1, Math.round(msLeft! / 3_600_000)) }) : null,
-    ]
-      .filter(Boolean)
-      .join(" · ");
+    const marketsTxt = multi ? ht("more.markets", { count: m.children.length }) : ht("more.yes_no");
+    const boostTxt = boost && boost >= 2 ? t("events.screen.simple.event_card.boost_multiplier", { multiplier: boost }) : null;
+    const closesTxt = closesSoon ? ht("more.closes_in_hours", { h: Math.max(1, Math.round(msLeft! / 3_600_000)) }) : null;
     const yes = yesOf(m);
     const yesP = yes ? yes.markPrice : 0.5;
-    const cover = m.imageUrl ?? CATEGORY_IMAGE[(m.category || "").toLowerCase()];
+    const cover = MORE_ART_BY_EVENT[m.eventId] ?? m.imageUrl ?? CATEGORY_IMAGE[(m.category || "").toLowerCase()];
     const shown = multi ? m.children.slice(0, 4) : [];
     const rest = multi ? m.children.length - shown.length : 0;
     const sumYes = multi ? m.children.reduce((a, c) => a + c.markPrice, 0) : 0;
     const exclusive = multi && Math.abs(sumYes - 1) < 0.12;
 
-    const left = (
-      <div className="row" style={{ gap: isMobile ? 12 : 16, alignItems: "flex-start" }}>
+    const titleEl = (
+      <div
+        className="d"
+        // M2: desktop clamps at 3 lines (2026-11-10, was 2); phone never cuts the title — it wraps.
+        style={isMobile ? { fontWeight: 700, fontSize: 16, color: "#fff", marginTop: 5, lineHeight: 1.25 } : { fontWeight: 700, fontSize: 20, color: "#fff", marginTop: 3, lineHeight: "25px", letterSpacing: "-.5px", maxWidth: 420, textWrap: "balance", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+      >
+        {m.eventName}
+      </div>
+    );
+    const volEl = (
+      <div className={isMobile ? "kv" : "kv more-vol"} style={isMobile ? { marginTop: 4, fontSize: 11.5 } : undefined}>
+        {rich(ht("more.vol_settles", { date: settleTxt(m.expiry) }), { vol: <b>{volTxt(m.totalVolume)}</b> })}
+      </div>
+    );
+    const left = isMobile ? (
+      <div className="row" style={{ gap: 12, alignItems: "flex-start" }}>
         {cover ? (
-          <img src={cover} alt="" style={{ width: isMobile ? 96 : 120, height: isMobile ? 58 : 72, borderRadius: isMobile ? 8 : 10, objectFit: "cover", flex: "none" }} />
+          <img src={cover} alt="" style={{ width: 96, height: 58, borderRadius: 8, objectFit: "cover", flex: "none" }} />
         ) : (
-          <span style={{ width: isMobile ? 96 : 120, height: isMobile ? 58 : 72, borderRadius: 10, background: "#1B2130", flex: "none" }} />
+          <span style={{ width: 96, height: 58, borderRadius: 10, background: "#1B2130", flex: "none" }} />
         )}
         <span style={{ minWidth: 0 }}>
-          <div className="lbl" style={{ fontSize: isMobile ? 9.5 : 10 }}>
-            {meta}
+          <div className="lbl" style={{ fontSize: 9.5 }}>
+            {[m.categoryLabel, marketsTxt, boostTxt, closesTxt].filter(Boolean).join(" · ")}
           </div>
-          <div
-            className="d"
-            // M2: desktop clamps at 3 lines (2026-11-10, was 2); phone never cuts the title — it wraps.
-            style={isMobile ? { fontWeight: 700, fontSize: 16, color: "#fff", marginTop: 5, lineHeight: 1.25 } : { fontWeight: 700, fontSize: 20, color: "#fff", marginTop: 6, lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}
-          >
-            {m.eventName}
-          </div>
-          <div className="kv" style={{ marginTop: isMobile ? 4 : 6, fontSize: isMobile ? 11.5 : 12.5 }}>
-            {rich(ht("more.vol_settles", { date: settleTxt(m.expiry) }), { vol: <b>{volTxt(m.totalVolume)}</b> })}
-          </div>
+          {titleEl}
+          {volEl}
         </span>
+      </div>
+    ) : (
+      <div className="more-left">
+        {cover && (
+          <span className="more-art" aria-hidden>
+            <img src={cover} alt="" draggable={false} onError={(e) => (e.currentTarget.style.display = "none")} />
+          </span>
+        )}
+        <span className="more-wash" aria-hidden />
+        <div className="more-txt">
+          <div className="more-eye">
+            <span className="cat">{m.categoryLabel}</span>
+            <span>
+              · {marketsTxt}
+              {boostTxt ? " ·" : ""}
+            </span>
+            {boostTxt && (
+              <span className="more-boost">
+                <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden>
+                  <path d="M4.875 0.75L1.5 5.25H4.125L3.75 8.25L7.125 3.75H4.5L4.875 0.75Z" fill="#CFFF4A" />
+                </svg>
+                {boostTxt}
+              </span>
+            )}
+            {closesTxt && <span>· {closesTxt}</span>}
+          </div>
+          {titleEl}
+          {volEl}
+        </div>
       </div>
     );
 
@@ -181,7 +219,7 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
     return (
       <div key={m.id} className={`morerow${k < events.length - 1 ? " hr" : ""}`}>
         {left}
-        {right}
+        <div className="more-right">{right}</div>
       </div>
     );
   };
@@ -189,7 +227,7 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
   return (
     <section className="sec" style={{ paddingBottom: isMobile ? 56 : 72 }}>
       <SectionHead eyebrow={ht("more.eyebrow", { count: events.length })} eyebrowColor={MU} question={<>{rich(ht("more.question"))}</>} isMobile={isMobile} />
-      <div style={{ marginTop: isMobile ? 0 : 8 }}>{events.map(row)}</div>
+      <div className={isMobile ? undefined : "more-rows"}>{events.map(row)}</div>
     </section>
   );
 };

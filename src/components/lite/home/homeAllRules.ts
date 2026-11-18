@@ -75,9 +75,9 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     title: "Editor's Desk（推荐模块 · E1）",
     status: "定稿 11-09",
     rules: [
-      { id: "E1", text: "独立一段，放 Stocks 与 More 之间；眉行「✦ Editor's Desk · N picks」（柠檬色），问句「What's worth watching?」；段头右侧不写署名 / 更新时间。" },
+      { id: "E1", text: "独立一段，放 Stocks 与 More 之间；整段是一张带描边的圆角面板（2026-11-18 按设计稿）：上半是头图带——眉行「✦ Editor's Desk · N picks」（柠檬色）+ 问句「What's worth watching?」，右侧衬一张猞猁翻档案的插画（纯装饰，不可点）；一条细线之下是精选。面板上下不再画段间分隔线。段头不写署名 / 更新时间。" },
       { id: "E2", text: "数据 = 运营后台 featured-markets（≤ 3 个，每个带 whyThis）；没配时整段不出现（和线上一致）。" },
-      { id: "E3", text: "三列等高、无分割线、靠 56px 间距和 01 / 02 / 03 大号灰字分开；每列 = 编号 + 眉行「品类 · 时间」、标题（≤ 2 行）、引号里的 whyThis（≤ 3 行，超出省略）、下单钮贴底对齐（统一 36px 高）。" },
+      { id: "E3", text: "三列等高，列与列之间一条竖细线（2026-11-18 按设计稿，原来无分割线），01 / 02 / 03 大号灰字；每列 = 编号 + 眉行「品类 · 时间」、标题（≤ 2 行）、引号里的 whyThis（≤ 3 行，超出省略）、下单钮贴底对齐（统一 36px 高）。" },
       { id: "E4", text: "下单钮跟事件类型走：涨跌轮 = Up / Down；比赛 = 两队名 + 价；多档 = 两档胶囊 + 「+N more」，两档取价格最高的两个结果、价高在前（不是数据源的前两个；2026-11-10 批）。普通二元（Yes / No）= Yes n¢ / No n¢。三项足球赛的 pick 只放两队（主 = 第一个选项、客 = 最后一个），平局在交易页里买。多档和三项赛的每个胶囊 = 买那一档 / 那支队的 Yes（链接 `option=<那一档>&side=yes`），不是「No on 那一档」；只有两个选项的比赛，客队钮仍是 `side=no`（2026-11-10 修：原来多档第二个胶囊打开的是 No）。" },
     ],
   },
@@ -87,7 +87,7 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
     status: "定稿 11-09",
     rules: [
       { id: "M1", text: "眉行「More markets · N open」，问句「Will it happen?」48px（和其他段同号）；段头右侧不放列表入口、不写说明句。长期事件少，全部直接往下铺，一行一个事件。" },
-      { id: "M2", text: "每行左 = 封面 120×72 + 眉行「品类 · N markets · Boost n×」+ 标题（桌面 ≤ 3 行，2026-11-10 由 2 行放宽；手机不截断）+「Vol $x · settles 日期」；右 520px = 档位区。" },
+      { id: "M2", text: "每行左 = 事件封面 + 眉行「品类 · N markets · Boost n×」+ 标题（桌面 ≤ 3 行，2026-11-10 由 2 行放宽；手机不截断）+「Vol $x · settles 日期」；右 520px = 档位区。桌面（2026-11-18 按设计稿）：封面不再是小缩略图，而是铺在这一行左半边当底图（宽约 500、与行等高、40% 透明、左右渐隐、自下而上压暗），文字压在图上、上下居中；眉行里品类用青色，Boost n× 是一枚黄绿描边小标签（带闪电）。手机：封面仍是 96×58 缩略图，Boost 仍是眉行里的一段字。封面一律取事件自己的封面图（events.image_url）。" },
       { id: "M3", text: "多档事件：每个可交易 market 一条青 / 黄绿 Yes / No 比例条（青 = Yes 占比）+ Yes n¢ / No n¢ 定宽 66px 钮，最多露 4 条、其余「+N more outcomes →」；互斥型在 bar 下加一句「Outcomes are mutually exclusive — exactly one pays $1.」。「互斥」由事件类型决定（多选一型），正式版看后端字段；Lovable 用各档价格之和≈1 判断。档位顺序 = 接口给的顺序，不重排。只有两档的事件按二元（M4）画。" },
       { id: "M4", text: "二元事件（B1）：不画条，右边大数字「34%」+「chance of Yes」+ Yes / No 两个 110px 钮。" },
       { id: "M5", text: "临近结算（< 48 小时）的事件眉行写「closes in Xh」；已经过了截止时间的不写（2026-11-10 修：原来写「closes in 1h」）。" },
@@ -131,7 +131,7 @@ export const HOME_ALL_RULES: HomeRuleGroup[] = [
       { id: "MB3", text: "Sports：舞台位（直播预览 / 对阵 + 比分 / 最大场倒计时）→ 2 列瓷砖 → 日历条（横滑，紧贴在面板正上方——它只筛这张表，点了马上看得到变化；CPO 2026-11-11 批，原来在段标题下面、离表一屏远）→ 面板只留 Big this week 3 行 → 底部「+N more this week ｜ All N matches →」（这个 N = 眉行的 N：正在打的 + 还没开赛的，所以有比赛在打时比日历条 ALL 多出正在打的场数）。不列 Next up。手机行第一行写两队短码 + 成交额，短码太长时只截短码、成交额不截（2026-11-10）。有直播标记的 live 瓷砖去掉联赛名，保住「▶ Stream」。" },
       { id: "MB4", text: "Crypto：钟 + 进度条整行、周期 tab 一行 → BTC 卡（价 48px、图 150 高、同 C4 画法）→「BTC · last 8」紧贴图表下方、在 Up / Down 钮之前 → 资金比例条 → ETH / SOL 两张半卡并排（图 64 高）。" },
       { id: "MB5", text: "Stocks：市场 tab + 一行状态 → 只取前 5，每只两行（上：代码 + 短名（同 K3）/ 价 + 涨跌；下：走势图 120×26 + Up / Down 78px 钮）→ 底注「N of 5 above their base price · Show all N →」。" },
-      { id: "MB6", text: "Editor's Desk 三条竖叠（编号 + 眉行 / 标题 / 引言 / 钮）；More = 封面 + 标题一行，多档事件每档名字独占一行、下面 bar + Yes / No 58px 钮，二元事件 = 大数字 + 两钮整行。" },
+      { id: "MB6", text: "Editor's Desk 同样是一张圆角面板：头图带右上角一小块插画，三条精选在面板里竖叠（编号 + 眉行 / 标题 / 引言 / 钮），条与条之间细线；More = 封面 + 标题一行，多档事件每档名字独占一行、下面 bar + Yes / No 58px 钮，二元事件 = 大数字 + 两钮整行。" },
     ],
   },
 ];

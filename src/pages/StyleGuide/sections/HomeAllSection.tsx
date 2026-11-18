@@ -243,10 +243,11 @@ const DESK_CASES: SectionCase[] = [
     label: "HA-11 · Editor's Desk · 三种钮（HomeDeskSection · E1–E4）",
     note: "picks = 0 → 整段不渲染（E2）；fixture 三条 = 涨跌轮 / 股票轮 / 比赛。",
     spec: [
-      { state: "三列等高", when: "picks.length ≥ 1", visual: "眉行「✦ Editor's Desk · N picks」柠檬 + 问句；三列 56px 间距、无分割线、01 / 02 / 03 大号灰字；标题 ≤ 2 行、引言 ≤ 3 行斜体、钮贴底 36px", source: "E1 E3" },
+      { state: "面板", when: "picks.length ≥ 1", visual: "整段一张面板：1px #1F2330 描边、28px 圆角、自上而下 #171B26 → #0D0F15；头图带 232px 高（眉行柠檬 + 问句 48px），背后柠檬光晕 + 竖线纹理 + 右侧插画 desk-banner.webp（878px 槽位贴右、左右渐隐）；细线下是精选。段上下 24px、相邻不画段间线", source: "E1 · Figma 1537:8418" },
+      { state: "三列等高", when: "桌面", visual: "三列、列间 40px + 1px 竖线 + 40px；01 / 02 / 03 34px 灰字；标题 ≤ 2 行、引言 ≤ 3 行斜体、钮贴底 36px", source: "E3" },
       { state: "涨跌轮", when: 'yesLabel ∈ {Up, Down}', visual: "Up n¢ / Down n¢", source: "E4" },
       { state: "比赛", when: "optionCount === 2 && 非 Yes/No/Up/Down", visual: "两队名 + 价（odds 钮）", source: "E4" },
-      { state: "手机", when: "isMobile", visual: "三条竖叠，每条上细线分隔", source: "MB6" },
+      { state: "手机", when: "isMobile", visual: "同一张面板；头图带右上 240×130 插画（55% · lighten · 四边渐隐）；三条在面板里竖叠，条间细线", source: "MB6 · Figma 1537:9849" },
     ],
   },
   {
@@ -278,7 +279,9 @@ const MORE_CASES: SectionCase[] = [
       { state: "二元", when: "children.length ≤ 2", visual: "大数字 36px「34%」+ chance of Yes + Yes / No 110px", source: "M4 · B1" },
       { state: "临近结算", when: "expiry − now < 48h", visual: "眉行末尾「closes in Xh」", source: "M5" },
       { state: "长标题", when: "桌面", visual: "标题最多 3 行再省略（原来 2 行）；手机不截断", source: "M2 · 2026-11-10" },
-      { state: "手机", when: "isMobile", visual: "封面 96×58 + 标题；多档每档名字独占一行、下面 bar + 58px 钮；二元 = 大数字 + 两钮整行", source: "MB6" },
+      { state: "封面当底图", when: "桌面", visual: "封面铺在行左：宽 497.5、与行等高、opacity .4、左右渐隐（0 → 18% … 40% → 92%）、自下而上 rgba(10,10,16,.95 → .7 → 0) 压暗；文字压在图上、上下居中；行与行之间细线，第一行上方也有一条", source: "M2 · Figma 1537:8508" },
+      { state: "眉行", when: "桌面", visual: "品类青色 #33D6FF · 其余 #7E848D ·「⚡ Boost n×」黄绿描边小标签（4px 圆角）；临近结算的「closes in Xh」跟在标签后面", source: "M2 M5" },
+      { state: "手机", when: "isMobile", visual: "封面 96×58 缩略图 + 标题（Boost 仍是眉行里的字）；多档每档名字独占一行、下面 bar + 58px 钮；二元 = 大数字 + 两钮整行", source: "MB6 · Figma 1537:9924" },
     ],
   },
 ];

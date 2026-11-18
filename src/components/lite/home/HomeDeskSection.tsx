@@ -1,21 +1,25 @@
 // ============================================================
-// HOME · §3b EDITOR'S DESK (首页 All 改版 · E1 · E1–E4, 2026-11-09)
-// Its own section between Stocks and More; eyebrow "✦ Editor's Desk · N
-// picks" (lime) + "What's worth watching?"; no byline / updated-at (E1).
-// Data = ops featured markets (≤ 3, each with a reason); the section is not
-// rendered when nothing is configured (E2). Three equal-height columns, no
-// dividers — 56px gutters and the 01 / 02 / 03 numerals separate them;
-// each column = numeral + "Category · time" eyebrow, title (≤ 2 lines),
-// the reason in quotes (≤ 3 lines), order buttons bottom-aligned at 36px
-// (E3). Buttons follow the event type (E4): round → Up / Down; match →
-// two names + prices; multi-outcome → two pills + "+N more".
-// Mobile (M-Editors): the three picks stacked.
+// HOME · §3b EDITOR'S DESK (首页 All 改版 · E1–E4, 2026-11-09; Spotlight panel 2026-11-18)
+// 稿源: Figma omenx_lite 1537:8418 (desktop, 画布 1440, 段宽 1232, 1:1) /
+//       1537:9849 (mobile, 画布 390, 段宽 358, 1:1).
+// One panel (.desk: 1px #1F2330 border, 28px radius, top-lit gradient):
+//   hero band  — eyebrow "✦ Editor's Desk · N picks" (lime) + "What's worth
+//                watching?"; behind it a lime glow, a faint column grid and the
+//                lynx-in-the-archive banner fading in from the right (decorative).
+//   hairline, then the picks.
+// Content rules are unchanged (E1–E4): ≤ 3 picks, each with a reason; section not
+// rendered when nothing is configured (E2); numeral + "Category · time" eyebrow,
+// title (≤ 2 lines), reason in quotes (≤ 3 lines), order buttons bottom-aligned at
+// 36px (E3); buttons follow the event type (E4).
+// Desktop: three equal columns, 40px gaps with a 1px divider between picks.
+// Mobile: the picks stacked inside the panel, a hairline between them.
 // ============================================================
 import { useNavigate } from "react-router-dom";
 import { pickHref, type EditorPick } from "@/components/lite/picks/editorialPicks";
 import { topCategoryForKey } from "@/lib/taxonomy";
 import { DownButton, LM, OddsButton, SectionHead, UpButton, hhmm, ht, rich, uiLocale } from "./homeAllShell";
 import { t, useT } from "@/i18n";
+import deskBanner from "@/assets/home/desk-banner.webp";
 
 const catLabel = (p: EditorPick) => topCategoryForKey(p.category)?.label ?? (p.category ? p.category[0].toUpperCase() + p.category.slice(1) : t("events.screen.simple.featured_markets.featured_market_card.market"));
 const whenLabel = (d: Date | null, nowMs?: number): string => {
@@ -79,58 +83,77 @@ export const HomeDeskSection = ({ picks, isMobile, nowOverride }: { picks: Edito
 
   if (isMobile) {
     return (
-      <section className="sec">
-        <SectionHead eyebrow={eyebrow} eyebrowColor={LM} question={question} isMobile />
-        <div style={{ marginTop: 18 }}>
-          {picks.map((p, k) => (
-            <div key={p.id} style={{ padding: "16px 0", borderTop: "1px solid rgba(148,163,184,.12)" }}>
-              <div className="row" style={{ gap: 10, alignItems: "baseline" }}>
-                <span className="pnum" style={{ fontSize: 22 }}>
-                  {String(k + 1).padStart(2, "0")}
-                </span>
-                <span className="lbl" style={{ fontSize: 9.5 }}>
-                  {catLabel(p)}
-                  {p.endDate ? ` · ${whenLabel(p.endDate, nowOverride)}` : ""}
-                </span>
-              </div>
-              <div className="ptitle" style={{ fontSize: 17, marginTop: 8 }}>
-                {p.name}
-              </div>
-              <p className="pwhy" style={{ marginTop: 8, fontSize: 12.5 }}>
-                “{p.note}”
-              </p>
-              <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                <Buttons p={p} go={go} />
-              </div>
+      <section className="sec sec-desk">
+        <div className="desk">
+          <div className="desk-band">
+            <span className="desk-glow" aria-hidden />
+            <img className="desk-art" src={deskBanner} alt="" aria-hidden draggable={false} onError={(e) => (e.currentTarget.style.display = "none")} />
+            <div style={{ position: "relative" }}>
+              <SectionHead eyebrow={eyebrow} eyebrowColor={LM} question={question} isMobile />
             </div>
-          ))}
+          </div>
+          <div className="desk-list">
+            {picks.map((p, k) => (
+              <div key={p.id} className="desk-item">
+                <div className="row" style={{ gap: 10, alignItems: "baseline" }}>
+                  <span className="pnum" style={{ fontSize: 22 }}>
+                    {String(k + 1).padStart(2, "0")}
+                  </span>
+                  <span className="lbl" style={{ fontSize: 9.5 }}>
+                    {catLabel(p)}
+                    {p.endDate ? ` · ${whenLabel(p.endDate, nowOverride)}` : ""}
+                  </span>
+                </div>
+                <div className="ptitle" style={{ fontSize: 17, marginTop: 8 }}>
+                  {p.name}
+                </div>
+                <p className="pwhy" style={{ marginTop: 8, fontSize: 12.5 }}>
+                  “{p.note}”
+                </p>
+                <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                  <Buttons p={p} go={go} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="sec">
-      <SectionHead eyebrow={eyebrow} eyebrowColor={LM} question={question} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", columnGap: 56, marginTop: 30, alignItems: "stretch" }}>
-        {picks.map((p, k) => (
-          <div key={p.id} className="pcol">
-            <div className="row" style={{ gap: 12, alignItems: "baseline" }}>
-              <span className="pnum">{String(k + 1).padStart(2, "0")}</span>
-              <span className="lbl">
-                {catLabel(p)}
-                {p.endDate ? ` · ${whenLabel(p.endDate, nowOverride)}` : ""}
-              </span>
-            </div>
-            <div className="ptitle" style={{ marginTop: 12 }}>
-              {p.name}
-            </div>
-            <p className="pwhy">“{p.note}”</p>
-            <div className="row" style={{ gap: 8, marginTop: "auto", paddingTop: 16, flexWrap: "wrap" }}>
-              <Buttons p={p} go={go} />
-            </div>
+    <section className="sec sec-desk">
+      <div className="desk">
+        <div className="desk-band">
+          <span className="desk-glow" aria-hidden />
+          <span className="desk-grid" aria-hidden />
+          <span className="desk-art" aria-hidden>
+            <img src={deskBanner} alt="" draggable={false} onError={(e) => (e.currentTarget.style.display = "none")} />
+          </span>
+          <div style={{ position: "relative" }}>
+            <SectionHead eyebrow={eyebrow} eyebrowColor={LM} question={question} />
           </div>
-        ))}
+        </div>
+        <div className="desk-picks">
+          {picks.map((p, k) => (
+            <div key={p.id} className="pcol">
+              <div className="row" style={{ gap: 14, alignItems: "center" }}>
+                <span className="pnum">{String(k + 1).padStart(2, "0")}</span>
+                <span className="lbl">
+                  {catLabel(p)}
+                  {p.endDate ? ` · ${whenLabel(p.endDate, nowOverride)}` : ""}
+                </span>
+              </div>
+              <div className="ptitle" style={{ marginTop: 14 }}>
+                {p.name}
+              </div>
+              <p className="pwhy">“{p.note}”</p>
+              <div className="row" style={{ gap: 8, marginTop: "auto", paddingTop: 24, flexWrap: "wrap" }}>
+                <Buttons p={p} go={go} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

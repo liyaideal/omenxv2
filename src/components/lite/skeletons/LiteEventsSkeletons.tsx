@@ -171,8 +171,8 @@ const RowSkeleton = () => (
  * three events; other Sports states differ by ±150px). Was ~200px short on Sports (cold-read finding).
  */
 const SKEL_H = {
-  d: { sports: 1134, crypto: 709, stocks: 595, desk: 446, more: 780 },
-  m: { sports: 1329, crypto: 877, stocks: 810, desk: 767, more: 900 },
+  d: { sports: 1134, crypto: 709, stocks: 595, desk: 586, more: 780 },
+  m: { sports: 1329, crypto: 877, stocks: 810, desk: 777, more: 900 },
 } as const;
 
 /** Desktop Sports section (§1) — head + day strip, 5/7 split: stage + tiles | table panel. */
@@ -284,27 +284,31 @@ export const LiteStocksStageSkeleton = () => (
   </div>
 );
 
-/** Desktop Editor's Desk (§4) — head, three columns: number, eyebrow, title, note, two buttons. */
+/** Desktop Editor's Desk (§4) — one bordered panel: hero band (head), hairline, three columns. */
 export const LiteDeskStageSkeleton = () => (
-  <div style={{ padding: "56px 0", borderTop: SEP, minHeight: SKEL_H.d.desk }}>
-    <SectionHeadSkeleton />
-    <div className="grid grid-cols-3" style={{ gap: 36, marginTop: 40 }}>
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="flex flex-col" style={{ gap: 12 }}>
-          <div className="flex items-center" style={{ gap: 10 }}>
-            <SkelBlock w={30} h={26} r={6} />
-            <SkelBlock w={150} h={10} tone="secondary" />
+  <div style={{ padding: "24px 0", minHeight: SKEL_H.d.desk }}>
+    <div style={{ border: "1px solid #1F2330", borderRadius: 28, overflow: "hidden" }}>
+      <div className="flex flex-col justify-center" style={{ height: 232, padding: "0 40px", borderBottom: "1px solid #1F2330" }}>
+        <SectionHeadSkeleton />
+      </div>
+      <div className="grid grid-cols-3" style={{ gap: 81, padding: "32px 40px 36px" }}>
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex flex-col" style={{ gap: 12 }}>
+            <div className="flex items-center" style={{ gap: 10 }}>
+              <SkelBlock w={36} h={30} r={6} />
+              <SkelBlock w={150} h={10} tone="secondary" />
+            </div>
+            <SkelBlock w="85%" h={18} />
+            <SkelBlock w="60%" h={18} />
+            <SkelBlock w="95%" h={11} tone="secondary" />
+            <SkelBlock w="75%" h={11} tone="secondary" />
+            <div className="flex" style={{ gap: 8, marginTop: 18 }}>
+              <SkelBlock w={96} h={36} r={18} tone="secondary" />
+              <SkelBlock w={96} h={36} r={18} tone="secondary" />
+            </div>
           </div>
-          <SkelBlock w="85%" h={18} />
-          <SkelBlock w="60%" h={18} />
-          <SkelBlock w="95%" h={11} tone="secondary" />
-          <SkelBlock w="75%" h={11} tone="secondary" />
-          <div className="flex" style={{ gap: 8, marginTop: 6 }}>
-            <SkelBlock w={96} h={34} r={17} tone="secondary" />
-            <SkelBlock w={96} h={34} r={17} tone="secondary" />
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   </div>
 );
@@ -316,8 +320,7 @@ export const LiteMoreStageSkeleton = () => (
     <div className="flex flex-col" style={{ marginTop: 32 }}>
       {[0, 1, 2].map((i) => (
         <div key={i} className="grid items-center" style={{ gridTemplateColumns: "minmax(0,1fr) 520px", gap: 40, padding: "22px 0", borderTop: i ? SEP : undefined }}>
-          <div className="flex items-center" style={{ gap: 18 }}>
-            <SkelBlock w={120} h={72} r={10} tone="secondary" />
+          <div className="flex items-center" style={{ paddingLeft: 4 }}>
             <div className="flex flex-col" style={{ gap: 8, flex: 1 }}>
               <SkelBlock w={180} h={10} tone="secondary" />
               <SkelBlock w="80%" h={18} />
@@ -440,22 +443,29 @@ export const LiteMobileStocksSkeleton = () => (
   </div>
 );
 
-/** Mobile Editor's Desk §4 — head, three stacked picks. */
+/** Mobile Editor's Desk §4 — one bordered panel: head band, hairline, three stacked picks. */
 export const LiteMobileDeskSkeleton = () => (
-  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP, minHeight: SKEL_H.m.desk }}>
-    <SkelBlock w={180} h={11} tone="secondary" />
-    <SkelBlock w={260} h={34} r={8} />
-    {[0, 1, 2].map((i) => (
-      <div key={i} className="flex flex-col" style={{ gap: 10, padding: "12px 0", borderTop: SEP }}>
-        <SkelBlock w={170} h={10} tone="secondary" />
-        <SkelBlock w="85%" h={16} />
-        <SkelBlock w="95%" h={10} tone="secondary" />
-        <div className="flex" style={{ gap: 8 }}>
-          <SkelBlock w={90} h={32} r={16} tone="secondary" />
-          <SkelBlock w={90} h={32} r={16} tone="secondary" />
-        </div>
+  <div style={{ padding: "0 0 36px", minHeight: SKEL_H.m.desk }}>
+    <div style={{ border: "1px solid #1F2330", borderRadius: 28, overflow: "hidden" }}>
+      <div className="flex flex-col" style={{ padding: "28px 20px 24px", gap: 12, borderBottom: "1px solid #1F2330" }}>
+        <SkelBlock w={180} h={11} tone="secondary" />
+        <SkelBlock w={240} h={34} r={8} />
+        <SkelBlock w={160} h={34} r={8} />
       </div>
-    ))}
+      <div style={{ padding: "4px 20px 8px" }}>
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex flex-col" style={{ gap: 10, padding: "16px 0", borderTop: i ? "1px solid #1F2330" : undefined }}>
+            <SkelBlock w={170} h={10} tone="secondary" />
+            <SkelBlock w="85%" h={16} />
+            <SkelBlock w="95%" h={10} tone="secondary" />
+            <div className="flex" style={{ gap: 8 }}>
+              <SkelBlock w={90} h={32} r={16} tone="secondary" />
+              <SkelBlock w={90} h={32} r={16} tone="secondary" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   </div>
 );
 
