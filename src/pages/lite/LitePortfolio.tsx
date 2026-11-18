@@ -225,8 +225,10 @@ export default function LitePortfolio() {
   }, [tab, segment]);
 
   const selectedRows = rows.filter((r) => selected.has(r.id));
+  // Voucher calls close one at a time on their own card (no partials, own result layer),
+  // so batch cash-out never picks them up.
   const toggleRow = (r: LiteLiveRow) =>
-    setSelected((prev) => {
+    r.isVoucher ? undefined : setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(r.id)) next.delete(r.id);
       else next.add(r.id);
@@ -492,7 +494,7 @@ export default function LitePortfolio() {
               <SelectToolbar
                 count={selectedRows.length}
                 total={rows.length}
-                onSelectAll={() => setSelected(new Set(rows.map((r) => r.id)))}
+                onSelectAll={() => setSelected(new Set(rows.filter((r) => !r.isVoucher).map((r) => r.id)))}
                 onClear={() => setSelected(new Set())}
                 onCancel={() => {
                   setSelectMode(false);

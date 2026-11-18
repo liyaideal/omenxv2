@@ -2,6 +2,7 @@
 // Lite /portfolio Live list — mobile position card + desktop grid row +
 // the "waiting to fill" Pro order tail row. Literal spec (工单 §3).
 // ============================================================
+import { hasVoucherProfit } from "@/lib/voucherMath";
 import { t } from "@/i18n";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -57,9 +58,9 @@ const boostFigures = (row: LiteLiveRow) => {
 const voucherWinLine = (row: LiteLiveRow) =>
   t("portfolio.lite.live.if_wins_net", { win: `+${money(row.voucherCap ?? 0)}` });
 const voucherProfitText = (row: LiteLiveRow) =>
-  (row.voucherCredit ?? 0) > 0 ? `+${money(row.voucherCredit ?? 0)}` : money(0);
+  hasVoucherProfit(row.voucherCredit) ? `+${money(row.voucherCredit ?? 0)}` : money(0);
 const voucherProfitColor = (row: LiteLiveRow) =>
-  (row.voucherCredit ?? 0) > 0 ? livePnlColor(1) : "#F2F3F5";
+  hasVoucherProfit(row.voucherCredit) ? livePnlColor(1) : "#F2F3F5";
 
 const winSentence = (row: LiteLiveRow) =>
   `If it wins you get ${money(row.ifWins)}`;
@@ -148,7 +149,7 @@ export const LiveCard = ({
       }
     >
       <div className="flex items-start gap-2">
-        {selectMode && <CheckDot selected={!!selected} />}
+        {selectMode && (row.isVoucher ? <span /> : <CheckDot selected={!!selected} />)}
         <div className="flex-1 text-[14.5px] font-semibold leading-[1.35] text-[#F2F3F5]">
           {row.eventName}
         </div>
@@ -293,7 +294,7 @@ export const LiveRow = ({
             : undefined,
       }}
     >
-      {selectMode && <CheckDot selected={!!selected} />}
+      {selectMode && (row.isVoucher ? <span /> : <CheckDot selected={!!selected} />)}
       <div className="min-w-0 pr-3">
         <div className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{row.eventName}</div>
         <div className="truncate text-[11px] text-[#6B7280]">

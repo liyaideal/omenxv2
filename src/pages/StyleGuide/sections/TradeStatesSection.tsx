@@ -363,6 +363,13 @@ const VOUCHER_CASES: SectionCase[] = [
       { state: "只有一个按钮", when: "没有别的券且账户里有钱", visual: "主按钮 `Browse markets`，不显示副按钮（不重复）", source: "secondary = null" },
     ],
   },
+  {
+    key: "trade-tr40f",
+    label: "TR-40f · 平仓之后 · 没利润 · 还有别的券 · 账户里有钱",
+    spec: [
+      { state: "两个按钮", when: "还有别的券且账户里有钱", visual: "主按钮 `Browse markets`，副按钮 `Use another voucher`", source: "funded && hasOtherVoucher" },
+    ],
+  },
 ];
 
 /* ---------------- ④ 侧栏与账本（TR-13 / TR-14） ---------------- */
@@ -636,7 +643,7 @@ export const TradeStatesSection = () => (
   <SectionWrapper
     id="trade-states"
     title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-40）"
-    description="58 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共四个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）、LitePositionCard.flashOpen（TR-36）、VoucherLayer.inline（把券单弹层画在页面流里，TR-39 / TR-40）。"
+    description="59 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共四个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）、LitePositionCard.flashOpen（TR-36）、VoucherLayer.inline（把券单弹层画在页面流里，TR-39 / TR-40）。"
   >
     <SubSection title="① 页头与市场语境（TR-1 … TR-4）">
       <Pair cases={HEAD_CASES} desktopMin={420} mobileMin={480} />

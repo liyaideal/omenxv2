@@ -251,7 +251,7 @@ Redeem 入口：券行右侧动作 → 桌面在 tab 内展开 redeem desk；移
 ### 4.7 其他挂载点（不展开）
 
 - `/portfolio`：`VoucherBanner` — 券状态提示带。
-- `/trade` `/spot`：`CloseVoucherContent`（Dialog / Drawer 双端）— trial position 平仓确认。
+- `/trade` `/spot`：`CloseVoucherContent`（Dialog / Drawer 双端）— trial position 平仓确认（2026-11-18 起只剩 Pro 终端在用；Lite 交易页改用券卡 + 新平仓面板，见 `lite-voucher-call-v1.md`）。
 
 ---
 

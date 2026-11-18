@@ -7,6 +7,7 @@
 // the title is the side word + the VOUCHER mark — never a multiplier
 // (DESIGN.md §Addendum 2026-11-18 · Standard 面不展示杠杆).
 // ============================================================
+import { hasVoucherProfit } from "@/lib/voucherMath";
 import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 
@@ -64,7 +65,7 @@ export const LiteVoucherCard = ({
   anchorKey,
   flashOpen = false,
 }: LiteVoucherCardProps) => {
-  const winning = credit > 0;
+  const winning = hasVoucherProfit(credit);
   return (
     <div
       className={cn("rounded-2xl border border-border bg-card p-4", flashOpen && "lite-call-flash")}
@@ -123,11 +124,11 @@ export const LiteVoucherCard = ({
 export const CashOutKeepLabel = ({ amount }: { amount: string }) => {
   const [before, after] = t("vouchers.lite.cash_out_keep", { amount: "\u0000" }).split("\u0000");
   return (
-    <>
+    <span>
       {before}
       <span className="font-mono">{amount}</span>
       {after}
-    </>
+    </span>
   );
 };
 

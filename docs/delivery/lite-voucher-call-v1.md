@@ -54,7 +54,7 @@
 | 标题 | `Cash out` | `Cash out` + `VOUCHER` 标 | 同左 |
 | 主体 | `Cashing out 100% of your … call.` / `You get back ≈ $2.08`（把券面值也算成能拿回的钱） | `Profit so far on your 76ers call` → 大字 `+$0.04` → `Cash out now and it's yours.` | `No profit right now` / `on your 76ers call` / 一段说明 |
 | 第二行 | — | `Keep it open and it can earn up to` … `$1.00` | — |
-| 按钮 | `Cancel` + `Cash out ≈ $2.08` | `Cash out · keep +$0.04` | `Keep it open`（主）+ `Close anyway` |
+| 按钮 | `Cancel` + `Cash out ≈ $2.08` | `Cash out · keep +$0.04` | `Keep it open` + `Close anyway` |
 | 比例 | 25% / 50% / 100% | 没有比例（券单只能全平） | 同左 |
 
 **④ 平仓之后**
@@ -92,7 +92,7 @@
 | 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录），搜 `TR-37` | 券卡四种：Boost 赚着 / Boost 没利润 / Standard / 多盘口 |
 | 2 | `TR-38` / `TR-38b` | 兑换成功提示（两方事件 / 多盘口） |
 | 3 | `TR-39` / `TR-39b` / `TR-39c` | 平仓面板：有利润 / 没利润 / 多盘口 |
-| 4 | `TR-40` … `TR-40e` | 平仓之后五种按钮组合（见 §1.5 的表） |
+| 4 | `TR-40` … `TR-40f` | 平仓之后六种按钮组合（见 §1.5 的表） |
 | 5 | `TR-35c` | 多盘口事件普通买入的提示 |
 | 6 | `PF-13b` | Portfolio 券单行（桌面行 + 手机卡） |
 | 7 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=trade-tr37`，切语言加 `&lang=ru` |
@@ -108,7 +108,7 @@
 | 两方事件（球队 / Up-Down / Yes-No） | 那一边的名字 | `76ers`、`Up`、`Yes` |
 | 多盘口事件（一个事件多个选项，每个选项有 Yes / No） | `{选项} · Yes` 或 `{选项} · No` | `Lakers · No`、`↑$1.5T · Yes` |
 
-颜色跟 Yes / No 走（Yes 侧蓝、No 侧绿，沿用交易页选边色）。提示、券卡、平仓面板、Portfolio 都用这一个写法。
+颜色跟 Yes / No 走（Yes 侧青色、No 侧 lime，沿用交易页选边色）。提示、券卡、平仓面板、Portfolio 都用这一个写法。
 
 ### 1.2 兑换成功提示
 
@@ -145,11 +145,12 @@
 | 大字 | `+$0.04` | — |
 | 说明 | `Cash out now and it's yours.` | `on your {这一边} call` + `Close it now and you get nothing; your balance isn't touched. Keep it open and it can still end in profit before it settles.` |
 | 一行对比 | `Keep it open and it can earn up to` … `$1.00` | — |
-| 按钮 | `Cash out · keep +$0.04` | `Keep it open`（主按钮，关掉面板）+ `Close anyway` |
+| 按钮 | `Cash out · keep +$0.04`（主色实心） | 两个并排、都不是主色：`Keep it open`（描边，关掉面板）+ `Close anyway`（灰底，继续平仓） |
 
 3. 券单只能全平：没有 25 / 50 / 100、没有滑杆、文案不写百分比。
 4. 面板里的数字跟着价格实时变；最终入账以平仓那一刻的价格为准，可能和点按钮前看到的差几分钱。
-5. 平仓失败：面板不关，出提示 `Could not cash out`。
+5. 平仓失败（任何原因）：面板不关，出提示 `Could not cash out`，不把服务端报错原文给用户看。
+6. 「有利润」的门槛是四舍五入后至少 1 美分；不到 1 美分按没利润处理（券卡、面板、结果层、Portfolio 同一个门槛），不会出现 `+$0.00`。
 
 ### 1.5 平仓之后
 
@@ -161,7 +162,8 @@
 | TR-40b | 有利润 | 有 | — | 同上 | `Ready for the next one?` | `Browse markets` | `Go to Vouchers` |
 | TR-40c | 没利润 | 没有 | 有 | `Voucher call closed` / `No profit this time.` | `…Top up and you're in.` | `Deposit` | `Use another voucher` |
 | TR-40d | 没利润 | 没有 | 没有 | 同上 | 同上 | `Deposit` | `Browse markets` |
-| TR-40e | 没利润 | 有 | 有 → `Use another voucher`；没有 → 不显示次按钮 | 同上 | `Ready for the next one?` | `Browse markets` | 见左 |
+| TR-40e | 没利润 | 有 | 没有 | 同上 | `Ready for the next one?` | `Browse markets` | 不显示 |
+| TR-40f | 没利润 | 有 | 有 | 同上 | `Ready for the next one?` | `Browse markets` | `Use another voucher` |
 
 - 「账户里有钱」= Boost 余额或 Standard 余额任意一个向下取整 ≥ $1（和下单卡「余额不够」同一个门槛）。
 - 「还有别的券」= 用户还有可领或可兑的券。
@@ -170,7 +172,9 @@
 
 ### 1.6 Portfolio
 
-见「改前改后 ⑤」。补充：券单行不显示「最多会亏」；点 `Cash out` 进该事件的交易页，在券卡上平仓。
+见「改前改后 ⑤」。补充：券单行不显示「最多会亏」；点 `Cash out` 进该事件的交易页，在券卡上平仓；Portfolio 的批量 Cash out 选不中券单行（券单只能在券卡上一张一张平）。
+
+Portfolio 顶部的汇总数（Put in / Now worth / Profit）这轮没动，仍把券单按普通持仓计入——是否剔除待定。
 
 ### 1.7 券兑在 Standard 事件上
 
@@ -201,7 +205,7 @@
 
 ```
 份数     = 面值 × 倍数 ÷ 买入价          （Boost 事件倍数 = 5，Standard 事件倍数 = 1）
-浮动盈亏 = 份数 × (现价 − 买入价)         （买的是 No 侧就用 No 侧的价格）
+浮动盈亏 = 份数 × (现价 − 买入价)         （买入价、现价都是买的那一边的价格）
 最大利润 = 券上写的上限；没写就是 面值 × 上限比例（默认 50%）
 能拿到   = 浮动盈亏，小于 0 按 0，大于最大利润按最大利润
 ```
@@ -237,7 +241,7 @@
 | 2 | 交易页券卡（Boost / Standard / 加密涨跌轮三种页）；券单不进普通持仓卡列表 | §1.3 | TR-37 … TR-37d |
 | 3 | Standard 页券卡不写倍数 | §1.3、§1.7 | TR-37c |
 | 4 | 平仓面板两种样子，没有比例 | §1.4 | TR-39 … TR-39c |
-| 5 | 平仓之后的结果层 + 五种按钮组合；不出旧提示、不弹海报 | §1.5 | TR-40 … TR-40e |
+| 5 | 平仓之后的结果层 + 六种按钮组合；不出旧提示、不弹海报 | §1.5 | TR-40 … TR-40f |
 | 6 | 这一边的写法（多盘口 `{选项} · Yes/No`）全程一致 | §1.1 | TR-37d / TR-38b / TR-39c |
 | 7 | Portfolio 券单行；Standard 券单进 Standard 页签 | §1.6 | PF-13b |
 | 8 | ⚠ 后端：Standard 事件上的券按面值下现货单（不是 5×），结算与平仓入账同口径 | §1.7、§2 | — |
@@ -249,6 +253,9 @@
 
 - Lovable 里券单的开仓、估值、平仓入账是演示模拟（前端按 §2 算、演示函数 `close-trial-position` 和演示定时任务按同一公式结算）。正式版按真实撮合与结算实现，**只需要保证 §1.7 那条规则和 §2 的封顶口径**。
 - 平仓面板上的数字是前端按现价估的；正式版入账以成交为准。
+- Lovable 演示里买 No 侧的券单是拿 Yes 侧价格反着算的（份数按 Yes 价），份数在 Pro 面还会取整；正式版按 §2 用买的那一边的真实价格和真实份数，不用照搬。
+- 查不到券所在事件时 Lovable 默认按 5× 算；正式版券单本身就带产品线，不存在这个兜底。
+- Pro 现货终端和加密涨跌轮的桌面模式不把券单算进「可卖持仓」。
 - 「账户里有钱」的门槛（≥ $1）沿用下单卡现有约定。
 - Pro 终端的券单平仓弹窗这轮没改样子，只是 Standard 券单不再写 `5x`。
 
@@ -257,6 +264,8 @@
 - 券页（`/rewards?tab=vouchers`）和兑换选事件页本身没改。
 - 没有首单 / 首券庆祝弹窗，没有自动分享海报。
 - 券卡上的 CLOSES BY 写的是券单自己的最晚时间；事件更早结算时券单会跟着事件结算（现有行为，没改）。
+- MAX PROFIT / `If it wins → +$1.00` 一律写券的上限；Standard 券单买入价很高时实际到不了上限（$2 券 80¢ 买入，全赢也只有 $0.50）——是否改成「能到的数」待定。
+- 开平仓手续费：券单不收（§2 里没有费用项）。
 
 ## 附：内部编号对照
 
@@ -265,7 +274,7 @@
 | TR-37 … TR-37d | 券卡四种 |
 | TR-38 / TR-38b | 兑换成功提示 |
 | TR-39 … TR-39c | 平仓面板 |
-| TR-40 … TR-40e | 平仓之后 |
+| TR-40 … TR-40f | 平仓之后 |
 | TR-35c | 多盘口普通买入提示 |
 | TR-12 | 原「Voucher 徽标持仓卡」，现指向券卡 |
 | PF-13b | Portfolio 券单行 |

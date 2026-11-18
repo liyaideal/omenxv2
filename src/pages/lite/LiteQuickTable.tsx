@@ -178,7 +178,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   // ---------- holdings ----------
   const heldIndex = useMemo(() => {
     if (!event) return -1;
-    return positions.findIndex((p) => p.productLine === "futures" && typeof p.optionId === "string" && p.optionId.startsWith(`${event.id}-`));
+    return positions.findIndex((p) => p.productLine === "futures" && !(p.isAirdrop && p.airdropSource === "voucher") && typeof p.optionId === "string" && p.optionId.startsWith(`${event.id}-`));
   }, [positions, event]);
   const heldPos = heldIndex >= 0 ? positions[heldIndex] : null;
   const heldSide: TableSide | null = heldPos ? (heldPos.optionId === up?.id ? "up" : "down") : null;

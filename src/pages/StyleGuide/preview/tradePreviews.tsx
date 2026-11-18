@@ -396,6 +396,7 @@ export const Tr40bPreview = () => <VoucherDoneFrame credited={0.04} funded hasOt
 export const Tr40cPreview = () => <VoucherDoneFrame credited={0} funded={false} hasOtherVoucher />;
 export const Tr40dPreview = () => <VoucherDoneFrame credited={0} funded={false} hasOtherVoucher={false} />;
 export const Tr40ePreview = () => <VoucherDoneFrame credited={0} funded hasOtherVoucher={false} />;
+export const Tr40fPreview = () => <VoucherDoneFrame credited={0} funded hasOtherVoucher />;
 
 export const Tr36Preview = () => {
   const isMobile = useIsMobile();

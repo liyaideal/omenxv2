@@ -56,7 +56,7 @@
 
 | # | 改什么 | 详见 | 字典 |
 |---|---|---|---|
-| 13 | 买入成功提示：标题 `Bought {side} · $A` + 副行 `N× Boost · $P position`（1× 和 Standard 没有副行）+ 按钮 `View your call`（2026-11-18 更新，原来是一行字、没有按钮） | §2 | TR-35 / TR-35b / TR-36 |
+| 13 | 买入成功提示：标题 `Bought {side} · $A` + 副行 `N× Boost · $P position`（1× 和 Standard 没有副行）+ 按钮 `View your call`（2026-11-18 更新，原来是一行字、没有按钮）；多盘口事件 `{side}` 写成 `{选项} · Yes/No` | §2 | TR-35 / TR-35b / TR-35c / TR-36 |
 
 **③ 交易页 · 持仓卡**
 

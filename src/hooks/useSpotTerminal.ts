@@ -435,7 +435,7 @@ export function useSpotTerminal() {
   const { positions, refetch: refetchPositions } = usePositions();
   const { orders, cancelOrder, refetch: refetchOrders, isCancelling } = useOrders();
   const spotPositions = useMemo(
-    () => positions.filter((p) => p.productLine === "spot" && p.event === event?.name),
+    () => positions.filter((p) => p.productLine === "spot" && p.event === event?.name && !(p.isAirdrop && p.airdropSource === "voucher")),
     [positions, event?.name],
   );
   const spotOrders = useMemo(

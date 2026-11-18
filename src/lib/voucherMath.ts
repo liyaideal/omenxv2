@@ -54,3 +54,10 @@ export function voucherCredit(i: VoucherCreditInput): VoucherCredit {
       : i.faceValue * (i.redeemableCapPct != null ? i.redeemableCapPct : VOUCHER_DEFAULT_CAP_PCT);
   return { quantity, rawPnl, cap, credit: Math.max(0, Math.min(rawPnl, cap)) };
 }
+
+/** A voucher "has profit" only once it rounds to at least one cent — a sub-cent
+ *  credit would otherwise render as a winning "+$0.00". Every surface (card, panel,
+ *  result layer, Portfolio row) uses this one test. */
+export const hasVoucherProfit = (credit: number | null | undefined): boolean =>
+  Math.round((credit ?? 0) * 100) >= 1;
+

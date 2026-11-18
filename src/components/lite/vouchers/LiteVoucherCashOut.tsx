@@ -11,6 +11,7 @@
 //    (instant vs tiered) — that lives on the Voucher earnings card.
 //  - The auto share poster does not open for voucher calls.
 // ============================================================
+import { hasVoucherProfit } from "@/lib/voucherMath";
 import { t } from "@/i18n";
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
@@ -68,7 +69,7 @@ export const VoucherCashOutBody = ({
   onConfirm,
   onKeepOpen,
 }: VoucherCashOutBodyProps) => {
-  if (credit > 0) {
+  if (hasVoucherProfit(credit)) {
     return (
       <div>
         <div className="flex flex-col items-center pb-[18px] pt-1.5 text-center">
@@ -97,7 +98,7 @@ export const VoucherCashOutBody = ({
   return (
     <div>
       <div className="flex flex-col items-center pb-4 pt-1.5 text-center">
-        <div className="font-mono text-[26px] font-bold leading-[1.1] text-foreground">
+        <div className="font-mono text-[26px] font-bold leading-[1.1] text-foreground [text-wrap:balance]">
           {t("vouchers.lite.panel.no_profit")}
         </div>
         <div className="mt-2.5 text-[13px] text-muted-foreground">
@@ -144,7 +145,7 @@ export const VoucherDoneBody = ({
   onBrowse,
   onVouchers,
 }: VoucherDoneBodyProps) => {
-  const won = credited > 0;
+  const won = hasVoucherProfit(credited);
   const art = `/assets/${isMobile ? "mobile" : "desktop"}/${won ? "empty-celebrate" : "empty-no-boost"}.png`;
 
   // Primary follows the account; the nudge line follows the primary.
@@ -179,7 +180,7 @@ export const VoucherDoneBody = ({
         ) : (
           <>
             <img src={art} alt="" width={150} height={95} className="h-[95px] w-[150px]" />
-            <div className="mt-3.5 font-mono text-xl font-bold text-foreground">
+            <div className="mt-3.5 font-mono text-xl font-bold text-foreground [text-wrap:balance]">
               {t("vouchers.lite.done.closed")}
             </div>
             <div className="mt-1.5 text-[13px] text-muted-foreground">
@@ -188,7 +189,7 @@ export const VoucherDoneBody = ({
           </>
         )}
       </div>
-      <div className="mt-[18px] border-t border-border pt-3.5 text-center text-sm font-semibold leading-normal text-foreground">
+      <div className="mt-[18px] border-t border-border pt-3.5 text-center text-sm font-semibold leading-normal text-foreground [text-wrap:balance]">
         {funded ? t("vouchers.lite.done.nudge_funded") : t("vouchers.lite.done.nudge_deposit")}
       </div>
       <div className="mt-4 flex flex-col gap-2">
@@ -322,7 +323,7 @@ export const LiteVoucherCashOutFlow = ({
     try {
       const res = await closePosition(airdropId, { silent: true });
       if (!res?.ok) {
-        toast.error(res?.error ?? t("vouchers.lite.close_failed"));
+        toast.error(t("vouchers.lite.close_failed"));
         return;
       }
       setDone({ credited: res.credited });
