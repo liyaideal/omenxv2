@@ -267,15 +267,16 @@ export const useAirdropPositions = () => {
     const ids = rows.map((r) => r.id);
     const { data: vouchers } = await supabase
       .from("position_vouchers")
-      .select("redeemed_airdrop_position_id, redeemed_option_id, payout_mode, redeemable_cap_pct")
+      .select("redeemed_airdrop_position_id, redeemed_event_id, redeemed_option_id, payout_mode, redeemable_cap_pct")
       .in("redeemed_airdrop_position_id", ids);
     const byAirdrop = new Map<string, any>(
       (vouchers ?? []).map((v: any) => [v.redeemed_airdrop_position_id, v]),
     );
 
     // Which line each event trades on — decides 1× (Standard) vs 5× (Boost).
+    // (airdrop_positions has no event id — the voucher row carries it.)
     const eventIds = Array.from(
-      new Set(rows.map((r) => r.counter_event_id).filter((id): id is string => !!id)),
+      new Set((vouchers ?? []).map((v: any) => v.redeemed_event_id).filter((id: unknown): id is string => !!id)),
     );
     const { data: evs } = eventIds.length
       ? await supabase.from("events").select("id, product_lines").in("id", eventIds)
@@ -289,7 +290,7 @@ export const useAirdropPositions = () => {
       return {
         ...mapRow(row),
         optionId: v?.redeemed_option_id ?? null,
-        productLine: v ? voucherLineFor(linesByEvent.get(row.counter_event_id)) : null,
+        productLine: v ? voucherLineFor(linesByEvent.get(v.redeemed_event_id)) : null,
         payoutMode: v?.payout_mode === "instant" ? "instant" : v ? "tiered" : null,
         redeemableCapPct: v?.redeemable_cap_pct != null ? Number(v.redeemable_cap_pct) : null,
       };

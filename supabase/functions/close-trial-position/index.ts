@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
     let markPrice = Number(pos.counter_price)
     const { data: voucher } = await admin
       .from('position_vouchers')
-      .select('redeemed_option_id, redeemed_side, face_value, redeemable_cap_pct, payout_mode')
+      .select('redeemed_event_id, redeemed_option_id, redeemed_side, face_value, redeemable_cap_pct, payout_mode')
       .eq('redeemed_airdrop_position_id', pos.id)
       .maybeSingle()
 
@@ -85,11 +85,11 @@ Deno.serve(async (req) => {
     //    long  PnL = (mark − entry) × contracts
     //    short PnL = (entry − mark) × contracts
     let productLines: string[] = []
-    if (pos.counter_event_id) {
+    if (voucher?.redeemed_event_id) {
       const { data: ev } = await admin
         .from('events')
         .select('product_lines')
-        .eq('id', pos.counter_event_id)
+        .eq('id', voucher.redeemed_event_id)
         .maybeSingle()
       productLines = (ev?.product_lines as string[] | null) ?? []
     }
