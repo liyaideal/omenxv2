@@ -237,6 +237,7 @@ export type Database = {
         Row: {
           bot_name: string | null
           cancel_fee: number | null
+          client_id: string | null
           commission: number | null
           created_at: string
           fee: number
@@ -263,6 +264,7 @@ export type Database = {
         Insert: {
           bot_name?: string | null
           cancel_fee?: number | null
+          client_id?: string | null
           commission?: number | null
           created_at?: string
           fee: number
@@ -289,6 +291,7 @@ export type Database = {
         Update: {
           bot_name?: string | null
           cancel_fee?: number | null
+          client_id?: string | null
           commission?: number | null
           created_at?: string
           fee?: number
@@ -1272,6 +1275,81 @@ export type Database = {
         }
         Relationships: []
       }
+      mn_logo_tiles: {
+        Row: {
+          color: string
+          url: string
+        }
+        Insert: {
+          color: string
+          url: string
+        }
+        Update: {
+          color?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      mn_stock_names: {
+        Row: {
+          code: string
+          icon_at: string | null
+          icon_url: string | null
+          short: string
+        }
+        Insert: {
+          code: string
+          icon_at?: string | null
+          icon_url?: string | null
+          short: string
+        }
+        Update: {
+          code?: string
+          icon_at?: string | null
+          icon_url?: string | null
+          short?: string
+        }
+        Relationships: []
+      }
+      mn_sync_log: {
+        Row: {
+          id: number
+          ran_at: string
+          stats: Json | null
+        }
+        Insert: {
+          id?: number
+          ran_at?: string
+          stats?: Json | null
+        }
+        Update: {
+          id?: number
+          ran_at?: string
+          stats?: Json | null
+        }
+        Relationships: []
+      }
+      mn_sync_requests: {
+        Row: {
+          created_at: string
+          key: string | null
+          kind: string
+          req_id: number
+        }
+        Insert: {
+          created_at?: string
+          key?: string | null
+          kind: string
+          req_id: number
+        }
+        Update: {
+          created_at?: string
+          key?: string | null
+          kind?: string
+          req_id?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           category: string
@@ -1942,6 +2020,35 @@ export type Database = {
         }
         Relationships: []
       }
+      stream_reminders: {
+        Row: {
+          created_at: string
+          event_id: string
+          notified_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          notified_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          notified_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stream_reminders_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           created_at: string
@@ -2482,6 +2589,7 @@ export type Database = {
       arcade_combo_vouchers: { Args: { p_user: string }; Returns: number }
       arcade_feed_tick: { Args: never; Returns: undefined }
       arcade_housekeeping: { Args: never; Returns: undefined }
+      arcade_lookup: { Args: { p_client_id: string }; Returns: Json }
       arcade_median3: {
         Args: { a: number; b: number; c: number }
         Returns: number
@@ -2491,6 +2599,7 @@ export type Database = {
         Returns: {
           bot_name: string | null
           cancel_fee: number | null
+          client_id: string | null
           commission: number | null
           created_at: string
           fee: number
@@ -2526,6 +2635,7 @@ export type Database = {
         Returns: {
           bot_name: string | null
           cancel_fee: number | null
+          client_id: string | null
           commission: number | null
           created_at: string
           fee: number
@@ -2603,7 +2713,12 @@ export type Database = {
         Returns: number[]
       }
       arcade_place: {
-        Args: { p_gross: number; p_quote_ts: string; p_side: string }
+        Args: {
+          p_client_id?: string
+          p_gross: number
+          p_quote_ts: string
+          p_side: string
+        }
         Returns: Json
       }
       arcade_real_btc: { Args: never; Returns: number }
@@ -2647,6 +2762,15 @@ export type Database = {
       }
       arcade_table_now: { Args: never; Returns: Json }
       archive_sports_result: { Args: { p_id: string }; Returns: undefined }
+      campaign_entry_eligible: {
+        Args: {
+          _joined_at: string
+          _rules: Json
+          _source: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       campaign_hold_sweep: { Args: never; Returns: number }
       campaign_metric_value: {
         Args: {
@@ -2714,6 +2838,15 @@ export type Database = {
           campaign_id: string
           entry_id: string
           joined: number
+        }[]
+      }
+      get_campaign_leaderboard: {
+        Args: { _entry_id: string; _limit?: number }
+        Returns: {
+          is_me: boolean
+          rank: number
+          username: string
+          value: number
         }[]
       }
       get_voucher_pool_today: {
@@ -2788,6 +2921,7 @@ export type Database = {
           volume: number
         }[]
       }
+      keep_demo_overtime_fixture: { Args: never; Returns: undefined }
       list_my_sessions: {
         Args: never
         Returns: {
@@ -2808,6 +2942,47 @@ export type Database = {
         }[]
       }
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
+      mn_apply_calendar: { Args: { c: Json }; Returns: Json }
+      mn_apply_catalog: { Args: { c: Json }; Returns: Json }
+      mn_apply_daily_close: { Args: { c: Json; p_key: string }; Returns: Json }
+      mn_apply_detail: { Args: { c: Json; p_id: string }; Returns: Json }
+      mn_apply_homepage: { Args: { c: Json }; Returns: Json }
+      mn_apply_stock_rounds: { Args: { c: Json }; Returns: Json }
+      mn_display_stock_code: { Args: { p_code: string }; Returns: string }
+      mn_fnv1a: { Args: { s: string }; Returns: number }
+      mn_mainnet_stock_code: { Args: { p_tick: string }; Returns: string }
+      mn_match_status: {
+        Args: { p: string; p_kickoff: string }
+        Returns: string
+      }
+      mn_matches_to_calendar: { Args: { c: Json }; Returns: Json }
+      mn_note_stock_code: {
+        Args: { p_short: string; p_tick: string }
+        Returns: undefined
+      }
+      mn_refresh_demo_picks: { Args: never; Returns: Json }
+      mn_settle: {
+        Args: { p_id: string; p_note: string; p_winners: string[] }
+        Returns: number
+      }
+      mn_sport_of: {
+        Args: { p_code: string; p_shape: string; p_team: string }
+        Returns: string
+      }
+      mn_stock_open_at: {
+        Args: { p_close: string; p_subtype: string }
+        Returns: string
+      }
+      mn_stock_tz: { Args: { p_subtype: string }; Returns: string }
+      mn_sync_apply: { Args: never; Returns: Json }
+      mn_sync_request: { Args: never; Returns: number }
+      mn_tick_stock_rounds: { Args: never; Returns: Json }
+      mn_u32_mul: { Args: { a: number; b: number }; Returns: number }
+      mn_unique_name: {
+        Args: { p_id: string; p_name: string; p_when: string }
+        Returns: string
+      }
+      mn_walk_close: { Args: { p_base: number; p_id: string }; Returns: number }
       notif_session_date: { Args: { p_option_id: string }; Returns: string }
       notification_category: { Args: { p_type: string }; Returns: string }
       notify: {
@@ -2828,6 +3003,7 @@ export type Database = {
         Args: { p_dedupe?: string; p_params?: Json; p_type: string }
         Returns: string
       }
+      notify_stream_reminders: { Args: never; Returns: number }
       notify_watchlist_live: { Args: never; Returns: number }
       position_side_labels: { Args: { p_option_id: string }; Returns: Json }
       position_trade_link: { Args: { p_option_id: string }; Returns: string }
@@ -2858,6 +3034,7 @@ export type Database = {
       sim_market_activity_tick: { Args: never; Returns: number }
       sim_poisson: { Args: { p_lambda: number }; Returns: number }
       sim_price_tick: { Args: never; Returns: number }
+      sim_quick_round_volume_tick: { Args: never; Returns: number }
       soccer_line_prices: {
         Args: { p_away: number; p_draw: number; p_home: number }
         Returns: {
