@@ -48,7 +48,7 @@
 | §1 Sports | 有体育场次 | `HomeSportsSection` | HA-2 … HA-5 |
 | §2 Crypto | 有活轮 | `HomeCryptoSection` + `RoundCanvas` | HA-6 / HA-7 |
 | §3 Stocks | 有股票日轮 | `HomeStocksSection` | HA-8 … HA-10 |
-| §3b Editor's Desk | picks ≥ 1 | `HomeDeskSection` | HA-11 / HA-12 |
+| §3b Editor's Desk | picks ≥ 1 | `HomeDeskSection` | HA-11 / HA-12 / HA-20 |
 | §4 More markets | 有长期事件 | `HomeMoreSection` | HA-13 |
 | 五段的组合 | — | `HomeStage`（`.hall` / `.hall-m`） | HA-14 |
 
@@ -59,7 +59,7 @@
 ### H · 页头 · Hero · chip 行
 - **H1** 顶栏 / 行情条不动。行情条走真数据，跑马灯连续左移。
 - **H2** Hero = 1440×260 全宽横幅：设计师的猞猁键盘插画做整条底图（/assets/desktop/hero-band@2x.png 2880×520，右对齐、撑满高度），上压左浅右深暗色渐变。
-- **H3** Hero 文案：H1 两行 56px「Prediction markets, / with leverage.」（第二行柠檬色），副标 15px「Think you know what happens next? Pick a topic, tap Yes or No.」，LIVE MARKETS 小标签。i18n key：home_hero.heading_v2 / sub_v2 / sub_v2_mobile。
+- **H3** Hero 文案：H1 两行 56px「Prediction markets, / with leverage.」（第二行柠檬色），副标 15px「Think you know what happens next? Pick a topic, then pick a side.」，LIVE MARKETS 小标签。i18n key：home_hero.heading_v2 / sub_v2 / sub_v2_mobile。
 - **H4** chip 行左边 = 品类：All / Intraday / Sports / Crypto / Finance…；右边 = 视图开关：⚡ Boost / ☆ Watchlist / ▦ Calendar。Boost 是筛选不是品类。
 - **H5** Boost 行为不变（boostOnly）：点了换成只列能 Boost 事件的卡片网格、按品类分组，All 的排版不参与。
 - **H6** Quick Play 横幅照生产组件（ArcadeEntryBanner，桌面 AB-1 / 手机 AB-2），不另画。
@@ -98,13 +98,13 @@
 
 ### M · More 段（长期事件）
 - **M1** 眉行「More markets · N open」，问句「Will it happen?」48px（和其他段同号）；段头右侧不放列表入口、不写说明句。长期事件少，全部直接往下铺，一行一个事件。
-- **M2** 每行左 = 事件封面 + 眉行「品类 · N markets · Boost n×」+ 标题（桌面 ≤ 3 行，2026-11-10 由 2 行放宽；手机不截断）+「Vol $x · settles 日期」；右 520px = 档位区。桌面（2026-11-18 按设计稿）：封面不再是小缩略图，而是铺在这一行左半边当底图（宽约 500、与行等高、40% 透明、左右渐隐、自下而上压暗），文字压在图上、上下居中；眉行里品类用青色，Boost n× 是一枚黄绿描边小标签（带闪电）。手机：封面仍是 96×58 缩略图，Boost 仍是眉行里的一段字。封面一律取事件自己的封面图（events.image_url）。
+- **M2** 每行左 = 事件封面 + 眉行「品类 · N markets · Boost n×」+ 标题（桌面 ≤ 3 行，2026-11-10 由 2 行放宽；手机不截断）+「Vol $x · settles 日期」；右 520px = 档位区。桌面（2026-11-18 按设计稿）：封面不再是小缩略图，而是铺在这一行左半边当底图（宽约 500、与行等高、40% 透明、左右渐隐、自下而上压暗），文字压在图上、上下居中；眉行里品类用青色，Boost n× 是一枚黄绿描边小标签（带闪电）。手机：封面仍是 96×58 缩略图，Boost 仍是眉行里的一段字。封面取事件自己的封面图（events.image_url）；事件没有封面时用该品类的通用图兜底（和事件卡片同一张），图加载失败就不显示底图 / 缩略图，文字和档位照常。
 - **M3** 多档事件：每个可交易 market 一条青 / 黄绿 Yes / No 比例条（青 = Yes 占比）+ Yes n¢ / No n¢ 定宽 66px 钮，最多露 4 条、其余「+N more outcomes →」；互斥型在 bar 下加一句「Outcomes are mutually exclusive — exactly one pays $1.」。「互斥」由事件类型决定（多选一型），正式版看后端字段；Lovable 用各档价格之和≈1 判断。档位顺序 = 接口给的顺序，不重排。只有两档的事件按二元（M4）画。
 - **M4** 二元事件（B1）：不画条，右边大数字「34%」+「chance of Yes」+ Yes / No 两个 110px 钮。
 - **M5** 临近结算（< 48 小时）的事件眉行写「closes in Xh」；已经过了截止时间的不写（2026-11-10 修：原来写「closes in 1h」）。
 
 ### G · 全局
-- **G1** 所有段头 = 眉行（品类 · 形态 · 数量/状态）+ 48px 问句，第二行结束，不要第三行说明。主块裸放、副块进面板，裸放块之间靠留白分隔、不加分割线；段与段之间一根细线——只画在真的渲染出来的段之间；某段这一刻画不出来（比如所选周期 BTC 没有当前轮），不留空线（2026-11-10 修）。
+- **G1** 所有段头 = 眉行（品类 · 形态 · 数量/状态）+ 48px 问句，第二行结束，不要第三行说明。主块裸放、副块进面板，裸放块之间靠留白分隔、不加分割线；段与段之间一根细线——只画在真的渲染出来的段之间；某段这一刻画不出来（比如所选周期 BTC 没有当前轮），不留空线（2026-11-10 修）。例外（2026-11-18）：Editor's Desk 整段是一张自带描边的面板，它上方和下方不画段间细线，段上下留 24px。
 - **G2** 颜色语义：Up / Yes 青 #33D6FF，Down / No 柠檬 #CFFF4A，直播与倒计时橙 #FF8A3D，股票涨跌绿红；全站规则性文案（赢的份额付 $1 等）不在首页任何段重复。
 - **G3** 首页所有价格钮点击 = 进对应事件的交易页并预选那一边（CPO 2026-11-09 批）：Sports 价钮 = 那支队的选项；Crypto / Stocks 的 Up = Yes 边、Down = No 边；Editor's Desk 的钮 = 钮上那个选项；More 多档的 Yes / No = 那一档 + 那一边，二元 = 那一边。行、瓷砖、舞台位对阵、Open match → 只进交易页、不预选。链接写法 `/trade?event=<id>&option=<选项 id>&side=yes|no`（现货事件 `/spot?…`，快轮同样走 `/trade?…&side=yes|no`，旧写法 up / down 也认）；交易页进页时读一次，选中那一档、下单区切到那一边，之后用户自己改不会被拉回；找不到这一档就照常打开、不报错。首页不下单；播放规则见 S2。
 - **G4** 手机版按手机习惯重做，不平铺桌面（见 MB 组）。
@@ -122,7 +122,7 @@
 - **R9** 常年只写在代码里的小规则（2026-11-10 冷读补成文）：① 舞台左上标签太长时只缩联赛名，比赛时钟（MAP 1 · 12:04 / Q3 5:12）永远显示；② 瓷砖区既有「Also live」又补了未开赛的，未开赛那部分小标题写「Up next · HH:mm / HH:mm」（各自开赛时间）；③ 瓷砖一律写星期几（TUE），舞台写 Today / Tomorrow；④ 手机舞台标签不带联赛名；手机 Crypto 右上写「Today $2.2M」、不写「this round」；⑤ Last 8 的柱高是固定装饰（14/9/18/6/12/20/8/15），只有颜色表示涨跌，不是数据。
 
 ### MB · 手机版（390）
-- **MB1** Hero 按设计师手机稿（Figma 203-91044 / 203:91054）：居中两行 26px 标题 → 一句副标「Pick a topic, tap Yes or No.」→ 358×89 插画条（/assets/mobile/hero-band@3x.png，设计师稿整块导出：面板底 + 插画，3×，紧贴副标下方）；不放 LIVE MARKETS 标签。
+- **MB1** Hero 按设计师手机稿（Figma 203-91044 / 203:91054）：居中两行 26px 标题 → 一句副标「Pick a topic, then pick a side.」→ 358×89 插画条（/assets/mobile/hero-band@3x.png，设计师稿整块导出：面板底 + 插画，3×，紧贴副标下方）；不放 LIVE MARKETS 标签。
 - **MB2** 品类 chip 一行横滑；Quick Play 用生产手机横幅 AB-2。
 - **MB3** Sports：舞台位（直播预览 / 对阵 + 比分 / 最大场倒计时）→ 2 列瓷砖 → 日历条（横滑，紧贴在面板正上方——它只筛这张表，点了马上看得到变化；CPO 2026-11-11 批，原来在段标题下面、离表一屏远）→ 面板只留 Big this week 3 行 → 底部「+N more this week ｜ All N matches →」（这个 N = 眉行的 N：正在打的 + 还没开赛的，所以有比赛在打时比日历条 ALL 多出正在打的场数）。不列 Next up。手机行第一行写两队短码 + 成交额，短码太长时只截短码、成交额不截（2026-11-10）。有直播标记的 live 瓷砖去掉联赛名，保住「▶ Stream」。
 - **MB4** Crypto：钟 + 进度条整行、周期 tab 一行 → BTC 卡（价 48px、图 150 高、同 C4 画法）→「BTC · last 8」紧贴图表下方、在 Up / Down 钮之前 → 资金比例条 → ETH / SOL 两张半卡并排（图 64 高）。
@@ -241,15 +241,15 @@
 
 | 段 | 改前 | 改后 |
 |---|---|---|
-| Editor's Desk（桌面） | 直接铺在页面上，三列之间靠留白分开；段高 425 | 整段一张描边圆角面板：上面头图带（眉行 + 问句 + 右侧猞猁插画），细线下三列精选，列间竖细线；段高 586 |
+| Editor's Desk（桌面） | 直接铺在页面上，三列之间靠留白分开；段高 425 | 整段一张描边圆角面板：上面头图带（眉行 + 问句 + 右侧猞猁插画），细线下三列精选，列间竖细线；段高 585 |
 | Editor's Desk（手机） | 眉行 + 问句 + 三条竖叠 | 同一张面板，头图带右上角一小块插画，三条在面板里竖叠 |
 | More（桌面） | 每行左边 120×72 小封面 + 文字 | 封面铺在行左半边当底图（淡、两头渐隐），文字压在图上；品类青色；Boost n× 变成黄绿描边小标签 |
-| More（手机） | 96×58 封面 + 文字 | 不变（Boost 仍是眉行里的字） |
+| More（手机） | 96×58 封面 + 文字 | 布局不变（Boost 仍是眉行里的字）；Lovable 里四个演示事件的缩略图跟着换成了稿上的图 |
 | 段间分隔线 | 每两段之间一条 | Editor's Desk 面板上下不画线（面板自己有边） |
 
 研发要知道的三件事：
-1. **封面从哪来**：More 每行的底图就是事件自己的封面（`events.image_url`）。主网每个新事件设计师都会出一张这种横幅封面，前端不用另配字段。封面缺失时这一行只是没有底图，文字和档位照常。
-2. **Lovable 里的演示图**：Lovable 的四个演示事件（best-ai-model-eoy-2026 / gpt6-release-window-2026 / us-president-2028 / fed-rate-hike-2026）库里还是旧封面，所以前端在 `homeMoreArt.ts` 里按事件 id 配了设计稿上的图，只在首页这一段生效。正式版不需要这张表。
+1. **封面从哪来**：More 每行的底图就是事件自己的封面（`events.image_url`）。主网每个新事件设计师都会出一张这种横幅封面，前端不用另配字段。事件没有封面时用该品类的通用图兜底（和事件卡片同一张）；图加载失败就不显示，文字和档位照常。
+2. **Lovable 里的演示图**：Lovable 的四个演示事件（best-ai-model-eoy-2026 / gpt6-release-window-2026 / us-president-2028 / fed-rate-hike-2026）库里还是旧封面，所以前端在 `homeMoreArt.ts` 里按事件 id 配了设计稿上的图，只在首页这一段生效（桌面底图和手机缩略图都用它）。正式版不需要这张表。
 3. **插画是固定素材**：Editor's Desk 的头图插画是仓库里的一张图（`src/assets/home/desk-banner.webp`），不随精选内容变，不可点。
 
 规则原文见 §2 的 E1 / E3 / M2 / MB6；每个态的样子看 style-guide `Lite › Events › 首页 All` 的 HA-11 / HA-12 / HA-20（Editor's Desk）与 HA-13（More）。

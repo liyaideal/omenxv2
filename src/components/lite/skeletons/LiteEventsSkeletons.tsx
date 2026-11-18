@@ -315,9 +315,9 @@ export const LiteDeskStageSkeleton = () => (
 
 /** Desktop More (§5) — head, three event rows: cover + question | outcomes / chance + Yes / No. */
 export const LiteMoreStageSkeleton = () => (
-  <div style={{ padding: "56px 0", borderTop: SEP, minHeight: SKEL_H.d.more }}>
+  <div style={{ padding: "56px 0", minHeight: SKEL_H.d.more }}>
     <SectionHeadSkeleton />
-    <div className="flex flex-col" style={{ marginTop: 32 }}>
+    <div className="flex flex-col" style={{ marginTop: 52, borderTop: SEP }}>
       {[0, 1, 2].map((i) => (
         <div key={i} className="grid items-center" style={{ gridTemplateColumns: "minmax(0,1fr) 520px", gap: 40, padding: "22px 0", borderTop: i ? SEP : undefined }}>
           <div className="flex items-center" style={{ paddingLeft: 4 }}>
@@ -471,7 +471,7 @@ export const LiteMobileDeskSkeleton = () => (
 
 /** Mobile More §5 — head, two event rows (cover 96×58 + question, then buttons). */
 export const LiteMobileMoreSkeleton = () => (
-  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, borderTop: SEP, minHeight: SKEL_H.m.more }}>
+  <div className="flex flex-col" style={{ padding: "36px 0", gap: 14, minHeight: SKEL_H.m.more }}>
     <SkelBlock w={180} h={11} tone="secondary" />
     <SkelBlock w={230} h={34} r={8} />
     {[0, 1].map((i) => (

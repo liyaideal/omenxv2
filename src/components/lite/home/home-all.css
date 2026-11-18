@@ -192,6 +192,8 @@
   /* the 520px outcome area no longer fits beside the title: stack it under (desktop sizes kept) */
   .hall .morerow{grid-template-columns:minmax(0,1fr);gap:0}
   .hall .more-right{padding-top:0}
+  .hall .more-left{padding-left:0}
+  .hall .desk-art{opacity:.55}
   .hall .morerow>:last-child{max-width:640px}
 }
 @media (min-width:1280px){.hall .stk2-l>.hr:last-child{border-bottom:0}}

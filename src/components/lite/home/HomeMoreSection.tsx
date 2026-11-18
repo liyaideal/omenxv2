@@ -94,9 +94,9 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
     const left = isMobile ? (
       <div className="row" style={{ gap: 12, alignItems: "flex-start" }}>
         {cover ? (
-          <img src={cover} alt="" style={{ width: 96, height: 58, borderRadius: 8, objectFit: "cover", flex: "none" }} />
+          <img src={cover} alt="" style={{ width: 96, height: 58, borderRadius: 8, objectFit: "cover", flex: "none", background: "#1B2130" }} onError={(e) => (e.currentTarget.style.visibility = "hidden")} />
         ) : (
-          <span style={{ width: 96, height: 58, borderRadius: 10, background: "#1B2130", flex: "none" }} />
+          <span style={{ width: 96, height: 58, borderRadius: 8, background: "#1B2130", flex: "none" }} />
         )}
         <span style={{ minWidth: 0 }}>
           <div className="lbl" style={{ fontSize: 9.5 }}>

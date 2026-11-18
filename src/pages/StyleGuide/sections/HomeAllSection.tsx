@@ -292,7 +292,7 @@ const LOADING_CASES: SectionCase[] = [
     label: "HA-22 · 首屏骨架（LiteAllStageSkeleton / LiteMobileStageSkeleton · R6）",
     note: "生产页 stageFirstLoad 时就是这一块（上面还有行情条骨架，见 EV-24）。数据回来后每段各自换成真内容，没数据的段整段收起。",
     spec: [
-      { state: "桌面", when: "stageFirstLoad && !isMobile", visual: "五段各按最终尺寸占位：Sports（段头 + 日历条位 / 左：舞台 + 对阵 + 两价钮 + 瓷砖 2×2 / 右表 10 行）→ Crypto（段头 + 钟 / BTC 主卡 + 图 / ETH·SOL 面板）→ Stocks（段头 + tab / 两列各 5 行）→ Editor's Desk（三列）→ More（3 行：封面 + 标题 / 档位区）；段间细线；色块只用 #171A1F / #15181C", source: "LiteAllStageSkeleton" },
+      { state: "桌面", when: "stageFirstLoad && !isMobile", visual: "五段各按最终尺寸占位：Sports（段头 + 日历条位 / 左：舞台 + 对阵 + 两价钮 + 瓷砖 2×2 / 右表 10 行）→ Crypto（段头 + 钟 / BTC 主卡 + 图 / ETH·SOL 面板）→ Stocks（段头 + tab / 两列各 5 行）→ Editor's Desk（一张描边面板：头图带 + 三列，上下无段间线）→ More（3 行：标题 / 档位区）；其余段间细线；色块只用 #171A1F / #15181C", source: "LiteAllStageSkeleton" },
       { state: "手机", when: "stageFirstLoad && isMobile", visual: "同顺序单列：Sports 段头 + 舞台 + 对阵 + 两价钮 + 瓷砖 2×2 + 日历条（面板上方，MB3）→ Crypto 段头 + 钟 + 进度条 + 周期 tab + BTC 卡（价 / 图 150 / 两钮）→ Stocks 段头 + tab + 5 只（每只两行）→ Desk 三条竖叠 → More 2 条", source: "LiteMobileStageSkeleton" },
       { state: "有缓存", when: "react-query 有缓存", visual: "不出骨架，直接渲染上次的数据再刷新", source: "stageFirstLoad 判定（EV-24）" },
     ],
@@ -302,7 +302,7 @@ const LOADING_CASES: SectionCase[] = [
 const STAGE_CASES: SectionCase[] = [
   {
     key: "home-ha14",
-    label: "HA-14 · 整页 All 视图（HomeStage · 五段 + 段间细线 · G1）",
+    label: "HA-14 · 整页 All 视图（HomeStage · 五段 + 段间细线（Editor's Desk 面板上下除外） · G1）",
     note: "生产组合：Sports ② → Crypto 5m → Stocks → Editor's Desk → More；某段无数据就整段不出（Sports 无场次 / Crypto 无活轮 / Stocks 无行 / picks = 0 / 无长期事件）。",
     spec: [
       { state: "桌面", when: "useIsMobile() === false", visual: "D2-S3 定稿 1:1；段头眉行 + 48px 问句；主块裸放、副块进面板", source: "HomeStage · G1" },

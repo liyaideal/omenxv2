@@ -1,8 +1,9 @@
 // More markets · cover art for the Lovable demo events (2026-11-18).
 // On mainnet every long-dated event ships with a designer-made cover in `events.image_url`
 // (e.g. the Anthropic valuation event already carries one) — nothing here is needed there.
-// The Lovable demo events still carry older covers, so the five pieces drawn in Figma
-// (omenx_lite 1537:8507, raw fills) are matched to them by event id for this section only.
+// Four Lovable demo events still carry older covers, so the pieces drawn in Figma (omenx_lite
+// 1537:8507, raw fills) are matched to them by event id for this section only — desktop backdrop
+// and phone thumbnail alike. The fifth piece (anthropic) is only used by the style-guide fixture.
 import anthropic from "@/assets/home/more/anthropic-valuation.webp";
 import bestAi from "@/assets/home/more/best-ai-model.webp";
 import gpt6 from "@/assets/home/more/gpt6-release.webp";
