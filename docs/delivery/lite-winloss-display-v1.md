@@ -56,7 +56,7 @@
 
 | # | 改什么 | 详见 | 字典 |
 |---|---|---|---|
-| 13 | toast 写清投入 · 几倍 · 仓位：`Bought {side} · $A at N× Boost · $P position`（1× 只写投入） | §2 | 无帧（toast） |
+| 13 | toast 写清投入 · 几倍 · 仓位：`Bought {side} · $A at N× Boost · $P position`（1× 只写投入） | §2 | 无帧（toast） （2026-11-18 起买入成功提示改为「标题 + 副行 + View your call」，见 placed-toast-view-call-v1.md） |
 
 **③ 交易页 · 持仓卡**
 
@@ -141,10 +141,10 @@
 
 | 条件 | 文案 |
 |---|---|
-| Boost > 1× | `Bought {side} · ${A} at {N}× Boost · ${P} position` |
+| Boost > 1× | `Bought {side} · ${A} at {N}× Boost · ${P} position` （2026-11-18 起买入成功提示改为「标题 + 副行 + View your call」，见 placed-toast-view-call-v1.md） |
 | Boost 1× | `Bought {side} · ${A}` |
 
-Standard 下单卡（`LiteOrderPanel`）的 toast 本轮不动，仍是 `Bought {qty} shares · {side}`。
+Standard 下单卡（`LiteOrderPanel`）的 toast 本轮不动，仍是 `Bought {qty} shares · {side}`。 （2026-11-18 起买入成功提示改为「标题 + 副行 + View your call」，见 placed-toast-view-call-v1.md）
 
 位置：`LiteContractOrderPanel` 下单成功 toast。
 

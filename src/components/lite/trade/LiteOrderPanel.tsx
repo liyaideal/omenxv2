@@ -177,12 +177,21 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
       if (res.balanceDelta < 0) await deductSpotBalance(-res.balanceDelta);
       else if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
 
-      // CPO 2026-11-18: same toast as Boost — what was bought + `View your call`.
-      showPlacedToast(
-        t("trade.screen.lite.winloss.toast_bought", { side: sideLabel, putIn: money(amountNum) }),
-        undefined,
-        optionIdSnapshot,
-      );
+      if (res.intent === "reduce" || res.intent === "close") {
+        // Buying the other side netted the held one — nothing new to jump to,
+        // so this keeps the old wording and gets no `View your call` action.
+        toast.success(`Bought ${qtySnapshot} shares · ${sideLabel}`);
+      } else {
+        // CPO 2026-11-18: same toast as Boost — what was bought + `View your call`.
+        // Amount = what actually left the balance (shares are whole numbers, so
+        // it can be a few cents under what was typed).
+        const paid = res.balanceDelta < 0 ? -res.balanceDelta : amountNum;
+        showPlacedToast(
+          t("trade.screen.lite.winloss.toast_bought", { side: sideLabel, putIn: money(paid) }),
+          undefined,
+          optionIdSnapshot,
+        );
+      }
       onAmountChange("");
       onFilled?.();
     } catch (err) {

@@ -2658,11 +2658,11 @@ CPO 2026-11-17 在画布「Finance 列表 · 开盘状态标注 mock」上批。
 
 起因：新 BD 反馈下完单不知道单去哪了——提示是页面同色的一条字、没有可点的东西，持仓卡又在首屏以外。CPO 2026-11-18 在 mock 画布上批。
 
-1. **提示样式不新造**：沿用全站 sonner 提示（`bg-background` + `border-border` + 白色对勾 + 主色动作按钮，同「余额不够 → Transfer / Add funds」那条）。不许给这条提示单独换底色、换对勾颜色、加粗边框；要更显眼只能改全站提示（需另批）。
+1. **提示样式不新造**：沿用全站 sonner 提示（`bg-background` + `border-border` + 白色实心对勾 + 白底黑字动作按钮，24px 高、4px 圆角；同「余额不够 → Transfer / Add funds」那条，2026-11-18 在 preview 实测）。不许给这条提示单独换底色、换对勾颜色、加粗边框；要更显眼只能改全站提示（需另批）。
 2. **内容两行 + 一个按钮**：标题 `Bought {side} · {投入}`；副行 `{N}× Boost · {仓位} position`，仅 Boost ≥ 2×；按钮 `View your call`。1× 与 Standard 没有副行。
 3. **停留 6 秒**（`PLACED_TOAST_MS`），只这一条；其他提示仍是 sonner 默认。
-4. **点按钮**：平滑滚动把这笔单的持仓卡滚到视窗中间，卡片加 `lite-call-flash`（`box-shadow: 0 0 0 1.5px primary, 0 0 0 5.5px primary/18%`），1.5 秒后去掉。卡片靠 `data-lite-your-call="<optionId>"` 定位；多盘口页按 option id 找刚买的那条，找不到取第一张。
-5. **作用域**：Lite 三种交易页——Boost 事件页（`LitePositionCard`）、Standard 事件页与加密快轮页（`SpotYourPosition`）。平仓 / 反向买入平掉持仓的 `Cashed out …` 提示不变、没有按钮。Pro 终端、Quick Play 机柜、百家乐桌面模式不在范围内。
+4. **点按钮**：平滑滚动把这笔单的持仓卡滚到视窗中间，卡片加 `lite-call-flash`（`box-shadow: 0 0 0 1.5px primary, 0 0 0 5.5px primary/18%`），1.5 秒后去掉。卡片靠 `data-lite-your-call="<optionId>"` 定位；多盘口页按 option id 找刚买的那条；等约 2 秒还找不到才取第一张；页面上没有持仓卡就不动。
+5. **作用域**：Lite 三种交易页——Boost 事件页（`LitePositionCard`）、Standard 事件页与加密快轮页（`SpotYourPosition`）。平仓 / 反向买入平掉持仓的 `Cashed out …` 提示不变、没有按钮；Standard 反向买入（把手里的持仓冲掉）仍是 `Bought N shares · {side}`、没有按钮。Pro 终端、Quick Play 机柜、百家乐桌面模式不在范围内。
 6. **手机**：下单抽屉收起后提示出现在页面顶部，规则同桌面；不另做抽屉或弹窗。
 7. **不做首单庆祝弹窗**（CPO 2026-11-18：现在的问题是不入金，不是不交易）。
 

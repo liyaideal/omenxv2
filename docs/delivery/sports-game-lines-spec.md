@@ -150,7 +150,7 @@ RLS 开启，公开只读（anon / authenticated select）。种子 21 行（12 
 | 滑轨 | `LiteLineScrubber`：离散点选、窗口居中（移动 4 格 / 桌面 6 格）、两端翻页、←/→ 键盘、单线不渲染、无拖拽。换线 = 切换该组激活兄弟：标题 / 芯片 / chance / 条 / 图表同步；若该行原本选中，选中态跳到新兄弟同侧 |
 | 眉标 | `Sports · Winner · Handicap · Total goals`（只列存在的组） |
 | 深链 | `?event=<sibling id>` → 302 到 `?event=<fixture>&line=<sibling>`，并预选该组线位 |
-| 下单绑定 | 桌面右栏 / 移动抽屉绑定到选中兄弟：副标 `Arsenal v Liverpool · Handicap · ARS +1.5`；CTA `Buy ARS +1.5`（label 左 / 价格右）；toast `Bought ARS +1.5 · $X` |
+| 下单绑定 | 桌面右栏 / 移动抽屉绑定到选中兄弟：副标 `Arsenal v Liverpool · Handicap · ARS +1.5`；CTA `Buy ARS +1.5`（label 左 / 价格右）；toast `Bought ARS +1.5 · $X` （2026-11-18 起买入成功提示改为「标题 + 副行 + View your call」，见 placed-toast-view-call-v1.md） |
 | 规则卡 | `{rules 去掉尾句 "Winning shares pay $1."} Winning shares pay $1 each, credited automatically at settlement.`（不再重复） |
 | 持仓 | 行内 `You hold ARS +1.5`；持仓卡标题 = 侧名（`ARS +1.5`；>1× 追加 `· 3× Boost`；1× 无后缀）；Cash out 抽屉同规则 |
 

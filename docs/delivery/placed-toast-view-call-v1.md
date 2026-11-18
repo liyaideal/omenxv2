@@ -17,10 +17,11 @@
 |---|---|---|
 | Boost 2× 及以上 | `Bought Spirit · $20.00 at 2× Boost · $40.00 position`（一行） | 标题 `Bought Spirit · $20.00`，副行 `2× Boost · $40.00 position` |
 | Boost 1× | `Bought Spirit · $20.00` | 不变（多了按钮） |
-| Standard | `Bought 48 shares · Up` | `Bought Up · $25.00`（金额 = 用户输入的金额） |
+| Standard（新开 / 加仓） | `Bought 48 shares · Up` | `Bought Up · $24.60`（金额 = 实际扣掉的钱） |
+| Standard 反向买入（把手里的持仓冲掉） | `Bought 48 shares · Down` | 不变，没有按钮 |
 | 按钮 | 没有 | `View your call` |
 | 停留时间 | 约 4 秒 | 6 秒 |
-| 样式 | 页面同色底 + 细边框 + 白色对勾 | 不变 |
+| 样式 | 页面同色底 + 细边框 + 白色对勾 | 不变；按钮是全站提示现有的白底黑字小按钮 |
 | 平仓提示 `Cashed out …` | 没有按钮 | 不变 |
 
 **② 点 View your call 之后**
@@ -66,12 +67,12 @@
 | # | 规则 | 判定 / 数值 | 代码 |
 |---|---|---|---|
 | 1 | 买入成功提示 = 标题 + 可选副行 + 按钮 | 标题 `Bought {side} · {投入}`；副行 `{N}× Boost · {仓位} position` 仅当 `boost > 1`；Standard 无副行 | `showPlacedToast`（`src/components/lite/shared/placedToast.tsx`） |
-| 2 | 投入金额口径 | Boost = 输入的金额；Standard = 输入的金额（含手续费） | `LiteContractOrderPanel` / `LiteOrderPanel` |
+| 2 | 投入金额口径 | Boost = 输入的金额（保证金，不含手续费，和持仓卡 PUT IN 一致）；Standard = 实际从余额扣掉的钱（份数取整，可能比输入少几分；含手续费） | `LiteContractOrderPanel` / `LiteOrderPanel` |
 | 3 | 停留 6 秒 | `PLACED_TOAST_MS = 6000`；点按钮即关闭 | 同上 |
 | 4 | 点按钮：滚动 + 描边 | 持仓卡滚到视窗中间；加 `lite-call-flash`，1.5 秒后去掉（`YOUR_CALL_FLASH_MS = 1500`，另留约 0.4 秒给滚动） | `focusYourCall` |
-| 5 | 怎么找到那张卡 | 持仓卡根节点带 `data-lite-your-call="<optionId>"`；按下单时的 option id 匹配，匹配不到取页面上第一张 | `LitePositionCard` / `SpotYourPosition` 的 `anchorKey` |
-| 6 | 卡片还没渲染出来 | 每 150ms 重试一次，最多约 2 秒；一直没有就不动 | `focusYourCall` |
-| 7 | 平仓 / 反向买入把持仓平掉 | 提示仍是 `Cashed out …`，没有按钮 | `LiteContractOrderPanel` reduce / close 分支 |
+| 5 | 怎么找到那张卡 | 持仓卡根节点带 `data-lite-your-call="<optionId>"`；按下单时的 option id 匹配；等约 2 秒还匹配不到才取页面上第一张 | `LitePositionCard` / `SpotYourPosition` 的 `anchorKey` |
+| 6 | 卡片还没渲染出来 | 每 150ms 重试一次，最多约 2 秒；页面上一张持仓卡都没有就不动。系统设了「减少动态效果」时直接跳过去、不做平滑滚动 | `focusYourCall` |
+| 7 | 平仓 / 反向买入把持仓冲掉 | Boost：提示仍是 `Cashed out …`，没有按钮。Standard：提示仍是 `Bought N shares · {side}`，没有按钮 | 两个下单卡的 reduce / close 分支 |
 | 8 | 手机 | 下单抽屉先收起，提示出现在页面顶部；其余同桌面 | 页面 `onFilled` |
 
 ## 3. 多语言
@@ -90,7 +91,7 @@
 | 项 | 说明 |
 |---|---|
 | Boost 一行提示 `Bought … at N× Boost · … position` | 拆成标题 + 副行 |
-| Standard 提示 `Bought N shares · {side}` | 改成和 Boost 同一句标题 |
+| Standard 新开 / 加仓的提示 `Bought N shares · {side}` | 改成和 Boost 同一句标题；反向买入时这句仍在用 |
 
 ## 5. 状态索引
 
@@ -102,7 +103,7 @@
 
 ## 6. Lovable / 正式版边界
 
-Lovable 里提示由 sonner 弹出，正式版用自己的提示组件即可，内容、按钮、6 秒、滚动与描边的规则照本文。Lovable 的成交是即时的；正式版如果成交有延迟，「卡片还没出来就等一会儿」那条（规则 6）的等待时间按实际情况调。
+Lovable 里提示由 sonner 弹出，正式版用自己的提示组件即可，内容、按钮、6 秒、滚动与描边的规则照本文。Lovable 的成交是即时的，提示在成交后弹；正式版如果成交有延迟，提示同样在成交后弹（不是提交时），「卡片还没出来就等一会儿」那条（规则 6）的等待时间按实际情况调。Boost 档位在 Lovable 里都是整数；持仓卡上合并后的倍数可以是小数，但提示只写这一笔下单选的档位。西班牙语目前没有这批文案，显示英文。
 
 ## 7. 涉及文件
 

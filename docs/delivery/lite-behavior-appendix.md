@@ -30,7 +30,7 @@
 
 - Buy 按钮禁用条件：`disabled={submitting \|\| blocked}`；被 block 时按钮文案变为 `blockedReason`，兜底 `Market closed`。
 - 提交态：`submitting` 在调用 `executeSpotTrade` 前置 true，`finally` 复位。
-- 成功：`toast.success(\`Bought ${qty} shares · ${sideLabel}\`)`，清空金额并回调 `onFilled?.()`；`balanceDelta < 0` 走 `deductSpotBalance`，`> 0` 走 `addSpotBalance`。
+- 成功：`toast.success(\`Bought ${qty} shares · ${sideLabel}\`)`，清空金额并回调 `onFilled?.()`；`balanceDelta < 0` 走 `deductSpotBalance`，`> 0` 走 `addSpotBalance`。 （2026-11-18 起买入成功提示改为「标题 + 副行 + View your call」，见 placed-toast-view-call-v1.md）
 - 失败：统一 `toast.error(err.message)`，无 message 时 `Trade failed`。
 
 ### 1.2 合约面板 `LiteContractOrderPanel`
