@@ -53,6 +53,14 @@ const boostFigures = (row: LiteLiveRow) => {
   return { win: netWinIfRight(entryPrice, row.ifWins), maxLoss: maxLossFor(positionValue) };
 };
 
+/** Voucher rows: the win line is the voucher's profit cap — no downside, no auto-close. */
+const voucherWinLine = (row: LiteLiveRow) =>
+  t("portfolio.lite.live.if_wins_net", { win: `+${money(row.voucherCap ?? 0)}` });
+const voucherProfitText = (row: LiteLiveRow) =>
+  (row.voucherCredit ?? 0) > 0 ? `+${money(row.voucherCredit ?? 0)}` : money(0);
+const voucherProfitColor = (row: LiteLiveRow) =>
+  (row.voucherCredit ?? 0) > 0 ? livePnlColor(1) : "#F2F3F5";
+
 const winSentence = (row: LiteLiveRow) =>
   `If it wins you get ${money(row.ifWins)}`;
 
@@ -106,7 +114,9 @@ export const LiveCard = ({
   });
   // The auto-close part never breaks inside itself (CJK breaks between any two characters).
   const sentence =
-    row.segment === "standard" ? (
+    row.isVoucher ? (
+      voucherWinLine(row)
+    ) : row.segment === "standard" ? (
       winSentence(row)
     ) : row.autoClose.kind === "level" ? (
       <>
@@ -172,10 +182,14 @@ export const LiveCard = ({
 
       <div className="mt-3 grid grid-cols-3 gap-2">
         {[
-          { k: t("common.put_in"), v: money(row.cost), c: "#F2F3F5" },
-          { k: t("common.now_worth"), v: money(row.nowWorth), c: "#F2F3F5" },
-          { k: t("trade.screen.lite.lite_contract_sections.profit"), v: signedMoney(row.profit), c: livePnlColor(row.profit) },
-        ].map((cell) => (
+          { k: t("common.put_in"), v: money(row.cost), c: "#F2F3F5", sub: row.isVoucher ? t("portfolio.lite.live.voucher") : undefined },
+          { k: t("common.now_worth"), v: row.isVoucher ? "—" : money(row.nowWorth), c: row.isVoucher ? "#6B7280" : "#F2F3F5" },
+          {
+            k: t("trade.screen.lite.lite_contract_sections.profit"),
+            v: row.isVoucher ? voucherProfitText(row) : signedMoney(row.profit),
+            c: row.isVoucher ? voucherProfitColor(row) : livePnlColor(row.profit),
+          },
+        ].map((cell: { k: string; v: string; c: string; sub?: string }) => (
           <div key={cell.k}>
             <div className="text-[9.5px] uppercase text-[#6B7280]" style={{ letterSpacing: "1px" }}>
               {cell.k}
@@ -183,6 +197,7 @@ export const LiveCard = ({
             <div className="font-mono text-[15px] font-bold" style={{ color: cell.c }}>
               {cell.v}
             </div>
+            {cell.sub && <div className="text-[10px] lowercase text-[#6B7280]">{cell.sub}</div>}
           </div>
         ))}
       </div>
@@ -313,17 +328,31 @@ export const LiveRow = ({
           <span className="max-w-full truncate text-[11.5px] leading-[1.25] text-[#E5E7EB]">{row.optionName}</span>
         )}
       </div>
-      <div className="font-mono text-[13px] font-semibold text-[#F2F3F5]">{money(row.cost)}</div>
-      <div className="font-mono text-[13px] font-semibold text-[#F2F3F5]">{money(row.nowWorth)}</div>
+      <div className="font-mono text-[13px] font-semibold text-[#F2F3F5]">
+        {money(row.cost)}
+        {row.isVoucher && (
+          <div className="font-sans text-[10px] font-normal lowercase text-[#6B7280]">
+            {t("portfolio.lite.live.voucher")}
+          </div>
+        )}
+      </div>
       <div
         className="font-mono text-[13px] font-semibold"
-        style={{ color: livePnlColor(row.profit) }}
+        style={{ color: row.isVoucher ? "#6B7280" : "#F2F3F5" }}
       >
-        {signedMoney(row.profit)}
+        {row.isVoucher ? "—" : money(row.nowWorth)}
+      </div>
+      <div
+        className="font-mono text-[13px] font-semibold"
+        style={{ color: row.isVoucher ? voucherProfitColor(row) : livePnlColor(row.profit) }}
+      >
+        {row.isVoucher ? voucherProfitText(row) : signedMoney(row.profit)}
       </div>
       {/* Boost rows: three short lines so the narrow column never breaks mid-phrase (2026-11-13 ④). */}
       <div className="pr-3 text-[12px] leading-[1.5]" style={{ color: hot ? RED : "#6B7280" }}>
-        {row.segment === "boost" ? (
+        {row.isVoucher ? (
+          <>{voucherWinLine(row)}</>
+        ) : row.segment === "boost" ? (
           <>
             <div>{t("portfolio.lite.live.if_wins_net", { win: signedMoney(boostFigures(row).win) })}</div>
             <div>

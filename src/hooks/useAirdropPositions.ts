@@ -5,6 +5,7 @@ import { useConnectedAccounts } from "./useConnectedAccounts";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { isListed } from "@/components/lite/sports/sportsData";
+import { voucherLineFor, type VoucherLine } from "@/lib/voucherMath";
 
 export type AirdropSource = "matched" | "welcome_gift" | "voucher";
 
@@ -31,6 +32,9 @@ export interface AirdropPosition {
 
   /** Resolved event_options.id (voucher source) — enables realtime mark price lookup. */
   optionId?: string | null;
+  /** Product line of the event the voucher was redeemed on (voucher source only).
+   *  Standard (spot) vouchers are plain spot orders at face value — no multiplier. */
+  productLine?: VoucherLine | null;
   status: string;
   expiresAt: string;
   activatedAt: string | null;
@@ -269,11 +273,23 @@ export const useAirdropPositions = () => {
       (vouchers ?? []).map((v: any) => [v.redeemed_airdrop_position_id, v]),
     );
 
+    // Which line each event trades on — decides 1× (Standard) vs 5× (Boost).
+    const eventIds = Array.from(
+      new Set(rows.map((r) => r.counter_event_id).filter((id): id is string => !!id)),
+    );
+    const { data: evs } = eventIds.length
+      ? await supabase.from("events").select("id, product_lines").in("id", eventIds)
+      : { data: [] as any[] };
+    const linesByEvent = new Map<string, string[]>(
+      (evs ?? []).map((e: any) => [e.id, (e.product_lines as string[] | null) ?? []]),
+    );
+
     return rows.map((row) => {
       const v = byAirdrop.get(row.id);
       return {
         ...mapRow(row),
         optionId: v?.redeemed_option_id ?? null,
+        productLine: v ? voucherLineFor(linesByEvent.get(row.counter_event_id)) : null,
         payoutMode: v?.payout_mode === "instant" ? "instant" : v ? "tiered" : null,
         redeemableCapPct: v?.redeemable_cap_pct != null ? Number(v.redeemable_cap_pct) : null,
       };
@@ -364,7 +380,16 @@ export const useAirdropPositions = () => {
     }
   };
 
-  const closePosition = async (id: string) => {
+  /**
+   * Close an airdrop / voucher position in full.
+   * `silent` skips the result toast — the Lite voucher flow shows its own
+   * after-close layer instead. Always resolves with what was credited.
+   */
+  const closePosition = async (
+    id: string,
+    opts?: { silent?: boolean },
+  ): Promise<{ ok: boolean; credited: number; error?: string }> => {
+    const silent = !!opts?.silent;
     // Voucher-source airdrops live in Supabase even in demo mode, so they must
     // always be settled via the edge function — otherwise the row stays
     // `activated` and reappears on refresh.
@@ -375,7 +400,7 @@ export const useAirdropPositions = () => {
     if (isDemoMode && !isVoucherRoute) {
       const list = queryClient.getQueryData<AirdropPosition[]>(queryKey) ?? loadDemoAirdrops(user?.id ?? '', email);
       const target = list.find((a) => a.id === id);
-      if (!target) return;
+      if (!target) return { ok: false, credited: 0 };
       const isVoucherDemo = target.source === 'voucher';
       // demo PnL: random-ish but bounded
       const entry = target.counterPrice;
@@ -390,7 +415,7 @@ export const useAirdropPositions = () => {
       );
       saveDemoAirdrops(user?.id ?? '', next);
       queryClient.setQueryData<AirdropPosition[]>(queryKey, next);
-      toast({
+      if (!silent) toast({
         title: isVoucherDemo ? 'Voucher position closed' : 'Position closed',
         description: isVoucherDemo
           ? (credited > 0
@@ -398,7 +423,7 @@ export const useAirdropPositions = () => {
               : 'No profit credited')
           : (credited > 0 ? `+$${credited.toFixed(2)} credited to trial balance` : 'No profit credited'),
       });
-      return;
+      return { ok: true, credited };
     }
 
     // Determine source before mutation so toast copy matches the position type.
@@ -409,15 +434,12 @@ export const useAirdropPositions = () => {
       body: { airdropPositionId: id, reason: 'USER_CLOSE' },
     });
     if (error || (data as any)?.error) {
-      toast({
-        title: 'Close failed',
-        description: (data as any)?.error ?? error?.message ?? 'Unknown error',
-        variant: 'destructive',
-      });
-      return;
+      const message = (data as any)?.error ?? error?.message ?? 'Unknown error';
+      if (!silent) toast({ title: 'Close failed', description: message, variant: 'destructive' });
+      return { ok: false, credited: 0, error: message };
     }
     const credited = Number((data as any)?.creditedPnl ?? 0);
-    toast({
+    if (!silent) toast({
       title: isVoucherClose ? 'Voucher position closed' : 'Position closed',
       description: isVoucherClose
         ? (credited > 0
@@ -432,6 +454,7 @@ export const useAirdropPositions = () => {
       queryClient.invalidateQueries({ queryKey: ['voucher-earnings-ledger'] });
       queryClient.invalidateQueries({ queryKey: ['position-vouchers'] });
     }
+    return { ok: true, credited };
   };
 
   const pendingAirdrops = airdrops.filter((a) => a.status === "pending");

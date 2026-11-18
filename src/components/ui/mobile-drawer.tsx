@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 interface MobileDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  title?: string;
+  title?: React.ReactNode;
   description?: string;
   children: React.ReactNode;
   /** Additional classes for the content container */

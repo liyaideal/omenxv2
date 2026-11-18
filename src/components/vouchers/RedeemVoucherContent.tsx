@@ -1,4 +1,6 @@
+import { t } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
+import { showPlacedToast } from "@/components/lite/shared/placedToast";
 import { useNavigate } from "react-router-dom";
 import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -97,6 +99,13 @@ export const RedeemVoucherContent = ({
       // Route by product line: Standard (spot) markets live on /spot.
       const path = picked.productLine === "spot" ? "/spot" : "/trade";
       navigate(`${path}?event=${picked.eventId}`);
+      // Same toast grammar as a regular buy; the button scrolls to the new
+      // voucher card once the trade page has rendered it (focusYourCall retries).
+      showPlacedToast(
+        t("vouchers.lite.toast.bought", { leg: picked.legTitle }),
+        t("vouchers.lite.toast.paid_with", { amount: `$${voucher.faceValue.toFixed(2)}` }),
+        picked.optionId,
+      );
     }
   };
 

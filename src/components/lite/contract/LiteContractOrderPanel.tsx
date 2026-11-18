@@ -104,6 +104,9 @@ export interface LiteContractOrderPanelProps {
   noAsSell?: boolean;
   /** Suffix for the netting notice, e.g. "on this market". */
   nettingScopeLabel?: string;
+  /** Multi-market events: the selected option's name. The buy toast then
+   *  names the leg like the position card does — "Lakers · Yes" (2026-11-18). */
+  toastOptionName?: string;
   /** INTERIM GUARD (multi events): set when the user already holds the other
    *  side of THIS option. Disables submit and shows the notice verbatim.
    *  Remove once the engine's per-option netting extension ships. */
@@ -160,6 +163,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     marketContextLabel,
     noAsSell,
     nettingScopeLabel,
+    toastOptionName,
     blockNotice,
     onFilled,
     onRequestAuth,
@@ -395,7 +399,10 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         // CPO 2026-11-18: one line saying what was bought, the Boost detail on
         // a second line, and a `View your call` action that jumps to the card.
         showPlacedToast(
-          t("trade.screen.lite.winloss.toast_bought", { side: sideLabel, putIn: money(amountSnapshot) }),
+          t("trade.screen.lite.winloss.toast_bought", {
+            side: toastOptionName ? `${toastOptionName} · ${sideLabel}` : sideLabel,
+            putIn: money(amountSnapshot),
+          }),
           boostSnapshot > 1
             ? t("trade.screen.lite.winloss.toast_boost_line", {
                 boost: boostSnapshot,

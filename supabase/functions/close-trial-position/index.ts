@@ -78,11 +78,22 @@ Deno.serve(async (req) => {
       if (opt?.price != null) markPrice = Number(opt.price)
     }
 
-    // 3) Compute PnL using the canonical 5x-leveraged voucher math:
+    // 3) Compute PnL with the canonical voucher math (src/lib/voucherMath.ts):
+    //    leverage  = 1 on Standard (spot) events — a spot order at face value
+    //                (CPO 2026-11-18) — and 5 on Boost (contract) events
     //    contracts = face_value × leverage / entry_price
     //    long  PnL = (mark − entry) × contracts
     //    short PnL = (entry − mark) × contracts
-    const VOUCHER_LEVERAGE = 5
+    let productLines: string[] = []
+    if (pos.counter_event_id) {
+      const { data: ev } = await admin
+        .from('events')
+        .select('product_lines')
+        .eq('id', pos.counter_event_id)
+        .maybeSingle()
+      productLines = (ev?.product_lines as string[] | null) ?? []
+    }
+    const VOUCHER_LEVERAGE = productLines.includes('spot') ? 1 : 5
     const entry = Number(pos.counter_price)
     const faceValue = Number(pos.airdrop_value)
     const contracts = faceValue * VOUCHER_LEVERAGE / Math.max(entry, 0.0001)
@@ -135,6 +146,7 @@ Deno.serve(async (req) => {
       success: true,
       airdropPositionId: pos.id,
       exitPrice: markPrice,
+      leverage: VOUCHER_LEVERAGE,
       rawPnl,
       creditedPnl,
       cap,

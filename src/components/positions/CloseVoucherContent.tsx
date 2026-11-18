@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileDrawerActions } from "@/components/ui/mobile-drawer";
 
-const VOUCHER_LEVERAGE = 5;
+import { VOUCHER_BOOST_LEVERAGE } from "@/lib/voucherMath";
 
 export interface CloseVoucherContentProps {
   optionLabel: string;
@@ -11,6 +11,8 @@ export interface CloseVoucherContentProps {
   entryPrice: number;
   markPrice: number;
   faceValue: number;
+  /** 5 on Boost (contract) events, 1 on Standard (spot) events. Defaults to 5. */
+  leverage?: number;
   redeemableCap?: number | null;
   /** Voucher redeemable_cap_pct; when absent falls back to 0.5 (current DB default). */
   redeemableCapPct?: number | null;
@@ -32,7 +34,7 @@ const DEFAULT_CAP_PCT = 0.5;
 /**
  * Shared body for the Close Voucher Position confirmation dialog/drawer.
  * Mirrors the canonical math in supabase/functions/close-trial-position:
- *   contracts = faceValue × 5 / entry
+ *   contracts = faceValue × leverage / entry   (5 on Boost events, 1 on Standard)
  *   rawPnl    = (mark − entry) × contracts × sideSign
  *   credit    = clamp(rawPnl, 0, cap)
  *   cap       = redeemableCap ?? faceValue × redeemableCapPct
@@ -43,6 +45,7 @@ export const CloseVoucherContent = ({
   entryPrice,
   markPrice,
   faceValue,
+  leverage = VOUCHER_BOOST_LEVERAGE,
   redeemableCap,
   redeemableCapPct,
   payoutMode,
@@ -52,7 +55,7 @@ export const CloseVoucherContent = ({
   variant = "dialog",
 }: CloseVoucherContentProps) => {
   const safeEntry = Math.max(entryPrice, 0.0001);
-  const contracts = (faceValue * VOUCHER_LEVERAGE) / safeEntry;
+  const contracts = (faceValue * leverage) / safeEntry;
   const sideSign = side === "short" ? -1 : 1;
   const rawPnl = (markPrice - entryPrice) * contracts * sideSign;
   const capPct = redeemableCapPct != null ? redeemableCapPct : DEFAULT_CAP_PCT;
@@ -101,7 +104,8 @@ export const CloseVoucherContent = ({
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">{t("market.position")}</span>
           <span className={side === "long" ? "text-trading-green" : "text-trading-red"}>
-            {optionLabel} · {VOUCHER_LEVERAGE}x
+            {optionLabel}
+            {leverage > 1 ? ` · ${leverage}x` : ""}
           </span>
         </div>
         <div className="flex items-center justify-between text-xs">

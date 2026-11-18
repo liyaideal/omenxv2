@@ -1592,6 +1592,7 @@ export default function DesktopTrading() {
                                   : parseFloat(position.markPrice.replace(/[$,]/g, "")) || 0
                               }
                               faceValue={position.voucherFaceValue ?? position.marginNum}
+                              leverage={position.leverageNum}
                               redeemableCap={position.voucherRedeemableCap ?? null}
                               redeemableCapPct={position.voucherRedeemableCapPct ?? null}
                               payoutMode={position.voucherPayoutMode ?? null}

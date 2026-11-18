@@ -270,7 +270,8 @@ export const usePositionVouchers = () => {
         toast({ title: "Redemption failed", description: msg, variant: "destructive" });
         return { success: false, error: msg };
       }
-      toast({ title: "Voucher redeemed", description: "Your position is now active." });
+      // Success feedback is the caller's (RedeemVoucherContent shows the
+      // "Bought … / Paid with your $X voucher" toast with View your call).
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ["airdrop-positions"] });
       return { success: true, airdropPositionId: data.airdropPositionId, eventId: data.eventId };

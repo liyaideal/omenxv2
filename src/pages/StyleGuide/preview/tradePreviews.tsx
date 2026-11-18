@@ -20,6 +20,12 @@ import { LiteOrderDrawerHeader } from "@/components/lite/contract/LiteOrderDrawe
 import { SportsClockLabel, type SportsClock } from "@/components/lite/sports/sportsClock";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { PlacedToastBody } from "@/components/lite/shared/placedToast";
+import { LiteVoucherCard } from "@/components/lite/vouchers/LiteVoucherCard";
+import {
+  VoucherCashOutBody,
+  VoucherDoneBody,
+  VoucherLayer,
+} from "@/components/lite/vouchers/LiteVoucherCashOut";
 import {
   LiteMarketActivity,
   type MarketActivityRow,
@@ -281,6 +287,115 @@ export const Tr35bPreview = () => (
     </div>
   </Frame>
 );
+
+/* ---------- Voucher calls (TR-37 … TR-40, CPO 2026-11-18) ---------- */
+const noop = () => undefined;
+
+const VoucherCardFrame = (props: {
+  sideLabel: string;
+  boost: number;
+  credit: number;
+  rawPnl: number;
+  isYes?: boolean;
+}) => {
+  const isMobile = useIsMobile();
+  return (
+    <Frame>
+      <div className="p-2">
+        <LiteVoucherCard
+          sideLabel={props.sideLabel}
+          isYes={props.isYes ?? true}
+          boost={props.boost}
+          faceValue={2}
+          credit={props.credit}
+          rawPnl={props.rawPnl}
+          cap={1}
+          closesBy="Nov 21, 13:36"
+          compact={!!isMobile}
+          onCashOut={noop}
+        />
+      </div>
+    </Frame>
+  );
+};
+
+export const Tr37Preview = () => <VoucherCardFrame sideLabel="76ers" boost={5} credit={0.04} rawPnl={0.04} />;
+export const Tr37bPreview = () => <VoucherCardFrame sideLabel="76ers" boost={5} credit={0} rawPnl={-0.2} />;
+export const Tr37cPreview = () => <VoucherCardFrame sideLabel="Up" boost={1} credit={0.04} rawPnl={0.04} />;
+export const Tr37dPreview = () => (
+  <VoucherCardFrame sideLabel="Lakers · No" isYes={false} boost={5} credit={0.04} rawPnl={0.04} />
+);
+
+export const Tr38Preview = () => (
+  <Frame>
+    <div className="flex justify-center py-2">
+      <PlacedToastBody
+        title={t("vouchers.lite.toast.bought", { leg: "76ers" })}
+        description={t("vouchers.lite.toast.paid_with", { amount: "$2.00" })}
+      />
+    </div>
+  </Frame>
+);
+
+export const Tr38bPreview = () => (
+  <Frame>
+    <div className="flex justify-center py-2">
+      <PlacedToastBody
+        title={t("vouchers.lite.toast.bought", { leg: "Lakers · Yes" })}
+        description={t("vouchers.lite.toast.paid_with", { amount: "$2.00" })}
+      />
+    </div>
+  </Frame>
+);
+
+export const Tr35cPreview = () => (
+  <Frame>
+    <div className="flex justify-center py-2">
+      <PlacedToastBody
+        title={t("trade.screen.lite.winloss.toast_bought", { side: "Lakers · Yes", putIn: "$10.00" })}
+        description={t("trade.screen.lite.winloss.toast_boost_line", { boost: 3, position: "$30.00" })}
+      />
+    </div>
+  </Frame>
+);
+
+const VoucherPanelFrame = ({ credit, leg = "76ers", isYes = true }: { credit: number; leg?: string; isYes?: boolean }) => {
+  const isMobile = useIsMobile();
+  return (
+    <Frame>
+      <VoucherLayer open onOpenChange={noop} isMobile={!!isMobile} titled inline>
+        <VoucherCashOutBody leg={leg} isYes={isYes} credit={credit} cap={1} onConfirm={noop} onKeepOpen={noop} />
+      </VoucherLayer>
+    </Frame>
+  );
+};
+
+export const Tr39Preview = () => <VoucherPanelFrame credit={0.04} />;
+export const Tr39bPreview = () => <VoucherPanelFrame credit={0} />;
+export const Tr39cPreview = () => <VoucherPanelFrame credit={0.04} leg="Lakers · No" isYes={false} />;
+
+const VoucherDoneFrame = (props: { credited: number; funded: boolean; hasOtherVoucher: boolean }) => {
+  const isMobile = useIsMobile();
+  return (
+    <Frame>
+      <VoucherLayer open onOpenChange={noop} isMobile={!!isMobile} titled={false} inline>
+        <VoucherDoneBody
+          {...props}
+          isMobile={!!isMobile}
+          onDeposit={noop}
+          onBrowse={noop}
+          onVouchers={noop}
+        />
+      </VoucherLayer>
+    </Frame>
+  );
+};
+
+export const Tr40Preview = () => <VoucherDoneFrame credited={0.04} funded={false} hasOtherVoucher />;
+export const Tr40bPreview = () => <VoucherDoneFrame credited={0.04} funded hasOtherVoucher={false} />;
+export const Tr40cPreview = () => <VoucherDoneFrame credited={0} funded={false} hasOtherVoucher />;
+export const Tr40dPreview = () => <VoucherDoneFrame credited={0} funded={false} hasOtherVoucher={false} />;
+export const Tr40ePreview = () => <VoucherDoneFrame credited={0} funded hasOtherVoucher={false} />;
 
 export const Tr36Preview = () => {
   const isMobile = useIsMobile();

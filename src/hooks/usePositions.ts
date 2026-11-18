@@ -3,6 +3,7 @@ import { useAuth } from "./useAuth";
 import { useSupabasePositions, SupabasePosition } from "./useSupabasePositions";
 import { usePositionsStore, Position as LocalPosition } from "@/stores/usePositionsStore";
 import { useAirdropPositions, AirdropPosition, AirdropSource } from "./useAirdropPositions";
+import { voucherLeverageFor } from "@/lib/voucherMath";
 import { useEventDisplayLookup } from "./useEventDisplayLookup";
 
 
@@ -42,6 +43,8 @@ export interface UnifiedPosition {
   voucherRedeemableCapPct?: number | null;
   /** Voucher payout mode. Voucher source only; drives the close-panel payout sentence. */
   voucherPayoutMode?: "instant" | "tiered" | null;
+  /** Voucher positions: when the voucher call expires (ISO). */
+  voucherExpiresAt?: string;
 
   // Funding fee fields (raw numbers for math; UI formats as needed)
   fundingAccrued: number;     // Net cumulative funding paid (positive = user paid)
@@ -151,13 +154,14 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
   };
 };
 
-// Voucher positions are 5x leveraged per spec; matched/welcome_gift remain 1x.
-const VOUCHER_LEVERAGE = 5;
+// Voucher positions: 5× on Boost (contract) events, 1× spot order at face value
+// on Standard events (CPO 2026-11-18). matched / welcome_gift remain 1×.
 
 // Convert activated airdrop to unified position format
 const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
   const isVoucher = airdrop.source === "voucher";
-  const lev = isVoucher ? VOUCHER_LEVERAGE : 1;
+  const isSpotVoucher = isVoucher && airdrop.productLine === "spot";
+  const lev = isVoucher ? voucherLeverageFor(airdrop.productLine) : 1;
   // qty = faceValue × leverage / entryPrice (5x for voucher → 250 contracts on $25 @ 0.5)
   const qty = Math.max(
     1,
@@ -189,6 +193,7 @@ const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
     voucherRedeemableCap: isVoucher ? airdrop.redeemableCap ?? null : undefined,
     voucherRedeemableCapPct: isVoucher ? airdrop.redeemableCapPct ?? null : undefined,
     voucherPayoutMode: isVoucher ? airdrop.payoutMode ?? null : undefined,
+    voucherExpiresAt: isVoucher ? airdrop.expiresAt : undefined,
 
     fundingAccrued: 0,
     lastFundingAt: null,
@@ -198,7 +203,7 @@ const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
     marginNum: airdrop.airdropValue,
     leverageNum: lev,
     createdAt: airdrop.createdAt ?? new Date().toISOString(),
-    productLine: "futures",
+    productLine: isSpotVoucher ? "spot" : "futures",
     _source: "airdrop",
   };
 };

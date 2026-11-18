@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
+import { LiteVoucherLegs, isVoucherLeg } from "@/components/lite/vouchers/LiteVoucherLegs";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { useCategoryBoostConfigs, boostTiers } from "@/hooks/useCategoryBoostConfigs";
@@ -321,7 +322,10 @@ const LiteContractTrade = () => {
   const backHref =
     (routerLocation.state as { from?: string } | null)?.from ?? "/events";
   const { user } = useAuth();
-  const { positions, refetch: refetchPositions } = usePositions();
+  const { positions: allPositions, refetch: refetchPositions } = usePositions();
+  // Voucher calls have their own card + cash-out flow (LiteVoucherLegs) and
+  // must never enter the regular position logic (held leg, netting, auto-close).
+  const positions = useMemo(() => allPositions.filter((p) => !isVoucherLeg(p)), [allPositions]);
   const { isWatched, toggle } = useWatchlist();
   const { headingRef, scrolledOut } = useHeadingScrolledOut();
   const pricesCtx = useRealtimePricesOptional();
@@ -1283,6 +1287,10 @@ const LiteContractTrade = () => {
 
   const heldNowWorth = heldPos ? heldPos.marginNum + heldPnlNum : 0;
 
+  const VoucherLegs = (
+    <LiteVoucherLegs event={event} siblingEvents={siblings} line="futures" isMobile={!!isMobile} />
+  );
+
   const YourPosition = heldPos ? (
     <LitePositionCard
       anchorKey={heldPos.optionId ?? ""}
@@ -1626,6 +1634,7 @@ const LiteContractTrade = () => {
         ...binaryPanelProps,
         yesLabel: "Yes",
         noLabel: "No",
+        toastOptionName: liteSideName(selOpt.label),
         yesPrice: selYes,
         noPrice: selNo,
         yesOptionId: selOpt.id,
@@ -1743,6 +1752,7 @@ const LiteContractTrade = () => {
                 {isMulti && CrowdOverview}
                 {BoardModule}
                 {RuleCard}
+                {VoucherLegs}
                 {MultiPositions}
                 {MarketActivity}
                 {MoreMarkets}
@@ -1753,6 +1763,7 @@ const LiteContractTrade = () => {
                 {Chart}
                 {SentimentBar}
                 {RuleCard}
+                {VoucherLegs}
                 {YourPosition}
                 {MarketActivity}
                 {MoreMarkets}
@@ -1882,6 +1893,7 @@ const LiteContractTrade = () => {
                 {InReview}
                 {BoardModule}
                 {RuleCard}
+                {VoucherLegs}
                 {MultiPositions}
                 {MarketActivity}
               </>
@@ -1891,6 +1903,7 @@ const LiteContractTrade = () => {
                 {SentimentBar}
                 {Chart}
                 {RuleCard}
+                {VoucherLegs}
                 {YourPosition}
                 {MarketActivity}
               </>

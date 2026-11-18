@@ -5196,7 +5196,7 @@
   "screen.lite_spot_trade.buy_market": "{{market}} を購入",
   "screen.lite_spot_trade.chance": "{{percent}} の確率",
   "screen.lite_spot_order_panel.low_balance_hint": "Standard 残高に{{link}}すると注文できます。",
-  "screen.lite_spot_order_panel.low_balance_link": "資金を追加"
+  "screen.lite_spot_order_panel.low_balance_link": "入金"
  },
  "trade": {
   "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} {{line}} をカバー",
@@ -5315,7 +5315,7 @@
   "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
   "screen.lite.lite_contract_trade_page.buy_side": "{{side}} を購入",
   "screen.lite.lite_contract_order_panel.low_balance_hint": "Boost 残高に{{link}}すると注文できます。",
-  "screen.lite.lite_contract_order_panel.low_balance_link": "資金を追加"
+  "screen.lite.lite_contract_order_panel.low_balance_link": "入金"
  },
  "transparency": {
   "screen.TransparencyPage.hero_title": "オンチェーンの透明性",
@@ -5495,6 +5495,33 @@
   "screen.LiquidationAudit.view_on_basescan": "BaseScan で表示"
  },
  "vouchers": {
+  "lite.mark": "バウチャー",
+  "lite.card.voucher": "バウチャー",
+  "lite.card.profit_now": "現在の利益",
+  "lite.card.max_profit": "最大利益",
+  "lite.card.closes_by": "期限",
+  "lite.card.down_now": "現在マイナス",
+  "lite.cash_out_keep": "現金化 · {{amount}} を受け取る",
+  "lite.close_failed": "現金化できませんでした",
+  "lite.toast.bought": "{{leg}} を購入",
+  "lite.toast.paid_with": "{{amount}} のバウチャーで支払い",
+  "lite.panel.profit_on": "{{leg}} の予測の現在の利益",
+  "lite.panel.yours": "今現金化すれば、この利益はあなたのものです。",
+  "lite.panel.keep_open_up_to": "保有を続けると最大で",
+  "lite.panel.no_profit": "現在、利益はありません",
+  "lite.panel.on_call": "{{leg}} の予測",
+  "lite.panel.no_profit_body": "今クローズしても受け取れる金額はなく、残高にも影響しません。保有を続ければ、決済までに利益が出る可能性があります。",
+  "lite.panel.keep_open": "保有を続ける",
+  "lite.panel.close_anyway": "それでもクローズ",
+  "lite.done.profit_from": "このバウチャーの利益",
+  "lite.done.find_it": "「バウチャー収益」で確認できます。",
+  "lite.done.closed": "バウチャーの予測をクローズしました",
+  "lite.done.no_profit": "今回は利益がありませんでした。",
+  "lite.done.nudge_deposit": "次の予測へ進みますか？入金してすぐ始められます。",
+  "lite.done.nudge_funded": "次の予測へ進みますか？",
+  "lite.done.browse": "マーケットを見る",
+  "lite.done.go_to_vouchers": "バウチャーへ",
+  "lite.done.use_another": "別のバウチャーを使う",
   "request_failed": "トライアルバウチャーのリクエストに失敗しました",
   "title": "ポジションバウチャー",
   "title_short": "バウチャー",
@@ -5752,7 +5779,7 @@
   "deposit": "入金",
   "withdraw": "出金",
   "transfer": "振替",
-  "insufficient_toast.message": "残高が不足しています。資金を追加してください",
+  "insufficient_toast.message": "残高が不足しています。入金してください",
   "insufficient_toast.add_funds": "入金",
   "transfer_insufficient": "{{account}}の残高が不足しています。",
   "standard": "スタンダード",

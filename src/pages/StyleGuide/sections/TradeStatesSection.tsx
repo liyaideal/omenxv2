@@ -221,6 +221,15 @@ const PLACED_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "trade-tr35c",
+    label: "TR-35c · 下单成功提示 · 多 market 事件（标题带选项名）",
+    note: "多 market 事件里每个选项都能买 Yes / No，标题必须写出是哪个选项——写法和持仓卡标题一致。",
+    spec: [
+      { state: "多 market", when: "event.options.length > 2 的事件上买入成交", visual: "标题 `Bought {选项名} · {Yes|No} · {投入金额}`，如 `Bought Lakers · Yes · $10.00`；副行与按钮同 TR-35", source: "LiteContractOrderPanel.toastOptionName（LiteContractTrade multiPanelProps 传入）" },
+      { state: "两边对打的事件", when: "球队 / Up-Down 等带 side labels 的事件", visual: "只写那一边（`Bought Magic · $10.00`），不变", source: "sideLabel" },
+    ],
+  },
+  {
     key: "trade-tr36",
     label: "TR-36 · 点 View your call 之后 · 持仓卡描边 1.5 秒",
     note: "fixture-only prop `flashOpen` 让卡片一直保持描边态；生产里描边由 focusYourCall 加上、1.5 秒后去掉。Standard 与加密快轮页的持仓卡（SpotYourPosition）是同一条规则。",
@@ -228,6 +237,130 @@ const PLACED_CASES: SectionCase[] = [
       { state: "点了按钮", when: "点提示上的 View your call", visual: "页面平滑滚动，把这笔单的持仓卡滚到视窗中间；卡片出现主色描边 + 一圈淡光，停留 1.5 秒后淡出", source: "focusYourCall" },
       { state: "多盘口页", when: "boardMode 且有多条持仓", visual: "滚到刚买的那一条（按 option id 匹配）；等约 2 秒还匹配不到，才滚到页面上第一张持仓卡", source: "data-lite-your-call = optionId" },
       { state: "卡片还没出来", when: "成交后持仓列表还在刷新", visual: "最多等约 2 秒，卡片出现后再滚动描边；页面上一张持仓卡都没有就不动", source: "focusYourCall retry" },
+    ],
+  },
+];
+
+/* ---------------- ③c 券单（TR-37 … TR-40 · CPO 2026-11-18） ---------------- */
+
+const VOUCHER_CASES: SectionCase[] = [
+  {
+    key: "trade-tr37",
+    label: "TR-37 · 券单持仓卡 · Boost 页 · 赚着",
+    note: "券单有自己的卡（LiteVoucherCard），不走普通持仓卡：没有 PUT IN / NOW WORTH / 自动平仓，也没有「最多会亏」那一行。数字全部来自 voucherCredit()（src/lib/voucherMath.ts）。",
+    spec: [
+      { state: "标题", when: "Boost 交易页上的券单", visual: "`{买的哪边} · 5× Boost` + VOUCHER 标（柠檬绿胶囊）。买的哪边按选边色（Yes 青 / No 柠檬绿）", source: "LiteVoucherLegs → LiteVoucherCard" },
+      { state: "四格", when: "任何券单", visual: "VOUCHER = 券面值；PROFIT NOW = 现在平仓能拿到的利润；MAX PROFIT = 这张券的利润上限；CLOSES BY = 券单到期时间", source: "voucherCredit / voucherExpiresAt" },
+      { state: "按钮 · 赚着", when: "现在平仓利润 > 0", visual: "`Cash out · keep +$0.04`", source: "CashOutKeepLabel" },
+      { state: "可定位", when: "兑换后点提示上的 View your call", visual: "滚到这张卡并描边 1.5 秒（同 TR-36）", source: "data-lite-your-call = optionId" },
+    ],
+  },
+  {
+    key: "trade-tr37b",
+    label: "TR-37b · 券单持仓卡 · Boost 页 · 没利润",
+    spec: [
+      { state: "PROFIT NOW", when: "现在平仓利润 = 0（打平或亏着）", visual: "`$0.00`，白字；价格低于买入价时下面多一行小字 `down right now`", source: "credit = clamp(rawPnl, 0, cap)" },
+      { state: "按钮", when: "利润 = 0", visual: "只写 `Cash out`，不带金额", source: "LiteVoucherCard" },
+    ],
+  },
+  {
+    key: "trade-tr37c",
+    label: "TR-37c · 券单持仓卡 · Standard 页（不写倍数）",
+    note: "Standard 是现货：券在 Standard 事件上兑换 = 用券面值买一笔等额现货。标题绝不出现倍数或 Boost 字样（DESIGN.md §Addendum 2026-11-18）。",
+    spec: [
+      { state: "标题", when: "Standard 交易页 / 现货快轮页上的券单", visual: "`{买的哪边}` + VOUCHER 标，没有 `5× Boost`", source: "LiteVoucherLegs line=\"spot\" → boost=1" },
+      { state: "算法", when: "券兑换在 Standard 事件上", visual: "份数 = 面值 ÷ 买入价；利润 = (现价 − 买入价) × 份数，仍受利润上限限制", source: "voucherLeverageFor(\"spot\") = 1" },
+    ],
+  },
+  {
+    key: "trade-tr37d",
+    label: "TR-37d · 券单持仓卡 · 多 market（选项 · Yes / No）",
+    spec: [
+      { state: "多 market", when: "多 market 事件上的券单", visual: "标题 `{选项名} · {Yes|No} · 5× Boost` + VOUCHER 标；No 一边用柠檬绿", source: "legTitle(resolveLegSide())" },
+    ],
+  },
+  {
+    key: "trade-tr38",
+    label: "TR-38 · 兑换成功提示（顶部 · 带 View your call）",
+    note: "取代原来右下角那条 `Voucher redeemed / Your position is now active.`。和普通买入提示是同一个组件、同一个位置、同样停 6 秒。",
+    spec: [
+      { state: "文案", when: "券兑换成功并跳到交易页", visual: "标题 `Bought {买的哪边}`；副行 `Paid with your {面值} voucher`；按钮 `View your call`", source: "RedeemVoucherContent → showPlacedToast" },
+      { state: "点按钮", when: "点 View your call", visual: "滚到这张券单卡并描边 1.5 秒（卡片还没渲染出来最多等约 2 秒）", source: "focusYourCall" },
+    ],
+  },
+  {
+    key: "trade-tr38b",
+    label: "TR-38b · 兑换成功提示 · 多 market",
+    spec: [
+      { state: "多 market", when: "兑换在多 market 事件的某个选项上", visual: "标题 `Bought {选项名} · {Yes|No}`，如 `Bought Lakers · Yes`", source: "PickedOption.legTitle" },
+    ],
+  },
+  {
+    key: "trade-tr39",
+    label: "TR-39 · 券单平仓面板 · 赚着",
+    note: "帧内用 fixture-only prop `inline` 把弹层画在页面流里（生产是桌面居中 Dialog / 手机底部抽屉，壳样式在 VoucherLayer 里同一处定义）。券单只能全平：没有 25 / 50 / 100、没有滑杆、文案不写百分比。",
+    spec: [
+      { state: "标题行", when: "券单的平仓面板", visual: "`Cash out` + VOUCHER 标", source: "VoucherLayer titled" },
+      { state: "主体", when: "现在平仓利润 > 0", visual: "一行 `Profit so far on your {买的哪边} call`（那一边粗体 + 选边色）→ 大号柠檬绿 `+$0.04` → `Cash out now and it's yours.`", source: "VoucherCashOutBody" },
+      { state: "一行", when: "同上", visual: "左 `Keep it open and it can earn up to`，右 = 利润上限", source: "cap" },
+      { state: "按钮", when: "同上", visual: "`Cash out · keep +$0.04`，点了整笔平掉", source: "closePosition(airdropId, { silent })" },
+    ],
+  },
+  {
+    key: "trade-tr39b",
+    label: "TR-39b · 券单平仓面板 · 没利润",
+    note: "面板只有两种状态，只看一个条件：现在平仓能不能拿到利润。打平和亏着是同一版，文字不随价格变。",
+    spec: [
+      { state: "主体", when: "现在平仓利润 = 0", visual: "大字 `No profit right now` → `on your {买的哪边} call` → 细线 → 说明：现在平什么都拿不到、余额不受影响；留着还有可能在结算前赚到", source: "VoucherCashOutBody" },
+      { state: "按钮", when: "同上", visual: "`Keep it open`（关掉面板）/ `Close anyway`（整笔平掉）", source: "同上" },
+    ],
+  },
+  {
+    key: "trade-tr39c",
+    label: "TR-39c · 券单平仓面板 · 多 market",
+    spec: [
+      { state: "多 market", when: "多 market 事件上的券单", visual: "那一行写 `{选项名} · {Yes|No}`，No 一边柠檬绿", source: "leg / isYes" },
+    ],
+  },
+  {
+    key: "trade-tr40",
+    label: "TR-40 · 平仓之后 · 有利润 · 账户里没钱",
+    note: "券单平掉后弹这一层，不再自动弹分享海报。这一层不说利润怎么提（有条件 / 无条件两种券都适用），那些在 Vouchers 页的 Voucher earnings 卡上。",
+    spec: [
+      { state: "主体", when: "这次平仓拿到利润", visual: "庆祝款猞猁插画 → 大号柠檬绿 `+$0.04` → `profit from this voucher` → `You can find it under Voucher earnings.`", source: "VoucherDoneBody" },
+      { state: "引导句", when: "账户里没钱", visual: "`Ready for the next one? Top up and you're in.`", source: "funded = false" },
+      { state: "主按钮", when: "账户里没钱（两个账户的余额向下取整都 < $1）", visual: "`Deposit`（桌面开充值弹窗，手机进 /deposit）", source: "funded" },
+      { state: "副按钮", when: "有利润", visual: "`Go to Vouchers` → /vouchers", source: "won" },
+    ],
+  },
+  {
+    key: "trade-tr40b",
+    label: "TR-40b · 平仓之后 · 有利润 · 账户里有钱",
+    spec: [
+      { state: "引导句", when: "任一账户余额向下取整 ≥ $1", visual: "只有前半句 `Ready for the next one?`，不提充值", source: "funded = true" },
+      { state: "主按钮", when: "同上", visual: "`Browse markets` → /events", source: "funded" },
+    ],
+  },
+  {
+    key: "trade-tr40c",
+    label: "TR-40c · 平仓之后 · 没利润 · 还有别的券",
+    spec: [
+      { state: "主体", when: "这次平仓利润 = 0", visual: "通用款猞猁插画 → `Voucher call closed` → `No profit this time.`", source: "VoucherDoneBody" },
+      { state: "副按钮", when: "还有没领或没用的券", visual: "`Use another voucher` → /vouchers", source: "grantedVouchers + claimedVouchers" },
+    ],
+  },
+  {
+    key: "trade-tr40d",
+    label: "TR-40d · 平仓之后 · 没利润 · 没有别的券 · 账户里没钱",
+    spec: [
+      { state: "副按钮", when: "没有别的券且账户里没钱", visual: "`Browse markets`（主按钮仍是 Deposit）", source: "hasOtherVoucher = false" },
+    ],
+  },
+  {
+    key: "trade-tr40e",
+    label: "TR-40e · 平仓之后 · 没利润 · 没有别的券 · 账户里有钱",
+    spec: [
+      { state: "只有一个按钮", when: "没有别的券且账户里有钱", visual: "主按钮 `Browse markets`，不显示副按钮（不重复）", source: "secondary = null" },
     ],
   },
 ];
@@ -502,8 +635,8 @@ const SPORTS_CLOCK_CASES: SectionCase[] = [
 export const TradeStatesSection = () => (
   <SectionWrapper
     id="trade-states"
-    title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-36）"
-    description="43 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共四个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）、LitePositionCard.voucherTag 与 LitePositionCard.flashOpen（TR-36）。"
+    title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-40）"
+    description="58 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共五个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）、LitePositionCard.voucherTag 与 LitePositionCard.flashOpen（TR-36）。；VoucherLayer.inline（把券单弹层画在页面流里，TR-39 / TR-40）。"
   >
     <SubSection title="① 页头与市场语境（TR-1 … TR-4）">
       <Pair cases={HEAD_CASES} desktopMin={420} mobileMin={480} />
@@ -517,8 +650,12 @@ export const TradeStatesSection = () => (
       <Pair cases={POSITION_CASES} desktopMin={420} mobileMin={520} />
     </SubSection>
 
-    <SubSection title="③b 下单成功提示 + 定位到持仓卡（TR-35 / TR-36）">
-      <Pair cases={PLACED_CASES} desktopMin={300} mobileMin={360} />
+    <SubSection title="③b 下单成功提示 + 定位到持仓卡（TR-35 … TR-36）">
+      <Pair cases={PLACED_CASES} desktopMin={420} mobileMin={480} />
+    </SubSection>
+
+    <SubSection title="③c 券单：持仓卡 · 兑换提示 · 平仓面板 · 平仓之后（TR-37 … TR-40）">
+      <Pair cases={VOUCHER_CASES} desktopMin={5200} mobileMin={6400} />
     </SubSection>
 
     <SubSection title="④ 侧栏与账本（TR-13 / TR-14）">

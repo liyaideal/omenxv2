@@ -11,6 +11,8 @@ interface CloseVoucherDrawerProps {
   entryPrice: number;
   markPrice: number;
   faceValue: number;
+  /** 5 on Boost events, 1 on Standard events. */
+  leverage?: number;
   redeemableCap?: number | null;
   redeemableCapPct?: number | null;
   payoutMode?: "instant" | "tiered" | null;
@@ -27,6 +29,7 @@ export const CloseVoucherDrawer = ({
   entryPrice,
   markPrice,
   faceValue,
+  leverage,
   redeemableCap,
   redeemableCapPct,
   payoutMode,
@@ -52,6 +55,7 @@ export const CloseVoucherDrawer = ({
         entryPrice={entryPrice}
         markPrice={markPrice}
         faceValue={faceValue}
+        leverage={leverage}
         redeemableCap={redeemableCap}
         redeemableCapPct={redeemableCapPct}
         payoutMode={payoutMode}

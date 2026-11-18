@@ -24,7 +24,7 @@ import {
   PickerNoEligible,
   PickerSearchBar,
 } from "./EventPickerCard";
-import { liteSideName } from "@/lib/liteSideName";
+import { legTitle, liteSideName, resolveLegSide } from "@/lib/liteSideName";
 import { shortDate } from "./voucherTokens";
 
 export interface PickedOption {
@@ -39,6 +39,8 @@ export interface PickedOption {
   isBinary: boolean;
   /** Product line of the event — drives post-redeem routing (/trade vs /spot). */
   productLine: "spot" | "futures";
+  /** Leg name exactly as the position card writes it ("76ers", "Lakers · Yes"). */
+  legTitle: string;
 }
 
 /**
@@ -326,6 +328,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
               side,
               isBinary,
               productLine,
+              legTitle: legTitle(resolveLegSide({ option: opt.label, type: side }, event as any)),
             });
 
           return (

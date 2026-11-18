@@ -5,6 +5,7 @@
 // settled rows (month groups + series aggregation) and the segment counts.
 // Pro portfolio keeps its own code path and is untouched.
 // ============================================================
+import { voucherCredit } from "@/lib/voucherMath";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePositions } from "@/hooks/usePositions";
@@ -45,6 +46,10 @@ export interface LiteLiveRow {
   profit: number;
   leverageNum: number;
   isVoucher: boolean;
+  /** Voucher rows only: what closing now would credit, and the most the voucher can pay.
+   *  A voucher call has no "now worth" and no downside — rows show these instead. */
+  voucherCredit?: number;
+  voucherCap?: number;
   /** Row tag: "voucher" → Voucher (volt), matched/welcome_gift → "airdrop" → Airdrop (pulse), else "none". */
   airdropTag: "none" | "voucher" | "airdrop";
   segment: LiteSegment;
@@ -204,7 +209,8 @@ export const useLitePortfolio = () => {
       // snapshot (mode 'existing' — margin added back, own PnL excluded).
       // Two-state grammar: every Boost row gets a result (1× included → none).
       let autoClose: AutoCloseResult = { kind: "none" };
-      if (segment === "boost") {
+      // Voucher calls have no downside, so no auto-close level either.
+      if (segment === "boost" && p.airdropSource !== "voucher") {
         autoClose = estimateAutoClosePrice({
           entryPrice: p.entryPriceNum,
           side: p.type,
@@ -241,6 +247,20 @@ export const useLitePortfolio = () => {
         profit,
         leverageNum: p.leverageNum,
         isVoucher: p.airdropSource === "voucher",
+        ...(p.airdropSource === "voucher"
+          ? (() => {
+              const v = voucherCredit({
+                entryPrice: p.entryPriceNum,
+                markPrice: priceNow,
+                side: p.type,
+                faceValue: p.voucherFaceValue ?? p.marginNum,
+                leverage: p.leverageNum,
+                redeemableCap: p.voucherRedeemableCap,
+                redeemableCapPct: p.voucherRedeemableCapPct,
+              });
+              return { voucherCredit: v.credit, voucherCap: v.cap };
+            })()
+          : {}),
         airdropTag:
           p.airdropSource === "voucher"
             ? "voucher"

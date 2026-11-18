@@ -5195,7 +5195,7 @@
   "screen.lite_spot_trade.buy_market": "{{market}} 매수",
   "screen.lite_spot_trade.chance": "{{percent}} 확률",
   "screen.lite_spot_order_panel.low_balance_hint": "Standard 잔액에 {{link}}하면 주문할 수 있어요.",
-  "screen.lite_spot_order_panel.low_balance_link": "자금을 추가"
+  "screen.lite_spot_order_panel.low_balance_link": "입금"
  },
  "trade": {
   "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} {{line}} 커버",
@@ -5314,7 +5314,7 @@
   "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
   "screen.lite.lite_contract_trade_page.buy_side": "{{side}} 매수",
   "screen.lite.lite_contract_order_panel.low_balance_hint": "Boost 잔액에 {{link}}하면 주문할 수 있어요.",
-  "screen.lite.lite_contract_order_panel.low_balance_link": "자금을 추가"
+  "screen.lite.lite_contract_order_panel.low_balance_link": "입금"
  },
  "transparency": {
   "screen.TransparencyPage.hero_title": "온체인 투명성",
@@ -5494,6 +5494,33 @@
   "screen.LiquidationAudit.view_on_basescan": "BaseScan에서 보기"
  },
  "vouchers": {
+  "lite.mark": "바우처",
+  "lite.card.voucher": "바우처",
+  "lite.card.profit_now": "현재 수익",
+  "lite.card.max_profit": "최대 수익",
+  "lite.card.closes_by": "만료",
+  "lite.card.down_now": "현재 하락 중",
+  "lite.cash_out_keep": "현금화 · {{amount}} 받기",
+  "lite.close_failed": "현금화하지 못했습니다",
+  "lite.toast.bought": "{{leg}} 매수",
+  "lite.toast.paid_with": "{{amount}} 바우처로 결제",
+  "lite.panel.profit_on": "{{leg}} 콜의 현재 수익",
+  "lite.panel.yours": "지금 현금화하면 이 수익은 내 것이 됩니다.",
+  "lite.panel.keep_open_up_to": "계속 보유하면 최대",
+  "lite.panel.no_profit": "지금은 수익이 없습니다",
+  "lite.panel.on_call": "{{leg}} 콜",
+  "lite.panel.no_profit_body": "지금 닫으면 받는 금액이 없고 잔액에도 영향이 없습니다. 계속 보유하면 정산 전에 수익이 날 수 있습니다.",
+  "lite.panel.keep_open": "계속 보유",
+  "lite.panel.close_anyway": "그래도 닫기",
+  "lite.done.profit_from": "이 바우처에서 얻은 수익",
+  "lite.done.find_it": "'바우처 수익'에서 확인할 수 있습니다.",
+  "lite.done.closed": "바우처 콜이 종료되었습니다",
+  "lite.done.no_profit": "이번에는 수익이 없습니다.",
+  "lite.done.nudge_deposit": "다음 콜을 준비하셨나요? 입금하고 바로 시작하세요.",
+  "lite.done.nudge_funded": "다음 콜을 준비하셨나요?",
+  "lite.done.browse": "마켓 둘러보기",
+  "lite.done.go_to_vouchers": "바우처로 이동",
+  "lite.done.use_another": "다른 바우처 사용",
   "request_failed": "체험 바우처 요청에 실패했습니다",
   "title": "포지션 바우처",
   "title_short": "바우처",
@@ -5751,7 +5778,7 @@
   "deposit": "입금",
   "withdraw": "출금",
   "transfer": "이체",
-  "insufficient_toast.message": "잔액이 부족합니다. 자금을 추가해 주세요",
+  "insufficient_toast.message": "잔액이 부족합니다. 입금해 주세요",
   "insufficient_toast.add_funds": "입금",
   "transfer_insufficient": "{{account}} 잔액이 부족합니다.",
   "standard": "스탠다드",

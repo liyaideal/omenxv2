@@ -13,6 +13,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { usePositions } from "@/hooks/usePositions";
+import { LiteVoucherLegs, isVoucherLeg } from "@/components/lite/vouchers/LiteVoucherLegs";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade } from "@/services/tradingService";
@@ -122,7 +123,9 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
   const seconds = useSecondTick();
   const { user } = useAuth();
   const { toggle: toggleWatch, isWatched } = useWatchlist();
-  const { positions } = usePositions();
+  const { positions: allPositions } = usePositions();
+  // Voucher calls render through LiteVoucherLegs, never as the regular leg.
+  const positions = useMemo(() => allPositions.filter((p) => !isVoucherLeg(p)), [allPositions]);
   const { addSpotBalance } = useUserProfile();
   const { headingRef, scrolledOut } = useHeadingScrolledOut();
   const [refetchTick, setRefetchTick] = useState(0);
@@ -568,6 +571,15 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
   );
 
 
+  const VoucherLegs = event ? (
+    <LiteVoucherLegs
+      event={event}
+      line={posLine}
+      optionIdPrefix={`${event.id}-`}
+      isMobile={!!isMobile}
+    />
+  ) : null;
+
   const Position = heldPos ? (
     <SpotYourPosition
       anchorKey={heldPos.optionId ?? ""}
@@ -633,6 +645,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
             {SentimentBar}
             {RuleCard}
             {SettlementRail}
+            {VoucherLegs}
             {Position}
             {MarketActivity}
             {AlsoLiveNow}
@@ -763,6 +776,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
             {Chart}
             {RuleCard}
             {SettlementRail}
+            {VoucherLegs}
             {Position}
             {MarketActivity}
             {CashOut}

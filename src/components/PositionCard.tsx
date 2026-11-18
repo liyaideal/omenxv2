@@ -324,6 +324,7 @@ export const PositionCard = ({
                   : parseFloat(markPrice.replace(/[$,]/g, "")) || 0
               }
               faceValue={fullPosition?.voucherFaceValue ?? (parseFloat(margin.replace(/[$,]/g, "")) || 0)}
+              leverage={fullPosition?.leverageNum ?? 5}
               redeemableCap={fullPosition?.voucherRedeemableCap ?? null}
               redeemableCapPct={fullPosition?.voucherRedeemableCapPct ?? null}
               payoutMode={fullPosition?.voucherPayoutMode ?? null}

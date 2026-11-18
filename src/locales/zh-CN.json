@@ -5180,7 +5180,7 @@
   "screen.lite_spot_trade.buy_market": "买入 {{market}}",
   "screen.lite_spot_trade.chance": "{{percent}} 概率",
   "screen.lite_spot_order_panel.low_balance_hint": "向 Standard 余额{{link}}后即可下单。",
-  "screen.lite_spot_order_panel.low_balance_link": "添加资金"
+  "screen.lite_spot_order_panel.low_balance_link": "充值"
  },
  "trade": {
   "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} 让分 {{line}} 打出",
@@ -5299,7 +5299,7 @@
   "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
   "screen.lite.lite_contract_trade_page.buy_side": "买入 {{side}}",
   "screen.lite.lite_contract_order_panel.low_balance_hint": "向 Boost 余额{{link}}后即可下单。",
-  "screen.lite.lite_contract_order_panel.low_balance_link": "添加资金"
+  "screen.lite.lite_contract_order_panel.low_balance_link": "充值"
  },
  "transparency": {
   "screen.TransparencyPage.hero_title": "链上透明度",
@@ -5479,6 +5479,33 @@
   "screen.LiquidationAudit.view_on_basescan": "在 BaseScan 上查看"
  },
  "vouchers": {
+  "lite.mark": "仓位券",
+  "lite.card.voucher": "仓位券",
+  "lite.card.profit_now": "当前利润",
+  "lite.card.max_profit": "利润上限",
+  "lite.card.closes_by": "到期时间",
+  "lite.card.down_now": "当前浮亏",
+  "lite.cash_out_keep": "平仓 · 拿走 {{amount}}",
+  "lite.close_failed": "平仓失败",
+  "lite.toast.bought": "已买入 {{leg}}",
+  "lite.toast.paid_with": "使用 {{amount}} 仓位券支付",
+  "lite.panel.profit_on": "你的 {{leg}} 预测当前利润",
+  "lite.panel.yours": "现在平仓，这笔利润就归你。",
+  "lite.panel.keep_open_up_to": "继续持有最多可赚",
+  "lite.panel.no_profit": "当前没有利润",
+  "lite.panel.on_call": "你的 {{leg}} 预测",
+  "lite.panel.no_profit_body": "现在平仓不会有任何收益，你的余额也不受影响。继续持有，结算前仍有可能盈利。",
+  "lite.panel.keep_open": "继续持有",
+  "lite.panel.close_anyway": "仍要平仓",
+  "lite.done.profit_from": "来自这张仓位券的利润",
+  "lite.done.find_it": "可在「仓位券收益」中查看。",
+  "lite.done.closed": "仓位券预测已平仓",
+  "lite.done.no_profit": "这次没有利润。",
+  "lite.done.nudge_deposit": "准备好下一单了吗？充值即可开始。",
+  "lite.done.nudge_funded": "准备好下一单了吗？",
+  "lite.done.browse": "浏览市场",
+  "lite.done.go_to_vouchers": "前往代金券",
+  "lite.done.use_another": "使用另一张仓位券",
   "request_failed": "体验券请求失败",
   "title": "仓位券",
   "title_short": "代金券",
@@ -5731,7 +5758,7 @@
   "deposit": "充值",
   "withdraw": "提现",
   "transfer": "划转",
-  "insufficient_toast.message": "余额不足，请先补充资金",
+  "insufficient_toast.message": "余额不足，请先充值",
   "insufficient_toast.add_funds": "充值",
   "transfer_insufficient": "{{account}}余额不足。",
   "standard": "标准账户",

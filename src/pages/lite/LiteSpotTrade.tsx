@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
+import { LiteVoucherLegs, isVoucherLeg } from "@/components/lite/vouchers/LiteVoucherLegs";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade } from "@/services/tradingService";
 import { useWatchlist } from "@/hooks/useWatchlist";
@@ -168,7 +169,9 @@ const LiteSpotTrade = () => {
   const backHref =
     (routerLocation.state as { from?: string } | null)?.from ?? "/events";
   const { user } = useAuth();
-  const { positions } = usePositions();
+  const { positions: allPositions } = usePositions();
+  // Voucher calls render through LiteVoucherLegs, never as the regular spot leg.
+  const positions = useMemo(() => allPositions.filter((p) => !isVoucherLeg(p)), [allPositions]);
   const { addSpotBalance } = useUserProfile();
   const { isWatched, toggle } = useWatchlist();
   const { headingRef, scrolledOut } = useHeadingScrolledOut();
@@ -563,6 +566,10 @@ const LiteSpotTrade = () => {
     </div>
   );
 
+  const VoucherLegs = event ? (
+    <LiteVoucherLegs event={event} line="spot" isMobile={!!isMobile} />
+  ) : null;
+
   const YourPosition = heldPos ? (
     <SpotYourPosition
       anchorKey={heldPos.optionId ?? ""}
@@ -856,6 +863,7 @@ const LiteSpotTrade = () => {
                 {SentimentBar}
                 {RuleCard}
                 {SettlementRail}
+                {VoucherLegs}
                 {YourPosition}
                 {MarketActivity}
                 {CashOut}
@@ -977,6 +985,7 @@ const LiteSpotTrade = () => {
             {resolved && Proof}
             {InReview}
             {RuleCard}
+            {!resolved && VoucherLegs}
             {!resolved && YourPosition}
             {MarketActivity}
             {!resolved && CashOut}

@@ -5193,7 +5193,7 @@
   "screen.lite_spot_trade.buy_market": "買入 {{market}}",
   "screen.lite_spot_trade.chance": "{{percent}} 機率",
   "screen.lite_spot_order_panel.low_balance_hint": "向 Standard 餘額{{link}}後即可下單。",
-  "screen.lite_spot_order_panel.low_balance_link": "加入資金"
+  "screen.lite_spot_order_panel.low_balance_link": "儲值"
  },
  "trade": {
   "screen.lite.lite_sports_game_lines.spread_covers": "{{team}} 讓分 {{line}} 打出",
@@ -5312,7 +5312,7 @@
   "screen.lite.lite_contract_trade_page.boost_line": "{{boost}}× BOOST",
   "screen.lite.lite_contract_trade_page.buy_side": "買入 {{side}}",
   "screen.lite.lite_contract_order_panel.low_balance_hint": "向 Boost 餘額{{link}}後即可下單。",
-  "screen.lite.lite_contract_order_panel.low_balance_link": "加入資金"
+  "screen.lite.lite_contract_order_panel.low_balance_link": "儲值"
  },
  "transparency": {
   "screen.TransparencyPage.hero_title": "鏈上透明度",
@@ -5492,6 +5492,33 @@
   "screen.LiquidationAudit.view_on_basescan": "在 BaseScan 上查看"
  },
  "vouchers": {
+  "lite.mark": "倉位券",
+  "lite.card.voucher": "倉位券",
+  "lite.card.profit_now": "目前利潤",
+  "lite.card.max_profit": "利潤上限",
+  "lite.card.closes_by": "到期時間",
+  "lite.card.down_now": "目前浮虧",
+  "lite.cash_out_keep": "平倉 · 拿走 {{amount}}",
+  "lite.close_failed": "平倉失敗",
+  "lite.toast.bought": "已買入 {{leg}}",
+  "lite.toast.paid_with": "使用 {{amount}} 倉位券支付",
+  "lite.panel.profit_on": "你的 {{leg}} 預測目前利潤",
+  "lite.panel.yours": "現在平倉，這筆利潤就歸你。",
+  "lite.panel.keep_open_up_to": "繼續持有最多可賺",
+  "lite.panel.no_profit": "目前沒有利潤",
+  "lite.panel.on_call": "你的 {{leg}} 預測",
+  "lite.panel.no_profit_body": "現在平倉不會有任何收益，你的餘額也不受影響。繼續持有，結算前仍有可能獲利。",
+  "lite.panel.keep_open": "繼續持有",
+  "lite.panel.close_anyway": "仍要平倉",
+  "lite.done.profit_from": "來自這張倉位券的利潤",
+  "lite.done.find_it": "可在「倉位券收益」中查看。",
+  "lite.done.closed": "倉位券預測已平倉",
+  "lite.done.no_profit": "這次沒有利潤。",
+  "lite.done.nudge_deposit": "準備好下一單了嗎？儲值即可開始。",
+  "lite.done.nudge_funded": "準備好下一單了嗎？",
+  "lite.done.browse": "瀏覽市場",
+  "lite.done.go_to_vouchers": "前往代金券",
+  "lite.done.use_another": "使用另一張倉位券",
   "request_failed": "體驗券請求失敗",
   "title": "倉位券",
   "title_short": "代金券",
@@ -5744,7 +5771,7 @@
   "deposit": "充值",
   "withdraw": "提現",
   "transfer": "劃轉",
-  "insufficient_toast.message": "餘額不足，請先補充資金",
+  "insufficient_toast.message": "餘額不足，請先儲值",
   "insufficient_toast.add_funds": "儲值",
   "transfer_insufficient": "{{account}}餘額不足。",
   "standard": "標準帳戶",
