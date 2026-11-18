@@ -312,6 +312,7 @@ const VoucherCardFrame = (props: {
           cap={1}
           closesBy="Nov 21, 13:36"
           compact={!!isMobile}
+          surface={props.boost > 1 ? "boost" : "standard"}
           onCashOut={noop}
         />
       </div>

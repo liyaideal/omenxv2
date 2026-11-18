@@ -268,6 +268,7 @@ const VOUCHER_CASES: SectionCase[] = [
     label: "TR-37c · 券单持仓卡 · Standard 页（不写倍数）",
     note: "Standard 是现货：券在 Standard 事件上兑换 = 用券面值买一笔等额现货。标题绝不出现倍数或 Boost 字样（DESIGN.md §Addendum 2026-11-18）。",
     spec: [
+      { state: "跟邻居长一样", when: "券卡在 Standard 页 / 加密涨跌轮页", visual: "这一边写成和旁边现货持仓卡（SpotYourPosition）同款的小色块；四格永远一行（手机也是，不变 2×2）；手机上 CLOSES BY 日期一行、时间一行。Boost 页的券卡跟 LitePositionCard：彩色文字标题、手机 2×2", source: "LiteVoucherCard surface=\"standard\"" },
       { state: "标题", when: "Standard 交易页 / 现货快轮页上的券单", visual: "`{买的哪边}` + VOUCHER 标，没有 `5× Boost`", source: "LiteVoucherLegs line=\"spot\" → boost=1" },
       { state: "算法", when: "券兑换在 Standard 事件上", visual: "份数 = 面值 ÷ 买入价；利润 = (现价 − 买入价) × 份数，仍受利润上限限制", source: "voucherLeverageFor(\"spot\") = 1" },
     ],

@@ -44,6 +44,10 @@ export interface LiteVoucherCardProps {
   /** Already formatted, e.g. "Nov 21, 13:36". */
   closesBy: string;
   compact?: boolean;
+  /** Which page the card sits on. It mirrors its neighbour: "boost" follows
+   *  LitePositionCard (coloured side text, 2×2 on mobile); "standard" follows
+   *  SpotYourPosition (side chip, always four cells in one row). */
+  surface?: "boost" | "standard";
   onCashOut: () => void;
   /** Option id — lets the "View your call" toast action find this card. */
   anchorKey?: string;
@@ -61,11 +65,17 @@ export const LiteVoucherCard = ({
   cap,
   closesBy,
   compact = false,
+  surface = "boost",
   onCashOut,
   anchorKey,
   flashOpen = false,
 }: LiteVoucherCardProps) => {
   const winning = hasVoucherProfit(credit);
+  const standard = surface === "standard";
+  // Four narrow cells on a phone: the date takes the value line, the time the sub line.
+  const cut = standard && compact ? closesBy.lastIndexOf(", ") : -1;
+  const closesDate = cut > 0 ? closesBy.slice(0, cut) : closesBy;
+  const closesTime = cut > 0 ? closesBy.slice(cut + 2) : undefined;
   return (
     <div
       className={cn("rounded-2xl border border-border bg-card p-4", flashOpen && "lite-call-flash")}
@@ -73,6 +83,16 @@ export const LiteVoucherCard = ({
       data-lite-voucher-card=""
     >
       <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
+        {standard ? (
+          <span
+            className={cn(
+              "rounded-md px-2 py-0.5 text-[11px] font-semibold",
+              isYes ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
+            )}
+          >
+            {sideLabel}
+          </span>
+        ) : (
         <span>
           <span className={isYes ? "text-yes" : "text-no"}>{sideLabel}</span>
           {boost > 1 && (
@@ -83,13 +103,14 @@ export const LiteVoucherCard = ({
             </span>
           )}
         </span>
+        )}
         <VoucherMark />
       </div>
 
       <div
         className={cn(
           "grid gap-2 border-t border-border pt-3 text-xs",
-          compact ? "grid-cols-2" : "grid-cols-4",
+          compact && !standard ? "grid-cols-2" : "grid-cols-4",
         )}
       >
         <Cell label={t("vouchers.lite.card.voucher")} value={usd(faceValue)} />
@@ -100,7 +121,7 @@ export const LiteVoucherCard = ({
           sub={rawPnl < 0 ? t("vouchers.lite.card.down_now") : undefined}
         />
         <Cell label={t("vouchers.lite.card.max_profit")} value={usd(cap)} />
-        <Cell label={t("vouchers.lite.card.closes_by")} value={closesBy} />
+        <Cell label={t("vouchers.lite.card.closes_by")} value={closesDate} sub={closesTime} />
       </div>
 
       <div className="mt-3 border-t border-border pt-3">

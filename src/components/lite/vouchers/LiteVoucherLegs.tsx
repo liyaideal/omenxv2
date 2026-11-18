@@ -121,6 +121,7 @@ export const LiteVoucherLegs = ({
           cap={math.cap}
           closesBy={formatVoucherClosesBy(p.voucherExpiresAt)}
           compact={isMobile}
+          surface={line === "spot" ? "standard" : "boost"}
           onCashOut={() =>
             p.airdropId &&
             setFlow({

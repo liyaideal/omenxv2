@@ -2683,6 +2683,7 @@ CPO 2026-11-18 严令。Standard = 现货，没有杠杆。
 起因：新 BD 反馈用券之后看不懂发生了什么。CPO 2026-11-18 在 mock 画布「用券之后 mock（前后对比）」上逐条批。交付文档 `docs/delivery/lite-voucher-call-v1.md`。
 
 1. **券单有自己的卡**（`LiteVoucherCard`），不套普通持仓卡：外壳与普通持仓卡同（`rounded-2xl border bg-card p-4`），四格 VOUCHER / PROFIT NOW / MAX PROFIT / CLOSES BY；没有 Put in / Now worth / Auto-close / 最多会亏。排在普通持仓卡前面。
+1b. **券卡跟同页的普通持仓卡长一样**（CPO 2026-11-18 截图指出）：Boost 页跟 `LitePositionCard`——这一边是彩色文字、手机四格排成 2×2；Standard 页与加密涨跌轮页跟 `SpotYourPosition`——这一边是小色块（`rounded-md px-2 py-0.5 text-[11px]`，`bg-yes/14` 或 `bg-no/14`）、四格永远一行，手机上 CLOSES BY 拆成日期 + 时间两行。以后任何「同页并排的两种卡」验收都要并排截图比结构。
 2. **VOUCHER 标**（`VoucherMark`）：lime 描边小胶囊、大写、跟在标题后同一行，不许换行到第二行。
 3. **标题**：Boost 面 `{leg} · 5× Boost` + 标；Standard 面 `{leg}` + 标（见上一条 Addendum，Standard 面不写倍数）。
 4. **leg 写法全程一致**：两方事件 = 那一边的名字；多盘口 = `{选项} · Yes|No`，颜色跟 Yes / No。
