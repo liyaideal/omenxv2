@@ -100,7 +100,9 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
         )}
         <span style={{ minWidth: 0 }}>
           <div className="lbl" style={{ fontSize: 9.5 }}>
-            {[m.categoryLabel, marketsTxt, boostTxt, closesTxt].filter(Boolean).join(" · ")}
+            {[m.categoryLabel, marketsTxt, boostTxt].filter(Boolean).join(" · ")}
+            {/* M5 on phone (2026-11-18): "closes in Xh" always starts its own line, so a wrapped eyebrow never ends on a dangling "·" */}
+            {closesTxt && <span style={{ display: "block" }}>{closesTxt}</span>}
           </div>
           {titleEl}
           {volEl}
@@ -160,7 +162,7 @@ export const HomeMoreSection = ({ events, getBoostMax, isMobile, nowOverride }: 
             </div>
           ) : (
             // Fixed label column so every event's bars start on the same x; long names wrap, never cut.
-            <div key={c.id} style={{ display: "grid", gridTemplateColumns: "136px minmax(0,1fr) auto", gap: 14, alignItems: "center", padding: "6px 0" }}>
+            <div key={c.id} className="orow" style={{ display: "grid", gridTemplateColumns: "136px minmax(0,1fr) auto", gap: 14, alignItems: "center", padding: "6px 0" }}>
               <span className="d" style={{ fontSize: 13, fontWeight: 700, color: "#DBE2EA", lineHeight: 1.25 }}>
                 {c.displayLabel || c.optionLabel}
               </span>

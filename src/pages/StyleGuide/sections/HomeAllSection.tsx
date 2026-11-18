@@ -254,16 +254,24 @@ const DESK_CASES: SectionCase[] = [
     key: "home-ha12",
     label: "HA-12 · Editor's Desk · 多档 pick",
     spec: [
-      { state: "多档", when: "optionCount > 2", visual: "两档胶囊 +「+N more」；两档 = 价最高的两个结果、价高在前（Republicans 61¢ / Democrats 37¢），不是数据源的前两个（2026-11-10）", source: "E4 · toEditorPick" },
+      { state: "多档", when: "optionCount > 2", visual: "两档胶囊 + 同一排的灰色小钮「+N」（桌面，36px 高；手机仍是「+N more」文字）；两档 = 价最高的两个结果、价高在前（Republicans 61¢ / Democrats 37¢），不是数据源的前两个（2026-11-10）", source: "E4 · toEditorPick" },
     ],
   },
   {
     key: "home-ha20",
     label: "HA-20 · Editor's Desk · 2 条 pick，其中一条普通二元（E2 / E4）",
     spec: [
-      { state: "条数 < 3", when: "picks.length === 2", visual: "按实际条数排，列宽不变、不补空位；编号 01 / 02", source: "E2 E3" },
+      { state: "2 条", when: "picks.length === 2", visual: "两条各占一半、中间一条竖线；编号 01 / 02（2026-11-18，原来各占三分之一、右边留空）", source: "E2 E3" },
       { state: "普通二元", when: "yesLabel === 'Yes'", visual: "「Yes n¢」/「No n¢」两钮", source: "E4" },
       { state: "比赛", when: "metadata.kickoff_at", visual: "两队名 + 价；三项赛只放两队（平局在交易页买）", source: "E4 · toEditorPick" },
+    ],
+  },
+  {
+    key: "home-ha20b",
+    label: "HA-20b · Editor's Desk · 只有 1 条 pick（E3）",
+    spec: [
+      { state: "1 条 · 桌面", when: "picks.length === 1 && 宽 ≥ 1000", visual: "横着排满一行：左边编号 + 眉行 / 标题 / 引言（最宽 640），右边两钮靠右、上下居中", source: "E3 · 2026-11-18" },
+      { state: "1 条 · 手机 / 窄屏", when: "isMobile 或宽 < 1000", visual: "和多条时一样竖着排，钮在引言下面", source: "E3 MB6" },
     ],
   },
 ];

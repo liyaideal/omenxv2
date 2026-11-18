@@ -11,7 +11,10 @@
 // rendered when nothing is configured (E2); numeral + "Category · time" eyebrow,
 // title (≤ 2 lines), reason in quotes (≤ 3 lines), order buttons bottom-aligned at
 // 36px (E3); buttons follow the event type (E4).
-// Desktop: three equal columns, 40px gaps with a 1px divider between picks.
+// Desktop: the picks share the width — three → thirds, two → halves, one → a single row with the
+// text on the left and the buttons on the right (2026-11-18); 40px gaps with a 1px divider between
+// picks. A multi-outcome pick shows its two pills and a small "+N" pill on the same row. Under 1100px
+// the "Category · time" eyebrow drops under the numeral in every column.
 // Mobile: the picks stacked inside the panel, a hairline between them.
 // ============================================================
 import { useNavigate } from "react-router-dom";
@@ -33,7 +36,7 @@ const whenLabel = (d: Date | null, nowMs?: number): string => {
 };
 const isRound = (p: EditorPick) => /^(up|down)$/i.test(p.yesLabel) || /^(up|down)$/i.test(p.noLabel);
 
-const Buttons = ({ p, go }: { p: EditorPick; go: (href: string) => void }) => {
+const Buttons = ({ p, go, compact }: { p: EditorPick; go: (href: string) => void; compact?: boolean }) => {
   if (isRound(p)) {
     return (
       <>
@@ -48,9 +51,17 @@ const Buttons = ({ p, go }: { p: EditorPick; go: (href: string) => void }) => {
         {/* G3: each outcome pill buys YES on that outcome (side=no would open "No on B" on the multi trade page) */}
         <OddsButton label={p.yesLabel} price={p.yesPrice} onClick={() => go(pickHref(p, p.yesOptionId, "yes"))} />
         <OddsButton label={p.noLabel} price={p.noPrice} onClick={() => go(pickHref(p, p.noOptionId, "yes"))} />
-        <button type="button" className="lnk" style={{ fontSize: 13 }} onClick={() => go(pickHref(p))}>
-          {ht("desk.more", { count: p.optionCount - 2 })}
-        </button>
+        {compact ? (
+          // Desktop (2026-11-18): a small "+N" pill on the same row as the two outcome pills, so every
+          // column's buttons stay bottom-aligned; it opens the event like the old "+N more" link.
+          <button type="button" className="pmore" aria-label={ht("desk.more", { count: p.optionCount - 2 })} title={ht("desk.more", { count: p.optionCount - 2 })} onClick={() => go(pickHref(p))}>
+            +{p.optionCount - 2}
+          </button>
+        ) : (
+          <button type="button" className="lnk" style={{ fontSize: 13 }} onClick={() => go(pickHref(p))}>
+            {ht("desk.more", { count: p.optionCount - 2 })}
+          </button>
+        )}
       </>
     );
   }
@@ -134,10 +145,11 @@ export const HomeDeskSection = ({ picks, isMobile, nowOverride }: { picks: Edito
             <SectionHead eyebrow={eyebrow} eyebrowColor={LM} question={question} />
           </div>
         </div>
-        <div className="desk-picks">
+        {/* E3 (2026-11-18): the picks share the width — 3 → thirds, 2 → halves, 1 → one row (text left, buttons right) */}
+        <div className={`desk-picks n${Math.min(picks.length, 3)}`}>
           {picks.map((p, k) => (
             <div key={p.id} className="pcol">
-              <div className="row" style={{ gap: 14, alignItems: "center" }}>
+              <div className="row phead" style={{ gap: 14, alignItems: "center" }}>
                 <span className="pnum">{String(k + 1).padStart(2, "0")}</span>
                 <span className="lbl">
                   {catLabel(p)}
@@ -148,8 +160,8 @@ export const HomeDeskSection = ({ picks, isMobile, nowOverride }: { picks: Edito
                 {p.name}
               </div>
               <p className="pwhy">“{p.note}”</p>
-              <div className="row" style={{ gap: 8, marginTop: "auto", paddingTop: 24, flexWrap: "wrap" }}>
-                <Buttons p={p} go={go} />
+              <div className={`row pbtns${p.optionCount > 2 && !isRound(p) ? " multi" : ""}`}>
+                <Buttons p={p} go={go} compact />
               </div>
             </div>
           ))}

@@ -459,6 +459,10 @@ const DeskDemo = ({ picks }: { picks: EditorPick[] }) => {
 };
 export const HaDeskPreview = () => <DeskDemo picks={PICKS} />;
 export const HaDeskMultiPreview = () => <DeskDemo picks={PICKS_MULTI} />;
+/** HA-20b · a single pick: one row on desktop (text left, buttons right). */
+export const HaDeskOnePreview = () => (
+  <DeskDemo picks={[pick({ id: "ha-pick-6", rank: 1, category: "macro", name: "Fed rate hike in 2026?", note: "The curve stopped pricing a hike after the jobs print. A dollar pays if they still do it.", yesPrice: 0.12, noPrice: 0.88, endDate: new Date(FROZEN_NOW + 50 * DAY) })]} />
+);
 /** HA-20 · two picks, one a plain Yes / No event (E2 / E4). */
 export const HaDeskTwoPreview = () => (
   <DeskDemo
