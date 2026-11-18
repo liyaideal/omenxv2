@@ -56,7 +56,7 @@
 
 | # | 改什么 | 详见 | 字典 |
 |---|---|---|---|
-| 13 | toast 写清投入 · 几倍 · 仓位：`Bought {side} · $A at N× Boost · $P position`（1× 只写投入） | §2 | 无帧（toast） （2026-11-18 起买入成功提示改为「标题 + 副行 + View your call」，见 placed-toast-view-call-v1.md） |
+| 13 | 买入成功提示：标题 `Bought {side} · $A` + 副行 `N× Boost · $P position`（1× 和 Standard 没有副行）+ 按钮 `View your call`（2026-11-18 更新，原来是一行字、没有按钮） | §2 | TR-35 / TR-35b / TR-36 |
 
 **③ 交易页 · 持仓卡**
 
@@ -139,14 +139,21 @@
 
 ## 2. ② 下单成功提示
 
-| 条件 | 文案 |
-|---|---|
-| Boost > 1× | `Bought {side} · ${A} at {N}× Boost · ${P} position` （2026-11-18 起买入成功提示改为「标题 + 副行 + View your call」，见 placed-toast-view-call-v1.md） |
-| Boost 1× | `Bought {side} · ${A}` |
+> 2026-11-18 更新：提示从「一行字」改成「标题 + 副行 + `View your call` 按钮」，点按钮会滚到这笔单的持仓卡并描边 1.5 秒。下表是现行写法；滚动、描边、等待卡片出现等细则在 `docs/delivery/placed-toast-view-call-v1.md`。
 
-Standard 下单卡（`LiteOrderPanel`）的 toast 本轮不动，仍是 `Bought {qty} shares · {side}`。 （2026-11-18 起买入成功提示改为「标题 + 副行 + View your call」，见 placed-toast-view-call-v1.md）
+| 条件 | 标题 | 副行 | 按钮 |
+|---|---|---|---|
+| Boost ≥ 2× | `Bought {side} · ${A}` | `{N}× Boost · ${P} position` | `View your call` |
+| Boost 1× | `Bought {side} · ${A}` | 没有 | `View your call` |
+| Standard 新开 / 加仓 | `Bought {side} · ${实际扣款}` | 没有 | `View your call` |
+| Standard 反向买入（把手里的持仓冲掉） | `Bought {qty} shares · {side}`（不变） | 没有 | 没有 |
 
-位置：`LiteContractOrderPanel` 下单成功 toast。
+- `${A}` = 投入金额（和持仓卡 PUT IN 一致，不含手续费）；`${P}` = 仓位金额。Standard 写实际从余额扣掉的钱（份数取整，可能比输入少几分）。
+- 提示停留 6 秒（其他提示仍是默认时长）；样式沿用全站现有提示，按钮是白底黑字小按钮。
+- 平仓提示（§5）不变，没有按钮。
+- 11-13 的一行写法 `Bought {side} · ${A} at {N}× Boost · ${P} position` 和 Standard 的 `Bought {qty} shares · {side}`（新开 / 加仓时）已退役。
+
+位置：`LiteContractOrderPanel` / `LiteOrderPanel` 下单成功后调 `showPlacedToast`（`src/components/lite/shared/placedToast.tsx`）。字典：TR-35 / TR-35b / TR-36。
 
 ## 3. ③ 交易页持仓卡
 
@@ -247,7 +254,9 @@ Wallet 卡底注与总余额说明原来页面里写死英文，这次全部接�
 
 | key | en |
 |---|---|
-| `trade.screen.lite.winloss.toast_bought_boost` | `Bought {{side}} · {{putIn}} at {{boost}}× Boost · {{position}} position` |
+| `trade.screen.lite.winloss.toast_bought_boost` | `Bought {{side}} · {{putIn}} at {{boost}}× Boost · {{position}} position`（2026-11-18 起不再使用，key 保留） |
+| `trade.screen.lite.winloss.toast_boost_line` | `{{boost}}× Boost · {{position}} position`（2026-11-18 新增） |
+| `trade.screen.lite.winloss.toast_view_call` | `View your call`（2026-11-18 新增） |
 | `trade.screen.lite.winloss.toast_bought` | `Bought {{side}} · {{putIn}}` |
 | `trade.screen.lite.winloss.can_lose_up_to` | `Can lose up to {{amount}}` |
 | `trade.screen.lite.winloss.profit_note` | `Right after you buy, this starts a little below $0: you bought at {{entry}}, and selling right now gets {{mark}}. The {{fee}} trading fee was charged when you bought.` |
