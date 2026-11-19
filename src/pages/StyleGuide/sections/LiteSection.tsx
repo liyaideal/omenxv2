@@ -1240,8 +1240,8 @@ export const LiteSection = ({
             <Cell label="Binary · Yes / No · time | action | context | amount">
               <LiteMarketActivity rows={activity} yesLabel="Yes" noLabel="No" />
             </Cell>
-            <Cell label="Binary alias · Up / Down (same unified ledger)">
-              <LiteMarketActivity rows={activity} yesLabel="Up" noLabel="Down" />
+            <Cell label="Standard page · Up / Down · no multiplier (hideBoost)">
+              <LiteMarketActivity rows={activity} yesLabel="Up" noLabel="Down" hideBoost />
             </Cell>
             <Cell label="Multi-market · context adds the option label">
               <LiteMarketActivity

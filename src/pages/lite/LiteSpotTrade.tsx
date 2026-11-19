@@ -655,6 +655,7 @@ const LiteSpotTrade = () => {
         yesLabel={yesLabel}
         noLabel={noLabel}
         maxRows={isMobile ? 4 : 8}
+        hideBoost
       />
     );
 

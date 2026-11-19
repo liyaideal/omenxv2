@@ -2675,7 +2675,8 @@ CPO 2026-11-18 严令。Standard = 现货，没有杠杆。
 1. Standard 面的任何组件——Standard 交易页（`/spot`）、`SpotYourPosition`、Standard 下单卡、Standard 页上的券单卡、Portfolio 的 Standard 行、以及对应的提示 / 弹层 / 文案——不许出现倍数（`N×`）、`Boost`、杠杆字样。
 2. 倍数只属于 Boost 面（`/trade`、`LitePositionCard`、Portfolio 的 Boost 行）。
 3. 券单标题：Boost 页 = `{side} · 5× Boost` + VOUCHER 标；Standard 页 = `{side}` + VOUCHER 标，不写倍数。
-4. 自查：改动涉及 Standard 面时，提交前在改动范围内搜一遍 `×` 与 `Boost`。
+3b. Market activity 列表在 Standard 页（`/spot`、加密涨跌轮页）不写倍数（`hideBoost`，2026-11-19 CPO 抓到 `2×` / `5×`）。
+4. 自查：改动涉及 Standard 面时，提交前在改动范围内搜一遍 `×` 与 `Boost`；**验收时在真实 Standard 页上把整页文字扫一遍 `×`**，不只看本轮改的组件。
 5. 只有明确上线现货杠杆后本条才失效。
 
 ## §Addendum 2026-11-18 · Lite 券单（Voucher call）：券卡 / 平仓面板 / 平仓后结果层（LOCKED）
@@ -2688,7 +2689,7 @@ CPO 2026-11-18 严令。Standard = 现货，没有杠杆。
 3. **标题**：Boost 面 `{leg} · 5× Boost` + 标；Standard 面 `{leg}` + 标（见上一条 Addendum，Standard 面不写倍数）。
 4. **leg 写法全程一致**：两方事件 = 那一边的名字；多盘口 = `{选项} · Yes|No`，颜色跟 Yes / No。
 5. **按钮**：有利润 `Cash out · keep +$X`，没利润 `Cash out`；按钮下不放说明句。
-6. **平仓面板**（`VoucherCashOutBody`）只有两态，按能拿到的钱是否 > 0：有利润 = 一句话 + 52px lime 大数字 + 一行「留着最多能拿」+ 一个主按钮；没利润 = 标题 + 说明 + `Keep it open`（主色实心）/ `Close anyway`（描边）——留着是我们希望的动作，所以它最重（CPO 2026-11-18 验收后改，原 mock 是描边 + 灰底）。**没有比例 chips、没有滑杆**（券单只能全平）。桌面 Dialog `max-w-[400px]`，手机 MobileDrawer。
+6. **平仓面板**（`VoucherCashOutBody`）只有两态，按能拿到的钱是否 > 0：有利润 = 一句话 + 52px lime 大数字 + 一行「留着最多能拿」+ 一个主按钮；没利润 = 标题 + 说明 + `Keep it open`（主色实心）/ `Close anyway`（描边）——留着是我们希望的动作，所以它最重（CPO 2026-11-18 验收后改，原 mock 是描边 + 灰底）。**没有比例 chips、没有滑杆**（券单只能全平）。桌面 Dialog `max-w-[380px]`（与普通平仓确认弹窗同宽）``，手机 MobileDrawer。
 7. **平仓后结果层**（`VoucherDoneBody`）：猞猁插画（有利润 `empty-celebrate`，没利润 `empty-no-boost`）+ 金额或 `Voucher call closed` + 引导句 + 最多两个按钮；按钮矩阵见交付文档 §1.5。有利润之后的文案不再提 voucher 规则，只引导下一步；不区分到账方式；不自动弹分享海报。
 8. **文案口味**（CPO 评论里定的）：句子能删就删；不按价格换措辞；按钮词要短（多语言不折行）；用 `Top up` 不用 `Add money`。
 9. **Portfolio 券单行**：PUT IN 下小字 `voucher`、NOW WORTH `—`、PROFIT 不为负、赢了那格只写 `If it wins → +{上限}`。

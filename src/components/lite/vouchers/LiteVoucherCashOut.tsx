@@ -247,7 +247,7 @@ export const VoucherLayer = ({
         <div className="pb-2">{children}</div>
       </div>
     ) : (
-      <div className="mx-auto grid w-full max-w-[400px] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg">
+      <div className="mx-auto grid w-full max-w-[380px] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg">
         {titled && (
           <div className="text-lg font-semibold leading-none tracking-tight">
             <PanelTitle />
@@ -266,7 +266,7 @@ export const VoucherLayer = ({
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[380px]">
         <DialogHeader className={titled ? undefined : "sr-only"}>
           <DialogTitle>{titled ? <PanelTitle /> : t("vouchers.lite.done.closed")}</DialogTitle>
         </DialogHeader>

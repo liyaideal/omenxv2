@@ -551,6 +551,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
       yesLabel="Up"
       noLabel="Down"
       maxRows={isMobile ? 4 : 8}
+        hideBoost
     />
   );
 

@@ -157,6 +157,9 @@ interface Props {
   maxRows?: number;
   /** Multi-market events: name the option instead of a Yes/No side chip. */
   showOptionLabel?: boolean;
+  /** Standard (spot) pages: never show a multiplier — Standard has no leverage
+   *  (CLAUDE.md red line 11). Boost pages leave this off. */
+  hideBoost?: boolean;
 }
 
 // UNIFIED ledger grid — frozen order for BOTH binary and multi surfaces:
@@ -179,6 +182,7 @@ export const LiteMarketActivity = ({
   noLabel,
   maxRows = 6,
   showOptionLabel = false,
+  hideBoost = false,
 }: Props) => (
   <div className="rounded-2xl border border-border bg-card p-4">
     <div className="mb-3 flex items-center gap-1.5 text-sm font-medium">
@@ -205,9 +209,10 @@ export const LiteMarketActivity = ({
           const isYes = r.isYes ?? (showOptionLabel ? legacy.isYes : false);
           // Single row renderer — the ONLY difference between surfaces is the
           // context column: multi names the option, binary shows boost only.
+          const boostText = hideBoost ? "" : `${r.boost}×`;
           const context = showOptionLabel
-            ? `${legacy.option} · ${r.boost}×`
-            : `${r.boost}×`;
+            ? [legacy.option, boostText].filter(Boolean).join(" · ")
+            : boostText;
           return (
             <li
               key={r.id}

@@ -395,6 +395,7 @@ const RAIL_CASES: SectionCase[] = [
       { state: "有行", when: "rows.length > 0", visual: "行句式 `5m · Bought Yes · Jeonbuk · 1× · $121`；时间/动作/上下文/金额四列固定序", source: "LiteMarketActivity ROW_GRID" },
       { state: "空态", when: "rows.length === 0", visual: "`No activity yet` + `Trades on this market show up here as people buy in.`", source: "EmptyState variant=module" },
       { state: "binary 上下文", when: "showOptionLabel === false", visual: "上下文列只出 boost，不出 option 名（页面本身就是市场）", source: "context 分支" },
+      { state: "Standard 页", when: "hideBoost（/spot 与加密涨跌轮页传）", visual: "不写倍数：行句式 `5m · Bought Up · $121`；Standard 没有杠杆，任何 `N×` 都不出现（CPO 2026-11-19）", source: "LiteMarketActivity hideBoost" },
       { state: "settled 空态", when: "resolved === true && rows.length === 0", visual: "模块整体不渲染（已结算市场不会再有人买入，空态文案语境错误）；settled 但有历史成交行时照常渲染", source: "LiteContractTrade / LiteSpotTrade MarketActivity" },
     ],
   },
