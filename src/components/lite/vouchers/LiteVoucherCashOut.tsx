@@ -6,14 +6,14 @@
 //  - A voucher call closes in full — no 25 / 50 / 100 chips, no slider,
 //    no percentage in the copy.
 //  - The panel has two states off ONE condition: closing now credits a
-//    profit (credit > 0) or it does not (credit = 0, flat or down).
+//    profit (at least one cent — hasVoucherProfit) or it does not.
 //  - After closing, the layer never mentions how the profit is paid out
 //    (instant vs tiered) — that lives on the Voucher earnings card.
 //  - The auto share poster does not open for voucher calls.
 // ============================================================
 import { hasVoucherProfit } from "@/lib/voucherMath";
 import { t } from "@/i18n";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -109,10 +109,10 @@ export const VoucherCashOutBody = ({
         {t("vouchers.lite.panel.no_profit_body")}
       </p>
       <div className="flex gap-2">
-        <Button className="h-11 flex-1" disabled={busy} onClick={onKeepOpen}>
+        <Button className="h-11 min-w-0 flex-1 basis-0" disabled={busy} onClick={onKeepOpen}>
           {t("vouchers.lite.panel.keep_open")}
         </Button>
-        <Button variant="outline" className="h-11 flex-1" disabled={busy} onClick={onConfirm}>
+        <Button variant="outline" className="h-11 min-w-0 flex-1 basis-0" disabled={busy} onClick={onConfirm}>
           {t("vouchers.lite.panel.close_anyway")}
         </Button>
       </div>
@@ -193,11 +193,11 @@ export const VoucherDoneBody = ({
         {funded ? t("vouchers.lite.done.nudge_funded") : t("vouchers.lite.done.nudge_deposit")}
       </div>
       <div className="mt-4 flex flex-col gap-2">
-        <Button className="h-[46px] w-full" onClick={primary.onClick}>
+        <Button className="h-11 w-full" onClick={primary.onClick}>
           {primary.label}
         </Button>
         {secondary && (
-          <Button variant="outline" className="h-[46px] w-full" onClick={secondary.onClick}>
+          <Button variant="outline" className="h-11 w-full" onClick={secondary.onClick}>
             {secondary.label}
           </Button>
         )}
@@ -314,6 +314,16 @@ export const LiteVoucherCashOutFlow = ({
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ credited: number } | null>(null);
   const [depositOpen, setDepositOpen] = useState(false);
+
+  // Fetch both result illustrations while the panel is still up, so the
+  // after-close layer never opens with an empty picture slot.
+  useEffect(() => {
+    const dir = isMobile ? "mobile" : "desktop";
+    ["empty-celebrate", "empty-no-boost"].forEach((name) => {
+      const img = new Image();
+      img.src = `/assets/${dir}/${name}.png`;
+    });
+  }, [isMobile]);
 
   const funded = Math.floor(balance ?? 0) >= 1 || Math.floor(spotBalance ?? 0) >= 1;
   const hasOtherVoucher = grantedVouchers.length + claimedVouchers.length > 0;

@@ -251,7 +251,7 @@ const VOUCHER_CASES: SectionCase[] = [
     spec: [
       { state: "标题", when: "Boost 交易页上的券单", visual: "`{买的哪边} · 5× Boost` + VOUCHER 标（柠檬绿胶囊）。买的哪边按选边色（Yes 青 / No 柠檬绿）", source: "LiteVoucherLegs → LiteVoucherCard" },
       { state: "四格", when: "任何券单", visual: "VOUCHER = 券面值；PROFIT NOW = 现在平仓能拿到的利润；MAX PROFIT = 券的利润上限与「这一边全赢能赚到的数」里小的那个；CLOSES BY = 券到期与事件结束里早的那个", source: "voucherCredit / voucherClosesAt" },
-      { state: "按钮 · 赚着", when: "现在平仓利润 > 0", visual: "`Cash out · keep +$0.04`", source: "CashOutKeepLabel" },
+      { state: "按钮 · 赚着", when: "现在平仓利润 ≥ 1 美分（hasVoucherProfit）", visual: "`Cash out · keep +$0.04`", source: "CashOutKeepLabel" },
       { state: "可定位", when: "兑换后点提示上的 View your call", visual: "滚到这张卡并描边 1.5 秒（同 TR-36）", source: "data-lite-your-call = optionId" },
     ],
   },
@@ -268,7 +268,7 @@ const VOUCHER_CASES: SectionCase[] = [
     label: "TR-37c · 券单持仓卡 · Standard 页（不写倍数）",
     note: "Standard 是现货：券在 Standard 事件上兑换 = 用券面值买一笔等额现货。标题绝不出现倍数或 Boost 字样（DESIGN.md §Addendum 2026-11-18）。",
     spec: [
-      { state: "跟邻居长一样", when: "券卡在 Standard 页 / 加密涨跌轮页", visual: "这一边写成和旁边现货持仓卡（SpotYourPosition）同款的小色块；四格永远一行（手机也是，不变 2×2）；手机上 CLOSES BY 日期一行、时间一行。Boost 页的券卡跟 LitePositionCard：彩色文字标题、手机 2×2", source: "LiteVoucherCard surface=\"standard\"" },
+      { state: "跟邻居长一样", when: "券卡在 Standard 页（加密涨跌轮页见 TR-37e）", visual: "这一边写成和旁边现货持仓卡（SpotYourPosition）同款的小色块；四格永远一行（手机也是，不变 2×2）；手机上 CLOSES BY 日期一行、时间一行。Boost 页的券卡跟 LitePositionCard：彩色文字标题、手机 2×2", source: "LiteVoucherCard surface=\"standard\"" },
       { state: "标题", when: "Standard 交易页 / 现货快轮页上的券单", visual: "`{买的哪边}` + VOUCHER 标，没有 `5× Boost`", source: "LiteVoucherLegs line=\"spot\" → boost=1" },
       { state: "算法", when: "券兑换在 Standard 事件上", visual: "份数 = 面值 ÷ 买入价；利润 = (现价 − 买入价) × 份数，仍受利润上限限制", source: "voucherLeverageFor(\"spot\") = 1" },
     ],
@@ -278,6 +278,15 @@ const VOUCHER_CASES: SectionCase[] = [
     label: "TR-37d · 券单持仓卡 · 多 market（选项 · Yes / No）",
     spec: [
       { state: "多 market", when: "多 market 事件上的券单", visual: "标题 `{选项名} · {Yes|No} · 5× Boost` + VOUCHER 标；No 一边用柠檬绿", source: "legTitle(resolveLegSide())" },
+    ],
+  },
+  {
+    key: "trade-tr37e",
+    label: "TR-37e · 券单持仓卡 · 加密涨跌轮页（合约轮）",
+    note: "加密涨跌轮页上普通持仓卡一律是 SpotYourPosition 的样子（哪怕这一轮是合约轮、有 Boost），所以券卡在这一页用同款骨架：小色块 + 四格一行；这一轮是合约轮时券单是 5×，倍数照写在色块后面。老的现货轮不写倍数，样子同 TR-37c。",
+    spec: [
+      { state: "合约轮", when: "event.rail === contract", visual: "色块 `Up` + `5× Boost` + VOUCHER 标；四格一行", source: "LiteVoucherLegs cardLike=\"standard\" · boost 5" },
+      { state: "现货轮（旧）", when: "event.rail !== contract", visual: "同 TR-37c，不写倍数", source: "line=spot" },
     ],
   },
   {
@@ -302,7 +311,7 @@ const VOUCHER_CASES: SectionCase[] = [
     note: "帧内用 fixture-only prop `inline` 把弹层画在页面流里（生产是桌面居中 Dialog / 手机底部抽屉，壳样式在 VoucherLayer 里同一处定义）。券单只能全平：没有 25 / 50 / 100、没有滑杆、文案不写百分比。",
     spec: [
       { state: "标题行", when: "券单的平仓面板", visual: "`Cash out` + VOUCHER 标", source: "VoucherLayer titled" },
-      { state: "主体", when: "现在平仓利润 > 0", visual: "一行 `Profit so far on your {买的哪边} call`（那一边粗体 + 选边色）→ 大号柠檬绿 `+$0.04` → `Cash out now and it's yours.`", source: "VoucherCashOutBody" },
+      { state: "主体", when: "现在平仓利润 ≥ 1 美分（hasVoucherProfit）", visual: "一行 `Profit so far on your {买的哪边} call`（那一边粗体 + 选边色）→ 大号柠檬绿 `+$0.04` → `Cash out now and it's yours.`", source: "VoucherCashOutBody" },
       { state: "一行", when: "同上", visual: "左 `Keep it open and it can earn up to`，右 = 利润上限", source: "cap" },
       { state: "按钮", when: "同上", visual: "`Cash out · keep +$0.04`，点了整笔平掉", source: "closePosition(airdropId, { silent })" },
     ],
@@ -390,12 +399,12 @@ const RAIL_CASES: SectionCase[] = [
     key: "trade-tr14",
     label: "TR-14 · market activity 账本（有行态 + 空态两帧）",
     note:
-      "同一 case 内两帧：上=有行，下=空态。空态逐字 `No activity yet` / `Trades on this market show up here as people buy in.`",
+      "同一 case 内三帧：上=有行（Boost 页，写倍数），中=Standard 页（不写倍数），下=空态。空态逐字 `No activity yet` / `Trades on this market show up here as people buy in.`",
     spec: [
       { state: "有行", when: "rows.length > 0", visual: "行句式 `5m · Bought Yes · Jeonbuk · 1× · $121`；时间/动作/上下文/金额四列固定序", source: "LiteMarketActivity ROW_GRID" },
       { state: "空态", when: "rows.length === 0", visual: "`No activity yet` + `Trades on this market show up here as people buy in.`", source: "EmptyState variant=module" },
       { state: "binary 上下文", when: "showOptionLabel === false", visual: "上下文列只出 boost，不出 option 名（页面本身就是市场）", source: "context 分支" },
-      { state: "Standard 页", when: "hideBoost（/spot 与加密涨跌轮页传）", visual: "不写倍数：行句式 `5m · Bought Up · $121`；Standard 没有杠杆，任何 `N×` 都不出现（CPO 2026-11-19）", source: "LiteMarketActivity hideBoost" },
+      { state: "Standard 页", when: "hideBoost（/spot 传；加密涨跌轮页只在现货轮传，合约轮照常写倍数）", visual: "不写倍数：行句式 `5m · Bought Up · $121`；Standard 没有杠杆，任何 `N×` 都不出现（CPO 2026-11-19）", source: "LiteMarketActivity hideBoost" },
       { state: "settled 空态", when: "resolved === true && rows.length === 0", visual: "模块整体不渲染（已结算市场不会再有人买入，空态文案语境错误）；settled 但有历史成交行时照常渲染", source: "LiteContractTrade / LiteSpotTrade MarketActivity" },
     ],
   },
@@ -646,7 +655,7 @@ export const TradeStatesSection = () => (
   <SectionWrapper
     id="trade-states"
     title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-40）"
-    description="59 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共四个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）、LitePositionCard.flashOpen（TR-36）、VoucherLayer.inline（把券单弹层画在页面流里，TR-39 / TR-40）。"
+    description="60 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共四个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）、LitePositionCard.flashOpen（TR-36）、VoucherLayer.inline（把券单弹层画在页面流里，TR-39 / TR-40）。"
   >
     <SubSection title="① 页头与市场语境（TR-1 … TR-4）">
       <Pair cases={HEAD_CASES} desktopMin={420} mobileMin={480} />

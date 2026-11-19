@@ -435,8 +435,8 @@ const LIVE_CASES: SectionCase[] = [
     spec: [
       { state: "PUT IN", when: "isVoucher", visual: "券面值（如 `$2.00`），下一行小字 `voucher`", source: "LiveCards · portfolio.lite.live.voucher" },
       { state: "NOW WORTH", when: "isVoucher", visual: "`—`（券单没有可取回的本金）", source: "LiveCards" },
-      { state: "PROFIT · 有浮盈", when: "voucherCredit > 0", visual: "`+$0.04` 绿色 = 现在平仓能拿到的钱（已按上限封顶）", source: "useLitePortfolio.voucherCredit ← voucherMath.voucherCredit" },
-      { state: "PROFIT · 没有浮盈", when: "voucherCredit === 0", visual: "`$0.00` 白色，不显示负数", source: "同上" },
+      { state: "PROFIT · 有浮盈", when: "voucherCredit ≥ 1 美分（hasVoucherProfit）", visual: "`+$0.04` 绿色 = 现在平仓能拿到的钱（已按上限封顶）", source: "useLitePortfolio.voucherCredit ← voucherMath.voucherCredit" },
+      { state: "PROFIT · 没有浮盈", when: "voucherCredit 不到 1 美分", visual: "`$0.00` 白色，不显示负数", source: "同上" },
       { state: "赢了能拿", when: "isVoucher", visual: "只有 `If it wins → +$1.00`（= 上限），没有 you get / 回本那些词", source: "useLitePortfolio.voucherCap" },
       { state: "自动平仓", when: "isVoucher", visual: "不显示自动平仓价与 Boost check（券单不占保证金）", source: "LiveCards" },
       { state: "页签归属", when: "券所在事件的 product_lines 含 spot → Standard；否则 Boost", visual: "Standard 券单的 meta 行没有 `N× Boost`", source: "usePositions.productLine" },

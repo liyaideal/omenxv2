@@ -43,6 +43,8 @@ export interface LiteVoucherCardProps {
   cap: number;
   /** Already formatted, e.g. "Nov 21, 13:36". */
   closesBy: string;
+  /** Same moment as `closesBy`, date and time formatted separately (for the stacked cell). */
+  closesByParts?: { date: string; time: string };
   compact?: boolean;
   /** Which page the card sits on. It mirrors its neighbour: "boost" follows
    *  LitePositionCard (coloured side text, 2×2 on mobile); "standard" follows
@@ -64,6 +66,7 @@ export const LiteVoucherCard = ({
   rawPnl,
   cap,
   closesBy,
+  closesByParts,
   compact = false,
   surface = "boost",
   onCashOut,
@@ -73,9 +76,9 @@ export const LiteVoucherCard = ({
   const winning = hasVoucherProfit(credit);
   const standard = surface === "standard";
   // Four narrow cells on a phone: the date takes the value line, the time the sub line.
-  const cut = standard && compact ? closesBy.lastIndexOf(", ") : -1;
-  const closesDate = cut > 0 ? closesBy.slice(0, cut) : closesBy;
-  const closesTime = cut > 0 ? closesBy.slice(cut + 2) : undefined;
+  const stacked = standard && compact && closesByParts ? closesByParts : undefined;
+  const closesDate = stacked ? stacked.date : closesBy;
+  const closesTime = stacked ? stacked.time : undefined;
   return (
     <div
       className={cn("rounded-2xl border border-border bg-card p-4", flashOpen && "lite-call-flash")}
@@ -92,7 +95,14 @@ export const LiteVoucherCard = ({
           >
             {sideLabel}
           </span>
-        ) : (
+        ) : null}
+        {standard && boost > 1 ? (
+          <span className="text-foreground">
+            <span className="font-mono">{boost}×</span>{" "}
+            {t("trade.screen.lite.lite_contract_account_sections.boost")}
+          </span>
+        ) : null}
+        {standard ? null : (
         <span>
           <span className={isYes ? "text-yes" : "text-no"}>{sideLabel}</span>
           {boost > 1 && (
@@ -165,7 +175,7 @@ const Cell = ({
   tone?: "up";
 }) => (
   <div className="min-w-0">
-    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+    <div className="text-[10px] uppercase tracking-wide text-muted-foreground [overflow-wrap:anywhere]">{label}</div>
     <div
       className={cn(
         "font-mono text-sm font-semibold",

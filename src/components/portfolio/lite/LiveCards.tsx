@@ -60,7 +60,7 @@ const voucherWinLine = (row: LiteLiveRow) =>
 const voucherProfitText = (row: LiteLiveRow) =>
   hasVoucherProfit(row.voucherCredit) ? `+${money(row.voucherCredit ?? 0)}` : money(0);
 const voucherProfitColor = (row: LiteLiveRow) =>
-  hasVoucherProfit(row.voucherCredit) ? livePnlColor(1) : "#F2F3F5";
+  hasVoucherProfit(row.voucherCredit) ? livePnlColor(1) : livePnlColor(0);
 
 const winSentence = (row: LiteLiveRow) =>
   `If it wins you get ${money(row.ifWins)}`;
@@ -149,7 +149,7 @@ export const LiveCard = ({
       }
     >
       <div className="flex items-start gap-2">
-        {selectMode && (row.isVoucher ? <span /> : <CheckDot selected={!!selected} />)}
+        {selectMode && (row.isVoucher ? <span className="invisible"><CheckDot selected={false} /></span> : <CheckDot selected={!!selected} />)}
         <div className="flex-1 text-[14.5px] font-semibold leading-[1.35] text-[#F2F3F5]">
           {row.eventName}
         </div>
@@ -294,7 +294,7 @@ export const LiveRow = ({
             : undefined,
       }}
     >
-      {selectMode && (row.isVoucher ? <span /> : <CheckDot selected={!!selected} />)}
+      {selectMode && (row.isVoucher ? <span className="invisible"><CheckDot selected={false} /></span> : <CheckDot selected={!!selected} />)}
       <div className="min-w-0 pr-3">
         <div className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{row.eventName}</div>
         <div className="truncate text-[11px] text-[#6B7280]">

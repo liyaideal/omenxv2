@@ -551,7 +551,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
       yesLabel="Up"
       noLabel="Down"
       maxRows={isMobile ? 4 : 8}
-        hideBoost
+      hideBoost={!contractRail}
     />
   );
 
@@ -578,6 +578,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
       line={posLine}
       optionIdPrefix={`${event.id}-`}
       isMobile={!!isMobile}
+      cardLike="standard"
     />
   ) : null;
 

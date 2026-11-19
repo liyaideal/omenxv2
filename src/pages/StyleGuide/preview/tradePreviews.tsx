@@ -21,6 +21,7 @@ import { SportsClockLabel, type SportsClock } from "@/components/lite/sports/spo
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { PlacedToastBody } from "@/components/lite/shared/placedToast";
 import { LiteVoucherCard } from "@/components/lite/vouchers/LiteVoucherCard";
+import { formatVoucherClosesBy, formatVoucherClosesParts } from "@/components/lite/vouchers/LiteVoucherLegs";
 import {
   VoucherCashOutBody,
   VoucherDoneBody,
@@ -291,12 +292,16 @@ export const Tr35bPreview = () => (
 /* ---------- Voucher calls (TR-37 … TR-40, CPO 2026-11-18) ---------- */
 const noop = () => undefined;
 
+/** Fixed moment (local time) so the frame is deterministic but still locale-formatted. */
+const SG_VOUCHER_CLOSES = new Date(2026, 10, 21, 13, 36).toISOString();
+
 const VoucherCardFrame = (props: {
   sideLabel: string;
   boost: number;
   credit: number;
   rawPnl: number;
   isYes?: boolean;
+  surface?: "boost" | "standard";
 }) => {
   const isMobile = useIsMobile();
   return (
@@ -310,9 +315,10 @@ const VoucherCardFrame = (props: {
           credit={props.credit}
           rawPnl={props.rawPnl}
           cap={1}
-          closesBy="Nov 21, 13:36"
+          closesBy={formatVoucherClosesBy(SG_VOUCHER_CLOSES)}
+          closesByParts={formatVoucherClosesParts(SG_VOUCHER_CLOSES)}
           compact={!!isMobile}
-          surface={props.boost > 1 ? "boost" : "standard"}
+          surface={props.surface ?? (props.boost > 1 ? "boost" : "standard")}
           onCashOut={noop}
         />
       </div>
@@ -325,6 +331,11 @@ export const Tr37bPreview = () => <VoucherCardFrame sideLabel="76ers" boost={5} 
 export const Tr37cPreview = () => <VoucherCardFrame sideLabel="Up" boost={1} credit={0.04} rawPnl={0.04} />;
 export const Tr37dPreview = () => (
   <VoucherCardFrame sideLabel="Lakers · No" isYes={false} boost={5} credit={0.04} rawPnl={0.04} />
+);
+
+/** Quick-round page, contract round: SpotYourPosition skeleton, multiplier kept. */
+export const Tr37ePreview = () => (
+  <VoucherCardFrame sideLabel="Up" boost={5} credit={0.04} rawPnl={0.04} surface="standard" />
 );
 
 export const Tr38Preview = () => (
@@ -487,6 +498,8 @@ const ACTIVITY: MarketActivityRow[] = [
 export const Tr14Preview = () => (
   <Frame>
     <LiteMarketActivity rows={ACTIVITY} yesLabel="Yes" noLabel="No" showOptionLabel />
+    {/* Standard page: same rows, no multiplier (hideBoost). */}
+    <LiteMarketActivity rows={ACTIVITY} yesLabel="Up" noLabel="Down" hideBoost />
     <LiteMarketActivity rows={[]} yesLabel="Yes" noLabel="No" />
   </Frame>
 );

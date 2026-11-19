@@ -47,6 +47,21 @@ export const formatVoucherClosesBy = (iso: string | null | undefined): string =>
   });
 };
 
+/** Date and time formatted separately — the narrow four-in-a-row card stacks them.
+ *  (Never split the combined string: every locale orders and punctuates it differently.) */
+export const formatVoucherClosesParts = (
+  iso: string | null | undefined,
+): { date: string; time: string } | undefined => {
+  if (!iso) return undefined;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return undefined;
+  const lang = getI18nLanguage();
+  return {
+    date: d.toLocaleDateString(lang, { month: "short", day: "numeric" }),
+    time: d.toLocaleTimeString(lang, { hour: "2-digit", minute: "2-digit", hour12: false }),
+  };
+};
+
 interface Props {
   event: { name: string; side_labels?: unknown; end_date?: string | null };
   /** Sibling line markets shown on the same page (sports fixtures). */
@@ -57,6 +72,10 @@ interface Props {
   optionIdPrefix?: string;
   isMobile: boolean;
   className?: string;
+  /** Which position card this page puts next to the voucher card — the voucher card
+   *  copies that skeleton. Defaults from `line`; the quick-round page always shows
+   *  SpotYourPosition (even for contract rounds), so it passes "standard". */
+  cardLike?: "boost" | "standard";
 }
 
 export const LiteVoucherLegs = ({
@@ -66,6 +85,7 @@ export const LiteVoucherLegs = ({
   optionIdPrefix,
   isMobile,
   className,
+  cardLike,
 }: Props) => {
   const { positions, refetch } = usePositions();
   const { getRealtimeMarkPrice } = useRealtimePositionsPnL();
@@ -131,8 +151,9 @@ export const LiteVoucherLegs = ({
           rawPnl={math.rawPnl}
           cap={math.cap}
           closesBy={formatVoucherClosesBy(voucherClosesAt(p.voucherExpiresAt, eventsByName.get(p.event)?.end_date))}
+          closesByParts={formatVoucherClosesParts(voucherClosesAt(p.voucherExpiresAt, eventsByName.get(p.event)?.end_date))}
           compact={isMobile}
-          surface={line === "spot" ? "standard" : "boost"}
+          surface={cardLike ?? (line === "spot" ? "standard" : "boost")}
           onCashOut={() =>
             p.airdropId &&
             setFlow({

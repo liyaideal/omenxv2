@@ -397,6 +397,7 @@ export const previewRegistry: Record<string, Loader> = {
   "trade-tr37b": pick(trade, "Tr37bPreview"),
   "trade-tr37c": pick(trade, "Tr37cPreview"),
   "trade-tr37d": pick(trade, "Tr37dPreview"),
+  "trade-tr37e": pick(trade, "Tr37ePreview"),
   "trade-tr38": pick(trade, "Tr38Preview"),
   "trade-tr38b": pick(trade, "Tr38bPreview"),
   "trade-tr39": pick(trade, "Tr39Preview"),

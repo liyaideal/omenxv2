@@ -61,7 +61,7 @@ Single source of truth for user-visible field names across the app.
 | **Voucher call（Lite 券单）** | 用券开出来的那一笔单在 Lite 上的叫法。交易页有独立券卡（`LiteVoucherCard`），不进普通持仓卡。判定：`position.airdropSource === "voucher"`。出处：`lite-voucher-call-v1.md` | Trial position（Lite 面不用）, Voucher position |
 | **VOUCHER（标）** | 券卡 / 平仓面板标题后的 lime 小标，i18n `vouchers › lite.mark`，显示成大写 | Free, Trial |
 | **Profit now（券卡）** | 现在平仓能拿到的钱 = `clamp(份数 × (现价 − 买入价), 0, 最大利润)`；份数 = 面值 × 倍数 ÷ 买入价（Boost 事件 5，Standard 事件 1）。算法 `src/lib/voucherMath.ts › voucherCredit` | Now worth, PnL |
-| **Closes by（券卡）** | 券单最晚自动平仓的时间（券的 hold window 到点），本地时区 `Nov 21, 18:13` | Expires, Auto-close |
+| **Closes by（券卡）** | 券到期（hold window 到点）与事件结束里早的那个（helper `voucherClosesAt`），本地时区 `Nov 21, 18:13`；窄卡上日期、时间分两行（`formatVoucherClosesParts`） | Expires, Auto-close |
 | **Cash out · keep +$X** | 券卡与平仓面板的主按钮（有利润时）；没利润时券卡按钮只写 `Cash out` | Close position, Redeem |
 | **Bought {leg} / Paid with your $X voucher** | 兑换成功提示（标题 / 副行），按钮 `View your call`。`{leg}`：两方事件 = 那一边的名字；多盘口 = `{选项} · Yes\|No`（helper `legTitle`） | Voucher redeemed |
 | **Go to Vouchers / Use another voucher / Browse markets** | 券单平仓后结果层的按钮，组合见 `lite-voucher-call-v1.md` §1.5 | View earnings |
@@ -181,7 +181,7 @@ Single source of truth for user-visible field names across the app.
 | Canonical | Meaning | Banned variants |
 |---|---|---|
 | **Face value** | Voucher denomination, e.g. `$10.00` | — |
-| **Max profit** | Capped realisable upside = `faceValue × redeemableCapPct` | Max payout, Max realisable profit, Profit cap, Max Profit, cap |
+| **Max profit** | Capped realisable upside = `faceValue × redeemableCapPct`；Lite 券卡 / 面板 / Portfolio 上显示的是它与「这一边全赢能赚到的数」里小的那个（2026-11-18，`voucherMath.voucherCredit`） | Max payout, Max realisable profit, Profit cap, Max Profit, cap |
 | **Hold window** | Auto-settlement TTL in hours | Hold Window, Holding window, Max holding |
 | **Voucher code** | 8-char alphanumeric voucher ID | Code, code, Voucher |
 | **Expires in** | Countdown to voucher expiry | Expiry, Time left, Ends in |
