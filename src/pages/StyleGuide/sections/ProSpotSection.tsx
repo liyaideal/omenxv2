@@ -309,15 +309,20 @@ const WATCH_ROWS = [
   { state: "在打 + 有直播", when: 'sportsClock.phase === "live" && fixtureMeta(比赛).stream_url', visual: "状态行末尾橙色胶囊「▶ Watch live」：高 22、圆角 999、1px #FF8A3D 45% 描边 + 10% 底、字 12 / 600 #FF8A3D、三角 10px；7 语用 sports_streams.watch_live；手机放不下时整颗换到下一行居中", source: "ProWatchLive · proWatchLiveTarget · S5" },
   { state: "点击", when: "点胶囊", visual: "同所有播放钮（usePlayStream）：进 `/trade?event=<比赛>&play=1` → 这一页按 Lite 打开并开播，存的 Pro 不改；开关显示 Lite，选 Pro 去掉 play 回 Pro 终端", source: "usePlayStream · SurfaceWatchOverride · S2 / S5" },
 ];
+const FINAL_SPEC = [
+  { state: "打完等结果", when: 'sportsClock.phase === "final"（lifecycle REVIEW / match_status final|cancelled / now > end_date + 3h）', visual: "状态行写 `Final · In review`，无红点、无胶囊；下单停止，原因印 In review", source: "sportsClock · matchPhase · lib/contractGate · delivery sports-match-clock-v1 §1–3" },
+];
 const WATCH_DESK_CASES: SectionCase[] = [
   { key: "pro-watch-desk-stream", label: "PW-1 · 桌面页头 · 在打 + 有直播 → ▶ Watch live", note: "胶囊在事件选择按钮之外（按钮里不能再套按钮），中线对齐状态行。", spec: WATCH_SPEC(true) },
   { key: "pro-watch-desk-nostream", label: "PW-2 · 桌面页头 · 在打但没有直播源 → 不出", spec: WATCH_SPEC(false) },
   { key: "pro-watch-desk-pre", label: "PW-3 · 桌面页头 · 还没开赛 → 不出", spec: WATCH_SPEC(false) },
+  { key: "pro-watch-desk-final", label: "PW-7 · 桌面页头 · 打完等结果（Final · In review）→ 不出", note: "体育时间位的第三态：无红点、无 Watch live；同一行三态 = PW-3 / PW-2 / PW-7（docs/delivery/sports-match-clock-v1.md §2）。", spec: FINAL_SPEC },
 ];
 const WATCH_MOBILE_CASES: SectionCase[] = [
   { key: "pro-watch-mob-stream", label: "PW-4 · 手机页头 · 在打 + 有直播 → ▶ Watch live", note: "页头第二行（时钟行）末尾，和时钟间距 10；俄语等放不下时整颗换到下一行居中，时钟行不折。", spec: WATCH_SPEC(true) },
   { key: "pro-watch-mob-nostream", label: "PW-5 · 手机页头 · 在打但没有直播源 → 不出", spec: WATCH_SPEC(false) },
   { key: "pro-watch-mob-pre", label: "PW-6 · 手机页头 · 还没开赛 → 不出", spec: WATCH_SPEC(false) },
+  { key: "pro-watch-mob-final", label: "PW-8 · 手机页头 · 打完等结果（Final · In review）→ 不出", note: "灰点 + 灰字；同一行三态 = PW-6 / PW-5 / PW-8。", spec: FINAL_SPEC },
 ];
 
 const MARKET_ROW_MOBILE_CASES: SectionCase[] = [
@@ -968,7 +973,7 @@ export const ProTradeTerminalPage = (_: Props) => (
     />
     <SectionWrapper
       id="pro-watch-live"
-      title="⓪ 页头 · Watch live（PW-1 … PW-6 · S5，CPO 2026-11-10）"
+      title="⓪ 页头 · Watch live + 体育时间位（PW-1 … PW-8 · S5，CPO 2026-11-10 / 2026-11-04）"
       description="Pro 终端没有直播画面，直播只在 Lite 交易页。比赛正在打而且有直播源时，页头状态行末尾出「▶ Watch live」，点了进 Lite 交易页开播（不改用户存的 Pro）。只在合约终端的赛事页；现货终端没有赛事。"
     >
       <SectionFrame cases={WATCH_DESK_CASES} device="desktop" minHeight={110} />

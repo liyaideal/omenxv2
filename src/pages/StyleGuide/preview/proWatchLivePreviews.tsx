@@ -1,5 +1,5 @@
 /**
- * Pro 页头 · Watch live（PW-1 … PW-6，CPO 2026-11-10，规则 S5）。
+ * Pro 页头 · Watch live（PW-1 … PW-6，CPO 2026-11-10，规则 S5）+ 打完等结果（PW-7 / PW-8，体育时间位的第三态）。
  * 桌面 = 生产 ProEventHeaderLead（DesktopTrading 页头同一个组件：事件选择按钮 + Watch live）；
  * 手机 = 生产 MobileHeader + ProMobileWatchLive（MobileTradingLayout 同一组合）。
  * 帧里点钮不跳页（onPlay 空操作），生产里点了进 `/trade?event=<比赛>&play=1`（Lite 交易页开播）。
@@ -11,10 +11,11 @@ import { sportsClockText, type SportsClock } from "@/components/lite/sports/spor
 
 const LIVE: SportsClock = { phase: "live", kickoffInMs: 0, liveClock: "Map 2" };
 const PRE: SportsClock = { phase: "upcoming", kickoffInMs: 2 * 3_600_000 + 10 * 60_000, liveClock: null };
+const FINAL: SportsClock = { phase: "final", kickoffInMs: 0, liveClock: null };
 const MATCH = "Spirit vs MOUZ";
 
-type Kind = "stream" | "nostream" | "pre";
-const clockOf = (k: Kind) => (k === "pre" ? PRE : LIVE);
+type Kind = "stream" | "nostream" | "pre" | "final";
+const clockOf = (k: Kind) => (k === "pre" ? PRE : k === "final" ? FINAL : LIVE);
 
 const noop = () => undefined;
 
@@ -60,3 +61,6 @@ export const PwDeskPre = () => <Desk kind="pre" />;
 export const PwMobStream = () => <Mob kind="stream" />;
 export const PwMobNoStream = () => <Mob kind="nostream" />;
 export const PwMobPre = () => <Mob kind="pre" />;
+// Sports clock third state (sports-match-clock-v1 §2): `Final · In review`, no dot, no Watch live.
+export const PwDeskFinal = () => <Desk kind="final" />;
+export const PwMobFinal = () => <Mob kind="final" />;

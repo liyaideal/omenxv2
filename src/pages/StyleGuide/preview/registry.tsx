@@ -532,6 +532,8 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-watch-mob-stream": pick(proWatch, "PwMobStream"),
   "pro-watch-mob-nostream": pick(proWatch, "PwMobNoStream"),
   "pro-watch-mob-pre": pick(proWatch, "PwMobPre"),
+  "pro-watch-desk-final": pick(proWatch, "PwDeskFinal"),
+  "pro-watch-mob-final": pick(proWatch, "PwMobFinal"),
   "pro-market-row-esports": pick(marketRow, "MarketRowEsports"),
   "pro-market-row-esports-open": pick(marketRow, "MarketRowEsportsOpen"),
   "pro-market-row-football": pick(marketRow, "MarketRowFootball"),
