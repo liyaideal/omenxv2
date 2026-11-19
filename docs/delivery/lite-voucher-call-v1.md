@@ -64,8 +64,8 @@
 | 形式 | 一条提示 | 结果层（桌面居中弹窗 / 手机底部抽屉） | 同左 |
 | 文案 | 普通平仓提示 | `+$0.10` / `profit from this voucher` / `You can find it under Voucher earnings.` | `Voucher call closed` / `No profit this time.` |
 | 引导句 | — | 账户里没钱 `Ready for the next one? Top up and you're in.`；有钱 `Ready for the next one?` | 同左 |
-| 主按钮 | — | 没钱 `Deposit`；有钱 `Browse markets` | 同左 |
-| 次按钮 | — | `Go to Vouchers` | 还有别的券 `Use another voucher`；没有且没钱 `Browse markets`；没有且有钱不显示 |
+| 主按钮 | — | 没钱 `Deposit`；有钱 `Browse events` | 同左 |
+| 次按钮 | — | `Go to Vouchers` | 还有别的券 `Use another voucher`；没有且没钱 `Browse events`；没有且有钱不显示 |
 | 分享海报 | — | 不自动弹 | 不弹 |
 
 **⑤ Portfolio 券单行**
@@ -160,15 +160,16 @@
 | 字典 | 结果 | 账户里有没有钱 | 还有没有别的券 | 文案 | 引导句 | 主按钮 | 次按钮 |
 |---|---|---|---|---|---|---|---|
 | TR-40 | 有利润 | 没有 | — | `+$0.10` / `profit from this voucher` / `You can find it under Voucher earnings.` | `Ready for the next one? Top up and you're in.` | `Deposit` | `Go to Vouchers` |
-| TR-40b | 有利润 | 有 | — | 同上 | `Ready for the next one?` | `Browse markets` | `Go to Vouchers` |
+| TR-40b | 有利润 | 有 | — | 同上 | `Ready for the next one?` | `Browse events` | `Go to Vouchers` |
 | TR-40c | 没利润 | 没有 | 有 | `Voucher call closed` / `No profit this time.` | `…Top up and you're in.` | `Deposit` | `Use another voucher` |
-| TR-40d | 没利润 | 没有 | 没有 | 同上 | 同上 | `Deposit` | `Browse markets` |
-| TR-40e | 没利润 | 有 | 没有 | 同上 | `Ready for the next one?` | `Browse markets` | 不显示 |
-| TR-40f | 没利润 | 有 | 有 | 同上 | `Ready for the next one?` | `Browse markets` | `Use another voucher` |
+| TR-40d | 没利润 | 没有 | 没有 | 同上 | 同上 | `Deposit` | `Browse events` |
+| TR-40e | 没利润 | 有 | 没有 | 同上 | `Ready for the next one?` | `Browse events` | 不显示 |
+| TR-40f | 没利润 | 有 | 有 | 同上 | `Ready for the next one?` | `Browse events` | `Use another voucher` |
 
 - 「账户里有钱」= Boost 余额或 Standard 余额任意一个向下取整 ≥ $1（和下单卡「余额不够」同一个门槛）。
 - 「还有别的券」= 用户还有可领或可兑的券。
-- `Deposit`：桌面原地弹充值弹窗，手机进 `/deposit`。`Browse markets` → `/events`。`Go to Vouchers` / `Use another voucher` → 券页。
+- `Browse events` 和 Portfolio 空态的按钮是同一个词（2026-11-19 统一，原来写 `Browse markets`）。
+- `Deposit`：桌面原地弹充值弹窗，手机进 `/deposit`。`Browse events` → `/events`。`Go to Vouchers` / `Use another voucher` → 券页。
 - 金额是实际入账的数。文案不区分即时到账券和分档到账券（两种都说 `You can find it under Voucher earnings.`）。
 
 ### 1.6 Portfolio
@@ -229,7 +230,7 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）不算券单（券�
 | `lite.done.profit_from` / `find_it` | `profit from this voucher` / `You can find it under Voucher earnings.` |
 | `lite.done.closed` / `no_profit` | `Voucher call closed` / `No profit this time.` |
 | `lite.done.nudge_deposit` / `nudge_funded` | `Ready for the next one? Top up and you're in.` / `Ready for the next one?` |
-| `lite.done.browse` / `go_to_vouchers` / `use_another` | `Browse markets` / `Go to Vouchers` / `Use another voucher` |
+| `lite.done.browse` / `go_to_vouchers` / `use_another` | `Browse events` / `Go to Vouchers` / `Use another voucher` |
 | `lite.close_failed` | `Could not cash out` |
 
 `Deposit`、`Cash out`、`View your call` 沿用已有 key。

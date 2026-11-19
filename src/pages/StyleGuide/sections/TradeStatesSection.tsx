@@ -349,7 +349,7 @@ const VOUCHER_CASES: SectionCase[] = [
     label: "TR-40b · 平仓之后 · 有利润 · 账户里有钱",
     spec: [
       { state: "引导句", when: "任一账户余额向下取整 ≥ $1", visual: "只有前半句 `Ready for the next one?`，不提充值", source: "funded = true" },
-      { state: "主按钮", when: "同上", visual: "`Browse markets` → /events", source: "funded" },
+      { state: "主按钮", when: "同上", visual: "`Browse events` → /events", source: "funded" },
     ],
   },
   {
@@ -364,21 +364,21 @@ const VOUCHER_CASES: SectionCase[] = [
     key: "trade-tr40d",
     label: "TR-40d · 平仓之后 · 没利润 · 没有别的券 · 账户里没钱",
     spec: [
-      { state: "副按钮", when: "没有别的券且账户里没钱", visual: "`Browse markets`（主按钮仍是 Deposit）", source: "hasOtherVoucher = false" },
+      { state: "副按钮", when: "没有别的券且账户里没钱", visual: "`Browse events`（主按钮仍是 Deposit）", source: "hasOtherVoucher = false" },
     ],
   },
   {
     key: "trade-tr40e",
     label: "TR-40e · 平仓之后 · 没利润 · 没有别的券 · 账户里有钱",
     spec: [
-      { state: "只有一个按钮", when: "没有别的券且账户里有钱", visual: "主按钮 `Browse markets`，不显示副按钮（不重复）", source: "secondary = null" },
+      { state: "只有一个按钮", when: "没有别的券且账户里有钱", visual: "主按钮 `Browse events`，不显示副按钮（不重复）", source: "secondary = null" },
     ],
   },
   {
     key: "trade-tr40f",
     label: "TR-40f · 平仓之后 · 没利润 · 还有别的券 · 账户里有钱",
     spec: [
-      { state: "两个按钮", when: "还有别的券且账户里有钱", visual: "主按钮 `Browse markets`，副按钮 `Use another voucher`", source: "funded && hasOtherVoucher" },
+      { state: "两个按钮", when: "还有别的券且账户里有钱", visual: "主按钮 `Browse events`，副按钮 `Use another voucher`", source: "funded && hasOtherVoucher" },
     ],
   },
 ];

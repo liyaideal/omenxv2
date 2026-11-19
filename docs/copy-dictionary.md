@@ -64,7 +64,7 @@ Single source of truth for user-visible field names across the app.
 | **Closes by（券卡）** | 券到期（hold window 到点）与事件结束里早的那个（helper `voucherClosesAt`），本地时区 `Nov 21, 18:13`；窄卡上日期、时间分两行（`formatVoucherClosesParts`） | Expires, Auto-close |
 | **Cash out · keep +$X** | 券卡与平仓面板的主按钮（有利润时）；没利润时券卡按钮只写 `Cash out` | Close position, Redeem |
 | **Bought {leg} / Paid with your $X voucher** | 兑换成功提示（标题 / 副行），按钮 `View your call`。`{leg}`：两方事件 = 那一边的名字；多盘口 = `{选项} · Yes\|No`（helper `legTitle`） | Voucher redeemed |
-| **Go to Vouchers / Use another voucher / Browse markets** | 券单平仓后结果层的按钮，组合见 `lite-voucher-call-v1.md` §1.5 | View earnings |
+| **Go to Vouchers / Use another voucher / Browse events** | 券单平仓后结果层的按钮，组合见 `lite-voucher-call-v1.md` §1.5 | View earnings |
 | **Standard 事件上的券** | = 按面值下的一笔现货单（1×），任何地方不写倍数；判定看券所在事件 `product_lines` 是否含 `spot`（helper `voucherLineFor` / `voucherLeverageFor`） | — |
 | **Credited to Standard after review** | USDC 任务达标后的纯文字状态（无按钮） | Paid out, Pending payout |
 | **Claimed** | 已领取任务行状态 | Done, Collected |

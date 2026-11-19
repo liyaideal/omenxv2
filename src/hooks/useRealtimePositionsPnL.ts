@@ -188,8 +188,13 @@ export const useRealtimePositionsPnL = () => {
   }, [getOptionId, pricesContext]);
 
   const formatPnL = useCallback((pnl: number, pnlPercent: number) => {
-    const pnlStr = `${pnl >= 0 ? "+" : ""}$${Math.abs(pnl).toFixed(2)}`;
-    const pnlPercentStr = `${pnlPercent >= 0 ? "+" : ""}${pnlPercent.toFixed(1)}%`;
+    // Sign comes from the rounded cents, so a loss always carries its "-" (it used to
+    // print "$0.05" for −$0.05, which read as a gain) and "−$0.00" never appears.
+    const cents = Math.round(pnl * 100);
+    const pnlStr = `${cents < 0 ? "-" : "+"}$${(Math.abs(cents) / 100).toFixed(2)}`;
+    // When the money rounds to zero the percent is zero too — the pair never disagrees.
+    const pct = cents === 0 ? 0 : Number(pnlPercent.toFixed(1));
+    const pnlPercentStr = `${pct < 0 ? "-" : "+"}${Math.abs(pct).toFixed(1)}%`;
     return { pnlStr, pnlPercentStr };
   }, []);
 

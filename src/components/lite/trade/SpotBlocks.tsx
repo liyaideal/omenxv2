@@ -139,8 +139,10 @@ export const PosCell = ({
   value: string;
   tone?: "green" | "red" | "yes";
 }) => (
-  <div>
-    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+  // Label and value sit on the parent grid's two shared rows (subgrid), so a label
+  // that wraps to two lines pushes every value down together instead of just its own.
+  <div className="row-span-2 grid min-w-0 grid-rows-subgrid gap-y-0">
+    <div className="text-[10px] uppercase tracking-wide text-muted-foreground [overflow-wrap:anywhere]">
       {label}
     </div>
     <div
@@ -213,7 +215,7 @@ export const SpotYourPosition = ({
       {onShare && <ShareIconButton onClick={onShare} />}
     </div>
 
-    <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
+    <div className="grid grid-cols-4 gap-x-2 gap-y-0 border-t border-border pt-3 text-xs">
       <PosCell label={t("market.current_value")} value={`$${currentValue.toFixed(2)}`} />
       <PosCell label={t("common.avg_cost")} value={avgCost} />
       <PosCell label={t("trade.screen.lite.lite_contract_sections.profit")} value={pnl} tone={pnl.startsWith("-") ? "red" : "green"} />

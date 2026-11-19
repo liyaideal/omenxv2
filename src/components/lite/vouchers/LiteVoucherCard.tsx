@@ -75,10 +75,12 @@ export const LiteVoucherCard = ({
 }: LiteVoucherCardProps) => {
   const winning = hasVoucherProfit(credit);
   const standard = surface === "standard";
+  const twoByTwo = compact && !standard;
   // Four narrow cells on a phone: the date takes the value line, the time the sub line.
   const stacked = standard && compact && closesByParts ? closesByParts : undefined;
   const closesDate = stacked ? stacked.date : closesBy;
   const closesTime = stacked ? stacked.time : undefined;
+  const shared: 2 | 3 | undefined = twoByTwo ? undefined : rawPnl < 0 || closesTime ? 3 : 2;
   return (
     <div
       className={cn("rounded-2xl border border-border bg-card p-4", flashOpen && "lite-call-flash")}
@@ -119,19 +121,20 @@ export const LiteVoucherCard = ({
 
       <div
         className={cn(
-          "grid gap-2 border-t border-border pt-3 text-xs",
-          compact && !standard ? "grid-cols-2" : "grid-cols-4",
+          "grid border-t border-border pt-3 text-xs",
+          twoByTwo ? "grid-cols-2 gap-2" : "grid-cols-4 gap-x-2 gap-y-0",
         )}
       >
-        <Cell label={t("vouchers.lite.card.voucher")} value={usd(faceValue)} />
+        <Cell shared={shared} label={t("vouchers.lite.card.voucher")} value={usd(faceValue)} />
         <Cell
+          shared={shared}
           label={t("vouchers.lite.card.profit_now")}
           value={winning ? `+${usd(credit)}` : usd(0)}
           tone={winning ? "up" : undefined}
           sub={rawPnl < 0 ? t("vouchers.lite.card.down_now") : undefined}
         />
-        <Cell label={t("vouchers.lite.card.max_profit")} value={usd(cap)} />
-        <Cell label={t("vouchers.lite.card.closes_by")} value={closesDate} sub={closesTime} />
+        <Cell shared={shared} label={t("vouchers.lite.card.max_profit")} value={usd(cap)} />
+        <Cell shared={shared} label={t("vouchers.lite.card.closes_by")} value={closesDate} sub={closesTime} />
       </div>
 
       <div className="mt-3 border-t border-border pt-3">
@@ -168,13 +171,23 @@ const Cell = ({
   value,
   sub,
   tone,
+  shared,
 }: {
   label: string;
   value: string;
   sub?: string;
   tone?: "up";
+  /** Four-in-a-row layout: put label / value / sub on rows shared with the sibling
+   *  cells (subgrid), so a wrapped label moves every value down together. */
+  shared?: 2 | 3;
 }) => (
-  <div className="min-w-0">
+  <div
+    className={cn(
+      "min-w-0",
+      shared === 2 && "row-span-2 grid grid-rows-subgrid gap-y-0",
+      shared === 3 && "row-span-3 grid grid-rows-subgrid gap-y-0",
+    )}
+  >
     <div className="text-[10px] uppercase tracking-wide text-muted-foreground [overflow-wrap:anywhere]">{label}</div>
     <div
       className={cn(
@@ -184,6 +197,6 @@ const Cell = ({
     >
       {value}
     </div>
-    {sub && <div className="text-[10px] text-muted-foreground">{sub}</div>}
+    {(sub || shared === 3) && <div className="text-[10px] text-muted-foreground">{sub}</div>}
   </div>
 );
