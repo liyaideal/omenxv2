@@ -79,7 +79,7 @@ END $fn$;
 
 SELECT public.keep_demo_overtime_fixture();
 
--- 3) PENDING CPO approval (not applied): keep the fixture inside its window.
+-- 3) Keeper cron — approved and applied 2026-11-19, see 20261119120000_demo_overtime_keeper_cron.sql.
 --    Without it the 3h watchdog turns the demo match into "Final · In review"
 --    about 3 hours after the last refresh, and it then never settles (the
 --    engine skips match_status = 'live').

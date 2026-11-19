@@ -85,7 +85,8 @@ export const elapsedText = (raw: number | null | undefined): string => {
   return `${Math.floor(s / 60)}:${pad(s % 60)}`;
 };
 
-/** "Starts in 2h 14m" / "Starts in 5d 4h". */
+/** "Kicks off in 2h 05m" / "Kicks off in 26h 12m" / "Kicks off in 9m" — same words and
+ *  zero-padded minutes as the order card (CPO 2026-11-19: one wording per page). */
 export const startsIn = (kickoff: number, now: number): string => {
   const ms = kickoff - now;
   // Kickoff time passed, match not started (CPO 2026-11-16).
@@ -94,8 +95,8 @@ export const startsIn = (kickoff: number, now: number): string => {
   // Past a day still in hours — `26h 12m`, never `1d 2h` (CPO 2026-11-16, same as home R5).
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  const time = h > 0 ? `${h}h ${m}m` : `${m}m`;
-  return t("events.screen.simple.sports_clock.starts_in", { time });
+  const time = h > 0 ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
+  return t("events.screen.simple.sports_clock.kicks_off_in", { time });
 };
 
 export const buildModel = (event: MatchboardEvent, now: number): Model => {

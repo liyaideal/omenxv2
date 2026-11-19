@@ -25,7 +25,7 @@ const BOARD_CASES: SectionCase[] = [
       {
         state: "upcoming",
         when: 'matchPhase === "upcoming" && kickoff > now',
-        visual: "UPCOMING 灰药丸，右上 `Starts in 2h 14m`（≥ 24 小时也写小时 `Starts in 26h 12m`，2026-11-16 起，原 `1d 2h`），全部格子 `·`",
+        visual: "UPCOMING 灰药丸，右上 `Kicks off in 2h 05m`（与下单卡同一说法、分钟补零，2026-11-19 起，原 `Starts in 2h 5m`；≥ 24 小时也写小时 `26h 12m`），全部格子 `·`",
         source: "buildModel status = upcoming · startsIn",
       },
     ],
@@ -124,7 +124,7 @@ const BOARD_CASES: SectionCase[] = [
       {
         state: "upcoming · mma",
         when: "!live && kickoff > now && total > 0",
-        visual: "上下文行写 `UFC 321 · 5 rounds`，右上 `Starts in …`",
+        visual: "上下文行写 `UFC 321 · 5 rounds`，右上 `Kicks off in …`",
         source: "buildModel ctx（F4 分支）",
       },
     ],
@@ -170,7 +170,7 @@ const BOARD_CASES: SectionCase[] = [
     key: "sports-live-f2",
     label: "F2 · 足球 · 未开赛",
     spec: [
-      { state: "未开赛", when: "kickoff > now && !is_resolved", visual: "UPCOMING 药丸 + 联赛 + `Starts in {…}`，goals 0 / 0，两列全是点", source: "buildModel status/upcoming" },
+      { state: "未开赛", when: "kickoff > now && !is_resolved", visual: "UPCOMING 药丸 + 联赛 + `Kicks off in {…}`，goals 0 / 0，两列全是点", source: "buildModel status/upcoming" },
       { state: "无当前列", when: "idx == null", visual: "没有任何一列高亮", source: "colHighlight" },
     ],
   },
@@ -354,7 +354,7 @@ const STAGE_CASES: SectionCase[] = [
     key: "sports-stage-s6",
     label: "S6 · prekick · 开赛前 24 小时内（时:分:秒）",
     note:
-      "CPO 2026-11-16（画布方案 A）：未开赛不再是一块黑。兜底海报铺满 16:9 舞台（所有比赛同一张 `/assets/streams/live-soon.jpg`，图本身 16:9，cover 不裁）；倒计时胶囊居中放在海报「LIVE SOON」与「Who wins the match?」之间的空黑带（高度 73% 处）。每秒跳，读的是和记分牌同一个共享时钟——舞台在场时共享时钟改为 1 秒一跳，所以记分牌的 `Starts in 2h 51m` 与舞台 `02:51:12` 永远同源。未登录用户开赛前看到的也是这一态。",
+      "CPO 2026-11-16（画布方案 A）：未开赛不再是一块黑。兜底海报铺满 16:9 舞台（所有比赛同一张 `/assets/streams/live-soon.jpg`，图本身 16:9，cover 不裁）；倒计时胶囊居中放在海报「LIVE SOON」与「Who wins the match?」之间的空黑带（高度 73% 处）。每秒跳，读的是和记分牌同一个共享时钟——舞台在场时共享时钟改为 1 秒一跳，所以记分牌的 `Kicks off in 2h 51m` 与舞台 `02:51:12` 永远同源。未登录用户开赛前看到的也是这一态。",
     spec: [
       {
         state: "prekick",

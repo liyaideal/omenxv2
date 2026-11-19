@@ -78,13 +78,14 @@ export const LiteBoostSelector = ({
           type="button"
           onClick={() => setTrayOpen((o) => !o)}
           className={cn(
-            "flex h-10 shrink-0 items-center justify-center gap-1 rounded-xl text-sm font-semibold transition-all",
+            // min-width, not width: ko「사용자 지정」/ vi「Tùy chỉnh」are wider than 78px and must stay on one line (7-language pass 2026-11-19).
+            "flex h-10 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-xl px-2 text-sm font-semibold transition-all",
             isCustom
               ? "font-mono text-yes"
               : "border-[1.5px] border-border text-muted-foreground hover:text-foreground",
           )}
           aria-label={t("trade.screen.lite.lite_contract_order_panel.choose_a_custom_boost")}
-          style={{ ...(isCustom ? SELECTED_STYLE : {}), width: customWidth }}
+          style={{ ...(isCustom ? SELECTED_STYLE : {}), minWidth: customWidth }}
         >
           {isCustom ? `${value}×` : t("trade.screen.lite.lite_contract_order_panel.custom")}
           {trayOpen ? (

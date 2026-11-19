@@ -381,7 +381,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 
 | Canonical | 出现位置 / 规则 |
 |---|---|
-| **Kicks off in 2h 10m** | Lite 下单卡 / 手机抽屉，开赛前（`kickoffInShort`：`26h 10m` / `2h 10m` / `38:12`；2026-11-16 由 `Starts in` 改；同日起 ≥ 24 小时也写小时，原 `2d 19h`） |
+| **Kicks off in 2h 10m** | Lite 下单卡 / 手机抽屉，开赛前（`kickoffInShort`：`26h 10m` / `2h 10m` / `38:12`；2026-11-16 由 `Starts in` 改；同日起 ≥ 24 小时也写小时，原 `2d 19h`）；2026-11-19 起记分牌右上同一说法（`startsIn`，到分钟） |
 | **Starting soon** | 开赛时间已过、比赛还没开打（`matchPhase === "upcoming"` 且 kickoff ≤ now）。下单卡 / 手机抽屉 / Pro 页头 / 赛事下拉 / 记分牌右上 / 首页舞台标签（`Biggest this week · starting soon`）/ 预告卡，全部同一句（CPO 2026-11-16）。key `events.screen.simple.sports_clock.starting_soon`、`…home_all.sports.biggest_starting_soon`；舞台胶囊用 `Stream starting soon`。译法避开同卡上 `UPCOMING` 药丸的译文（中文药丸是「即将开始」、俄语「Скоро」、越南语「Sắp diễn ra」）：简「随时开赛」/ 繁「隨時開賽」/ 日「まもなく開始」/ 韩「곧 시작」/ 俄「Вот-вот начнётся」/ 越「Chuẩn bị bắt đầu」 |
 | **Starts in** `02:10:00` | Pro 页头，开赛前（`kickoffInClock`） |
 | **Starts 26h 10m** / **Starts 38m** | 赛事下拉 / 抽屉 `Ends in` 列，开赛前（2026-11-16 起 ≥ 24 小时写小时，原 `2d 19h`） |
@@ -421,7 +421,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Back to stage** | `LiveStage` 迷你窗回舞台 |
 | **Stream starts in** · `02:51:12`（小胶囊 **Starts in**） | `LiveStage` S6 未开赛倒计时胶囊（2026-11-16）。舞台后面接的永远是时长（含 ≥ 24h 的 `2d 4h 12m`），所以只用 `in`，不用列表预告卡 ≥ 24h 时的 `Stream starts Fri 19:00` 写法。桌面 key `…sports_streams.starts_in`（与 Sports 列表预告卡同一条），手机 key `events.screen.simple.sports_clock.starts_in_lead` |
 | **Stream starting soon**（手机 **Starting soon**） | `LiveStage` S6d：开赛时间已过、比赛还没开打。key `…sports_streams.stream_starting_soon` / `…sports_streams.starting_soon` |
-| 舞台倒计时格式 `stageCountdown(ms)` | 定义：交易页直播舞台开赛前的倒计时数字。≥ 24h → `2d 4h 12m`；< 24h → `02:51:12`；< 1h → `51:12`；≤ 0 → 不显示数字（S6d）。与记分牌 `Starts in 2h 51m`（`startsIn`，到分钟）同读共享时钟 `useSharedNow`。出处 `LiveStage.tsx` |
+| 舞台倒计时格式 `stageCountdown(ms)` | 定义：交易页直播舞台开赛前的倒计时数字。≥ 24h → `2d 4h 12m`；< 24h → `02:51:12`；< 1h → `51:12`；≤ 0 → 不显示数字（S6d）。与记分牌 `Kicks off in 2h 51m`（`startsIn`，到分钟）同读共享时钟 `useSharedNow`。出处 `LiveStage.tsx` |
 | 兜底海报 | 定义：开赛前舞台的画面，所有比赛同一张 `/assets/streams/live-soon.jpg`（常量 `STAGE_POSTER`）。判定：`matchPhase === "upcoming"` 且有 `stream_url` |
 | 比分分隔符 | en dash `–`（U+2013），Space Grotesk + `tabular-nums` |
 
@@ -446,7 +446,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 |---|---|---|
 | `clockText(raw)` | `m:ss`（如 `1:07`） | 秒；`null`/`undefined` → `0:00`；钳在 `[0, 300]` |
 | `elapsedText(raw)` | `m:ss`（如 `24:10`） | 秒；**无上限**（对比 `clockText` 钳在 `[0, 300]`）；`null`/`undefined` → `0:00`；负数钳为 0 |
-| `startsIn(kickoff, now)` | `Starts in 52h 12m` / `Starts in 2h 14m` / `Starts in 9m` / `Starting soon` | 分钟粒度；≥ 1 小时写 `h/m`（超过 24 小时也写小时，不换算成天，2026-11-16）；< 1 小时只出 `m`；kickoff ≤ now（比赛仍未开始）→ `Starting soon`（原来钳成 `Starts in 0m`） |
+| `startsIn(kickoff, now)` | `Kicks off in 52h 12m` / `Kicks off in 2h 05m` / `Kicks off in 9m` / `Starting soon` | 分钟粒度；≥ 1 小时写 `h/m` 且分钟补零（超过 24 小时也写小时，不换算成天，2026-11-16）；< 1 小时只出 `m`；kickoff ≤ now（比赛仍未开始）→ `Starting soon`。2026-11-19 CPO 定：记分牌与下单卡同一个说法 `Kicks off in` + 补零（原 `Starts in 2h 5m`）；记分牌打完仍写 `FINISHED`（体育语境），下单卡写 `Final` |
 
 Signed lines always use a real minus sign (U+2212) for negatives and `+` for
 positives. Chip words come from the sibling event's `side_labels`.
@@ -475,7 +475,7 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Auto-close** · **Only if your Boost balance runs low** | 下单卡 auto-close 行标题 / 副标（原 `Est. auto-close` / `Moves with your other positions`）；None 子句 `nothing borrowed`（1×）/ `your balance covers it`（Boost，原 `can't be reached`）/ `enter an amount` | `can't be reached` |
 | **Not guaranteed. With Boost you can lose more than you put in.** | 下单卡 Boost 底注；1× 为 `Not guaranteed. You can lose your full $X.`（X = 最多亏） | — |
 | **Bigger Boost: bigger win if you're right, bigger loss if you're wrong.** | Boost 档位下的提示 | `… an earlier auto-close if the price moves against you.` |
-| **Kicks off in {time}** / **Closes in {time}** / **Expected to end in {time}** | 下单卡右上与手机抽屉顶部的时间：体育赛前 / 加密轮次（event_subtype 含 UPDOWN）/ 其他长期事件；手机抽屉后接 `{pct}% chance {side} wins`（体育）或 `{pct}% chance` | `{countdown} left`, `Starts in`（下单卡里） |
+| **Kicks off in {time}** / **Closes in {time}** / **Expected to end in {time}** | 下单卡右上与手机抽屉顶部的时间：体育赛前 / 加密轮次（event_subtype 含 UPDOWN）/ 其他长期事件；手机抽屉后接 `{pct}% chance {side} wins`（体育）或 `{pct}% chance`；记分牌右上同用 `Kicks off in`（2026-11-19） | `{countdown} left`, `Starts in`（下单卡、记分牌里） |
 | **Bought {side} · ${putIn}**（标题）＋ **{N}× Boost · ${position} position**（副行） | Lite 买入成功提示（2026-11-18 起拆成两行）。标题任何买入都有：`{side}` = 买的那一边，`${putIn}` = 投入金额（Boost = 输入的金额；Standard = 实际从余额扣掉的钱）。副行只在 Boost ≥ 2× 时出现；1× 和 Standard 没有副行。Standard 反向买入（把手里的持仓冲掉）仍是 `Bought N shares · {side}`、没有按钮。停留 6 秒。i18n：`trade › screen.lite.winloss.toast_bought` / `toast_boost_line` | 一行写完 `Bought … at N× Boost · … position`（2026-11-13 ② 的写法，已退役）；Standard 的 `Bought N shares · {side}`（已退役） |
 | **View your call** | Lite 买入成功提示上的按钮（Boost / Standard / 加密快轮三种交易页都有）。点了：页面滚到这笔单的持仓卡并描边 1.5 秒（多盘口页滚到刚买的那一条）。平仓提示没有这个按钮。i18n：`toast_view_call`（查看我的预测 / 查看我的預測 / 予測を見る / 내 콜 보기 / Моя ставка / Xem lựa chọn）。CPO 2026-11-18 | View position / View order（Lite 不说 position / order） |
 | **Cashed out {side} · you lost ${X} on this call** | Lite 亏损平仓 toast（2026-11-13 ⑤）；X = 拿回 − 投入 − 开仓费；亏损时不自动弹海报 | 亏损也弹海报 |
