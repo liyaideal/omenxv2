@@ -1207,7 +1207,7 @@
   "screen.simple.sports_clock.starting_soon": "まもなく開始",
   "screen.simple.sports_clock.kicks_off_in": "開始まで {{time}}",
   "screen.simple.sports_clock.starts_in_lead": "開始まで",
-  "screen.simple.sports_clock.starts": "開始まで {{time}}",
+  "screen.simple.sports_clock.starts": "あと {{time}}",
   "screen.simple.sports_clock.live_word": "ライブ",
   "screen.simple.sports_clock.final": "試合終了",
   "screen.simple.sports_clock.in_review": "結果確認中",

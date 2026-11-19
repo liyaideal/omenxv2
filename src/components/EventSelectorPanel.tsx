@@ -220,7 +220,7 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
       </div>
       <div className="grid grid-cols-[1fr_96px_88px] text-xs text-muted-foreground px-4 py-2 border-b border-border/30">
         <span>{t("common.event")}</span>
-        <span className="text-right">{t("market.ends_in")}</span>
+        <span className="whitespace-nowrap text-right">{t("market.ends_in")}</span>
         <span className="text-right">{t("market.volume")}</span>
       </div>
       <div className="max-h-[300px] overflow-y-auto">

@@ -315,7 +315,7 @@
 
 | 项 | 标记 | 说明 |
 |---|---|---|
-| `metadata.match_status`（scheduled / live / final / postponed / cancelled） | 🟡 B | 需求：比赛打没打完只看它，由体育数据源写；`end_date` 只是预计结束。Lovable 演示引擎不写（前端按 kickoff 推）。见 `docs/delivery/sports-match-clock-v1.md` §4 |
+| `metadata.match_status`（scheduled / live / final / postponed / cancelled） | 🟡 B | 需求：比赛打没打完只看它，由体育数据源写；`end_date` 只是预计结束。Lovable：2026-11-09 起正式版目录同步给 `mn-*` 体育行写 `match_status`；旧 `sp-*` / `demo-*` 演示行没有，前端按 kickoff 推。见 `docs/delivery/sports-match-clock-v1.md` §4 |
 | 收到 `final` → 停止交易、lifecycle `REVIEW`、确认后结算 | 🟡 B | 需求 |
 | 兜底：`live` 且 `now > end_date + 3h` 未收到结束 → 停交易、`REVIEW`、告警 | 🟡 B | 需求；Lovable 只在前端按同规则显示与禁下单 |
 | `roll_sports_matches()` 跳过 `match_status = 'live'` 的比赛（`20261104160000_sports_match_status.sql`） | 🔴 演示专用 | 演示结算引擎跟上“结束只看状态”的规则 |

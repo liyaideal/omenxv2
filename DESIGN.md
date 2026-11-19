@@ -2521,7 +2521,7 @@ CPO 2026-11-04 批（11 条）。作用域 = 所有体育比赛（`metadata.kick
 1. **比赛打没打完只看比赛状态**：`matchPhase`（upcoming / live / final / settled）来自 `metadata.match_status`、lifecycle `REVIEW`、`is_resolved`；`end_date` 是预计结束，只用于排序 / 分组与兜底，不显示、不倒计时、不关交易。
 2. **交易开关**：开赛前与比赛中都能交易；`final` → In review（站内现有态，CTA 印 `In review`），`settled` → Settled。过了 `end_date` 不再印 `Closed`。
 3. **兜底**：`now > end_date + 3 小时` 仍未收到结束信号 → 按 `final` 处理。
-4. **开赛前**：Lite `Starts in 2h 10m`（≥ 24 小时也写小时 `26h 10m`，2026-11-16 起，原 `2d 19h`；<1 小时 `38:12`），mono 11 muted；Pro 页头 `Starts in` + `02:10:00`（mono 白），不带红点；下拉 `Starts 26h 10m`（<1 小时 `Starts 38m`）。开赛时间已过、比赛还没开打：一律 `Starting soon`（见 §Addendum 2026-11-16 · 交易页直播舞台）。
+4. **开赛前**：Lite `Kicks off in 2h 10m`（2026-11-16 起由 `Starts in` 改，≥ 24 小时也写小时 `26h 10m`，原 `2d 19h`；<1 小时 `38:12`），mono 11 muted；Pro 页头 `Starts in` + `02:10:00`（mono 白），不带红点；下拉 `Starts 26h 10m`（<1 小时 `Starts 38m`）。开赛时间已过、比赛还没开打：一律 `Starting soon`（见 §Addendum 2026-11-16 · 交易页直播舞台）。
 5. **比赛中（含已过预计结束）**：红点脉动 + `LIVE` + ` · ` + 比赛时钟（mono 白，记分牌同一个 `liveLabelFor` 值）；没有时钟只写 `● LIVE`。Lite 卡 11 / 600 白、`LIVE` 大写；Pro 页头沿用标题行原有的红点；手机 Pro 页头 `countdownUrgency="live"` = 红点脉动 + 白字；下拉 `● Live`。永不出现 `00:00` / `Ended`。
 6. **打完等结果**：Lite 卡 `Final ·` + 描边胶囊 `IN REVIEW`（10 / 大写 / `border-border`），muted；手机抽屉与 Pro 页头 `Final · In review`，不带红点；下拉 `Final`，行留到结算。
 7. **下拉列头不改**：仍叫 `Ends in`，体育行的值自带 `Starts` / `Live` / `Final`。

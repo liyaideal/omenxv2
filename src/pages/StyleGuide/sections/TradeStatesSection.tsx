@@ -494,14 +494,13 @@ const MULTI_CASES: SectionCase[] = [
   },
   {
     key: "trade-tr22",
-    label: "TR-22 · sports 进行中比赛（kickoff 已过）",
+    label: "TR-22 · sports 盘口板 · 比赛中（板仍可浏览）",
     note:
-      "偏差回报：生产 /trade **不渲染分钟 / 比分 / phase**——live 脉冲与比分只存在于 /events 的 SportsStageCard。交易页对「进行中」的唯一真身是 freeze_time（= kickoff）已过 → blocked，CTA 文案 `Closed`。本 case 照生产真身收录，不新造 live 头。",
+      "2026-11-04 起比赛中照常交易：下单卡右上 `● LIVE · 时钟`、CTA 可点（TR-29b / 29c），不再有「kickoff 已过 → Closed / 00:00:00」。体育行的 freeze_time 必须为空（交付 sports-match-clock-v1 §4）。本 case 只看盘口板本身：组标题 + 行 + 手风琴图在任何未结算态都可读。",
     spec: [
-      { state: "kickoff 已过", when: "freeze_time <= now && !is_resolved", visual: "板照常可读，下单面板 CTA `Closed` 且禁用", source: "pastFreeze / blockedReason" },
-      { state: "板仍可浏览", when: "任何未结算态", visual: "组标题 + 行 + 手风琴图不受 blocked 影响", source: "LiteMarketBoard" },
-      { state: "分钟/比分", when: "—", visual: "交易页不渲染（见上方偏差回报）", source: "SportsStageCard（/events 侧）" },
-      { state: "倒计时", when: "kickoff 已过（remaining ms <= 0）", visual: "面板头钳为 `00:00:00`", source: "formatClockCountdown" },
+      { state: "比赛中", when: 'matchPhase(e) === "live"', visual: "板照常可读；下单卡右上 `● LIVE · 时钟`，CTA 可点", source: "TR-29b · sportsClock" },
+      { state: "板仍可浏览", when: "任何未结算态", visual: "组标题 + 行 + 手风琴图不受交易开关影响", source: "LiteMarketBoard" },
+      { state: "分钟/比分", when: "—", visual: "交易页记分牌渲染（SportsScoreboard），盘口板本身不渲染", source: "SportsScoreboard" },
     ],
   },
   {
@@ -694,7 +693,7 @@ export const TradeStatesSection = () => (
     </SubSection>
 
     {/* Desktop only: the mobile order panel has no header row — the same words sit in the order drawer title line. */}
-    <SubSection title="⑧ 体育比赛的时间位（TR-29 … TR-29d · 只有桌面帧）">
+    <SubSection title="⑧ 体育比赛的时间位（TR-29 … TR-29e · 只有桌面帧）">
       <SectionFrame cases={SPORTS_CLOCK_CASES} device="desktop" minHeight={900} />
     </SubSection>
   </SectionWrapper>

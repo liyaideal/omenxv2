@@ -390,6 +390,8 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Final · In review** | 打完等结果；Lite 卡为 `Final ·` + 胶囊 `IN REVIEW`；下拉只写 `Final` |
 | **Settled** | 已结算（沿用现有结算卡） |
 
+译法改动（2026-11-19 交付验收，7 语扫描）：ru `In review` = `На проверке`（与站内 `status_in_review` 等同词；原 `Проверка результата` 在 1280 卡头折行）；ja 下拉 `Starts {time}` = `あと {time}`（原 `開始まで …` 在 96px 列折行）；ru 全站 `Ends in`（`market.ends_in`）= `До конца`（原 `Заканчивается через` 撑破下拉列头）。vi `In review` = `Chờ kết quả`（2026-11-04）。
+
 ### helper 家族（`src/components/lite/sports/sportsClock.tsx`，成对入典）
 
 | 函数 | 作用 |

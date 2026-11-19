@@ -27,7 +27,7 @@ const Desk = ({ kind }: { kind: Kind }) => (
         name={MATCH}
         open={false}
         onToggle={noop}
-        caption="Match winner"
+        caption="Winner"
         sportsClock={clockOf(kind)}
         countdown=""
         watchEventId={kind === "stream" ? "demo-live-cs2" : null}
@@ -45,7 +45,7 @@ const Mob = ({ kind }: { kind: Kind }) => {
       <MobileHeader
         title={MATCH}
         countdownText={sportsClockText(clock, "pro")}
-        countdownLabel="Match winner"
+        countdownLabel="Winner"
         countdownUrgency={clock.phase === "live" ? "live" : "muted"}
         statsExtra={<ProMobileWatchLive eventId={kind === "stream" ? "demo-live-cs2" : null} onPlay={noop} />}
         showBack

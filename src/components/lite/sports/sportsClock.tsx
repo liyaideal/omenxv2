@@ -166,26 +166,26 @@ export const SportsClockLabel = ({
   return <span>{t(`${K}.settled`)}</span>;
 };
 
-/** Event selector "Ends in" cell for a sports row: `Starts 2d 19h` · `● Live` · `Final`. */
+/** Event selector "Ends in" cell for a sports row: `Starts 67h 00m` · `Starts 38m` · `● Live` · `Final`. One line, never wraps; mono like the neighbouring countdown cells (designer pass 2026-11-19). */
 export const SportsClockCell = ({ clock, compact }: { clock: SportsClock; compact?: string }) => {
   if (clock.phase === "live") {
     return (
-      <span className="inline-flex items-center justify-end gap-1.5 font-semibold text-foreground">
+      <span className="inline-flex items-center justify-end gap-1.5 font-mono font-semibold text-foreground">
         <Dot />
         {t(`${K}.live_word`)}
       </span>
     );
   }
   if (clock.phase === "upcoming" && clock.kickoffInMs <= 0) {
-    return <span className="text-muted-foreground">{t(`${K}.starting_soon`)}</span>;
+    return <span className="font-mono text-muted-foreground">{t(`${K}.starting_soon`)}</span>;
   }
   if (clock.phase === "upcoming") {
     // Lists tick once a minute — under an hour say minutes, not a frozen mm:ss.
     const time =
       compact ??
       (clock.kickoffInMs < 3_600_000 ? `${Math.max(1, Math.ceil(clock.kickoffInMs / 60_000))}m` : kickoffInShort(clock.kickoffInMs));
-    return <span className="text-muted-foreground">{t(`${K}.starts`, { time })}</span>;
+    return <span className="whitespace-nowrap font-mono text-muted-foreground">{t(`${K}.starts`, { time })}</span>;
   }
-  if (clock.phase === "final") return <span className="text-muted-foreground">{t(`${K}.final`)}</span>;
-  return <span className="text-muted-foreground">{t(`${K}.settled`)}</span>;
+  if (clock.phase === "final") return <span className="font-mono text-muted-foreground">{t(`${K}.final`)}</span>;
+  return <span className="font-mono text-muted-foreground">{t(`${K}.settled`)}</span>;
 };
