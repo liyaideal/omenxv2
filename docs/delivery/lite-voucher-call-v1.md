@@ -6,10 +6,9 @@
 > 3. 平仓面板只有两种样子：有利润（一个大数字 + 一个按钮）和没利润（劝留 + `Close anyway`）；券单只能全平，没有比例。
 > 4. 平仓之后出一个结果层：拿到多少、去哪找、下一步（充值 / 逛市场 / 回券页 / 再用一张）。
 > 5. Portfolio 里券单那一行换成券的算法（不写 Now worth、不显示负数）。
-> 6. 券兑在 Standard 事件上 = 按面值下的一笔现货单，全程不出现倍数。
-> 7. 顺带四件：全站「Add money / add funds」统一成 `Top up`（6 条文案 × 7 语）；多盘口事件上普通买入的成功提示要写出是哪个选项；Standard 事件页的 Market activity 不再写倍数；现货持仓卡亏损时补上负号、手机上四个数值对齐。
+> 6. 顺带四件：全站「Add money / add funds」统一成 `Top up`（6 条文案 × 7 语）；多盘口事件上普通买入的成功提示要写出是哪个选项；Standard 事件页的 Market activity 不再写倍数；现货持仓卡亏损时补上负号、手机上四个数值对齐。
 >
-> 范围：Lite 的 Boost 事件页 `/trade`、Standard 事件页 `/spot`、加密涨跌轮页、`/portfolio`、券兑换页。Pro 终端的券单平仓弹窗不变（只是 Standard 券单不再写 `5x`）。
+> 范围：Lite 的 Boost 事件页 `/trade`、Standard 事件页 `/spot`、加密涨跌轮页、`/portfolio`、券兑换页。Pro 终端的券单平仓弹窗不变。
 
 ## 改前改后
 
@@ -22,11 +21,10 @@
 | ③ | 点 Cash out | 普通持仓的平仓确认：`You get back ≈ $2.08` + 25% / 50% / 100% | 两种面板：有利润 / 没利润 |
 | ④ | 平仓之后 | 一条提示，页面停在原处 | 结果层：金额 + 去哪找 + 下一步按钮 |
 | ⑤ | Portfolio 券单行 | 按普通持仓算：Now worth `$2.00`、`If it wins → +$10.44 · can lose up to $10.02` | Put in 下写 `voucher`、Now worth `—`、Profit 不为负、`If it wins → +$1.00` |
-| ⑥ | 券兑在 Standard 事件上 | 仍按 5× 算，卡片和弹窗写倍数 | 按面值下现货单（1×），任何地方不写倍数，进 Portfolio 的 Standard 页签 |
-| ⑦ | 余额不够的提示 | `Add money to your Boost balance…`、toast 按钮 `Add funds` | `Top up your Boost balance…`、按钮 `Top up` |
-| ⑧ | 多盘口事件普通买入的提示 | `Bought Yes · $10.00`（看不出是哪个选项） | `Bought ↑$1.5T · Yes · $10.00` |
-| ⑨ | Standard 事件页的 Market activity | 每行带倍数：`39m · Bought Down · 3× · $50` | 不写倍数：`39m · Bought Down · $50`（Standard 没有杠杆） |
-| ⑩ | 现货持仓卡（Standard 事件页、加密涨跌轮页） | 亏损时金额没有负号，显示成绿色 `▲ $0.05 / -0.5%`；手机上 `CURRENT VALUE` 折成两行时这一格的数值比旁边低一截 | 亏损显示 `▼ -$0.05 / -0.5%`（红色）；四个数值永远在同一条线上 |
+| ⑥ | 余额不够的提示 | `Add money to your Boost balance…`、toast 按钮 `Add funds` | `Top up your Boost balance…`、按钮 `Top up` |
+| ⑦ | 多盘口事件普通买入的提示 | `Bought Yes · $10.00`（看不出是哪个选项） | `Bought ↑$1.5T · Yes · $10.00` |
+| ⑧ | Standard 事件页的 Market activity | 每行带倍数：`39m · Bought Down · 3× · $50` | 不写倍数：`39m · Bought Down · $50`（Standard 没有杠杆） |
+| ⑨ | 现货持仓卡（Standard 事件页、加密涨跌轮页） | 亏损时金额没有负号，显示成绿色 `▲ $0.05 / -0.5%`；手机上 `CURRENT VALUE` 折成两行时这一格的数值比旁边低一截 | 亏损显示 `▼ -$0.05 / -0.5%`（红色）；四个数值永远在同一条线上 |
 
 **① 兑换成功提示**
 
@@ -185,9 +183,7 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）不算券单（券�
 
 ### 1.7 券兑在 Standard 事件上
 
-**规则只有一条：Standard 事件上的券 = 按券面值下的一笔现货单。** 没有杠杆，利润 = 份数 ×（现价 − 买入价），仍受这张券的最大利润封顶，亏了不扣用户的钱。券卡、平仓面板、结果层、Portfolio、提示里都不出现倍数或 Boost 字样。Boost 事件上的券仍是 5×。
-
-怎么判断：看券兑换到的事件的产品线，含现货 → 按现货算；否则按合约 5× 算。
+Standard 事件上的券单怎么算沿用线上现有规则，这一轮没有改。展示上：券卡、平仓面板、结果层、Portfolio、提示里都不出现倍数或 Boost 字样；Boost 事件上的券单照常写 `5× Boost`。
 
 ### 1.8 Top up（6 条文案）
 
@@ -260,8 +256,7 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）不算券单（券�
 | 5 | 平仓之后的结果层 + 六种按钮组合；不出旧提示、不弹海报 | §1.5 | TR-40 … TR-40f |
 | 6 | 这一边的写法（多盘口 `{选项} · Yes/No`）全程一致 | §1.1 | TR-37d / TR-38b / TR-39c |
 | 7 | Portfolio 券单行；Standard 券单进 Standard 页签 | §1.6 | PF-13b |
-| 8 | ⚠ 后端：Standard 事件上的券按面值下现货单（不是 5×），结算与平仓入账同口径 | §1.7、§2 | — |
-| 8b | Portfolio 顶部汇总不算券单；MAX PROFIT 取上限与全赢里小的；CLOSES BY 取券到期与事件结束里早的 | §1.3、§1.6、§2 | TR-37 / PF-13b |
+| 8 | Portfolio 顶部汇总不算券单；MAX PROFIT 取上限与全赢里小的；CLOSES BY 取券到期与事件结束里早的 | §1.3、§1.6、§2 | TR-37 / PF-13b |
 | 9 | Top up 6 条 × 7 语 | §1.8 | TR-30 |
 | 10 | 多盘口事件普通买入提示带选项名 | §1.9 | TR-35c |
 | 11 | 27 条新文案 7 语 | §3 | — |
@@ -271,14 +266,14 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）不算券单（券�
 
 ## 5. 边界（哪些是 Lovable 的演示写法，正式版不用照搬）
 
-- Lovable 里券单的开仓、估值、平仓入账是演示模拟（前端按 §2 算、演示函数 `close-trial-position` 和演示定时任务按同一公式结算）。正式版按真实撮合与结算实现，**只需要保证 §1.7 那条规则和 §2 的封顶口径**。
+- Lovable 里券单的开仓、估值、平仓入账是演示模拟。正式版按真实撮合与结算实现，算法沿用线上现有的，这一轮没有改。
 - 平仓面板上的数字是前端按现价估的；正式版入账以成交为准。
 - Lovable 演示里买 No 侧的券单是拿 Yes 侧价格反着算的（份数按 Yes 价），份数在 Pro 面还会取整；所以 Lovable 上 No 侧券单的「全赢能赚到的数」恒等于 面值 × 倍数，MAX PROFIT 永远显示券的上限——这是演示算法的副作用。正式版按 §2 用买的那一边的真实价格和真实份数（例：No 侧 90¢ 买入的 $2 现货券，MAX PROFIT 应是 $0.22），不用照搬。
 - Pro 终端的旧券单平仓弹窗没有「全赢」这层封顶（仍只按券上限），和 Lite 可能差一点；这轮没动 Pro。
 - 查不到券所在事件时 Lovable 默认按 5× 算；正式版券单本身就带产品线，不存在这个兜底。
 - Pro 现货终端和加密涨跌轮的桌面模式不把券单算进「可卖持仓」。
 - 「账户里有钱」的门槛（≥ $1）沿用下单卡现有约定。
-- Pro 终端的券单平仓弹窗这轮没改样子，只是 Standard 券单不再写 `5x`。
+- Pro 终端的券单平仓弹窗这轮没改。
 
 ## 6. 这轮没做
 
