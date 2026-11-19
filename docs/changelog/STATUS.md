@@ -30,6 +30,9 @@
 | 7 | Top up 6 条 × 7 语 | ⬜ | §1.8 |
 | 8 | 多盘口事件普通买入提示带选项名 | ⬜ | §1.9 |
 | 9 | 27 条新文案 7 语 | ⬜ | §3 |
+| 10 | 加密涨跌轮页券卡骨架；Portfolio 汇总不算券单；MAX PROFIT / CLOSES BY 取小、取早 | ⬜ | §1.3、§1.6、§2 |
+| 11 | Standard 事件页 Market activity 不写倍数 | ⬜ | §1.10 |
+| 12 | 现货持仓卡：亏损带负号、数值对齐 | ⬜ | §1.10 |
 
 ## 2026-11-18 — 下单成功提示 + View your call（[文档](../delivery/placed-toast-view-call-v1.md)）
 

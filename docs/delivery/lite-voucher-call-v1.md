@@ -7,7 +7,7 @@
 > 4. 平仓之后出一个结果层：拿到多少、去哪找、下一步（充值 / 逛市场 / 回券页 / 再用一张）。
 > 5. Portfolio 里券单那一行换成券的算法（不写 Now worth、不显示负数）。
 > 6. 券兑在 Standard 事件上 = 按面值下的一笔现货单，全程不出现倍数。
-> 7. 顺带两件：全站「Add money / add funds」统一成 `Top up`（6 条文案 × 7 语）；多盘口事件上普通买入的成功提示要写出是哪个选项。
+> 7. 顺带四件：全站「Add money / add funds」统一成 `Top up`（6 条文案 × 7 语）；多盘口事件上普通买入的成功提示要写出是哪个选项；Standard 事件页的 Market activity 不再写倍数；现货持仓卡亏损时补上负号、手机上四个数值对齐。
 >
 > 范围：Lite 的 Boost 事件页 `/trade`、Standard 事件页 `/spot`、加密涨跌轮页、`/portfolio`、券兑换页。Pro 终端的券单平仓弹窗不变（只是 Standard 券单不再写 `5x`）。
 
@@ -25,6 +25,8 @@
 | ⑥ | 券兑在 Standard 事件上 | 仍按 5× 算，卡片和弹窗写倍数 | 按面值下现货单（1×），任何地方不写倍数，进 Portfolio 的 Standard 页签 |
 | ⑦ | 余额不够的提示 | `Add money to your Boost balance…`、toast 按钮 `Add funds` | `Top up your Boost balance…`、按钮 `Top up` |
 | ⑧ | 多盘口事件普通买入的提示 | `Bought Yes · $10.00`（看不出是哪个选项） | `Bought ↑$1.5T · Yes · $10.00` |
+| ⑨ | Standard 事件页的 Market activity | 每行带倍数：`39m · Bought Down · 3× · $50` | 不写倍数：`39m · Bought Down · $50`（Standard 没有杠杆） |
+| ⑩ | 现货持仓卡（Standard 事件页、加密涨跌轮页） | 亏损时金额没有负号，显示成绿色 `▲ $0.05 / -0.5%`；手机上 `CURRENT VALUE` 折成两行时这一格的数值比旁边低一截 | 亏损显示 `▼ -$0.05 / -0.5%`（红色）；四个数值永远在同一条线上 |
 
 **① 兑换成功提示**
 
@@ -80,8 +82,8 @@
 
 ## 0. 查什么去哪儿
 
-- 长什么样 → 生产页：券页 `/rewards?tab=vouchers` 兑一张券 → 跳到的交易页；`/portfolio`
-- 什么时候变成什么样 → `/style-guide` → Lite → `交易页`「③c 券单」TR-37 … TR-40、TR-35c；`Portfolio` PF-13b
+- 长什么样 → 生产页 `https://omenxv2.lovable.app`，用演示账号 alex_carter 登录：券页 `/rewards?tab=vouchers` 点 `Claim` 再点 `Redeem`，选一个事件 → 自动跳到该事件的交易页（选体育 / 多选项事件看 Boost 页的券卡，选 Finance 里的个股涨跌看 Standard 页的券卡）；`/portfolio` 看券单行。手机形态把浏览器调到 375 宽。
+- 什么时候变成什么样 → `/style-guide` → Lite → `交易页`「③c 券单」TR-37 … TR-40f、TR-35c、TR-14；`Portfolio` PF-13b；`现货页` SP-13
 - 字段名、文案、公式 → `docs/copy-dictionary.md` › Vouchers 表「Voucher call（Lite 券单）」一组、Trading 表「Top up」→ 本文
 - 交易口径对照（杠杆 / 强平 / 保证金 ↔ Lite 的说法）只维护在 copy-dictionary 顶部「Lite 术语对照表」。
 
@@ -89,15 +91,18 @@
 
 | 步 | 做什么 | 看到什么 |
 |---|---|---|
-| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录），搜 `TR-37` | 券卡四种：Boost 赚着 / Boost 没利润 / Standard / 多盘口 |
+| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录），搜 `TR-37` | 券卡五种：Boost 赚着 / Boost 没利润 / Standard / 多盘口 / 加密涨跌轮页（TR-37e） |
 | 2 | `TR-38` / `TR-38b` | 兑换成功提示（两方事件 / 多盘口） |
 | 3 | `TR-39` / `TR-39b` / `TR-39c` | 平仓面板：有利润 / 没利润 / 多盘口 |
 | 4 | `TR-40` … `TR-40f` | 平仓之后六种按钮组合（见 §1.5 的表） |
 | 5 | `TR-35c` | 多盘口事件普通买入的提示 |
 | 6 | `PF-13b` | Portfolio 券单行（桌面行 + 手机卡） |
+| 6b | `TR-14` / `SP-13` | Market activity 三帧（Boost 页写倍数 / Standard 页不写 / 空态）；现货持仓卡盈、亏两态 |
 | 7 | 单张看 | `https://omenxv2.lovable.app/style-guide/preview?c=trade-tr37`，切语言加 `&lang=ru` |
 
 弹层在字典里是画在页面里的（方便一页看全）；生产是桌面居中弹窗、手机底部抽屉。
+
+只在字典看得到、演示账号不一定凑得出的态（是既定状态，不是 bug）：平仓之后「账户里没钱」的三种（TR-40 / TR-40c / TR-40d，演示账号有余额）；没利润的平仓面板（TR-39b，要等价格往反方向走）；Standard 券单买入价很高时 MAX PROFIT 小于 $1.00 的情况（没有单独的帧，规则见 §1.3、§2）。
 
 ## 1. 规则
 
@@ -201,6 +206,15 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）不算券单（券�
 
 多盘口事件（一个事件多个选项）上普通买入，成功提示标题里的这一边写成 `{选项} · Yes|No`：`Bought ↑$1.5T · Yes · $10.00`。两方事件不变。副行、按钮、停留时间不变。字典 TR-35c。
 
+### 1.10 顺带修的两处（不是券的功能）
+
+1. **Standard 事件页的 Market activity 不写倍数。** 行句式从 `时间 · Bought {这一边} · N× · $金额` 变成 `时间 · Bought {这一边} · $金额`。Boost 事件页不变。加密涨跌轮页：现在的合约轮照常写倍数，只有历史遗留的现货轮不写。字典 TR-14。
+2. **现货持仓卡**（Standard 事件页和加密涨跌轮页上自己买的那张卡）：
+   - 亏损时金额前面带负号：`▼ -$0.05 / -0.5%`，红色；PROFIT 一格同样带负号。原来漏了负号，卡片会把亏损当成盈利，显示绿色和向上箭头。
+   - 金额四舍五入后是 `$0.00` 时，百分比也显示 `0.0%`，两个数不会一正一负。
+   - 四格的标签和数值各占一排：某个标签折成两行时，四个数值一起往下，仍在同一条线上。券卡在「四格一行」的布局下同样处理。
+   - Pro 交易终端持仓列表用的是同一个金额格式，亏损金额也会带负号（原来只靠红色）。
+
 ## 2. 数字口径
 
 现在平仓能拿到的钱（PROFIT NOW、面板大字、Portfolio 的 PROFIT 同一个数）：
@@ -251,6 +265,9 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）不算券单（券�
 | 9 | Top up 6 条 × 7 语 | §1.8 | TR-30 |
 | 10 | 多盘口事件普通买入提示带选项名 | §1.9 | TR-35c |
 | 11 | 27 条新文案 7 语 | §3 | — |
+| 12 | 加密涨跌轮页的券卡：小色块 + 四格一行，合约轮照写 `5× Boost` | §1.3 第 4b 条 | TR-37e |
+| 13 | Standard 事件页 Market activity 不写倍数 | §1.10 | TR-14 |
+| 14 | 现货持仓卡：亏损带负号、金额与百分比同号、四个数值对齐 | §1.10 | SP-13 |
 
 ## 5. 边界（哪些是 Lovable 的演示写法，正式版不用照搬）
 
@@ -270,11 +287,40 @@ Portfolio 顶部的汇总数（Put in / Now worth / Profit）不算券单（券�
 - 「离结算太近的事件不能用券」的规则已取消（和正式版一致）；Lovable 里字段 `min_hours_to_settlement` 保留、值一律 0。
 - 开平仓手续费：券单不收（§2 里没有费用项）。
 
+## 7. 测试用例
+
+演示账号 alex_carter；每条在桌面和手机（375 宽）各走一遍。
+
+| # | 操作 | 应该看到 |
+|---|---|---|
+| 1 | 券页兑一张券到两方体育事件 | 跳到交易页；顶部提示 `Bought {球队}` / `Paid with your $2.00 voucher` + `View your call`；没有 `Voucher redeemed` |
+| 2 | 点 `View your call` | 页面滚到券卡，描边约 1.5 秒 |
+| 3 | 看 Boost 事件页的券卡 | 标题 `{球队} · 5× Boost` + VOUCHER 标；四格 VOUCHER / PROFIT NOW / MAX PROFIT / CLOSES BY；没有 Put in / Now worth / Auto-close；手机上两行两列 |
+| 4 | 同一事件再自己买一笔 | 券卡在上、普通持仓卡在下，两张骨架一致 |
+| 5 | 兑一张券到多选项事件的某个选项 | 提示、券卡标题、平仓面板都写 `{选项} · Yes` 或 `{选项} · No` |
+| 6 | 兑一张券到 Finance 的个股涨跌事件 | 跳到 Standard 事件页；券卡是小色块 + VOUCHER 标，四格一行；整页找不到 `×` 和 `Boost` |
+| 7 | 券单有利润时点 `Cash out · keep +$X` | 面板：大字 `+$X`、`Keep it open and it can earn up to`、一个主按钮；没有 25 / 50 / 100 |
+| 8 | 确认平仓 | 结果层：`+$X` / `profit from this voucher` / `You can find it under Voucher earnings.`；没有旧的平仓提示、没有分享海报；券卡消失；券页 Voucher earnings 增加 |
+| 9 | 券单没利润时点 `Cash out` | 面板 `No profit right now`；`Keep it open` 是主色按钮，点了只关面板；`Close anyway` 才平仓 |
+| 10 | 没利润平仓后 | `Voucher call closed` / `No profit this time.`；余额不变 |
+| 11 | 结果层按钮 | 按 §1.5 的表：有余额主按钮 `Browse events`，没余额 `Deposit`；`Deposit` 桌面弹充值弹窗、手机进充值页 |
+| 12 | Portfolio 看券单行 | PUT IN `$2.00` + 小字 `voucher`；NOW WORTH `—`；PROFIT 不为负；`If it wins → +$1.00`；Standard 券单在 Standard 页签且不写倍数 |
+| 13 | Portfolio 顶部汇总 | Put in / Now worth 不含券面值 |
+| 14 | Portfolio 点 Select | 券单行选不中，Select all 也不选它 |
+| 15 | 券卡 CLOSES BY | 事件比券先结束时写事件结束时间 |
+| 16 | 余额不到 $1 的账号看下单卡 | `Top up your Boost balance to make a call.`，`Top up` 是链接 |
+| 17 | 多选项事件上普通买入 | 提示 `Bought {选项} · Yes · $10.00` |
+| 18 | Standard 事件页看 Market activity | 行里没有 `N×` |
+| 19 | 现货持仓亏损时 | `▼ -$X / -Y%` 红色；手机上四个数值在一条线上 |
+| 20 | 切到 7 种语言各看一遍券卡、面板、结果层 | 文字不溢出、按钮不折行 |
+
 ## 附：内部编号对照
 
 | 编号 | 是什么 |
 |---|---|
-| TR-37 … TR-37d | 券卡四种 |
+| TR-37 … TR-37e | 券卡五种 |
+| TR-14 | Market activity |
+| SP-13 | 现货持仓卡 |
 | TR-38 / TR-38b | 兑换成功提示 |
 | TR-39 … TR-39c | 平仓面板 |
 | TR-40 … TR-40f | 平仓之后 |
